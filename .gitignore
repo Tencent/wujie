@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+dist
+site
+lib
+esm
+.DS_Store
+.vscode
+yarn.lock
+package-lock.json
+coverage
+.history

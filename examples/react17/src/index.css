@@ -1,0 +1,82 @@
+#root {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+nav {
+  padding: 30px;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1;
+}
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+  text-decoration: none;
+}
+
+nav .active {
+  color: #0239d0;
+}
+
+.App-logo {
+  height: 20vmin;
+  pointer-events: none;
+  animation: App-logo-spin infinite 20s linear;
+}
+
+.app-jump {
+  margin: 10px
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.content {
+  text-align: left;
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+p, div.p {
+  margin: 30px 0;
+}
+
+h3 {
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #eaecef;
+  font-weight: 600;
+}
+
+body {
+  width: auto;
+  margin: 0 15px;
+  font-size: 17.5px;
+  position: relative;
+}
+
+.number {
+  display: inline-block;
+  margin: 0 20px;
+  width: 100px;
+  text-align: center;
+  font-size: 50px;
+  font-weight: bold;
+  color: #0239d0;
+}
+
+.number-content {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

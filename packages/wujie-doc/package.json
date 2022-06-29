@@ -1,0 +1,17 @@
+{
+  "name": "wujie-doc",
+  "version": "0.0.0",
+  "description": "无界微前端文档",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vuepress dev docs --open",
+    "docs:build": "vuepress build docs"
+  },
+  "author": "damyxu",
+  "license": "ISC",
+  "devDependencies": {
+    "@bidoubiwa/vuepress-plugin-element-tabs": "^0.2.9",
+    "vuepress": "^1.8.2"
+  },
+  "private": true
+}

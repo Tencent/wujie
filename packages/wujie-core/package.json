@@ -1,0 +1,70 @@
+{
+  "name": "wujie",
+  "version": "0.0.0",
+  "description": "极致的微前端框架",
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "types": "./esm/index.d.ts",
+  "files": [
+    "lib",
+    "esm"
+  ],
+  "scripts": {
+    "lib": "webpack build --config webpack.config.js",
+    "prepack": "bash build.sh",
+    "start": "tsc --watch",
+    "lint": "eslint --ext .ts ./src  --fix && git add .",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "jest -c __test__/unit/jest.config.js",
+    "test:integration": "jest -c __test__/integration/jest.config.js --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tencent/wujie.git"
+  },
+  "config": {
+    "unsafe-perm": true,
+    "registry": "https://registry.npmjs.org/"
+  },
+  "author": "yiludege",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "@types/puppeteer": "^5.4.6",
+    "babel-loader": "8.1.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "jest": "^27.3.1",
+    "jest-puppeteer": "^6.1.0",
+    "lerna": "^4.0.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.6.2",
+    "puppeteer": "^14.2.1",
+    "sass-loader": "^12.1.0",
+    "ts-jest": "^27.0.7",
+    "ts-loader": "^9.2.3",
+    "typescript": "^4.4.2",
+    "webpack": "^5.42.0",
+    "webpack-cli": "^4.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "eslintIgnore": [
+    "*.js"
+  ],
+  "dependencies": {
+    "@types/expect-puppeteer": "^4.4.7",
+    "@types/jest-environment-puppeteer": "^5.0.2"
+  }
+}

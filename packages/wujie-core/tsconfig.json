@@ -1,0 +1,26 @@
+{
+  "include": [
+    "./src/*.ts",
+  ],
+  "compilerOptions": {
+    "target": "es6", 
+    "outDir": "./esm",
+    "rootDir": "./src",
+  
+    /* 额外的检查 */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "sourceMap": true,
+    "inlineSources": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+  }
+}

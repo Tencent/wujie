@@ -1,0 +1,44 @@
+html,
+body {
+  font-size: 17.5px;
+  margin: 0 15px;
+  padding: 0px;
+  width: auto;
+}
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+#nav {
+  text-align: center;
+  padding: 30px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.content {
+  max-width: 740px;
+  margin: 0 auto;
+}
+.content > p {
+  margin: 30px 0;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+  text-decoration: none;
+}
+
+h3 {
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #eaecef;
+  font-weight: 600;
+}
+
+#nav a.router-link-exact-active {
+  color: #0239d0;
+}

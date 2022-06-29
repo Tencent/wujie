@@ -1,0 +1,44 @@
+{
+  "name": "wujie-react",
+  "version": "0.0.0",
+  "description": "无界微前端Vue组件封装",
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "files": [
+    "esm",
+    "lib",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "lib": "webpack build --mode=production --config webpack.config.js",
+    "prepack": "bash build.sh",
+    "start": "mkdir -p esm && cp ./index.js ./esm/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": ">=16.0.0"
+  },
+  "config": {
+    "unsafe-perm": true,
+    "registry": "https://registry.npmjs.org/"
+  },
+  "author": "yiludege",
+  "license": "MIT",
+  "dependencies": {
+    "wujie": "^0.0.0",
+    "prop-types": "^15.8.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
+    "@babel/preset-react": "^7.16.7",
+    "babel-loader": "^8.2.3",
+    "eslint": "^8.2.0",
+    "eslint-plugin-react": "^7.29.3",
+    "webpack": "^5.61.0",
+    "webpack-cli": "^4.9.1"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "wujie-project",
+  "version": "0.0.0",
+  "description": "极致的微前端框架",
+  "private": true,
+  "scripts": {
+    "start": "lerna run start --parallel",
+    "doc": "lerna run docs:dev",
+    "test": "lerna run test --scope wujie",
+    "commitlint": "commitlint -E COMMIT_EDITMSG_PATH",
+    "husky-commitlint": "commitlint -e",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tencent/wujie.git"
+  },
+  "author": "yiludege",
+  "license": "MIT",
+  "devDependencies": {
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.1"
+  },
+  "dependencies": {}
+}

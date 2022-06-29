@@ -1,0 +1,13 @@
+.home .hero img {
+  width: 70px;
+  height: 70px;
+}
+
+.home .hero .action .nav-link {
+  background: #f16b5f;
+  border-bottom: 1px solid #f16b5f;
+}
+
+.home .hero .action .nav-link:hover {
+  background: #ec8279;
+}
