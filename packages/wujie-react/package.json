@@ -1,6 +1,6 @@
 {
   "name": "wujie-react",
-  "version": "0.0.0",
+  "version": "1.0.0-rc.0",
   "description": "无界微前端Vue组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
@@ -28,8 +28,8 @@
   "author": "yiludege",
   "license": "MIT",
   "dependencies": {
-    "wujie": "^0.0.0",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "wujie": "^1.0.0-rc.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

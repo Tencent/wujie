@@ -1,6 +1,6 @@
 {
   "name": "wujie-vue3",
-  "version": "0.0.0",
+  "version": "1.0.0-rc.0",
   "description": "无界微前端Vue3组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
@@ -28,7 +28,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "wujie": "^0.0.0"
+    "wujie": "^1.0.0-rc.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

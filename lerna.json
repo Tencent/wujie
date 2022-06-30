@@ -1,12 +1,18 @@
 {
-  "packages": ["packages/*", "examples/*"],
+  "packages": [
+    "packages/*",
+    "examples/*"
+  ],
   "command": {
     "version": {
       "allowBranch": "master"
     },
     "bootstrap": {
-      "npmClientArgs": ["--no-package-lock", "--legacy-peer-deps"]
+      "npmClientArgs": [
+        "--no-package-lock",
+        "--legacy-peer-deps"
+      ]
     }
   },
-  "version": "0.0.0"
+  "version": "1.0.0-rc.0"
 }
