@@ -1,0 +1,36 @@
+name: npm publish
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3.3.0
+        with:
+          node-version: '14.x'
+          check-latest: true
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: install
+        run: |
+          npm install
+          npm install lerna -g
+          lerna bootstrap --ignore main-react --ignore main-vue --ignore react16 --ignore react17 --ignore vite --ignore vue2 --ignore vue3 --ignore angular12
+
+      - name: publish to npm
+        run: |
+          lerna run prepack
+          lerna publish from-package --ignore-scripts -y
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          
