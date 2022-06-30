@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div id="nav" :class="active ? 'active' : ''">
+    <div id="nav" :class="active ? 'active' : ''" @click="close">
       <router-link to="/home">介绍</router-link>
       <router-link to="/react16">react16</router-link>
       <router-link to="/react17">
@@ -15,7 +15,7 @@
       <router-link to="/vite">vite</router-link>
       <router-link to="/angular12">angular12</router-link>
       <router-link to="/all">all</router-link>
-      <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click="active = !active" />
+      <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click.stop="active = !active" />
     </div>
     <div class="content" @click="active = false">
       <router-view />
@@ -30,6 +30,11 @@ export default {
     return {
       active: false,
     };
+  },
+  methods: {
+    close() {
+      if (this.active) this.active = false;
+    },
   },
 };
 </script>

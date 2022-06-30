@@ -12,7 +12,7 @@
 
 文档详见：[文档](https://wujie-micro.github.io/doc/)
 
-演示详见：[demo](https://wujie-demo.pages.woa.com/home)
+演示详见：[demo](https://wujie-micro.github.io/demo-main-vue/home)
 
 ## 背景
 

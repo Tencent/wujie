@@ -79,7 +79,6 @@
 <script>
 export default {
   name: "Home",
-  inject: ["changeView"],
   data() {
     return {
       preload: window.localStorage.getItem("preload") !== "false",
