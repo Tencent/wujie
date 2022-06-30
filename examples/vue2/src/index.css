@@ -4,6 +4,7 @@ body {
   margin: 0 15px;
   padding: 0px;
   width: auto;
+  position: relative;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
