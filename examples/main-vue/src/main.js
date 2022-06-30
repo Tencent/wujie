@@ -6,16 +6,17 @@ import hostMap from "./hostMap";
 import credentialsFetch from "./fetch";
 import Switch from "ant-design-vue/es/switch";
 import Tooltip from "ant-design-vue/es/tooltip";
+import button from "ant-design-vue/es/button/index";
+import "ant-design-vue/es/button/style/index.css";
 import "ant-design-vue/es/style/index.css";
 import "ant-design-vue/es/switch/style/index.css";
 import "ant-design-vue/es/tooltip/style/index.css";
 import lifecycles from "./lifecycle";
 import plugins from "./plugin";
-// import { wujiFetch, props } from "./wuji";
 
 const isProduction = process.env.NODE_ENV === "production";
 const { preloadApp, bus } = WujieVue;
-Vue.use(WujieVue).use(Switch).use(Tooltip);
+Vue.use(WujieVue).use(Switch).use(Tooltip).use(button);
 
 Vue.config.productionTip = false;
 

@@ -1,8 +1,14 @@
 import React from "react";
 import Switch from "antd/es/switch";
 import Tooltip from "antd/es/tooltip";
+import Button from "antd/es/button";
+import { UnorderedListOutlined } from "@ant-design/icons";
+import PropTypes from "prop-types";
 
 export default class Home extends React.Component {
+  static propTypes = {
+    changeActive: PropTypes.func,
+  };
   state = {
     checkState: window.localStorage.getItem("preload") !== "false",
     disable: !window.Proxy || !window.CustomElementRegistry,
@@ -16,45 +22,57 @@ export default class Home extends React.Component {
     window.localStorage.setItem("degrade", check);
     setTimeout(() => window.location.reload(), 1000);
   };
+  handleClick = (e) => {
+    this.props.changeActive(true);
+    e.stopPropagation();
+  };
+
   render() {
     return (
       <div className="home">
-        <div className="fixed">
-          <a href="https://wujie-micro.github.io/doc/" target="_blank" className="docs" rel="noreferrer">
-            文档
-          </a>
-          <a
-            href="https://github.com/Tencent/wujie"
-            target="_blank"
-            className="docs"
-            rel="noreferrer"
-          >
-            仓库
-          </a>
-          <Tooltip title="主应用为history模式">
-            <a href="https://wujie-micro.github.io/demo-main-vue/" target="_blank" className="docs" rel="noreferrer">
-              vue主应用
+        <div className="tool">
+          <Button
+            type="primary"
+            style={{ visibility: "hidden" }}
+            icon={<UnorderedListOutlined />}
+          ></Button>
+          <div className="button-list">
+            <Tooltip title="主动降级，去除shadow+proxy">
+              <Switch
+                className="switch button-gap"
+                checkedChildren="降级开"
+                unCheckedChildren="降级关"
+                disabled={this.state.disable}
+                defaultChecked={this.state.degradeState}
+                onChange={this.degradeStateChange}
+              ></Switch>
+            </Tooltip>
+            <Tooltip title="预加载+预执行">
+              <Switch
+                className="switch button-gap"
+                checkedChildren="预加载开"
+                unCheckedChildren="预加载关"
+                defaultChecked={this.state.checkState}
+                onChange={this.checkStateChange}
+              ></Switch>
+            </Tooltip>
+            <Tooltip title="主应用为history模式">
+              <a
+                href="https://wujie-micro.github.io/demo-main-vue/"
+                target="_blank"
+                className="docs button-gap"
+                rel="noreferrer"
+              >
+                vue主应用
+              </a>
+            </Tooltip>
+            <a href="https://github.com/Tencent/wujie" target="_blank" className="docs button-gap" rel="noreferrer">
+              仓库
             </a>
-          </Tooltip>
-          <Tooltip title="预加载+预执行">
-            <Switch
-              className="switch"
-              checkedChildren="预加载开"
-              unCheckedChildren="预加载关"
-              defaultChecked={this.state.checkState}
-              onChange={this.checkStateChange}
-            ></Switch>
-          </Tooltip>
-          <Tooltip title="主动降级，去除shadow+proxy">
-            <Switch
-              className="switch"
-              checkedChildren="降级开"
-              unCheckedChildren="降级关"
-              disabled={this.state.disable}
-              defaultChecked={this.state.degradeState}
-              onChange={this.degradeStateChange}
-            ></Switch>
-          </Tooltip>
+            <a href="https://wujie-micro.github.io/doc/" target="_blank" className="docs button-gap" rel="noreferrer">
+              文档
+            </a>
+          </div>
         </div>
         <h1 className="header">
           <img

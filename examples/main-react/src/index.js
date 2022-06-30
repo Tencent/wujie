@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import WujieReact from "wujie-react";
 import "antd/es/switch/style/css.js";
 import "antd/es/tooltip/style/css.js";
+import "antd/es/button/style/css.js";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";

@@ -1,20 +1,38 @@
 <template>
   <div id="app">
-    <div id="nav">
+    <div id="nav" :class="active ? 'active' : ''">
       <router-link to="/home">介绍</router-link>
       <router-link to="/react16">react16</router-link>
-      <router-link to="/react17">react17<span class="alive">保活</span></router-link>
+      <router-link to="/react17">
+        react17
+        <span class="alive">保活</span>
+      </router-link>
       <router-link to="/vue2">vue2</router-link>
-      <router-link to="/vue3">vue3<span class="alive">保活</span></router-link>
+      <router-link to="/vue3">
+        vue3
+        <span class="alive">保活</span>
+      </router-link>
       <router-link to="/vite">vite</router-link>
       <router-link to="/angular12">angular12</router-link>
       <router-link to="/all">all</router-link>
+      <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click="active = !active" />
     </div>
-    <div class="content">
+    <div class="content" @click="active = false">
       <router-view />
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: "App",
+  data() {
+    return {
+      active: false,
+    };
+  },
+};
+</script>
 
 <style>
 html,
@@ -37,6 +55,7 @@ body {
 }
 
 #nav {
+  background-color: white;
   flex-shrink: 0;
   font-size: 20px;
   display: flex;
@@ -48,6 +67,32 @@ body {
   height: 100vh;
   box-sizing: border-box;
   box-shadow: 3px 0px 9px 2px #e6e6e6;
+  transition: transform 0.1s linear;
+  transform: translate(0, 0);
+}
+
+#nav .menu-icon {
+  display: none;
+  border: none;
+  background: var(--theme) !important;
+}
+
+@media screen and (max-width: 768px) {
+  #nav {
+    position: absolute;
+    box-shadow: none;
+    transform: translate(-100%, 0);
+  }
+
+  #nav.active {
+    transform: translate(0, 0);
+    box-shadow: 3px 0px 9px 2px #e6e6e6;
+  }
+  #nav .menu-icon {
+    position: absolute;
+    left: 100%;
+    display: block;
+  }
 }
 
 .wujie_iframe {
