@@ -1,7 +1,7 @@
 {
   "name": "wujie-react",
   "version": "1.0.0-rc.0",
-  "description": "无界微前端Vue组件封装",
+  "description": "无界微前端React组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
   "files": [
