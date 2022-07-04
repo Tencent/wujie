@@ -13,9 +13,8 @@ echo -e "${GREEN}============WujieVue开始编译============${NC}"
 [ -d lib ] && rm -rf lib
 [ -d esm ] && rm -rf esm
 
-mkdir -p esm
-
 npm run lib
 
-cp ./index.js ./esm/index.js
+npm run esm
+
 echo -e "${GREEN}============WujieVue编译成功============${NC}"

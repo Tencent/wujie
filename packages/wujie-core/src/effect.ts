@@ -243,7 +243,7 @@ function rewriteAppendOrInsertChild(opts: {
             if (!element.getAttribute(WUJIE_DATA_ID)) {
               const patchScript = (element as HTMLIFrameElement).contentWindow.document.createElement("script");
               patchScript.type = "text/javascript";
-              patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(iframe => {if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
+              patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
               element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);
             }
           } catch (e) {

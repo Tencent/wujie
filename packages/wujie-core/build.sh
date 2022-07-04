@@ -13,6 +13,8 @@ rm -rf ./lib ./esm
 
 npm run lib
 
+npm run esm
+
 npx tsc
 
 echo -e "${GREEN}============Wujie编译成功============${NC}"

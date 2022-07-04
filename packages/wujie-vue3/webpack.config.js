@@ -2,6 +2,7 @@ const path = require('path')
 
 module.exports = {
   entry: './index.js',
+  target: ["web", "es5"],
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './lib'),
@@ -11,6 +12,7 @@ module.exports = {
     globalObject: 'self',
     umdNamedDefine: true
   },
+  mode: "production",
   externals: {
     vue: {
       root: "Vue",
@@ -22,6 +24,7 @@ module.exports = {
   resolve: {
     extensions: ['.js']
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {

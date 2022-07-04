@@ -11,4 +11,5 @@ module.exports = {
   },
   plugins: ["vue"],
   rules: {},
+  ignorePatterns: ["esm/*.js"],
 };

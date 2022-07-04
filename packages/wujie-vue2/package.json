@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "lib": "webpack build --mode=production --config webpack.config.js",
+    "esm": "BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps",
     "prepack": "bash build.sh",
-    "start": "mkdir -p esm && cp ./index.js ./esm/index.js",
+    "start": "BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yiludege",
@@ -31,6 +32,7 @@
     "wujie": "^1.0.0-rc.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.18.6",
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
     "babel-loader": "^8.2.3",

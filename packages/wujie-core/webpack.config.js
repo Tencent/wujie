@@ -2,6 +2,7 @@ const path = require('path')
 
 module.exports = {
   entry: './src/index.ts',
+  target: ['web', 'es5'],
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './lib'),
@@ -18,17 +19,13 @@ module.exports = {
   devtool: 'source-map',
   module: {
     rules: [
-      { test: /\.ts$/, loader: 'ts-loader' },
       {
-        test: /\.js$/,
+        test: /\.ts$/,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
-          }
         }
-      }
+      },
     ]
   }
 }
