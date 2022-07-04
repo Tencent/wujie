@@ -32,7 +32,7 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 1、方式一：需要将第三方包定义的全局变量显式的挂载到`window`上（比如`window.xxx`），或者修改第三方包`webpack`的[`output.libraryTarget`](https://webpack.docschina.org/configuration/output/#outputlibrarytarget)
 
-2、方式二：如果用户不想修改代码可以通过[插件](/guide/plugin.html#js-loader)的形式动态的将全局定义的地方 `xxx=`修改成`window.xxx=` 
+2、方式二：如果用户不想修改代码可以通过[插件](/guide/plugin.html#js-loader)的形式在运行时将全局定义的代码 `xxx=`替换成`window.xxx=` 
 
 ## 3、子应用的字体没有生效
 
@@ -52,3 +52,8 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 **解决方案：** 在异步处理时，获取 e.target 的方式需要修改成：
 `(e.target.shadowRoot && e.composed) ? (e.composedPath()[0] || e.target) : e.target`
+
+## 6、css样式内部的相对地址相对的是主应用的域名
+**原因：** 由于框架没有处理子应用样式内部的相对地址，而子应用样式是挂载在主应用容器中，导致相对地址错误
+
+**解决方案：** 使用插件中的[css-loader](/guide/plugin.html#css-loader)在运行时将相对地址代码替换成绝对地址。
