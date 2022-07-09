@@ -212,11 +212,12 @@ function patchWindowEffect(iframeWindow: Window): void {
         enumerable: descriptor.enumerable,
         configurable: true,
         get: () => window[e],
-        set: function (handler) {
-          if (descriptor.writable || descriptor.set) {
-            window[e] = handler?.bind(iframeWindow);
-          }
-        },
+        set:
+          descriptor.writable || descriptor.set
+            ? (handler) => {
+                window[e] = typeof handler === "function" ? handler.bind(iframeWindow) : handler;
+              }
+            : undefined,
       });
     } catch (e) {
       warn(e.message);
@@ -420,9 +421,10 @@ function patchDocumentEffect(iframeWindow: Window): void {
           set:
             descriptor.writable || descriptor.set
               ? (handler) => {
+                  const val = typeof handler === "function" ? handler.bind(iframeWindow.document) : handler;
                   sandbox.degrade
-                    ? (sandbox.document.firstElementChild[e] = handler?.bind(iframeWindow.document))
-                    : (sandbox.shadowRoot.firstElementChild[e] = handler?.bind(iframeWindow.document));
+                    ? (sandbox.document.firstElementChild[e] = val)
+                    : (sandbox.shadowRoot.firstElementChild[e] = val);
                 }
               : undefined,
         });
@@ -471,7 +473,8 @@ function patchDocumentEffect(iframeWindow: Window): void {
         set:
           descriptor.writable || descriptor.set
             ? (handler) => {
-                (sandbox.degrade ? sandbox : window).document[propKey] = handler?.bind(iframeWindow.document);
+                (sandbox.degrade ? sandbox : window).document[propKey] =
+                  typeof handler === "function" ? handler.bind(iframeWindow.document) : handler;
               }
             : undefined,
       });
