@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "lib": "webpack build --config webpack.config.js",
-    "esm": "BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps",
+    "esm": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps",
     "prepack": "bash build.sh",
-    "start": "BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps inline --watch",
+    "start": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps inline --watch",
     "lint": "eslint --ext .ts ./src  --fix && git add .",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest -c __test__/unit/jest.config.js",
