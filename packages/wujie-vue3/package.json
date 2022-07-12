@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "lib": "webpack build --mode=production --config webpack.config.js",
-    "esm": "BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps",
+    "esm": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps",
     "prepack": "bash build.sh",
-    "start": "BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
+    "start": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yiludege",
@@ -36,6 +36,7 @@
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
     "babel-loader": "^8.2.3",
+    "cross-env": "^7.0.3",
     "eslint": "^8.2.0",
     "eslint-plugin-vue": "^8.0.3",
     "webpack": "^5.61.0",
