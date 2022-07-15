@@ -37,3 +37,9 @@ export default {
   },
 };
 </script>
+
+<style>
+:root {
+  --host-color: #f16b5f;
+}
+</style>

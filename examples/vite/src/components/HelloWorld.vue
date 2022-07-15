@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
     <img alt="Vue logo" src="../assets/logo.png" />
-    <h2>{{ msg }}</h2>
+    <h2 class="vue-title">{{ msg }}</h2>
   </div>
 </template>
 
@@ -23,5 +23,8 @@ export default {
 img {
   width: 200px;
   height: 200px;
+}
+.vue-title {
+  color: var(--host-color);
 }
 </style>

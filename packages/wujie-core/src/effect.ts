@@ -176,7 +176,7 @@ function rewriteAppendOrInsertChild(opts: {
           content && (stylesheetElement.innerHTML = cssLoader(content));
           patchStylesheetElement(stylesheetElement, cssLoader, sandbox);
           // 处理host的情况
-          handleStylesheetElementHost(stylesheetElement, sandbox);
+          nextTick(() => handleStylesheetElementHost(stylesheetElement, sandbox));
           return rawDOMAppendOrInsertBefore.call(this, element, refChild);
         }
         case "SCRIPT": {

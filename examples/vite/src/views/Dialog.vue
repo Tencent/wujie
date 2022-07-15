@@ -100,5 +100,14 @@ export default {
       value: "",
     };
   },
+  mounted() {
+    console.log("vite dialog mounted");
+  },
 };
 </script>
+
+<style>
+:root {
+  --host-color: #0239d0;
+}
+</style>
