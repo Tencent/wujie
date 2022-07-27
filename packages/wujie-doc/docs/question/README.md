@@ -26,13 +26,13 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 ## 2、第三方包已经引入，使用时报错
 
-**原因：** 脚本本来在全局执行，此时第三方包定义的全局变量（比如`var xxx`）会直接挂载到`window`上。但是`wujie`将所有的脚本都包裹在一个闭包内运行方便劫持，所以这些全局变量会留在闭包内，无法挂载到`window`上，子应用的异步脚本会在另一个闭包内运行，所以拿不到这些全局变量。
+**原因：** 脚本本来在全局执行，此时第三方包定义的全局变量（比如`var xxx`）会直接挂载到`window`上。但是`wujie`将所有的脚本都包裹在一个闭包内运行方便劫持修改`location`，所以这些全局变量会留在闭包内，无法挂载到`window`上，子应用的异步脚本会在另一个闭包内运行，所以拿不到这些全局变量。
 
-**解决方案：** 
+**解决方案：**
 
 1、方式一：需要将第三方包定义的全局变量显式的挂载到`window`上（比如`window.xxx`），或者修改第三方包`webpack`的[`output.libraryTarget`](https://webpack.docschina.org/configuration/output/#outputlibrarytarget)
 
-2、方式二：如果用户不想修改代码可以通过[插件](/guide/plugin.html#js-loader)的形式在运行时将全局定义的代码 `xxx=`替换成`window.xxx=` 
+2、方式二：如果用户不想修改代码可以通过[插件](/guide/plugin.html#js-loader)的形式在运行时将全局定义的代码 `xxx=`替换成`window.xxx=`
 
 ## 3、子应用的字体没有生效
 
@@ -53,7 +53,18 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 **解决方案：** 在异步处理时，获取 e.target 的方式需要修改成：
 `(e.target.shadowRoot && e.composed) ? (e.composedPath()[0] || e.target) : e.target`
 
-## 6、css样式内部的相对地址相对的是主应用的域名
+## 6、css 样式内部的相对地址相对的是主应用的域名
+
 **原因：** 由于框架没有处理子应用样式内部的相对地址，而子应用样式是挂载在主应用容器中，导致相对地址错误
 
 **解决方案：** 使用插件中的[css-loader](/guide/plugin.html#css-loader)在运行时将相对地址代码替换成绝对地址。
+
+## 7、子应用使用 module federation 引用远程模块报错
+
+**原因：** 原因[同 3](#_2、第三方包已经引入-使用时报错)，都是由于闭包执行脚本导致脚本内的全局变量在其他脚本中无法读取
+
+**解决方案：** 在`ModuleFederationPlugin`插件中设置`library`的`type`为`window`
+
+```javascript
+  library: { type: 'window', name: '保持和name一致' }
+```
