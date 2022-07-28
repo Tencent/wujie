@@ -11,6 +11,7 @@ import { insertScriptToIframe } from "./iframe";
 import Wujie from "./sandbox";
 import { getHostCssRules } from "./shadow";
 import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
+import { ScriptObject } from "./template";
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -180,7 +181,7 @@ function rewriteAppendOrInsertChild(opts: {
           return rawDOMAppendOrInsertBefore.call(this, element, refChild);
         }
         case "SCRIPT": {
-          const { src, text, type } = element as HTMLScriptElement;
+          const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
           if (
             src &&
@@ -197,27 +198,32 @@ function rewriteAppendOrInsertChild(opts: {
               manualInvokeElementEvent(element, "load");
               element = null;
             };
-            getExternalScripts([{ src, module: type === "module" }], fetch, lifecycles.loadError).forEach(
-              (scriptResult) =>
-                scriptResult.contentPromise.then(
-                  (content) => {
-                    if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
-                    const execQueueLength = sandbox.execQueue?.length;
-                    sandbox.execQueue.push(() =>
-                      sandbox.fiber
-                        ? requestIdleCallback(() => {
-                            execScript({ ...scriptResult, content });
-                          })
-                        : execScript({ ...scriptResult, content })
-                    );
-                    // 同步脚本如果都执行完了，需要手动触发执行
-                    if (!execQueueLength) sandbox.execQueue.shift()();
-                  },
-                  () => {
-                    manualInvokeElementEvent(element, "error");
-                    element = null;
-                  }
-                )
+            const scriptOptions = {
+              src,
+              module: type === "module",
+              crossorigin: crossOrigin !== null,
+              crossoriginType: crossOrigin || "",
+            } as ScriptObject;
+            getExternalScripts([scriptOptions], fetch, lifecycles.loadError).forEach((scriptResult) =>
+              scriptResult.contentPromise.then(
+                (content) => {
+                  if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
+                  const execQueueLength = sandbox.execQueue?.length;
+                  sandbox.execQueue.push(() =>
+                    sandbox.fiber
+                      ? requestIdleCallback(() => {
+                          execScript({ ...scriptResult, content });
+                        })
+                      : execScript({ ...scriptResult, content })
+                  );
+                  // 同步脚本如果都执行完了，需要手动触发执行
+                  if (!execQueueLength) sandbox.execQueue.shift()();
+                },
+                () => {
+                  manualInvokeElementEvent(element, "error");
+                  element = null;
+                }
+              )
             );
           } else {
             const execQueueLength = sandbox.execQueue?.length;
