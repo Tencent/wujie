@@ -11,6 +11,7 @@ import { insertScriptToIframe } from "./iframe";
 import Wujie from "./sandbox";
 import { getHostCssRules } from "./shadow";
 import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
+import { ScriptObject } from "./template";
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -180,7 +181,7 @@ function rewriteAppendOrInsertChild(opts: {
           return rawDOMAppendOrInsertBefore.call(this, element, refChild);
         }
         case "SCRIPT": {
-          const { src, text } = element as HTMLScriptElement;
+          const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
           if (
             src &&
@@ -197,7 +198,13 @@ function rewriteAppendOrInsertChild(opts: {
               manualInvokeElementEvent(element, "load");
               element = null;
             };
-            getExternalScripts([{ src }], fetch, lifecycles.loadError).forEach((scriptResult) =>
+            const scriptOptions = {
+              src,
+              module: type === "module",
+              crossorigin: crossOrigin !== null,
+              crossoriginType: crossOrigin || "",
+            } as ScriptObject;
+            getExternalScripts([scriptOptions], fetch, lifecycles.loadError).forEach((scriptResult) =>
               scriptResult.contentPromise.then(
                 (content) => {
                   if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
