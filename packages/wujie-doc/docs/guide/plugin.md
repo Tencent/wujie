@@ -28,8 +28,8 @@ const plugins = [
 
 ```javascript
 const plugins = [
-  // 子应用的 http://xxxxx.js 脚本将不在子应用中进行
-  { jsExcludes: ["http://xxxxx.js"] },
+  // 子应用的 http://xxxxx.js 或者符合正则 /test\.js/ 脚本将不在子应用中进行
+  { jsExcludes: ["http://xxxxx.js", /test\.js/] },
 ];
 ```
 

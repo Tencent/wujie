@@ -5,7 +5,7 @@ import processTpl, {
   ScriptBaseObject,
   StyleObject,
 } from "./template";
-import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose } from "./utils";
+import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getExcludes } from "./utils";
 import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from "./constant";
 import Wujie from "./sandbox";
 import { plugin, loadErrorHandler } from "./index";
@@ -181,18 +181,8 @@ export default function importHTML(url: string, opts?: ImportEntryOpts): Promise
   const fetch = opts.fetch ?? defaultFetch;
   const { plugins, loadError } = opts;
   const htmlLoader = plugins ? compose(plugins.map((plugin) => plugin.htmlLoader)) : defaultGetTemplate;
-  const jsExcludes = plugins
-    ? plugins
-        .map((plugin) => plugin.jsExcludes)
-        .reduce((pre, next) => pre.concat(next), [])
-        .filter((item) => item)
-    : [];
-  const cssExcludes = plugins
-    ? plugins
-        .map((plugin) => plugin.cssExcludes)
-        .reduce((pre, next) => pre.concat(next), [])
-        .filter((item) => item)
-    : [];
+  const jsExcludes = getExcludes("jsExcludes", plugins);
+  const cssExcludes = getExcludes("cssExcludes", plugins);
   const getPublicPath = defaultGetPublicPath;
 
   const getHtmlParseResult = (url, htmlLoader) =>

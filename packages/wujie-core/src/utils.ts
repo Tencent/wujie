@@ -244,3 +244,22 @@ export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Arr
     error(e);
   }
 }
+
+// 获取插件 JS 或 CSS excludes
+export function getExcludes(
+  sourceType: "jsExcludes" | "cssExcludes",
+  plugins?: plugin[]
+): plugin["jsExcludes"] | plugin["cssExcludes"] {
+  const excludes = plugins
+    ? plugins
+        .map((plugin) => plugin[sourceType])
+        .reduce((pre, next) => pre.concat(next), [])
+        .filter((item) => item)
+    : [];
+  return excludes;
+}
+
+// 判断 url 是否被排查
+export function isExcludeUrl(url: string, excludes: plugin["jsExcludes"] | plugin["cssExcludes"]): boolean {
+  return excludes.some((excludeUrl) => (typeof excludeUrl === "string" ? url === excludeUrl : excludeUrl.test(url)));
+}

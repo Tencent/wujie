@@ -28,7 +28,7 @@ export interface plugin {
   /** 处理html的loader */
   htmlLoader?: (code: string) => string;
   /** js排除列表 */
-  jsExcludes?: Array<string>;
+  jsExcludes?: Array<string | RegExp>;
   /** 处理js加载前的loader */
   jsBeforeLoaders?: Array<ScriptObjectLoader>;
   /** 处理js的loader */
@@ -36,7 +36,7 @@ export interface plugin {
   /** 处理js加载后的loader */
   jsAfterLoaders?: Array<ScriptObjectLoader>;
   /** css排除列表 */
-  cssExcludes?: Array<string>;
+  cssExcludes?: Array<string | RegExp>;
   /** 处理css加载前的loader */
   cssBeforeLoaders?: Array<StyleObject>;
   /** 处理css的loader */
