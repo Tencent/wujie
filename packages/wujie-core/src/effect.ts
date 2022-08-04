@@ -6,7 +6,17 @@ import {
   rawBodyInsertBefore,
   rawDocumentQuerySelector,
 } from "./common";
-import { isFunction, isHijackingTag, requestIdleCallback, compose, error, warn, nextTick } from "./utils";
+import {
+  isFunction,
+  isHijackingTag,
+  requestIdleCallback,
+  compose,
+  error,
+  warn,
+  nextTick,
+  isExcludeUrl,
+  getExcludes,
+} from "./utils";
 import { insertScriptToIframe } from "./iframe";
 import Wujie from "./sandbox";
 import { getHostCssRules } from "./shadow";
@@ -183,14 +193,7 @@ function rewriteAppendOrInsertChild(opts: {
         case "SCRIPT": {
           const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
-          if (
-            src &&
-            !plugins
-              .map((plugin) => plugin.jsExcludes)
-              .reduce((pre, next) => pre.concat(next), [])
-              .filter((item) => item)
-              .includes(src)
-          ) {
+          if (!isExcludeUrl(src, getExcludes("jsExcludes", plugins))) {
             const execScript = (scriptResult) => {
               // 假如子应用被连续渲染两次，两次渲染会导致处理流程的交叉污染
               if (sandbox.iframe === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
