@@ -9,7 +9,7 @@ declare global {
     __WUJIE_PUBLIC_PATH__: string;
     // 原生的querySelector
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__: typeof Document.prototype.querySelector;
-    // 原生的querySelector
+    // 原生的querySelectorAll
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__: typeof Document.prototype.querySelectorAll;
     // 子应用沙盒实例
     __WUJIE: WuJie;
