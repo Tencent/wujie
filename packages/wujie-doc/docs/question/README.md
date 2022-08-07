@@ -38,7 +38,7 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 **原因：** `@font-face`不会在`shadow`内部加载，[详见](https://github.com/mdn/interactive-examples/issues/887)
 
-**解决方案：** 框架已解决，会将子应用的`@font-face`放到`shadow`外部执行，注意子应用的自定义字体名和主应用的自定义字体名不能重复，否则可能存在覆盖问题
+**已解决：** 框架会将子应用的`@font-face`放到`shadow`外部执行，注意子应用的自定义字体名和主应用的自定义字体名不能重复，否则可能存在覆盖问题
 
 ## 4、冒泡系列组件（比如下拉框）弹出位置不正确
 
@@ -55,9 +55,7 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 ## 6、css 样式内部的相对地址相对的是主应用的域名
 
-**原因：** 由于框架没有处理子应用样式内部的相对地址，而子应用样式是挂载在主应用容器中，导致相对地址错误
-
-**解决方案：** 使用插件中的[css-loader](/guide/plugin.html#css-loader)在运行时将相对地址代码替换成绝对地址。
+**已解决：** 框架已处理，默认将相对地址转换成绝对地址
 
 ## 7、子应用使用 module federation 引用远程模块报错
 

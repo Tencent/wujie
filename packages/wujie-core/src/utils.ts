@@ -170,10 +170,18 @@ export function fixElementCtrSrcOrHref(
   // TODO: innerHTML的处理
 }
 
-export function getCurUrl(proxyLocation: Location): string {
-  return proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname;
+export function getCurUrl(proxyLocation: Object): string {
+  const location = proxyLocation as Location;
+  return location.protocol + "//" + location.host + location.pathname;
 }
 
+export function getAbsolutePath(url: string, base: string): string {
+  try {
+    return new URL(url, base).href;
+  } catch {
+    return url;
+  }
+}
 /**
  * 获取需要同步的url
  */

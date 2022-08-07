@@ -73,7 +73,7 @@ h3 {
 .content {
   flex: 1;
   height: 100vh;
-  overflow: scroll;
+  overflow: hidden scroll;
   width: 1px;
 }
 

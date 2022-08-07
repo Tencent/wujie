@@ -75,7 +75,8 @@ const plugins = [
 const plugins = [
   {
     // 将url为aaa.js的脚本中的aaa替换成bbb
-    jsLoader: (code, url) => {
+    // code 为脚本代码、url为脚本的地址（内联脚本为''）、base为子应用当前的地址
+    jsLoader: (code, url, base) => {
       if (url === "aaa.js") return code.replace("aaa", "bbb");
     },
   },
@@ -163,7 +164,8 @@ const plugins = [
 const plugins = [
   {
     // 对css脚本动态的进行替换
-    cssLoader: (code, url) => {
+    // code 为样式代码、url为样式的地址（内联样式为''）、base为子应用当前的地址
+    cssLoader: (code, url, base) => {
       console.log("css-loader", url, code.slice(0, 50) + "...");
       return code;
     },

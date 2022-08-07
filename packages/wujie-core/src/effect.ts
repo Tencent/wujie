@@ -10,7 +10,6 @@ import {
   isFunction,
   isHijackingTag,
   requestIdleCallback,
-  compose,
   error,
   warn,
   nextTick,
@@ -21,6 +20,7 @@ import {
 import { insertScriptToIframe } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
+import { getCssLoader } from "./plugin";
 import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
 import { ScriptObject } from "./template";
 
@@ -56,13 +56,9 @@ function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, 
 /**
  * 样式元素的css变量处理
  */
-function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandbox: Wujie, baseUrl?: string) {
+function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandbox: Wujie) {
   if (!stylesheetElement.innerHTML || sandbox.degrade) return;
-  const curUrl = getCurUrl(sandbox.proxyLocation as Location);
-  const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements(
-    [stylesheetElement.sheet],
-    baseUrl ? baseUrl : curUrl
-  );
+  const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements([stylesheetElement.sheet]);
   if (hostStyleSheetElement) {
     sandbox.shadowRoot.head.appendChild(hostStyleSheetElement);
   }
@@ -76,8 +72,9 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandb
  */
 function patchStylesheetElement(
   stylesheetElement: HTMLStyleElement,
-  cssLoader: (code: string) => string,
-  sandbox: Wujie
+  cssLoader: (code: string, url: string, base: string) => string,
+  sandbox: Wujie,
+  curUrl: string
 ) {
   const innerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
   const innerTextDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "innerText");
@@ -88,7 +85,7 @@ function patchStylesheetElement(
         return innerHTMLDesc.get.call(stylesheetElement);
       },
       set: function (code: string) {
-        innerHTMLDesc.set.call(stylesheetElement, cssLoader(code));
+        innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
         nextTick(() => handleStylesheetElementPatch(this, sandbox));
       },
     },
@@ -97,7 +94,7 @@ function patchStylesheetElement(
         return innerTextDesc.get.call(stylesheetElement);
       },
       set: function (code: string) {
-        innerTextDesc.set.call(stylesheetElement, cssLoader(code));
+        innerTextDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
         nextTick(() => handleStylesheetElementPatch(this, sandbox));
       },
     },
@@ -106,7 +103,7 @@ function patchStylesheetElement(
         return textContentDesc.get.call(stylesheetElement);
       },
       set: function (code: string) {
-        textContentDesc.set.call(stylesheetElement, cssLoader(code));
+        textContentDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
         nextTick(() => handleStylesheetElementPatch(this, sandbox));
       },
     },
@@ -116,7 +113,7 @@ function patchStylesheetElement(
         if (node.nodeType === Node.TEXT_NODE) {
           return rawAppendChild.call(
             stylesheetElement,
-            stylesheetElement.ownerDocument.createTextNode(cssLoader(node.textContent))
+            stylesheetElement.ownerDocument.createTextNode(cssLoader(node.textContent, "", curUrl))
           );
         } else return rawAppendChild(node);
       },
@@ -141,8 +138,9 @@ function rewriteAppendOrInsertChild(opts: {
       return rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
     }
 
-    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles } = sandbox;
+    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation } = sandbox;
     const iframeDocument = iframe.contentDocument;
+    const curUrl = getCurUrl(proxyLocation);
 
     // TODO 过滤可以开放
     if (element.tagName) {
@@ -164,14 +162,12 @@ function rewriteAppendOrInsertChild(opts: {
                   // 记录js插入样式，子应用重新激活时恢复
                   const stylesheetElement = iframeDocument.createElement("style");
                   // 处理css-loader插件
-                  stylesheetElement.innerHTML = compose(plugins.map((plugin) => plugin.cssLoader))(
-                    replace ? replace(content) : content,
-                    src
-                  );
+                  const cssLoader = getCssLoader({ plugins, replace });
+                  stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
                   styleSheetElements.push(stylesheetElement);
                   rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                   // 处理样式补丁
-                  handleStylesheetElementPatch(stylesheetElement, sandbox, href);
+                  handleStylesheetElementPatch(stylesheetElement, sandbox);
                   manualInvokeElementEvent(element, "load");
                   element = null;
                 },
@@ -190,10 +186,9 @@ function rewriteAppendOrInsertChild(opts: {
           const stylesheetElement: HTMLLinkElement | HTMLStyleElement = newChild as any;
           styleSheetElements.push(stylesheetElement);
           const content = stylesheetElement.innerHTML;
-          const cssLoader = (content) =>
-            compose(plugins.map((plugin) => plugin.cssLoader))(replace ? replace(content) : content);
-          content && (stylesheetElement.innerHTML = cssLoader(content));
-          patchStylesheetElement(stylesheetElement, cssLoader, sandbox);
+          const cssLoader = getCssLoader({ plugins, replace });
+          content && (stylesheetElement.innerHTML = cssLoader(content, "", curUrl));
+          patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
           const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
           // 处理样式补丁
           handleStylesheetElementPatch(stylesheetElement, sandbox);

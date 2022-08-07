@@ -9,8 +9,8 @@ import {
   isMatchSyncQueryById,
   warn,
   error,
-  compose,
   execHooks,
+  getCurUrl,
 } from "./utils";
 import {
   documentProxyProperties,
@@ -23,6 +23,7 @@ import {
   windowProxyProperties,
   windowRegWhiteList,
 } from "./common";
+import { getJsLoader } from "./plugin";
 import { WUJIE_TIPS_EMPTY_CALLBACK, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
 import { ScriptObjectLoader } from "./index";
 
@@ -611,8 +612,9 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
   const { src, module, content, crossorigin, crossoriginType, callback } = scriptResult as ScriptObjectLoader;
   const scriptElement = iframeWindow.document.createElement("script");
   const nextScriptElement = iframeWindow.document.createElement("script");
-  const { replace, plugins } = iframeWindow.__WUJIE;
-  let code = compose(plugins.map((plugin) => plugin.jsLoader))(replace ? replace(content) : content, src);
+  const { replace, plugins, proxyLocation } = iframeWindow.__WUJIE;
+  const jsLoader = getJsLoader({ plugins, replace });
+  let code = jsLoader(content, src, getCurUrl(proxyLocation));
 
   // 内联脚本
   if (content) {

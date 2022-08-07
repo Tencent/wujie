@@ -3,7 +3,7 @@ import { IconFont } from "tdesign-icons-react";
 
 export default class Font extends React.Component {
   componentDidMount() {
-    console.log("react16 font mounted")
+    console.log("react16 font mounted");
   }
   render() {
     return (
@@ -24,9 +24,17 @@ export default class Font extends React.Component {
           </p>
           <h3>IconFont 图标示例</h3>
           <p>TDesign icon</p>
-          <IconFont name="loading" size="2em" />
-          <IconFont name="close" size="2em" />
-          <IconFont name="check-circle-filled" size="2em" />
+          <p>
+            <IconFont name="loading" size="2em" />
+            <IconFont name="close" size="2em" />
+            <IconFont name="check-circle-filled" size="2em" />
+          </p>
+          <h3>相对地址</h3>
+          <p>框架会将子应用的 css 文件中的相对地址换成绝对地址</p>
+          <p>比如 TDesign icon 的 css 文件地址为: </p>
+          <p> https://tdesign.gtimg.com/icon/0.1.1/fonts/index.css</p>
+          <p>index.css 文件中 @font-face 中 url('./t.woff') 最终转换为:</p>
+          <p> https://tdesign.gtimg.com/icon/0.1.1/fonts/t.woff</p>
         </div>
       </div>
     );

@@ -5,7 +5,15 @@ import processTpl, {
   ScriptBaseObject,
   StyleObject,
 } from "./template";
-import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getExcludes } from "./utils";
+import {
+  defaultGetPublicPath,
+  getInlineCode,
+  requestIdleCallback,
+  error,
+  compose,
+  getExcludes,
+  getCurUrl,
+} from "./utils";
 import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from "./constant";
 import Wujie from "./sandbox";
 import { plugin, loadErrorHandler } from "./index";
@@ -51,11 +59,12 @@ export async function processCssLoader(
   template: string,
   getExternalStyleSheets: () => StyleResultList
 ): Promise<string> {
+  const curUrl = getCurUrl(sandbox.proxyLocation);
   /** css-loader */
   const composeCssLoader = compose(sandbox.plugins.map((plugin) => plugin.cssLoader));
   const processedCssList: StyleResultList = getExternalStyleSheets().map(({ src, contentPromise }) => ({
     src,
-    contentPromise: contentPromise.then((content) => composeCssLoader(content, src)),
+    contentPromise: contentPromise.then((content) => composeCssLoader(content, src, curUrl)),
   }));
   const embedHTML = await getEmbedHTML(template, processedCssList);
   return sandbox.replace ? sandbox.replace(embedHTML) : embedHTML;

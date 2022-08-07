@@ -4,7 +4,8 @@ import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
-import { getContainer, compose } from "./utils";
+import { getCssLoader, getCssBeforeLoaders, getCssAfterLoaders } from "./plugin";
+import { getContainer, getCurUrl } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -72,18 +73,12 @@ export function renderElementToContainer(element: Element, selectorOrElement: st
  */
 async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement): Promise<HTMLHtmlElement> {
   const document = sandbox.iframe.contentDocument;
-  const { plugins, replace } = sandbox;
-  const cssLoader = (content, src) =>
-    compose(plugins.map((plugin) => plugin.cssLoader))(replace ? replace(content) : content, src);
-  const cssBeforeLoaders = sandbox.plugins
-    .map((plugin) => plugin.cssBeforeLoaders)
-    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-    .filter((cssLoader) => typeof cssLoader === "object")
-    .reverse();
-  const cssAfterLoaders = sandbox.plugins
-    .map((plugin) => plugin.cssAfterLoaders)
-    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-    .filter((afterLoader) => typeof afterLoader === "object");
+  const { plugins, replace, proxyLocation } = sandbox;
+  const cssLoader = getCssLoader({ plugins, replace });
+  const cssBeforeLoaders = getCssBeforeLoaders(plugins);
+  const cssAfterLoaders = getCssAfterLoaders(plugins);
+  const curUrl = getCurUrl(proxyLocation);
+
   return await Promise.all([
     Promise.all(
       getExternalStyleSheets(cssBeforeLoaders, sandbox.fetch, sandbox.lifecycles.loadError).map(
@@ -94,7 +89,7 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
         if (!content) return;
         const styleElement = document.createElement("style");
         styleElement.setAttribute("type", "text/css");
-        styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src) : content));
+        styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src, curUrl) : content));
         const head = html.querySelector("head");
         head?.insertBefore(styleElement, html.querySelector("head")?.firstChild);
       });
@@ -108,7 +103,7 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
         if (!content) return;
         const styleElement = document.createElement("style");
         styleElement.setAttribute("type", "text/css");
-        styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src) : content));
+        styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src, curUrl) : content));
         html.appendChild(styleElement);
       });
     }),
@@ -221,14 +216,10 @@ export function clearChild(root: ShadowRoot | Node): void {
  * 获取修复好的样式元素
  * 主要是针对对root样式和font-face样式
  */
-export function getPatchStyleElements(
-  rootStyleSheets: Array<CSSStyleSheet>,
-  baseUrl: string
-): Array<HTMLStyleElement | null> {
+export function getPatchStyleElements(rootStyleSheets: Array<CSSStyleSheet>): Array<HTMLStyleElement | null> {
   const rootCssRules = [];
   const fontCssRules = [];
   const rootStyleReg = /:root/g;
-  const fontStyleReg = /(url\()([^)]*)(\))/g;
 
   // 找出root的cssRules
   for (let i = 0; i < rootStyleSheets.length; i++) {
@@ -241,14 +232,7 @@ export function getPatchStyleElements(
       }
       // 如果是font-face的cssRule
       if (cssRules[j].type === CSSRule.FONT_FACE_RULE) {
-        fontCssRules.push(
-          // 相对地址改绝对地址
-          cssRuleText.replace(fontStyleReg, (_m, pre, url, post) => {
-            const urlString = url.replace(/["']/g, "");
-            const absoluteUrl = new URL(urlString, baseUrl).href;
-            return pre + "'" + absoluteUrl + "'" + post;
-          })
-        );
+        fontCssRules.push(cssRuleText);
       }
     }
   }

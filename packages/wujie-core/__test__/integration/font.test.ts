@@ -23,7 +23,7 @@ describe("main react startApp", () => {
     // 等待字体加载
     await page.waitForResponse((response) => response.url().includes("https://tdesign.gtimg.com/icon/0.1.1/fonts"));
     // 等待字体装载
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     // 检查字体是否生效
     expect(await page.evaluate(() => document.fonts.check("12px t", "E07F"))).toBe(true);
   });
@@ -50,7 +50,7 @@ describe("main vue startApp", () => {
     // 等待字体加载
     await page.waitForResponse((response) => response.url().includes("https://tdesign.gtimg.com/icon/0.1.1/fonts"));
     // 等待字体装载
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     // 检查字体是否生效
     expect(await page.evaluate(() => document.fonts.check("12px t", "E07F"))).toBe(true);
   });
