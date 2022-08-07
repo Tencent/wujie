@@ -3,7 +3,8 @@ import { NavLink, Route, Switch, Redirect } from "react-router-dom";
 import Dialog from "./Dialog";
 import Location from "./Location";
 import Communication from "./Communication";
-import React17  from "./nest";
+import React17 from "./nest";
+import Font from "./Font";
 import logo from "./logo.svg";
 import Tag from "antd/es/tag";
 import Button from "antd/es/button";
@@ -42,7 +43,7 @@ export default function App() {
       <nav>
         <NavLink to="/home">首页</NavLink> | <NavLink to="/dialog">弹窗</NavLink> |{" "}
         <NavLink to="/location">路由</NavLink> | <NavLink to="/communication">通信</NavLink> |{" "}
-        <NavLink to="/nest">内嵌</NavLink>
+        <NavLink to="/nest">内嵌</NavLink> | <NavLink to="/font">字体</NavLink>
       </nav>
 
       <div>
@@ -64,6 +65,9 @@ export default function App() {
         </Route>
         <Route path="/nest">
           <React17 />
+        </Route>
+        <Route path="/font">
+          <Font />
         </Route>
         <Route exact path="/">
           <Redirect to="/home" />

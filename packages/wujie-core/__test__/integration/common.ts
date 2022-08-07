@@ -17,6 +17,8 @@ export const reactMainAppInfoMap = {
     routeMountedMessage: "react16 location mounted",
     communicationNavSelectorInAll: `document.querySelector("#root > div > div.content > div > div:nth-child(1) > div > wujie-app").shadowRoot.querySelector("#root > div > nav > a:nth-child(4)")`,
     nestNavSelectorInAll: `document.querySelector("#root > div > div.content > div > div:nth-child(1) > div > wujie-app").shadowRoot.querySelector("#root > div > nav > a:nth-child(5)")`,
+    fontNavSelector: `document.querySelector("#root > div > div.content > div > wujie-app").shadowRoot.querySelector("#root > div > nav > a:nth-child(6)")`,
+    fontMountedMessage: `react16 font mounted`,
     preloadTitleJsSelector: 'window.frames.react16.document.querySelector("#root > div > div:nth-child(3) > h2")',
     degradeTitleJsSelector: `window.document.querySelector("iframe[data-wujie-id='react16']").contentDocument.querySelector("#root > div > div:nth-child(3) > h2")`,
     titleJsSelector:
@@ -153,6 +155,8 @@ export const vueMainAppInfoMap = {
     routeMountedMessage: "react16 location mounted",
     communicationNavSelectorInAll: `document.querySelector("#app > div.content > div > div:nth-child(1) > wujie-app").shadowRoot.querySelector("#root > div > nav > a:nth-child(4)")`,
     nestNavSelectorInAll: `document.querySelector("#app > div.content > div > div:nth-child(1) > wujie-app").shadowRoot.querySelector("#root > div > nav > a:nth-child(5)")`,
+    fontNavSelector: `document.querySelector("#app > div.content > div > wujie-app").shadowRoot.querySelector("#root > div > nav > a:nth-child(6)")`,
+    fontMountedMessage: `react16 font mounted`,
     preloadTitleJsSelector: 'window.frames.react16.document.querySelector("#root > div > div:nth-child(3) > h2")',
     degradeTitleJsSelector: `window.document.querySelector("iframe[data-wujie-id='react16']").contentDocument.querySelector("#root > div > div:nth-child(3) > h2")`,
     titleJsSelector:
