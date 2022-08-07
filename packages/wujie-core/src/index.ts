@@ -32,7 +32,7 @@ export interface plugin {
   /** 处理js加载前的loader */
   jsBeforeLoaders?: Array<ScriptObjectLoader>;
   /** 处理js的loader */
-  jsLoader?: (code: string, url: string) => string;
+  jsLoader?: (code: string, url: string, base: string) => string;
   /** 处理js加载后的loader */
   jsAfterLoaders?: Array<ScriptObjectLoader>;
   /** css排除列表 */
@@ -40,7 +40,7 @@ export interface plugin {
   /** 处理css加载前的loader */
   cssBeforeLoaders?: Array<StyleObject>;
   /** 处理css的loader */
-  cssLoader?: (code: string, url: string) => string;
+  cssLoader?: (code: string, url: string, base: string) => string;
   /** 处理css加载后的loader */
   cssAfterLoaders?: Array<StyleObject>;
   /** 子应用 window addEventListener 钩子回调 */

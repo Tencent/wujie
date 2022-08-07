@@ -45,6 +45,7 @@ nav .active {
   text-align: left;
   max-width: 740px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 p, div.p {

@@ -245,7 +245,7 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
 
         if (!isPureCommentBlock && code) {
           scripts.push({
-            src: null,
+            src: "",
             content: code,
             module: isModuleScript,
             crossorigin: !!isCrossOriginScript,

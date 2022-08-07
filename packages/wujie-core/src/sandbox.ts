@@ -17,6 +17,7 @@ import {
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
 import { ScriptResultList } from "./entry";
+import defaultPlugin, { getJsBeforeLoaders, getJsAfterLoaders } from "./plugin";
 import {
   idToSandboxMap,
   addSandboxIdMap,
@@ -25,7 +26,7 @@ import {
   rawDocumentQuerySelector,
 } from "./common";
 import { EventBus, appEventObjMap, EventObj } from "./event";
-import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getCurUrl } from "./utils";
+import { isFunction, wujieSupport, appRouteParse, requestIdleCallback } from "./utils";
 import { WUJIE_DATA_ATTACH_CSS_FLAG } from "./constant";
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
 
@@ -242,15 +243,9 @@ export default class Wujie {
     // 标志位，执行代码前设置
     iframeWindow.__POWERED_BY_WUJIE__ = true;
     // 用户自定义代码前
-    const beforeScriptResultList: ScriptObjectLoader[] = this.plugins
-      .map((plugin) => plugin.jsBeforeLoaders)
-      .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-      .filter((preLoader) => typeof preLoader === "object");
+    const beforeScriptResultList: ScriptObjectLoader[] = getJsBeforeLoaders(this.plugins);
     // 用户自定义代码后
-    const afterScriptResultList: ScriptObjectLoader[] = this.plugins
-      .map((plugin) => plugin.jsAfterLoaders)
-      .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-      .filter((afterLoader) => typeof afterLoader === "object");
+    const afterScriptResultList: ScriptObjectLoader[] = getJsAfterLoaders(this.plugins);
     // 同步代码
     const syncScriptResultList: ScriptResultList = [];
     // async代码无需保证顺序，所以不用放入执行队列
@@ -404,14 +399,12 @@ export default class Wujie {
    * 2、将@font-face定义到shadowRoot外部
    */
   public patchCssRules(): void {
-    const curUrl = getCurUrl(this.proxyLocation as Location);
     if (this.degrade) return;
     if (this.shadowRoot.host.hasAttribute(WUJIE_DATA_ATTACH_CSS_FLAG)) return;
     const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements(
       Array.from(this.iframe.contentDocument.querySelectorAll("style")).map(
         (styleSheetElement) => styleSheetElement.sheet
-      ),
-      curUrl
+      )
     );
     if (hostStyleSheetElement) {
       this.shadowRoot.head.appendChild(hostStyleSheetElement);
@@ -456,7 +449,7 @@ export default class Wujie {
     this.styleSheetElements = [];
     this.execQueue = [];
     this.lifecycles = lifecycles;
-    this.plugins = Array.isArray(plugins) ? plugins : [];
+    this.plugins = Array.isArray(plugins) ? [defaultPlugin, ...plugins] : [defaultPlugin];
 
     // 创建目标地址的解析
     const { urlElement, appHostPath, appRoutePath } = appRouteParse(url);
