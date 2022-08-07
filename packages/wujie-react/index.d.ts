@@ -15,7 +15,7 @@ export default class WujieReact extends React.PureComponent {
     sync: typeof PropTypes.bool;
     fiber: typeof PropTypes.bool;
     degrade: typeof PropTypes.bool;
-    plugin: typeof PropTypes.array;
+    plugins: typeof PropTypes.array;
     beforeLoad: typeof PropTypes.func;
     beforeMount: typeof PropTypes.func;
     afterMount: typeof PropTypes.func;
