@@ -48,7 +48,7 @@ module.exports = {
       port: 7400,
     },
     {
-      command: 'lerna run start --scope main-react',
+      command: 'lerna run integration --scope main-react',
       usedPortAction: 'kill',
       launchTimeout: 60000,
       host: '0.0.0.0',

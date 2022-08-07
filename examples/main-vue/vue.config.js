@@ -9,7 +9,7 @@ module.exports = {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    open: true,
+    open: process.env.NODE_ENV === "development",
     port: "8000",
   },
 };

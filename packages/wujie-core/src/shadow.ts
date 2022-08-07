@@ -218,27 +218,54 @@ export function clearChild(root: ShadowRoot | Node): void {
 }
 
 /**
- * 获取:root选择器的样式到shadow的:host
+ * 获取修复好的样式元素
+ * 主要是针对对root样式和font-face样式
  */
-export function getHostCssRules(rootStyleSheets: Array<CSSStyleSheet>): void | HTMLStyleElement {
-  const rootCssRule = [];
+export function getPatchStyleElements(
+  rootStyleSheets: Array<CSSStyleSheet>,
+  baseUrl: string
+): Array<HTMLStyleElement | null> {
+  const rootCssRules = [];
+  const fontCssRules = [];
   const rootStyleReg = /:root/g;
+  const fontStyleReg = /(url\()([^)]*)(\))/g;
 
   // 找出root的cssRules
   for (let i = 0; i < rootStyleSheets.length; i++) {
     const cssRules = rootStyleSheets[i]?.cssRules ?? [];
     for (let j = 0; j < cssRules.length; j++) {
       const cssRuleText = cssRules[j].cssText;
+      // 如果是root的cssRule
       if (rootStyleReg.test(cssRuleText)) {
-        rootCssRule.push(cssRuleText.replace(rootStyleReg, (match) => cssSelectorMap[match]));
+        rootCssRules.push(cssRuleText.replace(rootStyleReg, (match) => cssSelectorMap[match]));
+      }
+      // 如果是font-face的cssRule
+      if (cssRules[j].type === CSSRule.FONT_FACE_RULE) {
+        fontCssRules.push(
+          // 相对地址改绝对地址
+          cssRuleText.replace(fontStyleReg, (_m, pre, url, post) => {
+            const urlString = url.replace(/["']/g, "");
+            const absoluteUrl = new URL(urlString, baseUrl).href;
+            return pre + "'" + absoluteUrl + "'" + post;
+          })
+        );
       }
     }
   }
 
+  let rootStyleSheetElement = null;
+  let fontStyleSheetElement = null;
+
   // 复制到host上
-  if (rootCssRule.length) {
-    const styleSheetElement = window.document.createElement("style");
-    styleSheetElement.innerHTML = rootCssRule.join("");
-    return styleSheetElement;
+  if (rootCssRules.length) {
+    rootStyleSheetElement = window.document.createElement("style");
+    rootStyleSheetElement.innerHTML = rootCssRules.join("");
   }
+
+  if (fontCssRules.length) {
+    fontStyleSheetElement = window.document.createElement("style");
+    fontStyleSheetElement.innerHTML = fontCssRules.join("");
+  }
+
+  return [rootStyleSheetElement, fontStyleSheetElement];
 }

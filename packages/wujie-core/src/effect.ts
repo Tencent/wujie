@@ -16,10 +16,11 @@ import {
   nextTick,
   isExcludeUrl,
   getExcludes,
+  getCurUrl,
 } from "./utils";
 import { insertScriptToIframe } from "./iframe";
 import Wujie from "./sandbox";
-import { getHostCssRules } from "./shadow";
+import { getPatchStyleElements } from "./shadow";
 import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
 import { ScriptObject } from "./template";
 
@@ -55,11 +56,18 @@ function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, 
 /**
  * 样式元素的css变量处理
  */
-function handleStylesheetElementHost(stylesheetElement: HTMLStyleElement, sandbox: Wujie) {
+function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandbox: Wujie, baseUrl?: string) {
   if (!stylesheetElement.innerHTML || sandbox.degrade) return;
-  const hostStyleSheetElement = getHostCssRules([stylesheetElement.sheet]);
+  const curUrl = getCurUrl(sandbox.proxyLocation as Location);
+  const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements(
+    [stylesheetElement.sheet],
+    baseUrl ? baseUrl : curUrl
+  );
   if (hostStyleSheetElement) {
     sandbox.shadowRoot.head.appendChild(hostStyleSheetElement);
+  }
+  if (fontStyleSheetElement) {
+    sandbox.shadowRoot.host.appendChild(fontStyleSheetElement);
   }
 }
 
@@ -81,7 +89,7 @@ function patchStylesheetElement(
       },
       set: function (code: string) {
         innerHTMLDesc.set.call(stylesheetElement, cssLoader(code));
-        nextTick(() => handleStylesheetElementHost(this, sandbox));
+        nextTick(() => handleStylesheetElementPatch(this, sandbox));
       },
     },
     innerText: {
@@ -90,7 +98,7 @@ function patchStylesheetElement(
       },
       set: function (code: string) {
         innerTextDesc.set.call(stylesheetElement, cssLoader(code));
-        nextTick(() => handleStylesheetElementHost(this, sandbox));
+        nextTick(() => handleStylesheetElementPatch(this, sandbox));
       },
     },
     textContent: {
@@ -99,12 +107,12 @@ function patchStylesheetElement(
       },
       set: function (code: string) {
         textContentDesc.set.call(stylesheetElement, cssLoader(code));
-        nextTick(() => handleStylesheetElementHost(this, sandbox));
+        nextTick(() => handleStylesheetElementPatch(this, sandbox));
       },
     },
     appendChild: {
       value: function (node: Node): Node {
-        nextTick(() => handleStylesheetElementHost(this, sandbox));
+        nextTick(() => handleStylesheetElementPatch(this, sandbox));
         if (node.nodeType === Node.TEXT_NODE) {
           return rawAppendChild.call(
             stylesheetElement,
@@ -161,9 +169,9 @@ function rewriteAppendOrInsertChild(opts: {
                     src
                   );
                   styleSheetElements.push(stylesheetElement);
-                  // 处理host的情况
-                  handleStylesheetElementHost(stylesheetElement, sandbox);
                   rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
+                  // 处理样式补丁
+                  handleStylesheetElementPatch(stylesheetElement, sandbox, href);
                   manualInvokeElementEvent(element, "load");
                   element = null;
                 },
@@ -186,9 +194,10 @@ function rewriteAppendOrInsertChild(opts: {
             compose(plugins.map((plugin) => plugin.cssLoader))(replace ? replace(content) : content);
           content && (stylesheetElement.innerHTML = cssLoader(content));
           patchStylesheetElement(stylesheetElement, cssLoader, sandbox);
-          // 处理host的情况
-          nextTick(() => handleStylesheetElementHost(stylesheetElement, sandbox));
-          return rawDOMAppendOrInsertBefore.call(this, element, refChild);
+          const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+          // 处理样式补丁
+          handleStylesheetElementPatch(stylesheetElement, sandbox);
+          return res;
         }
         case "SCRIPT": {
           const { src, text, type, crossOrigin } = element as HTMLScriptElement;

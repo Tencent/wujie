@@ -9,7 +9,7 @@ import { syncUrlToWindow, syncUrlToIframe, clearInactiveAppUrl } from "./sync";
 import {
   createWujieWebComponent,
   clearChild,
-  getHostCssRules,
+  getPatchStyleElements,
   renderElementToContainer,
   renderTemplateToShadowRoot,
   createIframeContainer,
@@ -25,7 +25,7 @@ import {
   rawDocumentQuerySelector,
 } from "./common";
 import { EventBus, appEventObjMap, EventObj } from "./event";
-import { isFunction, wujieSupport, appRouteParse, requestIdleCallback } from "./utils";
+import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getCurUrl } from "./utils";
 import { WUJIE_DATA_ATTACH_CSS_FLAG } from "./constant";
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
 
@@ -222,6 +222,7 @@ export default class Wujie {
     }
 
     await renderTemplateToShadowRoot(this.shadowRoot, iframeWindow, this.template);
+    this.patchCssRules();
 
     // inject shadowRoot to app
     this.provide.shadowRoot = this.shadowRoot;
@@ -321,7 +322,6 @@ export default class Wujie {
    */
   public mount(): void {
     if (this.mountFlag) return;
-    this.attachHostCssRules();
     if (isFunction(this.iframe.contentWindow.__WUJIE_MOUNT)) {
       this.lifecycles?.beforeMount?.(this.iframe.contentWindow);
       this.iframe.contentWindow.__WUJIE_MOUNT();
@@ -395,23 +395,33 @@ export default class Wujie {
         rawElementAppendChild.call(this.degrade ? this.document.head : this.shadowRoot.head, styleSheetElement);
       });
     }
-    this.attachHostCssRules();
+    this.patchCssRules();
   }
 
-  /** 兼容:root选择器样式到:host选择器上 */
-  public attachHostCssRules(): void {
+  /**
+   * 子应用样式打补丁
+   * 1、兼容:root选择器样式到:host选择器上
+   * 2、将@font-face定义到shadowRoot外部
+   */
+  public patchCssRules(): void {
+    const curUrl = getCurUrl(this.proxyLocation as Location);
     if (this.degrade) return;
     if (this.shadowRoot.host.hasAttribute(WUJIE_DATA_ATTACH_CSS_FLAG)) return;
-    const hostStyleSheetElement = getHostCssRules(
+    const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements(
       Array.from(this.iframe.contentDocument.querySelectorAll("style")).map(
         (styleSheetElement) => styleSheetElement.sheet
-      )
+      ),
+      curUrl
     );
     if (hostStyleSheetElement) {
       this.shadowRoot.head.appendChild(hostStyleSheetElement);
       this.styleSheetElements.push(hostStyleSheetElement);
-      this.shadowRoot.host.setAttribute(WUJIE_DATA_ATTACH_CSS_FLAG, "");
     }
+    if (fontStyleSheetElement) {
+      this.shadowRoot.host.appendChild(fontStyleSheetElement);
+    }
+    (hostStyleSheetElement || fontStyleSheetElement) &&
+      this.shadowRoot.host.setAttribute(WUJIE_DATA_ATTACH_CSS_FLAG, "");
   }
 
   /**

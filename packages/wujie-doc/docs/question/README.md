@@ -38,7 +38,7 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 **原因：** `@font-face`不会在`shadow`内部加载，[详见](https://github.com/mdn/interactive-examples/issues/887)
 
-**解决方案：** 将子应用需要到的`@font-face`在主应用进行加载
+**解决方案：** 框架已解决，会将子应用的`@font-face`放到`shadow`外部执行，注意子应用的自定义字体名和主应用的自定义字体名不能重复，否则可能存在覆盖问题
 
 ## 4、冒泡系列组件（比如下拉框）弹出位置不正确
 
