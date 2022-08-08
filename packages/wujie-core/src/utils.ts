@@ -151,7 +151,7 @@ export function fixElementCtrSrcOrHref(
   const rawElementSetAttribute = iframeWindow.Element.prototype.setAttribute;
   elementCtr.prototype.setAttribute = function (name: string, value: string): void {
     let targetValue = value;
-    if (name === attr) targetValue = new URL(value, this.baseURI || "").href;
+    if (name === attr) targetValue = getAbsolutePath(value, this.baseURI || "");
     rawElementSetAttribute.call(this, name, targetValue);
   };
   // patch href get and set
@@ -164,7 +164,7 @@ export function fixElementCtrSrcOrHref(
       return get.call(this);
     },
     set: function (href) {
-      set.call(this, new URL(href, this.baseURI).href);
+      set.call(this, getAbsolutePath(href, this.baseURI));
     },
   });
   // TODO: innerHTML的处理

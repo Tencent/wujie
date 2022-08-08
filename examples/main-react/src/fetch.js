@@ -1,5 +1,4 @@
-// woa环境携带登录态必须添加credential
+// 携带登录态credentials必须为include
 export default function fetch(url, options) {
-  const includeFlag = process.env.NODE_ENV === "production" && !url.includes("//vfiles.gtimg.cn/");
-  return window.fetch(url, { ...options, credentials: includeFlag ? "include" : "omit" });
+  return window.fetch(url, { ...options, credentials: "omit" });
 }

@@ -17,7 +17,7 @@ import {
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
 import { ScriptResultList } from "./entry";
-import defaultPlugin, { getJsBeforeLoaders, getJsAfterLoaders } from "./plugin";
+import { getPlugins, getJsBeforeLoaders, getJsAfterLoaders } from "./plugin";
 import {
   idToSandboxMap,
   addSandboxIdMap,
@@ -26,7 +26,7 @@ import {
   rawDocumentQuerySelector,
 } from "./common";
 import { EventBus, appEventObjMap, EventObj } from "./event";
-import { isFunction, wujieSupport, appRouteParse, requestIdleCallback } from "./utils";
+import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getAbsolutePath } from "./utils";
 import { WUJIE_DATA_ATTACH_CSS_FLAG } from "./constant";
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
 
@@ -152,7 +152,7 @@ export default class Wujie {
     const iframeWindow = this.iframe.contentWindow;
     const iframeFetch = fetch
       ? (input: RequestInfo, init?: RequestInit) =>
-          fetch(typeof input === "string" ? new URL(input, (this.proxyLocation as Location).href).href : input, init)
+          fetch(typeof input === "string" ? getAbsolutePath(input, (this.proxyLocation as Location).href) : input, init)
       : this.fetch;
     if (iframeFetch) {
       iframeWindow.fetch = iframeFetch;
@@ -427,7 +427,7 @@ export default class Wujie {
     attrs: { [key: string]: any };
     fiber: boolean;
     degrade;
-    plugins: Array<plugin> | plugin;
+    plugins: Array<plugin>;
     lifecycles: lifecycles;
   }) {
     // 传递inject给嵌套子应用
@@ -449,7 +449,7 @@ export default class Wujie {
     this.styleSheetElements = [];
     this.execQueue = [];
     this.lifecycles = lifecycles;
-    this.plugins = Array.isArray(plugins) ? [defaultPlugin, ...plugins] : [defaultPlugin];
+    this.plugins = getPlugins(plugins);
 
     // 创建目标地址的解析
     const { urlElement, appHostPath, appRoutePath } = appRouteParse(url);
