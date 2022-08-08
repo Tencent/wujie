@@ -5,7 +5,7 @@ import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getCssBeforeLoaders, getCssAfterLoaders } from "./plugin";
-import { getContainer, getCurUrl } from "./utils";
+import { getAbsolutePath, getContainer, getCurUrl } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -126,7 +126,7 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
     patchElementEffect(nextElement, iframeWindow);
     const relativeAttr = relativeElementTagAttrMap[nextElement.tagName];
     const url = nextElement[relativeAttr];
-    if (relativeAttr) nextElement.setAttribute(relativeAttr, new URL(url, nextElement.baseURI || "").href);
+    if (relativeAttr) nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
     nextElement = ElementIterator.nextNode() as HTMLElement;
   }
   if (!html.querySelector("head")) {

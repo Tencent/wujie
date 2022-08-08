@@ -11,6 +11,7 @@ import {
   error,
   execHooks,
   getCurUrl,
+  getAbsolutePath,
 } from "./utils";
 import {
   documentProxyProperties,
@@ -125,7 +126,7 @@ function patchIframeHistory(iframeWindow: Window, appHostPath: string, mainHostP
   history.pushState = function (data: any, title: string, url?: string): void {
     const baseUrl =
       mainHostPath + iframeWindow.location.pathname + iframeWindow.location.search + iframeWindow.location.hash;
-    const mainUrl = new URL(url?.replace(appHostPath, ""), baseUrl).href;
+    const mainUrl = getAbsolutePath(url?.replace(appHostPath, ""), baseUrl);
     const ignoreFlag = url === undefined;
 
     rawHistoryPushState.call(history, data, title, ignoreFlag ? undefined : mainUrl);
@@ -136,7 +137,7 @@ function patchIframeHistory(iframeWindow: Window, appHostPath: string, mainHostP
   history.replaceState = function (data: any, title: string, url?: string): void {
     const baseUrl =
       mainHostPath + iframeWindow.location.pathname + iframeWindow.location.search + iframeWindow.location.hash;
-    const mainUrl = new URL(url?.replace(appHostPath, ""), baseUrl).href;
+    const mainUrl = getAbsolutePath(url?.replace(appHostPath, ""), baseUrl);
     const ignoreFlag = url === undefined;
 
     rawHistoryReplaceState.call(history, data, title, ignoreFlag ? undefined : mainUrl);

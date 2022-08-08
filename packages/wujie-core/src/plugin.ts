@@ -76,6 +76,12 @@ function cssRelativePathResolve(code: string, src: string, base: string) {
   });
 }
 
-export default {
+const defaultPlugin = {
   cssLoader: cssRelativePathResolve,
 };
+
+export function getPlugins(plugins: Array<plugin>): Array<plugin> {
+  return Array.isArray(plugins) ? [defaultPlugin, ...plugins] : [defaultPlugin];
+}
+
+export default defaultPlugin;

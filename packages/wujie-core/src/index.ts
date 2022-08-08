@@ -3,6 +3,7 @@ import { StyleObject } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent } from "./shadow";
 import { processAppForHrefJump } from "./sync";
+import { getPlugins } from "./plugin";
 import { wujieSupport, isFunction, requestIdleCallback, isMatchSyncQueryById, warn } from "./utils";
 import { getSandboxById } from "./common";
 import { EventBus } from "./event";
@@ -175,7 +176,7 @@ export async function startApp({
   };
   // 已经初始化过的应用，快速渲染
   if (sandbox) {
-    sandbox.plugins = Array.isArray(plugins) ? plugins : [];
+    sandbox.plugins = getPlugins(plugins);
     sandbox.lifecycles = lifecycles;
     const iframeWindow = sandbox.iframe.contentWindow;
     if (sandbox.preload) {
