@@ -83,7 +83,7 @@ const wujieVueOptions = {
   render() {
     return h("div", {
       style: {
-        width: this.height,
+        width: this.width,
         height: this.height,
       },
       ref: "wujie",
