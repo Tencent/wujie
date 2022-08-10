@@ -113,13 +113,43 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
   );
 }
 
+// 替换html的head和body
+function replaceHeadAndBody(html: HTMLHtmlElement, head: HTMLHeadElement, body: HTMLBodyElement): HTMLHtmlElement {
+  const headElement = html.querySelector("head");
+  const bodyElement = html.querySelector("body");
+  if (headElement) {
+    while (headElement.firstChild) {
+      head.appendChild(headElement.firstChild.cloneNode(true));
+      headElement.removeChild(headElement.firstChild);
+    }
+    headElement.parentNode.replaceChild(head, headElement);
+  }
+  if (bodyElement) {
+    while (bodyElement.firstChild) {
+      body.appendChild(bodyElement.firstChild.cloneNode(true));
+      bodyElement.removeChild(bodyElement.firstChild);
+    }
+    bodyElement.parentNode.replaceChild(body, bodyElement);
+  }
+  return html;
+}
+
 /**
  * 将template渲染成html元素
  */
 function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlElement {
+  const sandbox = iframeWindow.__WUJIE;
+  const { head, body, alive, execFlag } = sandbox;
   const document = iframeWindow.document;
-  const html = document.createElement("html");
+  let html = document.createElement("html");
   html.innerHTML = template;
+  // 组件多次渲染，head和body必须一直使用同一个来应对被缓存的场景
+  if (!alive && execFlag) {
+    html = replaceHeadAndBody(html, head, body);
+  } else {
+    sandbox.head = html.querySelector("head");
+    sandbox.body = html.querySelector("body");
+  }
   const ElementIterator = document.createTreeWalker(html, NodeFilter.SHOW_ELEMENT);
   let nextElement = ElementIterator.currentNode as HTMLElement;
   while (nextElement) {
@@ -166,7 +196,7 @@ export async function renderTemplateToShadowRoot(
     get: () => iframeWindow.document,
   });
 
-  patchRenderEffect(shadowRoot, iframeWindow.__WUJIE.id);
+  patchRenderEffect(shadowRoot, iframeWindow.__WUJIE.id, false);
 }
 
 export function createIframeContainer(id: string): HTMLIFrameElement {
@@ -199,7 +229,7 @@ export async function renderTemplateToIframe(
     get: () => iframeWindow.document,
   });
 
-  patchRenderEffect(renderDocument, iframeWindow.__WUJIE.id);
+  patchRenderEffect(renderDocument, iframeWindow.__WUJIE.id, true);
 }
 
 /**
@@ -207,7 +237,7 @@ export async function renderTemplateToIframe(
  */
 export function clearChild(root: ShadowRoot | Node): void {
   // 清除内容
-  while (root.firstChild) {
+  while (root?.firstChild) {
     rawElementRemoveChild.call(root, root.firstChild);
   }
 }
