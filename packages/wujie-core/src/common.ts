@@ -160,8 +160,8 @@ export const rawElementAppendChild = HTMLElement.prototype.appendChild;
 export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
 export const rawBodyInsertBefore = HTMLBodyElement.prototype.insertBefore;
-export const rawWindowAddEventListener = Window.prototype.addEventListener;
-export const rawWindowRemoveEventListener = Window.prototype.removeEventListener;
+export const rawAddEventListener = EventTarget.prototype.addEventListener;
+export const rawRemoveEventListener = EventTarget.prototype.removeEventListener;
 export const rawAppendChild = Node.prototype.appendChild;
 export const rawDocumentQuerySelector = window.__POWERED_BY_WUJIE__
   ? window.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__

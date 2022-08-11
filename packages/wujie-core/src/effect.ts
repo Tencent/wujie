@@ -5,6 +5,8 @@ import {
   rawHeadInsertBefore,
   rawBodyInsertBefore,
   rawDocumentQuerySelector,
+  rawAddEventListener,
+  rawRemoveEventListener,
 } from "./common";
 import {
   isFunction,
@@ -272,10 +274,57 @@ function rewriteAppendOrInsertChild(opts: {
 }
 
 /**
+ * 记录head和body的事件，等重新渲染复用head和body时需要清空事件
+ */
+function patchEventListener(element: HTMLHeadElement | HTMLBodyElement) {
+  const listenerMap = new Map<string, EventListenerOrEventListenerObject[]>();
+  element.__cacheListeners = listenerMap;
+
+  element.addEventListener = (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ) => {
+    const listeners = listenerMap.get(type) || [];
+    listenerMap.set(type, [...listeners, listener]);
+    return rawAddEventListener.call(element, type, listener, options);
+  };
+
+  element.removeEventListener = (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ) => {
+    const typeListeners = listenerMap.get(type);
+    const index = typeListeners?.indexOf(listener);
+    if (typeListeners?.length && index !== -1) {
+      typeListeners.splice(index, 1);
+    }
+    return rawRemoveEventListener.call(element, type, listener, options);
+  };
+}
+
+/**
+ * 清空head和body的绑定的事件
+ */
+export function removeEventListener(element: HTMLHeadElement | HTMLBodyElement) {
+  const listenerMap = element.__cacheListeners;
+  [...listenerMap.entries()].forEach(([type, listeners]) => {
+    listeners.forEach((listener) => rawRemoveEventListener.call(element, type, listener));
+  });
+}
+
+/**
  * patch head and body in render
  * intercept appendChild and insertBefore
  */
-export function patchRenderEffect(render: ShadowRoot | Document, id: string): void {
+export function patchRenderEffect(render: ShadowRoot | Document, id: string, degrade: boolean): void {
+  // 降级场景dom渲染在iframe中，iframe移动后事件自动销毁，不需要记录
+  if (!degrade) {
+    patchEventListener(render.head);
+    patchEventListener(render.body as HTMLBodyElement);
+  }
+
   render.head.appendChild = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawAppendChild,
     wujieId: id,

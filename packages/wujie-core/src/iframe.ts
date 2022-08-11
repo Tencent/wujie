@@ -15,8 +15,8 @@ import {
 } from "./utils";
 import {
   documentProxyProperties,
-  rawWindowAddEventListener,
-  rawWindowRemoveEventListener,
+  rawAddEventListener,
+  rawRemoveEventListener,
   rawDocumentQuerySelector,
   documentAddEventListenerEvents,
   rootAddEventListenerEvents,
@@ -68,6 +68,12 @@ declare global {
     // 注入对象
     $wujie: { [key: string]: any };
   }
+  interface HTMLHeadElement {
+    __cacheListeners: Map<string, EventListenerOrEventListenerObject[]>;
+  }
+  interface HTMLBodyElement {
+    __cacheListeners: Map<string, EventListenerOrEventListenerObject[]>;
+  }
 }
 
 /**
@@ -83,10 +89,10 @@ function patchIframeEvents(iframeWindow: Window) {
     execHooks(iframeWindow.__WUJIE.plugins, "windowAddEventListenerHook", iframeWindow, type, listener, options);
 
     if (iframeAddEventListenerEvents.includes(type)) {
-      return rawWindowAddEventListener.call(iframeWindow, type, listener, options);
+      return rawAddEventListener.call(iframeWindow, type, listener, options);
     }
     // 在子应用嵌套场景使用window.window获取真实window
-    rawWindowAddEventListener.call(window.window, type, listener, options);
+    rawAddEventListener.call(window.window, type, listener, options);
   };
 
   iframeWindow.removeEventListener = function removeEventListener<K extends keyof WindowEventMap>(
@@ -98,9 +104,9 @@ function patchIframeEvents(iframeWindow: Window) {
     execHooks(iframeWindow.__WUJIE.plugins, "windowRemoveEventListenerHook", iframeWindow, type, listener, options);
 
     if (iframeAddEventListenerEvents.includes(type)) {
-      return rawWindowRemoveEventListener.call(iframeWindow, type, listener, options);
+      return rawRemoveEventListener.call(iframeWindow, type, listener, options);
     }
-    rawWindowRemoveEventListener.call(window.window, type, listener, options);
+    rawRemoveEventListener.call(window.window, type, listener, options);
   };
 }
 
@@ -233,8 +239,6 @@ function patchWindowEffect(iframeWindow: Window): void {
  * 记录节点的监听事件
  */
 function recordEventListeners(iframeWindow: Window) {
-  const rawAddEventListener = iframeWindow.EventTarget.prototype.addEventListener;
-  const rawRemoveEventListener = iframeWindow.EventTarget.prototype.removeEventListener;
   const sandbox = iframeWindow.__WUJIE;
   iframeWindow.EventTarget.prototype.addEventListener = function (
     type: string,

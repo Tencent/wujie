@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
 
+    "downlevelIteration": true,
     "declaration": true,
     "emitDeclarationOnly": true,
     "isolatedModules": true

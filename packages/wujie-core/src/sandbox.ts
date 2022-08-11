@@ -18,6 +18,7 @@ import {
 import { proxyGenerator, localGenerator } from "./proxy";
 import { ScriptResultList } from "./entry";
 import { getPlugins, getJsBeforeLoaders, getJsAfterLoaders } from "./plugin";
+import { removeEventListener } from "./effect";
 import {
   idToSandboxMap,
   addSandboxIdMap,
@@ -98,6 +99,10 @@ export default class Wujie {
   public document: Document;
   /** 子应用styleSheet元素 */
   public styleSheetElements: Array<HTMLLinkElement | HTMLStyleElement>;
+  /** 子应用head元素 */
+  public head: HTMLHeadElement;
+  /** 子应用body元素 */
+  public body: HTMLBodyElement;
   /** 子应用dom监听事件留存，当降级时用于保存元素事件 */
   public elementEventCacheMap: WeakMap<
     Node,
@@ -343,7 +348,14 @@ export default class Wujie {
       this.lifecycles?.afterUnmount?.(this.iframe.contentWindow);
       this.mountFlag = false;
       this.bus.$clear();
-      if (!this.degrade) clearChild(this.shadowRoot);
+      if (!this.degrade) {
+        clearChild(this.shadowRoot);
+        // head body需要复用，每次都要清空事件
+        removeEventListener(this.head);
+        removeEventListener(this.body);
+      }
+      clearChild(this.head);
+      clearChild(this.body);
     }
   }
 
@@ -366,6 +378,8 @@ export default class Wujie {
     this.mountFlag = null;
     this.hrefFlag = null;
     this.document = null;
+    this.head = null;
+    this.body = null;
     this.elementEventCacheMap = null;
     this.lifecycles = null;
     this.plugins = null;
