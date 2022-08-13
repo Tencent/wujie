@@ -66,3 +66,11 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 ```javascript
   library: { type: 'window', name: '保持和name一致' }
 ```
+
+## 8、子应用iframe初始化时加载、执行了主应用的资源
+
+**原因：** 原因详见[issue](https://github.com/Tencent/wujie/issues/54)
+
+**解决方案：** 
+- 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容，子应用设置 attr 为 `{src:'https://host/empty'}`，这样 iframe 的 src 就是 `https://host/empty`
+- 在主应用 template 的 head 第一个元素插入一个`<script>if(window.parent !== window) {window.stop()}</script>`这样的标签应该可以避免主应用代码污染
