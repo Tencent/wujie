@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
-import router from "./router";
+import routes from "./router";
+import VueRouter from "vue-router";
 import Tag from "element-ui/lib/tag";
 import Button from "element-ui/lib/button";
 import Select from "element-ui/lib/select";
@@ -25,19 +26,24 @@ import "ant-design-vue/es/modal/style/index.css";
 import "ant-design-vue/es/popover/style/index.css";
 import "./index.css";
 
+const base = process.env.NODE_ENV === "production" ? "/demo-vue2/" : "";
+
 [Tag, Button, Select, Option, Popover, Dialog].forEach((element) => Vue.use(element));
 [AButton, ASelect, AModal, APopover].forEach((element) => Vue.use(element));
+
+Vue.use(VueRouter);
 
 Vue.config.productionTip = false;
 
 if (window.__POWERED_BY_WUJIE__) {
   let instance;
   window.__WUJIE_MOUNT = () => {
+    const router = new VueRouter({ base, routes });
     instance = new Vue({ router, render: (h) => h(App) }).$mount("#app");
   };
   window.__WUJIE_UNMOUNT = () => {
     instance.$destroy();
   };
 } else {
-  new Vue({ router, render: (h) => h(App) }).$mount("#app");
+  new Vue({ router: new VueRouter({ base, routes }), render: (h) => h(App) }).$mount("#app");
 }

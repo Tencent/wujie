@@ -49,20 +49,19 @@ app.use((req, res, next) => {
 });
 ```
 
+### 运行模式
+
+无界有三种运行模式：[单例模式](/guide/mode.html#单例模式)、[保活模式](/guide/mode.html#保活模式)、[重建模式](/guide/mode.html#重建模式)
+
+其中[保活模式](/guide/mode.html#保活模式)、[重建模式](/guide/mode.html#重建模式)子应用无需做任何改造工作，[单例模式](/guide/mode.html#单例模式)需要做生命周期改造
+
+
 ### 生命周期改造
-
-::: tip 提示
-
-[`startApp`](/api/startApp)如果使用[保活模式](/api/startApp.html#alive)，子应用不需要进行生命周期改造
-
-:::
-
 改造入口函数：
 
-- 将实例的创建渲染挂载到`window.__WUJIE_MOUNT`函数上
+- 将子应用路由的创建、实例的创建渲染挂载到`window.__WUJIE_MOUNT`函数上
 - 将实例的销毁挂载到`window.__WUJIE_UNMOUNT`上
-
-如果子应用的实例化是在异步函数中进行的，在定义完生命周期函数后，请务必主动调用无界的渲染函数 `window.__WUJIE.mount()`（见 vite 示例）
+- 如果子应用的实例化是在异步函数中进行的，在定义完生命周期函数后，请务必主动调用无界的渲染函数 `window.__WUJIE.mount()`（见 vite 示例）
 
 具体操作可以参考下面示例
 
@@ -73,13 +72,14 @@ app.use((req, res, next) => {
 if (window.__POWERED_BY_WUJIE__) {
   let instance;
   window.__WUJIE_MOUNT = () => {
+    const router = new VueRouter({ routes });
     instance = new Vue({ router, render: (h) => h(App) }).$mount("#app");
   };
   window.__WUJIE_UNMOUNT = () => {
     instance.$destroy();
   };
 } else {
-  new Vue({ router, render: (h) => h(App) }).$mount("#app");
+  new Vue({ router: new VueRouter({ routes }), render: (h) => h(App) }).$mount("#app");
 }
 ```
 
@@ -90,20 +90,16 @@ if (window.__POWERED_BY_WUJIE__) {
 if (window.__POWERED_BY_WUJIE__) {
   let instance;
   window.__WUJIE_MOUNT = () => {
+    const router = createRouter({ history: createWebHistory(), routes });
     instance = createApp(App);
     instance.use(router);
     instance.mount("#app");
-    /*
-      vue-router 4.x版本会保留之前路径，需要重置到当前路径
-      各个业务需要自行处理，包括查询参数等等
-    */
-    router.replace({ path: "/xxx" });
   };
   window.__WUJIE_UNMOUNT = () => {
     instance.unmount();
   };
 } else {
-  createApp(App).use(router).mount("#app");
+  createApp(App).use(createRouter({ history: createWebHistory(), routes })).mount("#app");
 }
 ```
 
@@ -127,14 +123,10 @@ declare global {
 if (window.__POWERED_BY_WUJIE__) {
   let instance: any;
   window.__WUJIE_MOUNT = () => {
+    const router = createRouter({ history: createWebHistory(), routes });
     instance = createApp(App)
     instance.use(router);
     instance.mount("#app");
-    /*
-      vue-router 4.x版本会保留之前路径，需要重置到当前路径
-      各个业务需要自行处理，包括查询参数等等
-    */
-    router.replace({path: '/xxx'});
   };
   window.__WUJIE_UNMOUNT = () => {
     instance.unmount();
@@ -147,7 +139,7 @@ if (window.__POWERED_BY_WUJIE__) {
   */
   window.__WUJIE.mount()
 } else {
-  createApp(App).use(router).mount("#app");
+  createApp(App).use(createRouter({ history: createWebHistory(), routes })).mount("#app");
 }
 
 ```
@@ -217,5 +209,5 @@ if (window.__POWERED_BY_WUJIE__) {
 
 ::: warning 注意
 
-- [`startApp`](/api/startApp.html)请尽量使用`alive`模式，不使用`alive`应用切换时会出现白屏时间
+- 对于老项目情况，尽可能使用[保活模式](/guide/mode.html#保活模式)降低白屏时间
   :::

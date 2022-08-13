@@ -1,8 +1,6 @@
-import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import { defineAsyncComponent } from "vue";
 const _import = (name: string) => defineAsyncComponent(() => import(`../views/${name}.vue`));
-const basename = process.env.NODE_ENV === "production" ? "/demo-vite/" : "";
 
 const routes = [
   {
@@ -47,9 +45,4 @@ const routes = [
   },
 ];
 
-const router = createRouter({
-  history: createWebHistory(basename),
-  routes,
-});
-
-export default router;
+export default routes;

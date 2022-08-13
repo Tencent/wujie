@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router";
+import routes from "./router";
+import { createRouter, createWebHistory } from "vue-router";
 import Tag from "element-plus/es/components/tag/index";
 import Button from "element-plus/es/components/button/index";
 import Dialog from "element-plus/es/components/dialog/index";
@@ -22,6 +23,7 @@ import "ant-design-vue/es/modal/style/index.css";
 import "ant-design-vue/es/popover/style/index.css";
 import "./index.css";
 
+const basename = process.env.NODE_ENV === "production" ? "/demo-vite/" : "";
 declare global {
   interface Window {
     // 是否存在无界
@@ -38,6 +40,7 @@ declare global {
 if (window.__POWERED_BY_WUJIE__) {
   let instance: any;
   window.__WUJIE_MOUNT = () => {
+    const router = createRouter({ history: createWebHistory(basename), routes });
     instance = createApp(App)
       .use(Tag)
       .use(Button)
@@ -50,7 +53,6 @@ if (window.__POWERED_BY_WUJIE__) {
       .use(APopover)
       .use(router);
     instance.mount("#app");
-    router.replace({path: "/home"});
   };
   window.__WUJIE_UNMOUNT = () => {
     instance.unmount();
@@ -68,6 +70,6 @@ if (window.__POWERED_BY_WUJIE__) {
     .use(ASelect)
     .use(AModal)
     .use(APopover)
-    .use(router)
+    .use(createRouter({ history: createWebHistory(basename), routes }))
     .mount("#app");
 }
