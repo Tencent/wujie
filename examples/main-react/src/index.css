@@ -32,12 +32,31 @@ body {
   box-shadow: 3px 0px 9px 2px #e6e6e6;
   transition: transform 0.1s linear;
   transform: translate(0, 0);
+  overflow: auto;
 }
 
 .nav .menu-icon {
   display: none;
   border: none;
   background: var(--theme) !important;
+}
+
+.main-icon {
+  padding: 0 10px;
+}
+
+.main-icon {
+  padding: 0 10px;
+  transition: transform 0.2s ease-in;
+}
+
+.main-icon.active {
+  transform: rotate(180deg);
+}
+
+.sub-menu {
+  font-size: 16px;
+  padding: 0 10px;
 }
 
 .button-gap {
@@ -98,6 +117,7 @@ h3 {
 
 .alive {
   display: inline-block;
+  white-space: nowrap;
   background-color: var(--theme);
   border-radius: 8px;
   margin-left: 4px;

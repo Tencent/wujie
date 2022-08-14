@@ -7,12 +7,12 @@ import lifecycles from "../lifecycle";
 
 export default function React16() {
   const navigation = useNavigate();
-  const react16Url = hostMap("//localhost:7600");
-  const react17Url = hostMap("//localhost:7100");
-  const vue2Url = hostMap("//localhost:7200");
-  const vue3Url = hostMap("//localhost:7300");
-  const vite = hostMap("//localhost:7500");
-  const angular12Url = hostMap("//localhost:7400");
+  const react16Url = hostMap("//localhost:7600/");
+  const react17Url = hostMap("//localhost:7100/");
+  const vue2Url = hostMap("//localhost:7200/");
+  const vue3Url = hostMap("//localhost:7300/");
+  const vite = hostMap("//localhost:7500/");
+  const angular12Url = hostMap("//localhost:7400/");
   // 修正iframe的url，防止github pages csp报错
   const react16Attrs = process.env.NODE_ENV === "production" ? { src: react16Url } : {};
   const react17Attrs = process.env.NODE_ENV === "production" ? { src: react17Url } : {};
@@ -22,7 +22,7 @@ export default function React16() {
   const angular12Attrs = process.env.NODE_ENV === "production" ? { src: angular12Url } : {};
   const degrade = window.localStorage.getItem("degrade") === "true";
   const vue3Fetch = (url, options) =>
-    url.includes(hostMap("//localhost:7300")) ? fetch(url, options) : window.fetch(url, options);
+    url.includes(hostMap("//localhost:7300/")) ? fetch(url, options) : window.fetch(url, options);
   const props = {
     jump: (name) => {
       navigation(`/${name}`);
