@@ -46,7 +46,7 @@ export function proxyGenerator(
         return target.__WUJIE.proxyLocation;
       }
       // 判断自身
-      if (p === "self" || p === "window") {
+      if (p === "self") {
         return target.__WUJIE.proxy;
       }
       // 不要绑定this

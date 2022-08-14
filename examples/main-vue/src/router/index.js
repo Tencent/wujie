@@ -24,8 +24,18 @@ const routes = [
     component: React16,
   },
   {
+    path: "/react16-sub/:path",
+    name: "react16-sub",
+    component: React16,
+  },
+  {
     path: "/react17",
     name: "react17",
+    component: React17,
+  },
+  {
+    path: "/react17-sub/:path",
+    name: "react17-sub",
     component: React17,
   },
   {
@@ -34,13 +44,28 @@ const routes = [
     component: Vue2,
   },
   {
+    path: "/vue2-sub/:path",
+    name: "vue2-sub",
+    component: Vue2,
+  },
+  {
     path: "/vite",
     name: "vite",
     component: Vite,
   },
   {
+    path: "/vite-sub/:path",
+    name: "vite-sub",
+    component: Vite,
+  },
+  {
     path: "/vue3",
     name: "vue3",
+    component: Vue3,
+  },
+  {
+    path: "/vue3-sub/:path",
+    name: "vue3-sub",
     component: Vue3,
   },
   {

@@ -6,3 +6,11 @@
   </div>
   <router-view />
 </template>
+
+<script>
+export default {
+  mounted() {
+    window.$wujie?.bus.$on("vue3-router-change", (path) => this.$router.push(path));
+  },
+};
+</script>

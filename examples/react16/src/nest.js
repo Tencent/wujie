@@ -9,7 +9,7 @@ function selfFetch(url, options) {
 }
 
 export default function React17() {
-  const react17Url = hostMap("//localhost:7100");
+  const react17Url = hostMap("//localhost:7100/");
   const degrade = window.localStorage.getItem("degrade") === "true";
   const props = {
     jump: (name) => {

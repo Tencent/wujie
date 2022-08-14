@@ -1,9 +1,9 @@
 import logo from "./logo.svg";
-import { BrowserRouter as Router, Switch, Route, NavLink, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, NavLink, Redirect, useHistory } from "react-router-dom";
 import Dialog from "./Dialog";
 import Location from "./Location";
 import Communication from "./Communication";
-import State from './State'
+import State from "./State";
 import Tag from "antd/es/tag";
 import Button from "antd/es/button";
 import "antd/es/tag/style/css";
@@ -30,26 +30,38 @@ const Home = () => (
       </Tag>
     </p>
     <p>
-    <Button onClick={() => window.open("https://github.com/Tencent/wujie/tree/master/examples/react17")}>
+      <Button onClick={() => window.open("https://github.com/Tencent/wujie/tree/master/examples/react17")}>
         仓库地址
       </Button>
     </p>
   </div>
 );
+
+function Nav() {
+  const history = useHistory();
+  const routerJump = path => history.push(path);
+
+  // 主应用告诉子应用跳转路由
+  window.$wujie?.bus.$on("react17-router-change", routerJump);
+
+  return (
+    <nav>
+    <NavLink to="/home">首页</NavLink> | <NavLink to="/dialog">弹窗</NavLink> |{" "}
+    <NavLink to="/location">路由</NavLink> | <NavLink to="/communication">通信</NavLink> |{" "}
+    <NavLink to="/state">状态</NavLink>
+  </nav>
+
+  )
+}
+
 function App() {
   return (
     <div className="App">
       <header className="App-header">
         <Router basename={basename}>
           <div>
-            <nav>
-              <NavLink to="/home">首页</NavLink> | <NavLink to="/dialog">弹窗</NavLink> |{" "}
-              <NavLink to="/location">路由</NavLink> | <NavLink to="/communication">通信</NavLink> |{" "}
-              <NavLink to="/state">状态</NavLink>
-
-            </nav>
+            <Nav />
             <img src={logo} className="App-logo" alt="logo" />
-
             <Switch>
               <Route exact path="/home">
                 <Home />
