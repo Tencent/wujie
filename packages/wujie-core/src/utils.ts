@@ -1,5 +1,5 @@
 import { WUJIE_TIPS_NO_URL, WUJIE_DATA_ID } from "./constant";
-import { plugin } from "./index";
+import { plugin, cacheOptions } from "./index";
 
 export function toArray<T>(array: T | T[]): T[] {
   return Array.isArray(array) ? array : [array];
@@ -274,4 +274,36 @@ export function getExcludes(
 // 判断 url 是否被排查
 export function isExcludeUrl(url: string, excludes: plugin["jsExcludes"] | plugin["cssExcludes"]): boolean {
   return excludes.some((excludeUrl) => (typeof excludeUrl === "string" ? url === excludeUrl : excludeUrl.test(url)));
+}
+
+// 合并缓存
+export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) {
+  return {
+    name: options.name,
+    el: options.el || cacheOptions?.el,
+    url: options.url || cacheOptions?.url,
+    exec: options.exec !== undefined ? options.exec : cacheOptions?.exec,
+    replace: options.replace || cacheOptions?.replace,
+    fetch: options.fetch || cacheOptions?.fetch,
+    props: options.props || cacheOptions?.props,
+    sync: options.sync !== undefined ? options.sync : cacheOptions?.sync,
+    prefix: options.prefix || cacheOptions?.prefix,
+    // 默认 {}
+    attrs: options.attrs !== undefined ? options.attrs : cacheOptions?.attrs || {},
+    // 默认 true
+    fiber: options.fiber !== undefined ? options.fiber : cacheOptions?.fiber !== undefined ? cacheOptions?.fiber : true,
+    alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,
+    degrade: options.degrade !== undefined ? options.degrade : cacheOptions?.degrade,
+    plugins: options.plugins || cacheOptions?.plugins,
+    lifecycles: {
+      beforeLoad: options.beforeLoad || cacheOptions?.beforeLoad,
+      beforeMount: options.beforeMount || cacheOptions?.beforeMount,
+      afterMount: options.afterMount || cacheOptions?.afterMount,
+      beforeUnmount: options.beforeUnmount || cacheOptions?.beforeUnmount,
+      afterUnmount: options.afterUnmount || cacheOptions?.afterUnmount,
+      activated: options.activated || cacheOptions?.activated,
+      deactivated: options.deactivated || cacheOptions?.deactivated,
+      loadError: options.loadError || cacheOptions?.loadError,
+    },
+  };
 }

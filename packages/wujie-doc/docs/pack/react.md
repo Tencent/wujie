@@ -16,7 +16,7 @@ npm i wujie-react -S
 ```javascript
 import WujieReact from "wujie-react";
 
-const { bus, preloadApp, destroyApp } = WujieReact;
+const { bus, createApp, preloadApp, destroyApp } = WujieReact;
 ```
 
 ## 使用
@@ -42,6 +42,10 @@ const { bus, preloadApp, destroyApp } = WujieReact;
 
 [同 API](/api/bus.html)
 
+### createApp
+
+[同 API](/api/createApp.html)
+
 ### preloadApp
 
 [同 API](/api/preloadApp.html)
@@ -49,42 +53,6 @@ const { bus, preloadApp, destroyApp } = WujieReact;
 ### destroyApp
 
 [同 API](/api/destroyapp.html)
-
-## 常见问题
-
-#### 1、编译报错
-
-编译时报错：
-
-```
-ERROR in ./node_modules/wujie-react/esm/index.js 6:19
-Module parse failed: Unexpected token (6:19)
-You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
-|
-| export default class WujieReact extends React.PureComponent {
->   static propTypes = {
-|     height: PropTypes.string,
-|     width: PropTypes.string,
-```
-
-**原因**：wujie-react 编译有 esm 包和 lib 包且，默认采用 esm 包，esm 包没有进行 babel 处理，在 webpack 编译中导致报错。
-
-**解决**：
-
-
-方法 1：采用 lib 包
-
-```javascript
-import WujieReact from 'wujie-react/lib/index';
-```
-
-方法 2：webpack babel-loader 编译一下 wujie-react 和 wujie
-```javascript
-{
-  // babel-loader的 exclude 参数，排除掉 wujie-react 和 wujie
-  exclude: /node_modules\/(?!(wujie(-react)?)\/).*/,
-}
-```
 
 ## 原理
 
@@ -118,6 +86,7 @@ export default class WujieReact extends React.PureComponent {
     loadError: PropTypes.func,
   };
   static bus = bus;
+  static createApp = createApp;
   static preloadApp = preloadApp;
   static destroyApp = destroyApp;
 

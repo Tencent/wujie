@@ -14,11 +14,13 @@ footer: Copyright © 2021-present yiludege
 ---
 
 ```javascript
-import { bus, preloadApp, startApp, destroyAPP } from "wujie";
+import { bus, createApp, preloadApp, startApp, destroyAPP } from "wujie";
 
-preloadApp({ name: "唯一id", url: "子应用路径", exec: true });
+createApp({ name: "唯一id", url: "子应用路径", exec: true, el: "容器", sync: true });
 
-startApp({ name: "唯一id", url: "子应用路径", el: "容器", sync: true });
+preloadApp({ name: "唯一id" });
+
+startApp({ name: "唯一id" });
 
 bus.$on("事件名字", function(){});
 

@@ -1,5 +1,5 @@
 import { WUJIE_DATA_ID, WUJIE_IFRAME_CLASS, WUJIE_SHADE_STYLE } from "./constant";
-import { getSandboxById, rawElementAppendChild, rawElementRemoveChild, relativeElementTagAttrMap } from "./common";
+import { getWujieById, rawElementAppendChild, rawElementRemoveChild, relativeElementTagAttrMap } from "./common";
 import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
@@ -25,13 +25,13 @@ class WujieApp extends HTMLElement {
   connectedCallback(): void {
     if (this.shadowRoot) return;
     const shadowRoot = this.attachShadow({ mode: "open" });
-    const sandbox = getSandboxById(this.getAttribute(WUJIE_DATA_ID));
+    const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
     patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
     sandbox.shadowRoot = shadowRoot;
   }
 
   disconnectedCallback(): void {
-    const sandbox = getSandboxById(this.getAttribute(WUJIE_DATA_ID));
+    const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
     sandbox.unmount();
   }
 }

@@ -8,23 +8,29 @@ collapsable: false
 ### 引入
 
 ```javascript
-import { bus, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, createApp, preloadApp, startApp, destroyApp } from "wujie";
 ```
 
 ::: tip 提示
 如果主应用是`vue`框架可直接使用 [wujie-vue](/pack/)，`react`框架可直接使用 [wujie-react](/pack/react.html)
 :::
 
+### 创建主应用
+
+```javascript
+createApp({{ name: "唯一id", url: "子应用地址", exec: true, el: "容器", sync: true }})
+```
+
 ### 预加载
 
 ```javascript
-preloadApp({ name: "唯一id", url: "子应用地址", exec: true });
+preloadApp({ name: "唯一id"});
 ```
 
 ### 启动子应用
 
 ```javascript
-startApp({ name: "唯一id", url: "子应用地址", el: "容器", sync: true }
+startApp({ name: "唯一id" });
 ```
 
 ## 子应用改造

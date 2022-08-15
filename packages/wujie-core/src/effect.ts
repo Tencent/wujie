@@ -1,6 +1,6 @@
 import { getExternalStyleSheets, getExternalScripts } from "./entry";
 import {
-  getSandboxById,
+  getWujieById,
   rawAppendChild,
   rawHeadInsertBefore,
   rawBodyInsertBefore,
@@ -134,7 +134,7 @@ function rewriteAppendOrInsertChild(opts: {
   ) {
     let element = newChild as any;
     const { rawDOMAppendOrInsertBefore, wujieId } = opts;
-    const sandbox = getSandboxById(wujieId);
+    const sandbox = getWujieById(wujieId);
 
     if (!isHijackingTag(element.tagName) || !wujieId) {
       return rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;

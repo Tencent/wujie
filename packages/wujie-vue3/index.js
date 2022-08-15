@@ -1,4 +1,4 @@
-import { bus, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, preloadApp, startApp, destroyApp, createApp } from "wujie";
 import { h, defineComponent } from "vue";
 
 const wujieVueOptions = {
@@ -8,15 +8,15 @@ const wujieVueOptions = {
     height: { type: String, default: "" },
     name: { type: String, default: "" },
     url: { type: String, default: "" },
-    sync: { type: Boolean, default: false },
+    sync: { type: Boolean, default: undefined },
     prefix: { type: Object, default: undefined },
-    alive: { type: Boolean, default: false },
+    alive: { type: Boolean, default: undefined },
     props: { type: Object, default: undefined },
     attrs: {type: Object, default: undefined},
     replace: { type: Function, default: undefined },
     fetch: { type: Function, default: undefined },
-    fiber: { type: Boolean, default: true },
-    degrade: { type: Boolean, default: false },
+    fiber: { type: Boolean, default: undefined },
+    degrade: { type: Boolean, default: undefined },
     plugins: { type: Array, default: null },
     beforeLoad: { type: Function, default: null },
     beforeMount: { type: Function, default: null },
@@ -93,6 +93,7 @@ const wujieVueOptions = {
 
 const WujieVue = defineComponent(wujieVueOptions);
 
+WujieVue.createApp = createApp;
 WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;
