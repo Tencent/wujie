@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "lib": "webpack build --config webpack.config.js",
-    "esm": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps",
+    "esm": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps && tsc --emitDeclarationOnly",
     "prepack": "bash build.sh",
     "start": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps inline --watch",
     "lint": "eslint --ext .ts ./src  --fix && git add .",

@@ -1,7 +1,7 @@
 import { anchorElementGenerator, getAnchorElementQueryMap, getSyncUrl, appRouteParse, getDegradeIframe } from "./utils";
 import { renderIframeReplaceApp, patchEventTimeStamp } from "./iframe";
 import { renderElementToContainer, createIframeContainer, clearChild } from "./shadow";
-import { getSandboxById, rawDocumentQuerySelector } from "./common";
+import { getWujieById, rawDocumentQuerySelector } from "./common";
 
 /**
  * 同步子应用路由到主应用路由
@@ -66,7 +66,7 @@ export function clearInactiveAppUrl(): void {
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
   Object.keys(queryMap).forEach((id) => {
-    const sandbox = getSandboxById(id);
+    const sandbox = getWujieById(id);
     if (!sandbox) return;
     // 子应用执行过并且已经卸载才需要清除
     const clearFlag = sandbox.degrade
@@ -114,7 +114,7 @@ export function processAppForHrefJump(): void {
     const queryMap = getAnchorElementQueryMap(winUrlElement);
     winUrlElement = null;
     Object.keys(queryMap)
-      .map((id) => getSandboxById(id))
+      .map((id) => getWujieById(id))
       .filter((sandbox) => sandbox)
       .forEach((sandbox) => {
         const url = queryMap[sandbox.id];

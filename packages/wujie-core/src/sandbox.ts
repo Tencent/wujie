@@ -20,9 +20,10 @@ import { ScriptResultList } from "./entry";
 import { getPlugins, getJsBeforeLoaders, getJsAfterLoaders } from "./plugin";
 import { removeEventListener } from "./effect";
 import {
-  idToSandboxMap,
-  addSandboxIdMap,
-  deleteSandboxIdMap,
+  SandboxCache,
+  idToSandboxCacheMap,
+  addSandboxCacheWithWujie,
+  deleteWujieById,
   rawElementAppendChild,
   rawDocumentQuerySelector,
 } from "./common";
@@ -119,7 +120,7 @@ export default class Wujie {
 
   /** 子应用嵌套场景，父应用传递给子应用的数据 */
   public inject: {
-    idToSandboxMap: Map<String, Wujie>;
+    idToSandboxMap: Map<String, SandboxCache>;
     appEventObjMap: Map<String, EventObj>;
     mainHostPath: string;
   };
@@ -394,7 +395,7 @@ export default class Wujie {
     ).forEach((iframe) => {
       if (iframe.name === this.id) iframe.parentNode.removeChild(iframe);
     });
-    deleteSandboxIdMap(this.id);
+    deleteWujieById(this.id);
   }
 
   /** 当子应用再次激活后，只运行mount函数，样式需要重新恢复 */
@@ -448,7 +449,7 @@ export default class Wujie {
     if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject;
     else {
       this.inject = {
-        idToSandboxMap,
+        idToSandboxMap: idToSandboxCacheMap,
         appEventObjMap,
         mainHostPath: window.location.protocol + "//" + window.location.host,
       };
@@ -489,6 +490,6 @@ export default class Wujie {
     }
     this.provide.location = this.proxyLocation;
 
-    addSandboxIdMap(this.id, this);
+    addSandboxCacheWithWujie(this.id, this);
   }
 }

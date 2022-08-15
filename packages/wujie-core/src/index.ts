@@ -4,8 +4,8 @@ import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent } from "./shadow";
 import { processAppForHrefJump } from "./sync";
 import { getPlugins } from "./plugin";
-import { wujieSupport, isFunction, requestIdleCallback, isMatchSyncQueryById, warn } from "./utils";
-import { getSandboxById } from "./common";
+import { wujieSupport, mergeOptions, isFunction, requestIdleCallback, isMatchSyncQueryById, warn } from "./utils";
+import { getWujieById, getOptionsById, addSandboxCacheWithOptions } from "./common";
 import { EventBus } from "./event";
 import { WUJIE_TIPS_STOP_APP, WUJIE_TIPS_NOT_SUPPORTED } from "./constant";
 
@@ -99,12 +99,12 @@ type baseOptions = {
   loadError?: loadErrorHandler;
 };
 
-type preOptions = baseOptions & {
+export type preOptions = baseOptions & {
   /** 预执行 */
   exec?: boolean;
 };
 
-type startOptions = baseOptions & {
+export type startOptions = baseOptions & {
   /** 渲染的容器 */
   el: HTMLElement | string;
   /**
@@ -112,6 +112,17 @@ type startOptions = baseOptions & {
    * 如果false，子应用跳转主应用路由无变化，但是主应用的history还是会增加
    * https://html.spec.whatwg.org/multipage/history.html#the-history-interface
    */
+  sync?: boolean;
+  /** 子应用短路径替换，路由同步时生效 */
+  prefix?: { [key: string]: string };
+};
+
+export type cacheOptions = baseOptions & {
+  /** 预执行 */
+  exec?: boolean;
+  /** 渲染的容器 */
+  el?: HTMLElement | string;
+  /** 路由同步开关 */
   sync?: boolean;
   /** 子应用短路径替换，路由同步时生效 */
   prefix?: { [key: string]: string };
@@ -138,42 +149,22 @@ defineWujieWebComponent();
 if (!wujieSupport) warn(WUJIE_TIPS_NOT_SUPPORTED);
 
 /**
+ * 缓存子应用配置
+ */
+export function createApp(options: cacheOptions): void {
+  if (options.name) addSandboxCacheWithOptions(options.name, options);
+}
+
+/**
  * 运行无界app
  */
-export async function startApp({
-  name,
-  url,
-  replace,
-  el,
-  sync,
-  prefix,
-  alive,
-  props,
-  attrs = {},
-  fiber = true,
-  degrade,
-  plugins,
-  fetch,
-  beforeLoad,
-  beforeMount,
-  afterMount,
-  beforeUnmount,
-  afterUnmount,
-  activated,
-  deactivated,
-  loadError,
-}: startOptions): Promise<Function | void> {
-  const sandbox = getSandboxById(name);
-  const lifecycles = {
-    beforeLoad,
-    beforeMount,
-    afterMount,
-    beforeUnmount,
-    afterUnmount,
-    activated,
-    deactivated,
-    loadError,
-  };
+export async function startApp(startOptions: startOptions): Promise<Function | void> {
+  const sandbox = getWujieById(startOptions.name);
+  const cacheOptions = getOptionsById(startOptions.name);
+  // 合并缓存配置
+  const options = mergeOptions(startOptions, cacheOptions);
+  const { name, url, replace, fetch, props, attrs, fiber, alive, degrade, sync, prefix, el, plugins, lifecycles } =
+    options;
   // 已经初始化过的应用，快速渲染
   if (sandbox) {
     sandbox.plugins = getPlugins(plugins);
@@ -234,43 +225,18 @@ export async function startApp({
 /**
  * 预加载无界APP
  */
-export function preloadApp({
-  name,
-  url,
-  replace,
-  props,
-  attrs = {},
-  fiber = true,
-  alive,
-  degrade,
-  fetch,
-  exec,
-  plugins,
-  beforeLoad,
-  beforeMount,
-  afterMount,
-  beforeUnmount,
-  afterUnmount,
-  activated,
-  deactivated,
-  loadError,
-}: preOptions): void {
+export function preloadApp(preOptions: preOptions): void {
   requestIdleCallback((): void | Promise<void> => {
     /**
      * 已经存在
      * url查询参数中有子应用的id，大概率是刷新浏览器或者分享url，此时需要直接打开子应用，无需预加载
      */
-    if (getSandboxById(name) || isMatchSyncQueryById(name)) return;
-    const lifecycles = {
-      beforeLoad,
-      beforeMount,
-      afterMount,
-      beforeUnmount,
-      afterUnmount,
-      activated,
-      deactivated,
-      loadError,
-    };
+    if (getWujieById(preOptions.name) || isMatchSyncQueryById(preOptions.name)) return;
+    const cacheOptions = getOptionsById(preOptions.name);
+    // 合并缓存配置
+    const options = mergeOptions({ ...preOptions }, cacheOptions);
+    const { name, url, props, alive, replace, exec, attrs, fiber, degrade, plugins, lifecycles } = options;
+
     const sandbox = new WuJie({ name, url, attrs, fiber, degrade, plugins, lifecycles });
     if (sandbox.preload) return sandbox.preload;
     const runPreload = async () => {
@@ -294,7 +260,7 @@ export function preloadApp({
  * 销毁无界APP
  */
 export function destroyApp(id: string): void {
-  const sandbox = getSandboxById(id);
+  const sandbox = getWujieById(id);
   if (sandbox) {
     sandbox.destroy();
   }

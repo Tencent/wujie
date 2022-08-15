@@ -1,9 +1,7 @@
 import React from "react";
 import hostMap from "../hostMap";
-import fetch from "../fetch";
 import WujieReact from "wujie-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import lifecycles from "../lifecycle";
 
 export default function React17() {
   const location = useLocation();
@@ -11,10 +9,7 @@ export default function React17() {
   const react17Url = hostMap("//localhost:7100/");
   const path = location.pathname.replace("/react17-sub", "").replace("/react17", "");////
   // 告诉子应用要跳转哪个路由
-  WujieReact.bus.$emit("react17-router-change", path);
-  const degrade = window.localStorage.getItem("degrade") === "true";
-  // 修正iframe的url，防止github pages csp报错
-  const attrs = process.env.NODE_ENV === "production" ? { src: react17Url } : {};
+  path && WujieReact.bus.$emit("react17-router-change", path);
   const props = {
     jump: (name) => {
       navigation(`/${name}`);
@@ -27,20 +22,8 @@ export default function React17() {
       height="100%"
       name="react17"
       url={react17Url}
-      alive={true}
       sync={true}
-      fetch={fetch}
       props={props}
-      attrs={attrs}
-      degrade={degrade}
-      beforeLoad={lifecycles.beforeLoad}
-      beforeMount={lifecycles.beforeMount}
-      afterMount={lifecycles.afterMount}
-      beforeUnmount={lifecycles.beforeUnmount}
-      afterUnmount={lifecycles.afterUnmount}
-      activated={lifecycles.activated}
-      deactivated={lifecycles.deactivated}
-      loadError={lifecycles.loadError}
     ></WujieReact>
   );
 }
