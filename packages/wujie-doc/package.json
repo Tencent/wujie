@@ -1,6 +1,6 @@
 {
   "name": "wujie-doc",
-  "version": "1.0.0-rc.7",
+  "version": "1.0.0-rc.9",
   "description": "无界微前端文档",
   "main": "index.js",
   "scripts": {
