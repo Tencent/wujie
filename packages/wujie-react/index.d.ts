@@ -13,6 +13,7 @@ export default class WujieReact extends React.PureComponent {
     props: typeof PropTypes.object;
     replace: typeof PropTypes.func;
     sync: typeof PropTypes.bool;
+    prefix: typeof PropTypes.object;
     fiber: typeof PropTypes.bool;
     degrade: typeof PropTypes.bool;
     plugins: typeof PropTypes.array;
@@ -21,6 +22,9 @@ export default class WujieReact extends React.PureComponent {
     afterMount: typeof PropTypes.func;
     beforeUnmount: typeof PropTypes.func;
     afterUnmount: typeof PropTypes.func;
+    activated: typeof PropTypes.func,
+    deactivated: typeof PropTypes.func,
+    loadError: typeof PropTypes.func,
   };
   static bus: typeof bus;
   static preloadApp: typeof preloadApp;
