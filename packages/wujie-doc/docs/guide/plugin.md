@@ -270,7 +270,7 @@ const plugins = [
   },
 ];
 ```
-
+<!-- 
 ## windowPropertyOverride
 
 自定义子应用`window`的属性
@@ -306,4 +306,4 @@ const plugins = [
     },
   },
 ];
-```
+``` -->

@@ -38,6 +38,8 @@ declare global {
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__: typeof Document.prototype.querySelector;
     // 原生的querySelector
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__: typeof Document.prototype.querySelectorAll;
+    // 原生的window对象
+    __WUJIE_RAW_WINDOW__: Window;
     // 子应用沙盒实例
     __WUJIE: WuJie;
     // 子应用mount函数
@@ -92,7 +94,7 @@ function patchIframeEvents(iframeWindow: Window) {
       return rawAddEventListener.call(iframeWindow, type, listener, options);
     }
     // 在子应用嵌套场景使用window.window获取真实window
-    rawAddEventListener.call(window.window, type, listener, options);
+    rawAddEventListener.call(window.__WUJIE_RAW_WINDOW__ || window, type, listener, options);
   };
 
   iframeWindow.removeEventListener = function removeEventListener<K extends keyof WindowEventMap>(
@@ -106,13 +108,14 @@ function patchIframeEvents(iframeWindow: Window) {
     if (iframeAddEventListenerEvents.includes(type)) {
       return rawRemoveEventListener.call(iframeWindow, type, listener, options);
     }
-    rawRemoveEventListener.call(window.window, type, listener, options);
+    rawRemoveEventListener.call(window.__WUJIE_RAW_WINDOW__ || window, type, listener, options);
   };
 }
 
 function patchIframeVariable(iframeWindow: Window, appHostPath: string): void {
   iframeWindow.__WUJIE_PUBLIC_PATH__ = appHostPath + "/";
   iframeWindow.$wujie = iframeWindow.__WUJIE.provide;
+  iframeWindow.__WUJIE_RAW_WINDOW__ = iframeWindow;
   iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__ = iframeWindow.Document.prototype.querySelector;
   iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__ = iframeWindow.Document.prototype.querySelectorAll;
 }
