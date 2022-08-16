@@ -81,4 +81,4 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 **原因：** 为何采用代理，原因详见[issue](https://github.com/Tencent/wujie/issues/63)
 
 **解决方案：** 
-- 采用 window.__WUJIE_RAW_WINDOW__ 获取真实的 window 对象，[详见](/guide/variable.html#wujie-raw-window)
+- 采用 `window.__WUJIE_RAW_WINDOW__` 获取真实的 window 对象，[详见](/guide/variable.html#wujie-raw-window)
