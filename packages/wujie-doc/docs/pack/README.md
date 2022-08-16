@@ -23,7 +23,7 @@ import WujieVue from "wujie-vue2";
 // vue3
 import WujieVue from "wujie-vue3";
 
-const { bus, createApp, preloadApp, destroyApp } = WujieVue;
+const { bus, setupApp, preloadApp, destroyApp } = WujieVue;
 
 Vue.use(WujieVue);
 ```
@@ -53,9 +53,9 @@ Vue.use(WujieVue);
 
 [同 API](/api/bus.html)
 
-### createApp
+### setupApp
 
-[同 API](/api/createApp.html)
+[同 API](/api/setupApp.html)
 
 ### preloadApp
 
@@ -69,7 +69,7 @@ Vue.use(WujieVue);
 
 ```javascript
 import Vue from "vue";
-import { bus, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
 import { createApp, h, defineComponent } from "vue";
 const vue3Flag = !!createApp;
 
@@ -164,7 +164,7 @@ const wujieVueOptions = {
 
 const WujieVue = vue3Flag ? defineComponent(wujieVueOptions) : Vue.extend(wujieVueOptions);
 
-WujieVue.createApp = createApp;
+WujieVue.setupApp = setupApp;
 WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;

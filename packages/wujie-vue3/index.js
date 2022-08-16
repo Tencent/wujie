@@ -1,4 +1,4 @@
-import { bus, preloadApp, startApp, destroyApp, createApp } from "wujie";
+import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
 import { h, defineComponent } from "vue";
 
 const wujieVueOptions = {
@@ -93,7 +93,7 @@ const wujieVueOptions = {
 
 const WujieVue = defineComponent(wujieVueOptions);
 
-WujieVue.createApp = createApp;
+WujieVue.setupApp = setupApp;
 WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;

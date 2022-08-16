@@ -1,4 +1,4 @@
-import { bus, preloadApp, destroyApp, createApp } from "wujie";
+import { bus, preloadApp, destroyApp, setupApp } from "wujie";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -27,7 +27,7 @@ export default class WujieReact extends React.PureComponent {
     loadError: typeof PropTypes.func,
   };
   static bus: typeof bus;
-  static createApp: typeof createApp;
+  static setupApp: typeof setupApp;
   static preloadApp: typeof preloadApp;
   static destroyApp: typeof destroyApp;
 }

@@ -41,7 +41,7 @@ module.exports = {
           sidebarDepth: 2,
           children: [
             'bus.md',
-            'createApp.md',
+            'setupApp.md',
             'startApp.md',
             'preloadApp.md',
             'destroyApp.md'

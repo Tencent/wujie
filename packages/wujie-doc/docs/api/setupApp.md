@@ -1,4 +1,4 @@
-# createApp
+# setupApp
 
 - **类型：** `Function`
 
@@ -51,5 +51,5 @@ type cacheOptions  {
 };
 ```
 
-- **详情：** `createApp`创建子应用，主要作用是设置子应用默认属性，[startApp](/api/startApp.html)、[preloadApp](/api/preloadApp.html) 会从这里获取子应用默认属性，如果有相同的属性则会直接覆盖
+- **详情：** `setupApp`设置子应用默认属性，[startApp](/api/startApp.html)、[preloadApp](/api/preloadApp.html) 会从这里获取子应用默认属性，如果有相同的属性则会直接覆盖
 

@@ -14,9 +14,9 @@ footer: Copyright © 2021-present yiludege
 ---
 
 ```javascript
-import { bus, createApp, preloadApp, startApp, destroyAPP } from "wujie";
+import { bus, setupApp, preloadApp, startApp, destroyAPP } from "wujie";
 
-createApp({ name: "唯一id", url: "子应用路径", exec: true, el: "容器", sync: true });
+setupApp({ name: "唯一id", url: "子应用路径", exec: true, el: "容器", sync: true });
 
 preloadApp({ name: "唯一id" });
 

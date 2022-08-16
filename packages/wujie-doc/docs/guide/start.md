@@ -8,7 +8,7 @@ collapsable: false
 ### 引入
 
 ```javascript
-import { bus, createApp, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
 ```
 
 ::: tip 提示
@@ -18,7 +18,7 @@ import { bus, createApp, preloadApp, startApp, destroyApp } from "wujie";
 ### 创建主应用
 
 ```javascript
-createApp({{ name: "唯一id", url: "子应用地址", exec: true, el: "容器", sync: true }})
+setupApp({{ name: "唯一id", url: "子应用地址", exec: true, el: "容器", sync: true }})
 ```
 
 ### 预加载
