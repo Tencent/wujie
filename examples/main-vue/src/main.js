@@ -17,7 +17,7 @@ import lifecycles from "./lifecycle";
 import plugins from "./plugin";
 
 const isProduction = process.env.NODE_ENV === "production";
-const { createApp, preloadApp, bus } = WujieVue;
+const { setupApp, preloadApp, bus } = WujieVue;
 Vue.use(WujieVue).use(Switch).use(Tooltip).use(button).use(Icon);
 
 Vue.config.productionTip = false;
@@ -31,7 +31,7 @@ const props = {
   },
 };
 // 创建应用，主要是设置配置，preloadApp、startApp的配置基于这个配置做覆盖
-createApp({
+setupApp({
   name: "react16",
   url: hostMap("//localhost:7600/"),
   attrs: isProduction ? { src: hostMap("//localhost:7600/") } : {},
@@ -46,7 +46,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "react17",
   url: hostMap("//localhost:7100/"),
   attrs: isProduction ? { src: hostMap("//localhost:7100/") } : {},
@@ -59,7 +59,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "vue2",
   url: hostMap("//localhost:7200/"),
   attrs: isProduction ? { src: hostMap("//localhost:7200/") } : {},
@@ -71,7 +71,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "vue3",
   url: hostMap("//localhost:7300/"),
   attrs: isProduction ? { src: hostMap("//localhost:7300/") } : {},
@@ -87,7 +87,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "angular12",
   url: hostMap("//localhost:7400/"),
   attrs: isProduction ? { src: hostMap("//localhost:7400/") } : {},
@@ -99,7 +99,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "vite",
   url: hostMap("//localhost:7500/"),
   attrs: isProduction ? { src: hostMap("//localhost:7500/") } : {},

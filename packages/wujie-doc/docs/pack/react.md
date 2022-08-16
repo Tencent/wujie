@@ -16,7 +16,7 @@ npm i wujie-react -S
 ```javascript
 import WujieReact from "wujie-react";
 
-const { bus, createApp, preloadApp, destroyApp } = WujieReact;
+const { bus, setupApp, preloadApp, destroyApp } = WujieReact;
 ```
 
 ## 使用
@@ -42,9 +42,9 @@ const { bus, createApp, preloadApp, destroyApp } = WujieReact;
 
 [同 API](/api/bus.html)
 
-### createApp
+### setupApp
 
-[同 API](/api/createApp.html)
+[同 API](/api/setupApp.html)
 
 ### preloadApp
 
@@ -59,7 +59,7 @@ const { bus, createApp, preloadApp, destroyApp } = WujieReact;
 ```javascript
 import React from "react";
 import PropTypes from "prop-types";
-import { bus, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, setupApp ,preloadApp, startApp, destroyApp } from "wujie";
 
 export default class WujieReact extends React.PureComponent {
   static propTypes = {
@@ -86,7 +86,7 @@ export default class WujieReact extends React.PureComponent {
     loadError: PropTypes.func,
   };
   static bus = bus;
-  static createApp = createApp;
+  static setupApp = setupApp;
   static preloadApp = preloadApp;
   static destroyApp = destroyApp;
 

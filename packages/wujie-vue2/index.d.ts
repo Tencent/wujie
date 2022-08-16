@@ -1,9 +1,9 @@
 import Vue from "vue";
-import { bus, preloadApp, destroyApp, createApp } from "wujie";
+import { bus, preloadApp, destroyApp, setupApp } from "wujie";
 
 declare const WujieVue: {
   bus: typeof bus;
-  createApp: typeof createApp;
+  setupApp: typeof setupApp;
   preloadApp: typeof preloadApp;
   destroyApp: typeof destroyApp;
   install: (Vue: Vue) => void;

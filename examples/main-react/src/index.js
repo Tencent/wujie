@@ -12,13 +12,13 @@ import credentialsFetch from "./fetch";
 import lifecycles from "./lifecycle";
 import plugins from "./plugin";
 
-const { createApp, preloadApp, bus } = WujieReact;
+const { setupApp, preloadApp, bus } = WujieReact;
 const isProduction = process.env.NODE_ENV === "production";
 bus.$on("click", (msg) => window.alert(msg));
 
 const degrade = window.localStorage.getItem("degrade") === "true" || !window.Proxy || !window.CustomElementRegistry;
 // 创建应用，主要是设置配置，preloadApp、startApp的配置基于这个配置做覆盖
-createApp({
+setupApp({
   name: "react16",
   url: hostMap("//localhost:7600/"),
   attrs: isProduction ? { src: hostMap("//localhost:7600/") } : {},
@@ -32,7 +32,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "react17",
   url: hostMap("//localhost:7100/"),
   attrs: isProduction ? { src: hostMap("//localhost:7100/") } : {},
@@ -44,7 +44,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "vue2",
   url: hostMap("//localhost:7200/"),
   attrs: isProduction ? { src: hostMap("//localhost:7200/") } : {},
@@ -55,7 +55,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "vue3",
   url: hostMap("//localhost:7300/"),
   attrs: isProduction ? { src: hostMap("//localhost:7300/") } : {},
@@ -70,7 +70,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "angular12",
   url: hostMap("//localhost:7400/"),
   attrs: isProduction ? { src: hostMap("//localhost:7400/") } : {},
@@ -81,7 +81,7 @@ createApp({
   ...lifecycles,
 });
 
-createApp({
+setupApp({
   name: "vite",
   url: hostMap("//localhost:7500/"),
   attrs: isProduction ? { src: hostMap("//localhost:7500/") } : {},

@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { bus, preloadApp, startApp, destroyApp, createApp } from "wujie";
+import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
 
 const wujieVueOptions = {
   name: "WujieVue",
@@ -93,7 +93,7 @@ const wujieVueOptions = {
 
 const WujieVue = Vue.extend(wujieVueOptions);
 
-WujieVue.createApp = createApp;
+WujieVue.setupApp = setupApp;
 WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;

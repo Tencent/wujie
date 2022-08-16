@@ -151,7 +151,7 @@ if (!wujieSupport) warn(WUJIE_TIPS_NOT_SUPPORTED);
 /**
  * 缓存子应用配置
  */
-export function createApp(options: cacheOptions): void {
+export function setupApp(options: cacheOptions): void {
   if (options.name) addSandboxCacheWithOptions(options.name, options);
 }
 
