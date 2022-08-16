@@ -11,6 +11,8 @@ declare global {
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__: typeof Document.prototype.querySelector;
     // 原生的querySelectorAll
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__: typeof Document.prototype.querySelectorAll;
+    // 原生的window对象
+    __WUJIE_RAW_WINDOW__: Window;
     // 子应用沙盒实例
     __WUJIE: WuJie;
     // 子应用mount函数
@@ -51,6 +53,13 @@ declare global {
 - **类型：** `typeof Document.prototype.querySelectorAll`
 
 - **描述：** 子应用的 document.querySelectorAll 都被劫持到 webcomponent 上，如果需要没有劫持的 querySelectorAll 可以使用此变量
+
+## `__WUJIE_RAW_WINDOW__`
+
+- **类型：** `Window`
+
+- **描述：** 子应用的原生 window 对象
+
 
 ## `__WUJIE`
 

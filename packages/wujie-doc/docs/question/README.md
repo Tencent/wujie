@@ -74,3 +74,11 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 **解决方案：** 
 - 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容，子应用设置 attr 为 `{src:'https://host/empty'}`，这样 iframe 的 src 就是 `https://host/empty`
 - 在主应用 template 的 head 第一个元素插入一个`<script>if(window.parent !== window) {window.stop()}</script>`这样的标签应该可以避免主应用代码污染
+
+
+## 9、子应用 window 是一个代理对象，如何获取子应用的真实对象
+
+**原因：** 为何采用代理，原因详见[issue](https://github.com/Tencent/wujie/issues/63)
+
+**解决方案：** 
+- 采用 `window.__WUJIE_RAW_WINDOW__` 获取真实的 window 对象，[详见](/guide/variable.html#wujie-raw-window)
