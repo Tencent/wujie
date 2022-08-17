@@ -1,6 +1,6 @@
 {
   "name": "main-react",
-  "version": "1.0.0-rc.10",
+  "version": "1.0.0-rc.11",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.16.0",
@@ -58,7 +58,7 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "wujie-react": "^1.0.0-rc.10"
+    "wujie-react": "^1.0.0-rc.11"
   },
   "scripts": {
     "start": "node scripts/start.js",
