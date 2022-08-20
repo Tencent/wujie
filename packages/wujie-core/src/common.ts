@@ -119,7 +119,6 @@ export const documentProxyProperties = {
 
   // 需要从主应用document中获取的事件
   documentEvents: [
-    "onreadystatechange",
     "onpointerlockchange",
     "onpointerlockerror",
     "onbeforecopy",
@@ -138,12 +137,13 @@ export const documentProxyProperties = {
   ownerProperties: ["head", "body"],
 };
 
+// 需要挂载到子应用iframe document上的事件
+export const appDocumentAddEventListenerEvents = ["DOMContentLoaded", "readystatechange"];
+export const appDocumentOnEvents = ["onreadystatechange"];
 // 需要挂载到主应用document上的事件
-export const documentAddEventListenerEvents = [
-  "DOMContentLoaded",
+export const mainDocumentAddEventListenerEvents = [
   "fullscreenchange",
   "fullscreenerror",
-  "readystatechange",
   "scroll",
   "selectionchange",
   "visibilitychange",
@@ -151,9 +151,20 @@ export const documentAddEventListenerEvents = [
 ];
 
 // 需要同时挂载到主应用document和shadow上的事件（互斥）
-export const rootAddEventListenerEvents = ["gotpointercapture", "lostpointercapture"];
+export const mainAndAppAddEventListenerEvents = ["gotpointercapture", "lostpointercapture"];
 
-export const iframeAddEventListenerEvents = ["hashchange", "popstate"];
+// 子应用window监听需要挂载到iframe沙箱上的事件
+export const appWindowAddEventListenerEvents = [
+  "hashchange",
+  "popstate",
+  "DOMContentLoaded",
+  "load",
+  "beforeunload",
+  "unload",
+];
+
+// 子应用window.onXXX需要挂载到iframe沙箱上的事件
+export const appWindowOnEvent = ["onload", "onbeforeunload", "onunload"];
 
 // 相对路径问题元素的tag和attr的map
 export const relativeElementTagAttrMap = {

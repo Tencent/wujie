@@ -307,3 +307,17 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     },
   };
 }
+
+/**
+ * 事件触发器
+ */
+export function eventTrigger(el: HTMLElement | Window | Document, eventName: string, detail?: any) {
+  let event;
+  if (typeof window.CustomEvent === "function") {
+    event = new CustomEvent(eventName, { detail });
+  } else {
+    event = document.createEvent("CustomEvent");
+    event.initCustomEvent(eventName, true, false, detail);
+  }
+  el.dispatchEvent(event);
+}
