@@ -1,0 +1,8 @@
+{
+  "pipeline": {
+    "start": {},
+    "docs": {},
+    "test": {},
+    "lint": {}
+  }
+}
