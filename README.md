@@ -147,8 +147,5 @@ import WujieReact from "wujie-react";
 
 ```bash
 npm i                   // 安装包依赖
-npx husky install       // Enable Git hooks
-npm i -g lerna          // 安装 lerna
-lerna bootstrap         // 安装所有子应用包依赖
-npm run start           // 启动子应用
+npm run start           // 启动所有应用
 ```
