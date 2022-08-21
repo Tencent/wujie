@@ -72,18 +72,13 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandb
 /**
  * 劫持处理样式元素的属性
  */
-
-type stylesheetElement = HTMLStyleElement & {
-  _hasPatch?: boolean // 判断新增的style标签是否被劫持
-}
-
 function patchStylesheetElement(
-  stylesheetElement: stylesheetElement,
+  stylesheetElement: HTMLStyleElement & { _hasPatch?: boolean },
   cssLoader: (code: string, url: string, base: string) => string,
   sandbox: Wujie,
   curUrl: string
 ) {
-  if( stylesheetElement._hasPatch ) return
+  if (stylesheetElement._hasPatch) return;
   const innerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
   const innerTextDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "innerText");
   const textContentDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
@@ -126,11 +121,7 @@ function patchStylesheetElement(
         } else return rawAppendChild(node);
       },
     },
-    _hasPatch: {
-      get: function () {
-        return true
-      }
-    }
+    _hasPatch: { get: () => true },
   });
 }
 
