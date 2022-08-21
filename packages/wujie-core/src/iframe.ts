@@ -18,9 +18,12 @@ import {
   rawAddEventListener,
   rawRemoveEventListener,
   rawDocumentQuerySelector,
-  documentAddEventListenerEvents,
-  rootAddEventListenerEvents,
-  iframeAddEventListenerEvents,
+  mainDocumentAddEventListenerEvents,
+  mainAndAppAddEventListenerEvents,
+  appDocumentAddEventListenerEvents,
+  appDocumentOnEvents,
+  appWindowAddEventListenerEvents,
+  appWindowOnEvent,
   windowProxyProperties,
   windowRegWhiteList,
 } from "./common";
@@ -90,7 +93,7 @@ function patchIframeEvents(iframeWindow: Window) {
     // 运行插件钩子函数
     execHooks(iframeWindow.__WUJIE.plugins, "windowAddEventListenerHook", iframeWindow, type, listener, options);
 
-    if (iframeAddEventListenerEvents.includes(type)) {
+    if (appWindowAddEventListenerEvents.includes(type)) {
       return rawAddEventListener.call(iframeWindow, type, listener, options);
     }
     // 在子应用嵌套场景使用window.window获取真实window
@@ -105,7 +108,7 @@ function patchIframeEvents(iframeWindow: Window) {
     // 运行插件钩子函数
     execHooks(iframeWindow.__WUJIE.plugins, "windowRemoveEventListenerHook", iframeWindow, type, listener, options);
 
-    if (iframeAddEventListenerEvents.includes(type)) {
+    if (appWindowAddEventListenerEvents.includes(type)) {
       return rawRemoveEventListener.call(iframeWindow, type, listener, options);
     }
     rawRemoveEventListener.call(window.__WUJIE_RAW_WINDOW__ || window, type, listener, options);
@@ -212,7 +215,11 @@ function patchWindowEffect(iframeWindow: Window): void {
     });
   });
   // onEvent set
-  const windowOnEvents = Object.getOwnPropertyNames(window).filter((p) => /^on/.test(p));
+  const windowOnEvents = Object.getOwnPropertyNames(window)
+    .filter((p) => /^on/.test(p))
+    .filter((e) => !appWindowOnEvent.includes(e));
+
+  // 走主应用window
   windowOnEvents.forEach((e) => {
     const descriptor = Object.getOwnPropertyDescriptor(iframeWindow, e) || {
       enumerable: true,
@@ -368,11 +375,14 @@ function patchDocumentEffect(iframeWindow: Window): void {
 
     // 运行插件钩子函数
     execHooks(iframeWindow.__WUJIE.plugins, "documentAddEventListenerHook", iframeWindow, type, callback, options);
-
+    if (appDocumentAddEventListenerEvents.includes(type)) {
+      return rawAddEventListener.call(this, type, callback, options);
+    }
     // 降级统一走document.firstElementChild
     if (sandbox.degrade) return sandbox.document.firstElementChild.addEventListener(type, callback, options);
-    if (documentAddEventListenerEvents.includes(type)) return window.document.addEventListener(type, callback, options);
-    if (rootAddEventListenerEvents.includes(type)) {
+    if (mainDocumentAddEventListenerEvents.includes(type))
+      return window.document.addEventListener(type, callback, options);
+    if (mainAndAppAddEventListenerEvents.includes(type)) {
       window.document.addEventListener(type, callback, options);
       sandbox.shadowRoot.addEventListener(type, callback, options);
       return;
@@ -397,12 +407,14 @@ function patchDocumentEffect(iframeWindow: Window): void {
 
       // 运行插件钩子函数
       execHooks(iframeWindow.__WUJIE.plugins, "documentRemoveEventListenerHook", iframeWindow, type, callback, options);
-
+      if (appDocumentAddEventListenerEvents.includes(type)) {
+        return rawRemoveEventListener.call(this, type, callback, options);
+      }
       if (sandbox.degrade) return sandbox.document.firstElementChild.removeEventListener(type, callback, options);
-      if (documentAddEventListenerEvents.includes(type)) {
+      if (mainDocumentAddEventListenerEvents.includes(type)) {
         return window.document.removeEventListener(type, callback, options);
       }
-      if (rootAddEventListenerEvents.includes(type)) {
+      if (mainAndAppAddEventListenerEvents.includes(type)) {
         window.document.removeEventListener(type, callback, options);
         sandbox.shadowRoot.removeEventListener(type, callback, options);
         return;
@@ -414,7 +426,9 @@ function patchDocumentEffect(iframeWindow: Window): void {
   };
   // 处理onEvent
   const elementOnEvents = Object.keys(iframeWindow.HTMLElement.prototype).filter((ele) => /^on/.test(ele));
-  const documentOnEvent = Object.keys(iframeWindow.Document.prototype).filter((ele) => /^on/.test(ele));
+  const documentOnEvent = Object.keys(iframeWindow.Document.prototype)
+    .filter((ele) => /^on/.test(ele))
+    .filter((ele) => !appDocumentOnEvents.includes(ele));
   elementOnEvents
     .filter((e) => documentOnEvent.includes(e))
     .forEach((e) => {

@@ -12,6 +12,7 @@ import AButton from "ant-design-vue/es/button";
 import ASelect from "ant-design-vue/es/select";
 import AModal from "ant-design-vue/es/modal";
 import APopover from "ant-design-vue/es/popover";
+import "./pageLifeTest";
 import "element-ui/lib/theme-chalk/base.css";
 import "element-ui/lib/theme-chalk/tag.css";
 import "element-ui/lib/theme-chalk/button.css";

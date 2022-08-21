@@ -28,7 +28,7 @@ import {
   rawDocumentQuerySelector,
 } from "./common";
 import { EventBus, appEventObjMap, EventObj } from "./event";
-import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getAbsolutePath } from "./utils";
+import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getAbsolutePath, eventTrigger } from "./utils";
 import { WUJIE_DATA_ATTACH_CSS_FLAG } from "./constant";
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
 
@@ -293,7 +293,16 @@ export default class Wujie {
       });
     });
 
+    //框架主动调用mount方法
     this.execQueue.push(this.fiber ? () => requestIdleCallback(() => this.mount()) : () => this.mount());
+
+    //触发 DOMContentLoaded 事件
+    const domContentLoadedTrigger = () => {
+      eventTrigger(iframeWindow.document, "DOMContentLoaded");
+      eventTrigger(iframeWindow, "DOMContentLoaded");
+      this.execQueue.shift()();
+    };
+    this.execQueue.push(this.fiber ? () => requestIdleCallback(domContentLoadedTrigger) : domContentLoadedTrigger);
 
     // 插入代码后
     afterScriptResultList.forEach((afterScriptResult) => {
@@ -304,6 +313,13 @@ export default class Wujie {
       );
     });
 
+    //触发 loaded 事件
+    const domLoadedTrigger = () => {
+      eventTrigger(iframeWindow.document, "readystatechange");
+      eventTrigger(iframeWindow, "load");
+      this.execQueue.shift()();
+    };
+    this.execQueue.push(this.fiber ? () => requestIdleCallback(domLoadedTrigger) : domLoadedTrigger);
     this.execQueue.shift()();
 
     // 所有的execQueue队列执行完毕，start才算结束，保证串行的执行子应用
