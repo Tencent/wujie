@@ -74,8 +74,8 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandb
  */
 
 type stylesheetElement = HTMLStyleElement & {
-  _hasPatch?: boolean // 判断新增的style标签是否被劫持
-}
+  _hasPatch?: boolean; // 判断新增的style标签是否被劫持
+};
 
 function patchStylesheetElement(
   stylesheetElement: stylesheetElement,
@@ -83,7 +83,7 @@ function patchStylesheetElement(
   sandbox: Wujie,
   curUrl: string
 ) {
-  if( stylesheetElement._hasPatch ) return
+  if (stylesheetElement._hasPatch) return;
   const innerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
   const innerTextDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "innerText");
   const textContentDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
@@ -128,9 +128,9 @@ function patchStylesheetElement(
     },
     _hasPatch: {
       get: function () {
-        return true
-      }
-    }
+        return true;
+      },
+    },
   });
 }
 

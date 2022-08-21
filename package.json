@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "description": "极致的微前端框架",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "scripts": {
     "start": "turbo run start",
     "doc": "turbo run docs --filter wujie-doc",
@@ -11,7 +15,11 @@
     "lint": "turbo run lint --filter wujie",
     "commitlint": "commitlint -E COMMIT_EDITMSG_PATH",
     "husky-commitlint": "commitlint -e",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "cs": "changeset",
+    "cs:version": "changeset version",
+    "prerelease": "pnpm start",
+    "release": "changeset publish"
   },
   "repository": {
     "type": "git",
@@ -20,6 +28,7 @@
   "author": "yiludege",
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^2.24.3",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
     "husky": "^7.0.4",
