@@ -21,7 +21,7 @@ describe("main react startApp", () => {
     await triggerClickByJsSelector(page, appInfo.fontNavSelector);
     await appInfoFontMountedPromise;
     // 等待字体加载
-    await page.waitForResponse((response) => response.url().includes("https://tdesign.gtimg.com/icon/0.1.1/fonts"));
+    await page.waitForResponse((response) => response.url().includes("https://tdesign.gtimg.com/icon/"));
     // 等待字体装载
     await new Promise((resolve) => setTimeout(resolve, 1000));
     // 检查字体是否生效
@@ -48,7 +48,7 @@ describe("main vue startApp", () => {
     await triggerClickByJsSelector(page, appInfo.fontNavSelector);
     await appInfoFontMountedPromise;
     // 等待字体加载
-    await page.waitForResponse((response) => response.url().includes("https://tdesign.gtimg.com/icon/0.1.1/fonts"));
+    await page.waitForResponse((response) => response.url().includes("https://tdesign.gtimg.com/icon/"));
     // 等待字体装载
     await new Promise((resolve) => setTimeout(resolve, 1000));
     // 检查字体是否生效
