@@ -11,3 +11,4 @@ package-lock.json
 coverage
 .history
 .turbo
+pnpm-lock.yaml

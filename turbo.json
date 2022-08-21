@@ -1,6 +1,8 @@
 {
   "pipeline": {
-    "start": {},
+    "start": {
+      "dependsOn": []
+    },
     "docs": {},
     "test": {},
     "lint": {}
