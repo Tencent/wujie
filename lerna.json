@@ -1,7 +1,8 @@
 {
   "packages": [
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "docs"
   ],
   "command": {
     "version": {
