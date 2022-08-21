@@ -72,13 +72,8 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandb
 /**
  * 劫持处理样式元素的属性
  */
-
-type stylesheetElement = HTMLStyleElement & {
-  _hasPatch?: boolean; // 判断新增的style标签是否被劫持
-};
-
 function patchStylesheetElement(
-  stylesheetElement: stylesheetElement,
+  stylesheetElement: HTMLStyleElement & { _hasPatch?: boolean },
   cssLoader: (code: string, url: string, base: string) => string,
   sandbox: Wujie,
   curUrl: string
@@ -126,11 +121,7 @@ function patchStylesheetElement(
         } else return rawAppendChild(node);
       },
     },
-    _hasPatch: {
-      get: function () {
-        return true;
-      },
-    },
+    _hasPatch: { get: () => true },
   });
 }
 

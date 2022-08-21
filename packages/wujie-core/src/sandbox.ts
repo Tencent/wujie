@@ -300,7 +300,7 @@ export default class Wujie {
     const domContentLoadedTrigger = () => {
       eventTrigger(iframeWindow.document, "DOMContentLoaded");
       eventTrigger(iframeWindow, "DOMContentLoaded");
-      this.execQueue.shift()();
+      this.execQueue.shift()?.();
     };
     this.execQueue.push(this.fiber ? () => requestIdleCallback(domContentLoadedTrigger) : domContentLoadedTrigger);
 
@@ -317,7 +317,7 @@ export default class Wujie {
     const domLoadedTrigger = () => {
       eventTrigger(iframeWindow.document, "readystatechange");
       eventTrigger(iframeWindow, "load");
-      this.execQueue.shift()();
+      this.execQueue.shift()?.();
     };
     this.execQueue.push(this.fiber ? () => requestIdleCallback(domLoadedTrigger) : domLoadedTrigger);
     this.execQueue.shift()();
