@@ -6,7 +6,8 @@
   "scripts": {
     "start": "lerna run start --parallel",
     "doc": "lerna run docs:dev",
-    "build:docs": "npx lerna run build --scope wujie-docs",
+    "docs": "vitepress dev docs",
+    "build": "vitepress build docs",
     "postinstall": "lerna bootstrap",
     "clean": "rimraf node_modules **/*/node_modules",
     "test": "lerna run test --scope wujie",
@@ -26,7 +27,9 @@
     "husky": "^7.0.4",
     "lerna": "^5.4.3",
     "lint-staged": "^12.4.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "vite": "3.0.9",
+    "vitepress": "1.0.0-alpha.9"
   },
   "dependencies": {}
 }

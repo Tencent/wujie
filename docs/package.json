@@ -11,9 +11,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "vue": "^3.2.37"
-  },
   "devDependencies": {
     "vite": "3.0.9",
     "vitepress": "1.0.0-alpha.9"
