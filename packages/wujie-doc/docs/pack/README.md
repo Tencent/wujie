@@ -47,7 +47,7 @@ Vue.use(WujieVue);
 ></WujieVue>
 ```
 
-子应用通过[$wujie.bus.$emit](/api/subApp.html#wujie-bus)`(event, args)`出来的事件都可以直接`@event`来监听
+子应用通过[$wujie.bus.$emit](/api/subapp.html#wujie-bus)`(event, args)`出来的事件都可以直接`@event`来监听
 
 ### bus
 
@@ -55,15 +55,15 @@ Vue.use(WujieVue);
 
 ### setupApp
 
-[同 API](/api/setupApp.html)
+[同 API](/api/setupapp.html)
 
 ### preloadApp
 
-[同 API](/api/preloadApp.html)
+[同 API](/api/preloadapp.html)
 
 ### destroyApp
 
-[同 API](/api/destroyApp.html)
+[同 API](/api/destroyapp.html)
 
 ## 原理
 

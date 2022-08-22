@@ -15,10 +15,10 @@
 
 3. 代码无需做任何改动，之前的预加载、保活还有通信的代码都生效，用户不需要为了降级做额外的代码改动导致降级前后运行的代码不一致
 
-4. 用户也可以强制降级，比如说当前浏览器对 webcomponent 和 proxy 是支持的，但是用户还是想将 dom 运行在 iframe 中，就可以将 [degrade](/api/startApp.html#degrade) 设置为 true
+4. 用户也可以强制降级，比如说当前浏览器对 webcomponent 和 proxy 是支持的，但是用户还是想将 dom 运行在 iframe 中，就可以将 [degrade](/api/startapp.html#degrade) 设置为 true
 
 ## 缺点
 
 1. 弹窗只能在子应用内部
 
-2. 由于无法使用`proxy`，无法劫持子应用的`location`，导致访问`window.location.host`的时候拿到的是主应用的`host`，子应用可以从 [$wujie.location](/api/subApp.html#wujie-location) 中拿到子应用正确的`host`
+2. 由于无法使用`proxy`，无法劫持子应用的`location`，导致访问`window.location.host`的时候拿到的是主应用的`host`，子应用可以从 [$wujie.location](/api/subapp.html#wujie-location) 中拿到子应用正确的`host`
