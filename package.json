@@ -8,8 +8,10 @@
     "examples/*"
   ],
   "scripts": {
-    "start": "turbo run start",
+    "start": "turbo run start --parallel --no-cache",
+    "dev": "turbo run dev",
     "doc": "turbo run docs --filter wujie-doc",
+    "start:lib": "turbo run start:esm",
     "clean": "rimraf node_modules **/*/node_modules",
     "test": "turbo run test",
     "lint": "turbo run lint --filter wujie",

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve",
+    "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -12,8 +13,8 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
-    "wujie": "^1.0.0-rc.11",
-    "wujie-vue2": "^1.0.0-rc.11"
+    "wujie": "workspace:*",
+    "wujie-vue2": "workspace:*"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

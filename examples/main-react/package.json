@@ -60,10 +60,11 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "wujie-react": "^1.0.0-rc.11"
+    "wujie-react": "workspace:*"
   },
   "scripts": {
     "start": "node scripts/start.js",
+    "dev": "node scripts/start.js",
     "integration": "node scripts/integration.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"

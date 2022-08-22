@@ -1,10 +1,17 @@
 {
   "pipeline": {
     "start": {
-      "dependsOn": []
+      "dependsOn": ["^start:esm"]
+    },
+    "dev": {
+      "dependsOn": ["^esm"]
     },
     "docs": {},
     "test": {},
-    "lint": {}
+    "lint": {
+      "dependsOn": ["^esm"]
+    },
+    "esm": {},
+    "start:esm": {}
   }
 }

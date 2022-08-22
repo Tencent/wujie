@@ -13,7 +13,7 @@
     "lib": "webpack build --mode=production --config webpack.config.js",
     "esm": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps",
     "prepack": "bash build.sh",
-    "start": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
+    "start:esm": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yiludege",
@@ -29,7 +29,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "wujie": "^1.0.0-rc.11"
+    "wujie": "workspace:*"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
