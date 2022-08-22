@@ -35,8 +35,9 @@ export default defineConfig({
 
     socialLinks: [{ icon: "github", link: "https://github.com/Tencent/wujie" }],
     algolia: {
-      apiKey: "b573aa848fd57fb47d693b531297403c",
-      indexName: "vitejs",
+      appId: '',
+      apiKey: "",
+      indexName: "wujie",
       searchParameters: {
         facetFilters: ["tags:en"],
       },
@@ -188,13 +189,18 @@ export default defineConfig({
       "/question": [],
       "/pack/": [
         {
-          text: "Vue封装",
-          items: [],
-        },
-        {
-          text: "React封装",
-          items: [],
-        },
+          text: "框架封装",
+          items: [
+            {
+              text: 'Vue组件封装',
+              link: '/pack/'
+            },
+            {
+              text: 'React组件封装',
+              link: '/pack/react'
+            }
+          ],
+        }
       ],
     },
   },

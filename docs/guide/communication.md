@@ -8,7 +8,7 @@
 <WujieVue name="xxx" url="xxx" :props="{ data: xxx, methods: xxx }"></WujieVue>
 ```
 
-子应用可以通过[$wujie](/api/subapp.html#wujie-props)来获取：
+子应用可以通过[$wujie](/api/subApp.html#wujie-props)来获取：
 
 ```javascript
 const props = window?.$wujie.props; // {data: xxx, methods: xxx}

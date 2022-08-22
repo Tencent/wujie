@@ -21,4 +21,4 @@
 
 1. 弹窗只能在子应用内部
 
-2. 由于无法使用`proxy`，无法劫持子应用的`location`，导致访问`window.location.host`的时候拿到的是主应用的`host`，子应用可以从 [$wujie.location](/api/subapp.html#wujie-location) 中拿到子应用正确的`host`
+2. 由于无法使用`proxy`，无法劫持子应用的`location`，导致访问`window.location.host`的时候拿到的是主应用的`host`，子应用可以从 [$wujie.location](/api/subApp.html#wujie-location) 中拿到子应用正确的`host`
