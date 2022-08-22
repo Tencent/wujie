@@ -17,7 +17,7 @@ npm i wujie-vue3 -S
 
 ## 引入
 
-```javascript
+``` javascript
 // vue2
 import WujieVue from "wujie-vue2";
 // vue3
@@ -55,7 +55,7 @@ Vue.use(WujieVue);
 
 ### setupApp
 
-[同 API](/api/setupapp.html)
+[同 API](/api/setupApp.html)
 
 ### preloadApp
 

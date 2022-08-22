@@ -2,7 +2,7 @@
 
 ## props 通信
 
-主应用可以通过[props](/api/startapp.html#props)注入数据和方法：
+主应用可以通过[props](/api/startApp.html#props)注入数据和方法：
 
 ```vue
 <WujieVue name="xxx" url="xxx" :props="{ data: xxx, methods: xxx }"></WujieVue>

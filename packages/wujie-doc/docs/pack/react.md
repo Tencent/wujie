@@ -44,11 +44,11 @@ const { bus, setupApp, preloadApp, destroyApp } = WujieReact;
 
 ### setupApp
 
-[同 API](/api/setupapp.html)
+[同 API](/api/setupApp.html)
 
 ### preloadApp
 
-[同 API](/api/preloadapp.html)
+[同 API](/api/preloadApp.html)
 
 ### destroyApp
 
