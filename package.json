@@ -21,8 +21,8 @@
     "prepare": "husky install",
     "cs": "changeset",
     "cs:version": "changeset version",
-    "prerelease": "pnpm start",
-    "release": "changeset publish"
+    "release": "pnpm build && changeset publish",
+    "version": "changeset version && pnpm install --no-frozen-lockfile"
   },
   "repository": {
     "type": "git",
