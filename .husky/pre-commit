@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-lerna run --scope wujie lint
+npx lerna run --scope wujie lint
