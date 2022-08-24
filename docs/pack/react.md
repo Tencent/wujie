@@ -3,7 +3,9 @@ sidebarDepth: 2
 collapsable: false
 ---
 
-无界基于`react`的组件封装，查看 [demo](https://wujie-micro.github.io/demo-main-react/)，查看 [demo git](https://github.com/Tencent/wujie/tree/master/examples/main-react/)
+# React组件封装
+
+无界基于`react`的组件封装，查看 [demo](https://wujie-micro.github.io/demo-main-react/)，查看 [demo github](https://github.com/Tencent/wujie/tree/master/examples/main-react/)
 
 ## 安装
 

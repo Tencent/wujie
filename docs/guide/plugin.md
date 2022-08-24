@@ -1,3 +1,5 @@
+# 插件系统
+
 ![Untitled Diagram.jpeg](https://vfiles.gtimg.cn/wuji_dashboard/wupload/xy/test_wuji_damy/50LRt2ig.jpeg)
 
 无界的插件体系主要是方便用户在运行时去修改子应用代码从而避免去改动仓库代码，详见[API](/api/startApp.html#plugins)

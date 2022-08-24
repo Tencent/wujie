@@ -1,3 +1,5 @@
+# 降级处理
+
 无界提供无感知的降级方案
 
 在非降级场景下，子应用的`dom`在`webcomponent`中，运行环境在`iframe`中，`iframe`对`dom`的操作通过`proxy`来代理到`webcomponent`上，而`webcomponent`和`proxy` `IE`都无法支持，这里采用另一个的`iframe`替换`webcomponent`，用`Object.defineProperty`替换`proxy`来做代理的方案

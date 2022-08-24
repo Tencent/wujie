@@ -3,6 +3,8 @@ sidebarDepth: 2
 collapsable: false
 ---
 
+# 快速上手
+
 ## 主应用
 
 ### 引入
@@ -71,8 +73,7 @@ app.use((req, res, next) => {
 
 具体操作可以参考下面示例
 
-:::: tabs
-::: tab vue2
+::: details vue2
 
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
@@ -90,7 +91,7 @@ if (window.__POWERED_BY_WUJIE__) {
 ```
 
 :::
-::: tab vue3
+::: details vue3
 
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
@@ -110,7 +111,7 @@ if (window.__POWERED_BY_WUJIE__) {
 ```
 
 :::
-::: tab vite
+::: details vite
 
 ```javascript
 declare global {
@@ -151,7 +152,7 @@ if (window.__POWERED_BY_WUJIE__) {
 ```
 
 :::
-::: tab react
+::: details react
 
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
@@ -177,7 +178,7 @@ if (window.__POWERED_BY_WUJIE__) {
 ```
 
 :::
-::: tab angular
+::: details angular
 
 ```typescript
 declare global {
@@ -207,7 +208,6 @@ if (window.__POWERED_BY_WUJIE__) {
 ```
 
 :::
-::::
 
 ### 其他
 

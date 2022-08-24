@@ -3,6 +3,8 @@ sidebarDepth: 2
 collapsable: false
 ---
 
+# 运行模式
+
 ![无界流程图.jpeg](https://vfiles.gtimg.cn/wuji_dashboard/xy/test_wuji_damy/F0NYfpHl.jpeg)
 
 在微前端框架中，子应用放置在主应用页面中随着主应用页面的打开和关闭反复的激活和销毁，而在无界微前端框架中子应用是否保活以及是否进行生命周期的改造会进入完全不同的处理流程

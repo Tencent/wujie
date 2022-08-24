@@ -1,3 +1,4 @@
+# 路由同步
 ## 路由同步
 
 路由同步会将子应用路径的`path+query+hash`通过`window.encodeURIComponent`编码后挂载在主应用`url`的查询参数上，其中`key`值为子应用的 [name](/api/startApp.html#name)。

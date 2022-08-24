@@ -1,4 +1,9 @@
+
+# 生命周期
+
+::: tip 提示
 无界提供一整套的生命周期钩子供开发者调用
+:::
 
 ::: warning 警告
 如果子应用没有做[生命周期的改造](/guide/start.html#生命周期改造)，那么 beforeMount、afterMount、beforeUnmount、afterUnmount 这四个生命周期将不会调用
