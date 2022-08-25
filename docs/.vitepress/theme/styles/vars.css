@@ -36,7 +36,7 @@
   --color2: #000000;
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(
-    90deg,
+    120deg,
     #F16B5F 39%,
     #000000
   );
@@ -88,4 +88,7 @@
 
 .link {
   padding: 4px 0;
+}
+.VPButton.medium {
+  border-radius: 0px;
 }

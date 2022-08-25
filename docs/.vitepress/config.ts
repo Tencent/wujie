@@ -1,4 +1,5 @@
 import { defineConfig } from "vitepress";
+import { version } from "../../packages/wujie-core/package.json";
 import path from "path";
 const ogDescription = "Next Generation Frontend Tooling";
 const ogImage = "https://main.vitejs.dev/og-image.png";
@@ -13,7 +14,7 @@ export default defineConfig({
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:title", content: ogTitle }],
     ["meta", { property: "og:image", content: ogImage }],
-    ["meta", { property: "og:url", content: ogUrl }]
+    ["meta", { property: "og:url", content: ogUrl }],
   ],
 
   vue: {
@@ -30,7 +31,7 @@ export default defineConfig({
 
     socialLinks: [{ icon: "github", link: "https://github.com/Tencent/wujie" }],
     algolia: {
-      appId: '',
+      appId: "",
       apiKey: "",
       indexName: "wujie",
       searchParameters: {
@@ -67,6 +68,15 @@ export default defineConfig({
       { text: "常见问题", link: "/question/", activeMatch: "/question/" },
       { text: "框架封装", link: "/pack/", activeMatch: "/pack/" },
       {
+        text: `v${version}`,
+        items: [
+          {
+            text: "更新日志",
+            link: "https://github.com/Tencent/wujie/blob/master/CHANGELOG.md",
+          },
+        ],
+      },
+      {
         text: "示例",
         items: [
           {
@@ -79,16 +89,13 @@ export default defineConfig({
           },
         ],
       },
-      {
-        text: "更新日志",
-        link: "https://github.com/Tencent/wujie/blob/master/CHANGELOG.md",
-      },
     ],
 
     sidebar: {
       "/guide/": [
         {
           text: "指南",
+          collapsible: true,
           items: [
             {
               text: "介绍",
@@ -143,11 +150,22 @@ export default defineConfig({
               link: "/guide/variable",
             },
           ],
-        }
+        },
+        {
+          text: "快速上手",
+          collapsible: true,
+          items:[]
+        },
+        {
+          text: "项目实战",
+          collapsible: true,
+          items:[]
+        },
       ],
-      "/api/":  [
+      "/api/": [
         {
           text: "主应用",
+          collapsible: true,
           items: [
             {
               text: "bus",
@@ -173,6 +191,7 @@ export default defineConfig({
         },
         {
           text: "子应用",
+          collapsible: true,
           items: [
             {
               text: "$wujie",
@@ -185,17 +204,18 @@ export default defineConfig({
       "/pack/": [
         {
           text: "框架封装",
+          collapsible: true,
           items: [
             {
-              text: 'Vue组件封装',
-              link: '/pack/'
+              text: "Vue组件封装",
+              link: "/pack/",
             },
             {
-              text: 'React组件封装',
-              link: '/pack/react'
-            }
+              text: "React组件封装",
+              link: "/pack/react",
+            },
           ],
-        }
+        },
       ],
     },
   },

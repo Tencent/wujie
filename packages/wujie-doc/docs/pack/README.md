@@ -30,7 +30,7 @@ Vue.use(WujieVue);
 
 ## 使用
 
-```vue
+```js
 <WujieVue
   width="100%"
   height="100%"
