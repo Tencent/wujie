@@ -17,7 +17,7 @@ import {
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
 import { ScriptResultList } from "./entry";
-import { getPlugins, getJsBeforeLoaders, getJsAfterLoaders } from "./plugin";
+import { getPlugins, getPresetLoaders } from "./plugin";
 import { removeEventListener } from "./effect";
 import {
   SandboxCache,
@@ -249,9 +249,9 @@ export default class Wujie {
     // 标志位，执行代码前设置
     iframeWindow.__POWERED_BY_WUJIE__ = true;
     // 用户自定义代码前
-    const beforeScriptResultList: ScriptObjectLoader[] = getJsBeforeLoaders(this.plugins);
+    const beforeScriptResultList: ScriptObjectLoader[] = getPresetLoaders("jsBeforeLoaders", this.plugins);
     // 用户自定义代码后
-    const afterScriptResultList: ScriptObjectLoader[] = getJsAfterLoaders(this.plugins);
+    const afterScriptResultList: ScriptObjectLoader[] = getPresetLoaders("jsAfterLoaders", this.plugins);
     // 同步代码
     const syncScriptResultList: ScriptResultList = [];
     // async代码无需保证顺序，所以不用放入执行队列
