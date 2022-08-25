@@ -40,6 +40,8 @@ export interface ScriptBaseObject {
 export type ScriptObject = ScriptBaseObject & {
   /** 内联script的代码 */
   content?: string;
+  /** 忽略，子应用自行请求 */
+  ignore?: boolean;
 };
 
 /** 样式对象 */
@@ -48,6 +50,8 @@ export interface StyleObject {
   src?: string;
   /** 样式代码 */
   content?: string;
+  /** 忽略，子应用自行请求 */
+  ignore?: boolean;
 }
 
 export interface TemplateResult {

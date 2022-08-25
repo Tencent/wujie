@@ -8,21 +8,11 @@ import {
   rawAddEventListener,
   rawRemoveEventListener,
 } from "./common";
-import {
-  isFunction,
-  isHijackingTag,
-  requestIdleCallback,
-  error,
-  warn,
-  nextTick,
-  isExcludeUrl,
-  getExcludes,
-  getCurUrl,
-} from "./utils";
+import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
 import { insertScriptToIframe } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
-import { getCssLoader } from "./plugin";
+import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
 import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
 import { ScriptObject } from "./template";
 
@@ -152,27 +142,33 @@ function rewriteAppendOrInsertChild(opts: {
         case "LINK": {
           const { href } = element as HTMLLinkElement;
           // 排除css
-          if (
-            href &&
-            !plugins
-              .map((plugin) => plugin.cssExcludes)
-              .reduce((pre, next) => pre.concat(next), [])
-              .filter((item) => item)
-              .includes(href)
-          ) {
-            getExternalStyleSheets([{ src: href }], fetch, lifecycles.loadError).forEach(({ src, contentPromise }) =>
+          if (href && !isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
+            getExternalStyleSheets(
+              [{ src: href, ignore: isMatchUrl(href, getEffectLoaders("cssIgnores", plugins)) }],
+              fetch,
+              lifecycles.loadError
+            ).forEach(({ src, ignore, contentPromise }) =>
               contentPromise.then(
                 (content) => {
-                  // 记录js插入样式，子应用重新激活时恢复
-                  const stylesheetElement = iframeDocument.createElement("style");
-                  // 处理css-loader插件
-                  const cssLoader = getCssLoader({ plugins, replace });
-                  stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
-                  styleSheetElements.push(stylesheetElement);
-                  rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
-                  // 处理样式补丁
-                  handleStylesheetElementPatch(stylesheetElement, sandbox);
-                  manualInvokeElementEvent(element, "load");
+                  // 处理 ignore 样式
+                  if (ignore && src) {
+                    const stylesheetElement = iframeDocument.createElement("link");
+                    stylesheetElement.setAttribute("type", "text/css");
+                    stylesheetElement.setAttribute("ref", "stylesheet");
+                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
+                    manualInvokeElementEvent(element, "load");
+                  } else {
+                    // 记录js插入样式，子应用重新激活时恢复
+                    const stylesheetElement = iframeDocument.createElement("style");
+                    // 处理css-loader插件
+                    const cssLoader = getCssLoader({ plugins, replace });
+                    stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
+                    styleSheetElements.push(stylesheetElement);
+                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
+                    // 处理样式补丁
+                    handleStylesheetElementPatch(stylesheetElement, sandbox);
+                    manualInvokeElementEvent(element, "load");
+                  }
                   element = null;
                 },
                 () => {
@@ -201,7 +197,7 @@ function rewriteAppendOrInsertChild(opts: {
         case "SCRIPT": {
           const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
-          if (!isExcludeUrl(src, getExcludes("jsExcludes", plugins))) {
+          if (!isMatchUrl(src, getEffectLoaders("jsExcludes", plugins))) {
             const execScript = (scriptResult) => {
               // 假如子应用被连续渲染两次，两次渲染会导致处理流程的交叉污染
               if (sandbox.iframe === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
@@ -214,6 +210,7 @@ function rewriteAppendOrInsertChild(opts: {
               module: type === "module",
               crossorigin: crossOrigin !== null,
               crossoriginType: crossOrigin || "",
+              ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
             } as ScriptObject;
             getExternalScripts([scriptOptions], fetch, lifecycles.loadError).forEach((scriptResult) =>
               scriptResult.contentPromise.then(

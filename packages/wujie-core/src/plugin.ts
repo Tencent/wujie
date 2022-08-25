@@ -1,4 +1,5 @@
-import { plugin } from "./index";
+import { plugin, ScriptObjectLoader } from "./index";
+import { StyleObject } from "./template";
 import { compose, getAbsolutePath } from "./utils";
 
 interface loaderOption {
@@ -23,44 +24,31 @@ export function getJsLoader({ plugins, replace }: loaderOption) {
 }
 
 /**
- * 获取有效的 cssBeforeLoaders
+ * 获取预置插件
  */
-export function getCssBeforeLoaders(plugins: Array<plugin>) {
-  return plugins
-    .map((plugin) => plugin.cssBeforeLoaders)
-    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-    .filter((cssLoader) => typeof cssLoader === "object")
-    .reverse();
+type presetLoadersType = "cssBeforeLoaders" | "cssAfterLoaders" | "jsBeforeLoaders" | "jsAfterLoaders";
+export function getPresetLoaders(loaderType: presetLoadersType, plugins: Array<plugin>): plugin[presetLoadersType] {
+  const loaders: (StyleObject | ScriptObjectLoader)[][] = plugins
+    .map((plugin) => plugin[loaderType])
+    .filter((loaders) => loaders?.length);
+  const res = loaders.reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), []);
+  return loaderType === "cssBeforeLoaders" ? res.reverse() : res;
 }
 
 /**
- * 获取有效的 cssAfterLoaders
+ * 获取影响插件
  */
-export function getCssAfterLoaders(plugins: Array<plugin>) {
+type effectLoadersType = "jsExcludes" | "cssExcludes" | "jsIgnores" | "cssIgnores";
+export function getEffectLoaders(loaderType: effectLoadersType, plugins: Array<plugin>): plugin[effectLoadersType] {
   return plugins
-    .map((plugin) => plugin.cssAfterLoaders)
-    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-    .filter((afterLoader) => typeof afterLoader === "object");
+    .map((plugin) => plugin[loaderType])
+    .filter((loaders) => loaders?.length)
+    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), []);
 }
 
-/**
- * 获取有效的 jsBeforeLoaders
- */
-export function getJsBeforeLoaders(plugins: Array<plugin>) {
-  return plugins
-    .map((plugin) => plugin.jsBeforeLoaders)
-    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-    .filter((preLoader) => typeof preLoader === "object");
-}
-
-/**
- * 获取有效的 jsAfterLoaders
- */
-export function getJsAfterLoaders(plugins: Array<plugin>) {
-  return plugins
-    .map((plugin) => plugin.jsAfterLoaders)
-    .reduce((preLoaders, curLoaders) => preLoaders.concat(curLoaders), [])
-    .filter((afterLoader) => typeof afterLoader === "object");
+// 判断 url 是否符合loader的规则
+export function isMatchUrl(url: string, effectLoaders: plugin[effectLoadersType]): boolean {
+  return effectLoaders.some((loader) => (typeof loader === "string" ? url === loader : loader.test(url)));
 }
 
 /**
