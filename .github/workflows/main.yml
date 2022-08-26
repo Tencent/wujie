@@ -23,9 +23,8 @@ jobs:
           
       - name: install
         run: |
-          npm install
           npm install lerna -g
-          lerna bootstrap --ignore main-react --ignore main-vue --ignore react16 --ignore react17 --ignore vite --ignore vue2 --ignore vue3 --ignore angular12 --ignore wujie-doc
+          lerna bootstrap --ignore main-react --ignore main-vue --ignore react16 --ignore react17 --ignore vite --ignore vue2 --ignore vue3 --ignore angular12 --ignore wujie-doc --no-ci
 
       - name: publish to npm
         run: |
