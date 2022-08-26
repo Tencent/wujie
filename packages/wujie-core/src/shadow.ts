@@ -4,7 +4,7 @@ import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
-import { getCssLoader, getCssBeforeLoaders, getCssAfterLoaders } from "./plugin";
+import { getCssLoader, getPresetLoaders } from "./plugin";
 import { getAbsolutePath, getContainer, getCurUrl } from "./utils";
 
 const cssSelectorMap = {
@@ -75,8 +75,8 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
   const document = sandbox.iframe.contentDocument;
   const { plugins, replace, proxyLocation } = sandbox;
   const cssLoader = getCssLoader({ plugins, replace });
-  const cssBeforeLoaders = getCssBeforeLoaders(plugins);
-  const cssAfterLoaders = getCssAfterLoaders(plugins);
+  const cssBeforeLoaders = getPresetLoaders("cssBeforeLoaders", plugins);
+  const cssAfterLoaders = getPresetLoaders("cssAfterLoaders", plugins);
   const curUrl = getCurUrl(proxyLocation);
 
   return await Promise.all([

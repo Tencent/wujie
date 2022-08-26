@@ -5,21 +5,14 @@ import processTpl, {
   ScriptBaseObject,
   StyleObject,
 } from "./template";
-import {
-  defaultGetPublicPath,
-  getInlineCode,
-  requestIdleCallback,
-  error,
-  compose,
-  getExcludes,
-  getCurUrl,
-} from "./utils";
+import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from "./utils";
 import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from "./constant";
+import { getEffectLoaders, isMatchUrl } from "./plugin";
 import Wujie from "./sandbox";
 import { plugin, loadErrorHandler } from "./index";
 
 export type ScriptResultList = (ScriptBaseObject & { contentPromise: Promise<string> })[];
-export type StyleResultList = { src: string; contentPromise: Promise<string> }[];
+export type StyleResultList = { src: string; contentPromise: Promise<string>; ignore?: boolean }[];
 
 interface htmlParseResult {
   template: string;
@@ -62,8 +55,9 @@ export async function processCssLoader(
   const curUrl = getCurUrl(sandbox.proxyLocation);
   /** css-loader */
   const composeCssLoader = compose(sandbox.plugins.map((plugin) => plugin.cssLoader));
-  const processedCssList: StyleResultList = getExternalStyleSheets().map(({ src, contentPromise }) => ({
+  const processedCssList: StyleResultList = getExternalStyleSheets().map(({ src, ignore, contentPromise }) => ({
     src,
+    ignore,
     contentPromise: contentPromise.then((content) => composeCssLoader(content, src, curUrl)),
   }));
   const embedHTML = await getEmbedHTML(template, processedCssList);
@@ -78,12 +72,14 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
   let embedHTML = template;
 
   return Promise.all(
-    styleResultList.map((scriptResult, index) =>
-      scriptResult.contentPromise.then((content) => {
-        if (scriptResult.src) {
+    styleResultList.map((styleResult, index) =>
+      styleResult.contentPromise.then((content) => {
+        if (styleResult.src) {
           embedHTML = embedHTML.replace(
-            genLinkReplaceSymbol(scriptResult.src),
-            `<style>/* ${scriptResult.src} */${content}</style>`
+            genLinkReplaceSymbol(styleResult.src),
+            styleResult.ignore
+              ? `<link href="${styleResult.src}" rel="stylesheet" type="text/css">`
+              : `<style>/* ${styleResult.src} */${content}</style>`
           );
         } else if (content) {
           embedHTML = embedHTML.replace(
@@ -143,7 +139,7 @@ export function getExternalStyleSheets(
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> = defaultFetch,
   loadError: loadErrorHandler
 ): StyleResultList {
-  return styles.map(({ src, content }) => {
+  return styles.map(({ src, content, ignore }) => {
     // 内联
     if (content) {
       return { src: "", contentPromise: Promise.resolve(content) };
@@ -152,7 +148,11 @@ export function getExternalStyleSheets(
       return { src: "", contentPromise: Promise.resolve(getInlineCode(src)) };
     } else {
       // external styles
-      return { src, contentPromise: fetchAssets(src, styleCache, fetch, true, loadError) };
+      return {
+        src,
+        ignore,
+        contentPromise: ignore ? Promise.resolve("") : fetchAssets(src, styleCache, fetch, true, loadError),
+      };
     }
   });
 }
@@ -165,15 +165,15 @@ export function getExternalScripts(
 ): ScriptResultList {
   // module should be requested in iframe
   return scripts.map((script) => {
-    const { src, async, defer, module } = script;
+    const { src, async, defer, module, ignore } = script;
     let contentPromise = null;
     // async
     if ((async || defer) && src && !module) {
       contentPromise = new Promise((resolve, reject) =>
         requestIdleCallback(() => fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject))
       );
-      // module
-    } else if (module && src) {
+      // module || ignore
+    } else if ((module && src) || ignore) {
       contentPromise = Promise.resolve("");
       // inline
     } else if (!src) {
@@ -190,8 +190,10 @@ export default function importHTML(url: string, opts?: ImportEntryOpts): Promise
   const fetch = opts.fetch ?? defaultFetch;
   const { plugins, loadError } = opts;
   const htmlLoader = plugins ? compose(plugins.map((plugin) => plugin.htmlLoader)) : defaultGetTemplate;
-  const jsExcludes = getExcludes("jsExcludes", plugins);
-  const cssExcludes = getExcludes("cssExcludes", plugins);
+  const jsExcludes = getEffectLoaders("jsExcludes", plugins);
+  const cssExcludes = getEffectLoaders("cssExcludes", plugins);
+  const jsIgnores = getEffectLoaders("jsIgnores", plugins);
+  const cssIgnores = getEffectLoaders("cssIgnores", plugins);
   const getPublicPath = defaultGetPublicPath;
 
   const getHtmlParseResult = (url, htmlLoader) =>
@@ -211,13 +213,17 @@ export default function importHTML(url: string, opts?: ImportEntryOpts): Promise
           assetPublicPath,
           getExternalScripts: () =>
             getExternalScripts(
-              scripts.filter((script) => !script.src || !jsExcludes.length || !jsExcludes.includes(script.src)),
+              scripts
+                .filter((script) => !script.src || !isMatchUrl(script.src, jsExcludes))
+                .map((script) => ({ ...script, ignore: script.src && isMatchUrl(script.src, jsIgnores) })),
               fetch,
               loadError
             ),
           getExternalStyleSheets: () =>
             getExternalStyleSheets(
-              styles.filter((style) => !style.src || !cssExcludes.length || !cssExcludes.includes(style.src)),
+              styles
+                .filter((style) => !style.src || !isMatchUrl(style.src, cssExcludes))
+                .map((style) => ({ ...style, ignore: style.src && isMatchUrl(style.src, cssIgnores) })),
               fetch,
               loadError
             ),

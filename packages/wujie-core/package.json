@@ -1,6 +1,6 @@
 {
   "name": "wujie",
-  "version": "1.0.0-rc.11",
+  "version": "1.0.0-rc.12",
   "description": "极致的微前端框架",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
@@ -13,7 +13,7 @@
     "lib": "webpack build --config webpack.config.js",
     "esm": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps && tsc --emitDeclarationOnly",
     "prepack": "bash build.sh",
-    "start": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps inline --watch",
+    "start": "cross-env BABEL_ENV=esm babel ./src --out-dir ./esm --extensions .ts --source-maps inline --watch & tsc --emitDeclarationOnly",
     "lint": "eslint --ext .ts ./src  --fix && git add .",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest -c __test__/unit/jest.config.js",
