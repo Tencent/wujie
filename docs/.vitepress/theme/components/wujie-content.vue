@@ -28,13 +28,17 @@ const [title, subTitle] = props.introduction.split("|");
   height: 100%;
   margin: 0 auto;
   max-width: 1152px;
-  background: linear-gradient(to right, var(--vp-c-brand) 1%)
+  background: linear-gradient(to right, var(--vp-c-brand) 1%);
 }
 .content-container-title {
   font-size: 24px;
   letter-spacing: 1px;
   font-weight: bold;
   margin-bottom: 28px;
+  background: var(--vp-home-hero-name-background-title);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: var(--vp-home-hero-name-color);
 }
 .content-container-subTitle {
 }

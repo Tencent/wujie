@@ -3,7 +3,7 @@
  * -------------------------------------------------------------------------- */
 
 :root {
-  --vp-c-brand: #F16B5F;
+  --vp-c-brand: #f16b5f;
   --vp-c-brand-light: #ec857c;
   --vp-c-brand-lighter: #e99f98;
   --vp-c-brand-dark: #f15547;
@@ -32,21 +32,13 @@
  * -------------------------------------------------------------------------- */
 
 :root {
-  --color1: #F16B5F;
+  --color1: #f16b5f;
   --color2: #000000;
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: -webkit-linear-gradient(
-    120deg,
-    #F16B5F 39%,
-    #000000
-  );
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #f16b5f 39%, #000000);
+  --vp-home-hero-name-background-title: -webkit-linear-gradient(120deg, #f16b5f 39%, currentColor);
 
-  --vp-home-hero-image-background-image: linear-gradient(
-    -45deg,
-    var(--color1) 50%,
-    var(--color2) 50%,
-    transparent 99%
-  );
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, var(--color1) 50%, var(--color2) 50%, transparent 99%);
   --vp-home-hero-image-filter: blur(40px);
 }
 
