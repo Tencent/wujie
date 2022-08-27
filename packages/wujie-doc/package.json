@@ -4,7 +4,7 @@
   "description": "无界微前端文档",
   "main": "index.js",
   "scripts": {
-    "docs:dev": "vuepress dev docs --open",
+    "docs": "vuepress dev docs --open",
     "docs:build": "vuepress build docs"
   },
   "author": "damyxu",

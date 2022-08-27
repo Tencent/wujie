@@ -1,0 +1,19 @@
+{
+  "name": "wujie-docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "docs:dev": "vitepress dev --open",
+    "build:docs": "vitepress build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "3.0.9",
+    "vitepress": "1.0.0-alpha.9"
+  }
+}

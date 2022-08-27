@@ -2,8 +2,9 @@
 sidebarDepth: 2
 collapsable: false
 ---
+# Vue组件封装
 
-无界基于`vue2`和`vue3`框架的组件封装，，查看 [demo](https://wujie-micro.github.io/demo-main-vue/)，查看 [demo git](https://github.com/Tencent/wujie/tree/master/examples/main-vue/)
+无界基于`vue2`和`vue3`框架的组件封装，，查看 [demo](https://wujie-micro.github.io/demo-main-vue/)，查看 [demo github](https://github.com/Tencent/wujie/tree/master/examples/main-vue/)
 
 ## 安装
 
@@ -47,7 +48,7 @@ Vue.use(WujieVue);
 ></WujieVue>
 ```
 
-子应用通过[$wujie.bus.$emit](/api/subapp.html#wujie-bus)`(event, args)`出来的事件都可以直接`@event`来监听
+子应用通过[$wujie.bus.$emit](/api/subApp.html#wujie-bus)`(event, args)`出来的事件都可以直接`@event`来监听
 
 ### bus
 
@@ -59,11 +60,11 @@ Vue.use(WujieVue);
 
 ### preloadApp
 
-[同 API](/api/preloadapp.html)
+[同 API](/api/preloadApp.html)
 
 ### destroyApp
 
-[同 API](/api/destroyapp.html)
+[同 API](/api/destroyApp.html)
 
 ## 原理
 
@@ -96,7 +97,7 @@ const wujieVueOptions = {
     afterUnmount: { type: Function, default: null },
     activated: { type: Function, default: null },
     deactivated: { type: Function, default: null },
-    loadError: { type: Function, default: null },
+    loadError: {type: Function, default: null}
   },
   data() {
     return {
@@ -139,7 +140,7 @@ const wujieVueOptions = {
             afterUnmount: this.afterUnmount,
             activated: this.activated,
             deactivated: this.deactivated,
-            loadError: this.loadError,
+            loadError: this.loadError
           });
         } catch (error) {
           console.log(error);
@@ -173,4 +174,5 @@ WujieVue.install = function (Vue) {
 };
 
 export default WujieVue;
+
 ```
