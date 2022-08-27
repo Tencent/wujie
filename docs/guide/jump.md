@@ -31,7 +31,7 @@ export default {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window?.$wujie.props.jump({ path: "/pathB" });
+  window.$wujie?.props.jump({ path: "/pathB" });
 }
 ```
 
@@ -46,7 +46,7 @@ function handleJump() {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window?.$wujie.props.jump({ path: "/pathB", query: { B: window.encodeURIComponent("/test") } });
+  window.$wujie?.props.jump({ path: "/pathB", query: { B: window.encodeURIComponent("/test") } });
 }
 ```
 
@@ -63,7 +63,7 @@ function handleJump() {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window?.$wujie.bus.$emit("routeChange", "/test");
+  window.$wujie?.bus.$emit("routeChange", "/test");
 }
 ```
 
@@ -71,7 +71,7 @@ function handleJump() {
 
 ```javascript
 // 子应用 B 监听并跳转
-window?.$wujie.bus.$on("routeChange", (path) => this.$router.push({ path }));
+window.$wujie?.bus.$on("routeChange", (path) => this.$router.push({ path }));
 ```
 
 ## 主应用为 hash 模式
@@ -112,7 +112,7 @@ export default {
 
 ```javascript
 function handleJump() {
-  window?.$wujie.props.jump({ path: "/pathB" } , `?B=${window.encodeURIComponent("/test")}`});
+  window.$wujie?.props.jump({ path: "/pathB" } , `?B=${window.encodeURIComponent("/test")}`});
 }
 ```
 

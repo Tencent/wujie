@@ -1,6 +1,6 @@
 {
   "name": "wujie-docs",
-  "version": "1.0.0",
+  "version": "1.0.0-rc.12",
   "description": "",
   "main": "index.js",
   "private": true,
@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "yiludege,ERKELSOT",
   "license": "ISC",
   "devDependencies": {
     "vite": "3.0.9",

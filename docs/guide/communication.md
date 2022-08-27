@@ -11,7 +11,7 @@
 子应用可以通过[$wujie](/api/subApp.html#wujie-props)来获取：
 
 ```javascript
-const props = window?.$wujie.props; // {data: xxx, methods: xxx}
+const props = window.$wujie?.props; // {data: xxx, methods: xxx}
 ```
 
 ## window 通信
@@ -60,9 +60,9 @@ bus.$off("事件名字", function (arg1, arg2, ...) {});
 
 ```javascript
 // 子应用监听事件
-window?.$wujie.bus.$on("事件名字", function (arg1, arg2, ...) {});
+window.$wujie?.bus.$on("事件名字", function (arg1, arg2, ...) {});
 // 子应用发送事件
-window?.$wujie.bus.$emit("事件名字", arg1, arg2, ...);
+window.$wujie?.bus.$emit("事件名字", arg1, arg2, ...);
 // 子应用取消事件监听
-window?.$wujie.bus.$off("事件名字", function (arg1, arg2, ...) {});
+window.$wujie?.bus.$off("事件名字", function (arg1, arg2, ...) {});
 ```
