@@ -9,6 +9,7 @@ const ogUrl = "https://main.vitejs.dev";
 export default defineConfig({
   title: "无界",
   description: "Next Generation Frontend Tooling",
+  base: process.env.NODE_ENV === "production" ? "/doc/" : "",
   head: [
     ["link", { rel: "icon", href: "/favicon.ico" }],
     ["meta", { property: "og:type", content: "website" }],

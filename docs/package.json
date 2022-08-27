@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "docs:dev": "vitepress dev --open",
-    "build:docs": "vitepress build",
+    "docs:build": "vitepress build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
