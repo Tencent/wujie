@@ -1,5 +1,3 @@
-# 插件系统
-
 ![Untitled Diagram.jpeg](https://vfiles.gtimg.cn/wuji_dashboard/wupload/xy/test_wuji_damy/50LRt2ig.jpeg)
 
 无界的插件体系主要是方便用户在运行时去修改子应用代码从而避免去改动仓库代码，详见[API](/api/startApp.html#plugins)
@@ -34,6 +32,25 @@ const plugins = [
   { jsExcludes: ["http://xxxxx.js", /test\.js/] },
 ];
 ```
+
+## js-ignores
+
+如果用户想子应用自己加载某些`js`文件（通过`script`标签），而非框架劫持加载（通常会导致跨域）
+
+那么这些工作可以放置在`js-ignores`中进行
+
+- **示例**
+
+```javascript
+const plugins = [
+  // 子应用的 http://xxxxx.js 或者符合正则 /test\.js/ 脚本将由子应用自行加载
+  { jsIgnores: ["http://xxxxx.js", /test\.js/] },
+];
+```
+
+::: warning 警告
+jsIgnores 中的 js 文件由于是子应用自行加载没有对 location 进行劫持，如果有对 window.location.href 进行操作复制请务必替换成 window.$wujie.location.href 的操作，否则子应用的沙箱会被取代掉
+:::
 
 ## js-before-loaders
 
@@ -127,7 +144,22 @@ const plugins = [
 ```javascript
 const plugins = [
   // 子应用的 http://xxxxx.css 脚本将不在子应用中加载
-  { cssExcludes: ["http://xxxxx.css"] },
+  { cssExcludes: ["http://xxxxx.css" /test\.css/] },
+];
+```
+
+## css-ignores
+
+如果用户想子应用自己加载某些`css`文件（通过`link`标签），而非框架劫持加载（通常会导致跨域）
+
+那么这些工作可以放置在`css-ignores`中进行
+
+- **示例**
+
+```javascript
+const plugins = [
+  // 子应用的 http://xxxxx.css 或者符合正则 /test\.css/ 脚本将由子应用自行加载
+  { cssIgnores: ["http://xxxxx.css", /test\.css/] },
 ];
 ```
 
@@ -272,7 +304,8 @@ const plugins = [
   },
 ];
 ```
-<!-- 
+
+<!--
 ## windowPropertyOverride
 
 自定义子应用`window`的属性

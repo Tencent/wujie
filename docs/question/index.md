@@ -2,8 +2,6 @@
 sidebarDepth: 2
 collapsable: false
 ---
-# 常见问题
-
 
 ## 1、请求资源报错
 
@@ -61,7 +59,7 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 
 ## 7、子应用使用 module federation 引用远程模块报错
 
-**原因：** 原因[同 3](#_2、第三方包已经引入-使用时报错)，都是由于闭包执行脚本导致脚本内的全局变量在其他脚本中无法读取
+**原因：** 原因[同 2](#_2、第三方包已经引入-使用时报错)，都是由于闭包执行脚本导致脚本内的全局变量在其他脚本中无法读取
 
 **解决方案：** 在`ModuleFederationPlugin`插件中设置`library`的`type`为`window`
 
@@ -69,18 +67,32 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
   library: { type: 'window', name: '保持和name一致' }
 ```
 
-## 8、子应用iframe初始化时加载、执行了主应用的资源
+## 8、子应用 iframe 初始化时加载、执行了主应用的资源
 
 **原因：** 原因详见[issue](https://github.com/Tencent/wujie/issues/54)
 
-**解决方案：** 
-- 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容，子应用设置 attr 为 `{src:'https://host/empty'}`，这样 iframe 的 src 就是 `https://host/empty`
-- 在主应用 template 的 head 第一个元素插入一个`<script>if(window.parent !== window) {window.stop()}</script>`这样的标签应该可以避免主应用代码污染
+**解决方案：**
 
+- 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容，子应用设置 [attr](/api/startApp.html#attrs) 为 `{src:'https://host/empty'}`，这样 iframe 的 src 就是 `https://host/empty`
+- 在主应用 template 的 head 第一个元素插入一个`<script>if(window.parent !== window) {window.stop()}</script>`这样的标签应该可以避免主应用代码污染
 
 ## 9、子应用 window 是一个代理对象，如何获取子应用的真实对象
 
 **原因：** 为何采用代理，原因详见[issue](https://github.com/Tencent/wujie/issues/63)
 
-**解决方案：** 
+**解决方案：**
+
 - 采用 `window.__WUJIE_RAW_WINDOW__` 获取真实的 window 对象，[详见](/guide/variable.html#wujie-raw-window)
+
+## 10、DOMException: Blocked a frame with origin from accessing a cross-origin frame 报错
+
+**可能原因：** 子应用的沙箱被替换掉了，有三个原因：
+
+1. 子应用运行在一个空白的、`src` 为主应用 `host` 的 `iframe` 中，这个 `host` 地址会发生 302 之类的跳转导致沙箱被弄掉了
+2. 子应用为 `vite` 应用，修改了 `window.location.href` 导致沙箱被替换掉了
+3. 子应用添加了 [jsIgnores](/guide/plugin.html#js-ignores) 的 `plugin`，对应的 `js` 文件修改了 `window.location.href`
+
+**解决方案：**
+1. 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容也不会跳转，子应用设置 [attr](/api/startApp.html#attrs) 为 `{src:'https://host/empty'}`，这样 `iframe` 的 `src` 就是 `https://host/empty`
+2. `vite` 子应用所有的 `location` 操作都必须采用 `window.$wujie.location`
+3. `jsIgnores` 对应的 `js` 文件所有的 `location` 操作都必须采用 `window.$wujie.location`

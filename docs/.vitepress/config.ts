@@ -7,8 +7,9 @@ const ogTitle = "Vite";
 const ogUrl = "https://main.vitejs.dev";
 
 export default defineConfig({
-  title: "WuJie",
+  title: "无界",
   description: "Next Generation Frontend Tooling",
+  base: process.env.NODE_ENV === "production" ? "/doc/" : "",
   head: [
     ["link", { rel: "icon", href: "/favicon.ico" }],
     ["meta", { property: "og:type", content: "website" }],
@@ -25,37 +26,22 @@ export default defineConfig({
     logo: "/wujie.svg",
 
     editLink: {
-      pattern: "https://github.com/vitejs/vite/edit/main/docs/:path",
-      text: "Suggest changes to this page",
+      pattern: "https://github.com/Tencent/wujie/tree/master/docs/:path",
+      text: "编辑本页",
     },
 
     socialLinks: [{ icon: "github", link: "https://github.com/Tencent/wujie" }],
-    algolia: {
-      appId: "",
-      apiKey: "",
-      indexName: "wujie",
-      searchParameters: {
-        facetFilters: ["tags:en"],
-      },
-    },
-
-    // carbonAds: {
-    //   code: "CEBIEK3N",
-    //   placement: "vitejsdev",
-    // },
-
-    // localeLinks: {
-    //   text: "English",
-    //   items: [
-    //     { text: "简体中文", link: "https://cn.vitejs.dev" },
-    //     { text: "日本語", link: "https://ja.vitejs.dev" },
-    //     { text: "Español", link: "https://es.vitejs.dev" },
-    //   ],
+    // algolia: {
+    //   appId: "",
+    //   apiKey: "",
+    //   indexName: "wujie",
+    //   searchParameters: {
+    //     facetFilters: ["tags:en"],
+    //   },
     // },
 
     footer: {
       message: "Released the MIT License.",
-      // copyright: "Copyright © 2022-present ERKELOST & Vite CLI Contributors",
     },
 
     nav: [
@@ -72,7 +58,7 @@ export default defineConfig({
         items: [
           {
             text: "更新日志",
-            link: "https://github.com/Tencent/wujie/blob/master/CHANGELOG.md",
+            link: "https://github.com/Tencent/wujie/blob/master/packages/wujie-core/CHANGELOG.md",
           },
         ],
       },
@@ -94,9 +80,9 @@ export default defineConfig({
     sidebar: {
       "/guide/": [
         {
-          text: "指南",
+          text: "入门",
           collapsible: true,
-          items: [
+          items:[
             {
               text: "介绍",
               link: "/guide/",
@@ -105,6 +91,12 @@ export default defineConfig({
               text: "快速上手",
               link: "/guide/start",
             },
+          ]
+        },
+        {
+          text: "指南",
+          collapsible: true,
+          items: [
             {
               text: "预加载",
               link: "/guide/preload",
@@ -152,14 +144,18 @@ export default defineConfig({
           ],
         },
         {
-          text: "快速上手",
-          collapsible: true,
-          items:[]
-        },
-        {
           text: "项目实战",
           collapsible: true,
-          items:[]
+          items:[
+            {
+              text: "vue主应用",
+              link: "https://github.com/Tencent/wujie/tree/master/examples/main-vue",
+            },
+            {
+              text: "react主应用",
+              link: "https://github.com/Tencent/wujie/tree/master/examples/main-react",
+            },
+          ]
         },
       ],
       "/api/": [

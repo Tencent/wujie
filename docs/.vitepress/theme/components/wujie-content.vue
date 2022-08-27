@@ -1,11 +1,7 @@
 <template>
   <div class="content-container VPFeature VPHero">
-    <div class="content-container-title">
-      {{ title }}
-    </div>
-    <div class="content-container-subTitle">
-      {{ subTitle }}
-    </div>
+    <div class="content-container-title">{{ title }}</div>
+    <div class="content-container-subTitle">{{ subTitle }}</div>
   </div>
 </template>
 
