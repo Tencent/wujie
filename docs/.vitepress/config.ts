@@ -5,13 +5,14 @@ const ogDescription = "Next Generation Frontend Tooling";
 const ogImage = "https://main.vitejs.dev/og-image.png";
 const ogTitle = "Vite";
 const ogUrl = "https://main.vitejs.dev";
+const base = process.env.NODE_ENV === "production" ? "/doc/" : ""
 
 export default defineConfig({
   title: "无界",
   description: "Next Generation Frontend Tooling",
-  base: process.env.NODE_ENV === "production" ? "/doc/" : "",
+  base,
   head: [
-    ["link", { rel: "icon", href: "/favicon.ico" }],
+    ["link", { rel: "icon", href: `${base}/favicon.ico` }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:title", content: ogTitle }],
     ["meta", { property: "og:image", content: ogImage }],
