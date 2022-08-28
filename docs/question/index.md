@@ -96,3 +96,15 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 1. 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容也不会跳转，子应用设置 [attr](/api/startApp.html#attrs) 为 `{src:'https://host/empty'}`，这样 `iframe` 的 `src` 就是 `https://host/empty`
 2. `vite` 子应用所有的 `location` 操作都必须采用 `window.$wujie.location`
 3. `jsIgnores` 对应的 `js` 文件所有的 `location` 操作都必须采用 `window.$wujie.location`
+
+## 11、子应用的相对地址图片没有替换成绝对地址
+
+**原因：** 子应用通过 `v-html`、`innerHtml`或者在`template`中动态添加`style`时，框架默认的`plugin`无法处理这种场景
+
+**解决办法：** 在子应用入口`main`文件最上面 `import "./config"`，`config`具体代码：
+```javascript
+if (window.__POWERED_BY_WUJIE__) {
+  // eslint-disable-next-line
+  window.__webpack_public_path__ = window.__WUJIE_PUBLIC_PATH__;
+}
+```
