@@ -56,11 +56,11 @@ export function isMatchUrl(url: string, effectLoaders: plugin[effectLoadersType]
  */
 function cssRelativePathResolve(code: string, src: string, base: string) {
   const baseUrl = src ? getAbsolutePath(src, base) : base;
-  const urlReg = /(url\()([^)]*)(\))/g;
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/url
+  const urlReg = /(url\((?!['"]?(?:data):)['"]?)([^'"\)]*)(['"]?\))/g;
   return code.replace(urlReg, (_m, pre, url, post) => {
-    const urlString = url.replace(/["']/g, "");
-    const absoluteUrl = getAbsolutePath(urlString, baseUrl);
-    return pre + "'" + absoluteUrl + "'" + post;
+    const absoluteUrl = getAbsolutePath(url, baseUrl);
+    return pre + absoluteUrl + post;
   });
 }
 
