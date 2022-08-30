@@ -1,3 +1,6 @@
+const { resolve } = require("path");
+const LERNA_EXEC = resolve(__dirname, "../../node_modules/.bin/lerna");
+
 module.exports = {
   launch: {
     headless: true,
@@ -6,56 +9,56 @@ module.exports = {
   },
   server: [
     {
-      command: "../../node_modules/.bin/lerna run start --scope react16",
+      command: LERNA_EXEC + " run start --scope react16",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7600,
     },
     {
-      command: "../../node_modules/.bin/lerna run start --scope react17",
+      command: LERNA_EXEC + " run start --scope react17",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7100,
     },
     {
-      command: "../../node_modules/.bin/lerna run start --scope vue2",
+      command: LERNA_EXEC + " run start --scope vue2",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7200,
     },
     {
-      command: "../../node_modules/.bin/lerna run start --scope vue3",
+      command: LERNA_EXEC + " run start --scope vue3",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7300,
     },
     {
-      command: "../../node_modules/.bin/lerna run start --scope vite",
+      command: LERNA_EXEC + " run start --scope vite",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7500,
     },
     {
-      command: "../../node_modules/.bin/lerna run start --scope angular12",
+      command: LERNA_EXEC + " run start --scope angular12",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7400,
     },
     {
-      command: "../../node_modules/.bin/lerna run integration --scope main-react",
+      command: LERNA_EXEC + " run integration --scope main-react",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
       port: 7700,
     },
     {
-      command: "../../node_modules/.bin/lerna run start --scope main-vue",
+      command: LERNA_EXEC + " run start --scope main-vue",
       usedPortAction: "kill",
       launchTimeout: 60000,
       host: "0.0.0.0",
