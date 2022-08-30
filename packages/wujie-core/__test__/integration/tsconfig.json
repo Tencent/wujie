@@ -16,6 +16,6 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "declaration": true,
-    "types": ["puppeteer", "jest-environment-puppeteer", "expect-puppeteer"]
+    "types": ["puppeteer", "jest-environment-puppeteer", "jest"]
   }
 }

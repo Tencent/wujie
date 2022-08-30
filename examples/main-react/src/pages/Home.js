@@ -3,12 +3,8 @@ import Switch from "antd/es/switch";
 import Tooltip from "antd/es/tooltip";
 import Button from "antd/es/button";
 import { UnorderedListOutlined } from "@ant-design/icons";
-import PropTypes from "prop-types";
 
 export default class Home extends React.Component {
-  static propTypes = {
-    changeActive: PropTypes.func,
-  };
   state = {
     checkState: window.localStorage.getItem("preload") !== "false",
     disable: !window.Proxy || !window.CustomElementRegistry,

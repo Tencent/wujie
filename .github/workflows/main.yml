@@ -23,13 +23,13 @@ jobs:
           
       - name: install
         run: |
-          npm install lerna -g
-          lerna bootstrap --ignore main-react --ignore main-vue --ignore react16 --ignore react17 --ignore vite --ignore vue2 --ignore vue3 --ignore angular12 --ignore wujie-doc --no-ci
+          npm install -g pnpm
+          pnpm i  --filter "wujie-project" --filter "./packages/**"
 
       - name: publish to npm
         run: |
-          lerna run prepack
-          lerna publish from-package --no-verify-access --ignore-scripts -y
+          ../node_modules/.bin/lerna run prepack
+          ../node_modules/.bin/lerna publish from-package --no-verify-access --ignore-scripts -y
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
           
