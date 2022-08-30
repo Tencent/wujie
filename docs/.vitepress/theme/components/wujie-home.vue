@@ -13,8 +13,6 @@ const { Layout } = Theme;
     <template #home-hero-after></template>
     <template #home-features-before>
       <WujieContent :introduction="frontmatter.hero.Introduction" />
-      <WujieConnect @changeUrl="changeUrl" />
-      <WujieOnline :baseUrl="url"/>
     </template>
     <template #home-features-after></template>
   </Layout>
