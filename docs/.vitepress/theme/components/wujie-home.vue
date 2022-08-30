@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from "vue";
 import Theme from "vitepress/theme";
 import { useData, withBase } from "vitepress";
 import WujieContent from "./wujie-content.vue";
@@ -12,6 +13,8 @@ const { Layout } = Theme;
     <template #home-hero-after></template>
     <template #home-features-before>
       <WujieContent :introduction="frontmatter.hero.Introduction" />
+      <WujieConnect @changeUrl="changeUrl" />
+      <WujieOnline :baseUrl="url"/>
     </template>
     <template #home-features-after></template>
   </Layout>

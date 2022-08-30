@@ -24,7 +24,6 @@ export default defineConfig({
 
   themeConfig: {
     logo: "/wujie.svg",
-
     editLink: {
       pattern: "https://github.com/Tencent/wujie/tree/master/docs/:path",
       text: "编辑本页",
@@ -75,6 +74,7 @@ export default defineConfig({
           },
         ],
       },
+      { text: "在线体验无界", link: "/wujie/", activeMatch: "/wujie/" },
     ],
 
     sidebar: {
@@ -82,7 +82,7 @@ export default defineConfig({
         {
           text: "入门",
           collapsible: true,
-          items:[
+          items: [
             {
               text: "介绍",
               link: "/guide/",
@@ -91,7 +91,7 @@ export default defineConfig({
               text: "快速上手",
               link: "/guide/start",
             },
-          ]
+          ],
         },
         {
           text: "指南",
@@ -146,7 +146,7 @@ export default defineConfig({
         {
           text: "项目实战",
           collapsible: true,
-          items:[
+          items: [
             {
               text: "vue主应用",
               link: "https://github.com/Tencent/wujie/tree/master/examples/main-vue",
@@ -155,7 +155,7 @@ export default defineConfig({
               text: "react主应用",
               link: "https://github.com/Tencent/wujie/tree/master/examples/main-react",
             },
-          ]
+          ],
         },
       ],
       "/api/": [
