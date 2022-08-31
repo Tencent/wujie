@@ -177,7 +177,10 @@ export function getCurUrl(proxyLocation: Object): string {
 
 export function getAbsolutePath(url: string, base: string): string {
   try {
-    return new URL(url, base).href;
+    // 为空值或者hash值无需处理
+    if (url && !url.startsWith("#")) {
+      return new URL(url, base).href;
+    } else return url;
   } catch {
     return url;
   }

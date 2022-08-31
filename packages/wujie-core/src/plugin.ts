@@ -57,7 +57,7 @@ export function isMatchUrl(url: string, effectLoaders: plugin[effectLoadersType]
 function cssRelativePathResolve(code: string, src: string, base: string) {
   const baseUrl = src ? getAbsolutePath(src, base) : base;
   // https://developer.mozilla.org/en-US/docs/Web/CSS/url
-  const urlReg = /(url\((?!['"]?(?:data):)['"]?)([^'"\)]*)(['"]?\))/g;
+  const urlReg = /(url\((?!['"]?(?:data):)['"]?)([^'")]*)(['"]?\))/g;
   return code.replace(urlReg, (_m, pre, url, post) => {
     const absoluteUrl = getAbsolutePath(url, baseUrl);
     return pre + absoluteUrl + post;
