@@ -7,5 +7,10 @@ export default defineConfig({
   // legacy: {
   //   buildSsrCjsExternalHeuristics: true
   // }
-  css: { preprocessorOptions: { scss: { charset: false } } }
+  css: { preprocessorOptions: { scss: { charset: false } } },
+  build: {
+    rollupOptions: {
+      external: ['wujie-vue3']
+    }
+  }
 })

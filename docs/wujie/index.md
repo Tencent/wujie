@@ -14,5 +14,5 @@ function changeUrl(value) {
 
 <ClientOnly>
     <WujieConnect @changeUrl="changeUrl" />
-    <WujieOnline :baseUrl="url"/>
+    <WujieOnline :url="url" />
 </ClientOnly>

@@ -1,72 +1,139 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 const emit = defineEmits(["changeUrl"]);
-const value = ref("");
-function wujieClickUrl() {
-  emit("changeUrl", value);
+const url = ref("");
+function preventDefault(event) {
+  event.preventDefault;
+  const reg = /(https):\/\/([\w.]+\/?)\S*/;
+  if (reg.test(url.value)) {
+    emit("changeUrl", url.value);
+  }
 }
 </script>
-
 <template>
-  <div class="query">
-    <div class="inputBox">
-      <input type="text" required="required" v-model="value" />
-      <span>请输入一个Url</span>
+  <section id="newsletter" class="NewsLetter">
+    <div class="container">
+      <h2 class="title"><span class="link">开箱即用</span> , 用最简单的方式体验<span class="link">无界</span></h2>
+      <div class="form">
+        <form class="box" action="javascript:">
+          <input class="input" placeholder="Your Website" required pattern="https:\/\/([\w.]+\/?)\S*" v-model="url" />
+          <div class="action">
+            <input class="button" type="submit" @click="preventDefault" value="Magic" />
+          </div>
+        </form>
+      </div>
+      <p class="help">
+        您可以输入一个允许跨域访问的<span class="link">https</span>网站来在线体验<span class="link">无界</span>
+      </p>
     </div>
-    <button class="button-magic" @click="wujieClickUrl">Magic</button>
-  </div>
+  </section>
 </template>
 
-<style>
-.query {
-  display: flex;
-  justify-content: center;
-  margin: 30px auto;
-  box-sizing: border-box;
+<style scoped>
+.NewsLetter {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid var(--vp-c-divider-light);
+  padding: 32px 24px;
+  background: var(--vp-c-bg-soft);
+  transition: border-color 0.5s, background-color 0.5s;
 }
-.button-magic {
-  padding: 0 10px;
-  height: 100%;
-  line-height: 40px;
-  background: #f16b5f;
-  border: 1px solid #f16b5f;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+.dark .NewsLetter {
+  border-top-color: var(--vp-c-divider-light);
+  border-bottom-color: transparent;
+  background: var(--vp-c-bg);
 }
-.inputBox {
+@media (min-width: 768px) {
+  .NewsLetter {
+    padding: 48px 32px;
+  }
+}
+.container {
+  margin: 0 auto;
+  max-width: 512px;
+}
+.title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vp-c-text-2);
+  transition: color 0.5s;
+}
+@media (min-width: 375px) {
+  .title {
+    font-size: 16px;
+  }
+}
+.form {
+  padding-top: 8px;
+}
+@media (min-width: 375px) {
+  .form {
+    padding-top: 16px;
+  }
+}
+.box {
   position: relative;
+  width: 100%;
 }
-.inputBox input {
-  width: 350px;
-  padding: 8px;
-  border: 1px solid #f16b5f;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  outline: none;
-  font-size: 1rem;
-  transition: all 0.5s ease-in;
+.input {
+  border: 3px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 11px 128px 11px 16px;
+  font-size: 16px;
+  width: 100%;
+  color: var(--vp-c-text-1);
+  transition: border-color 0.25s, background-color 0.25s;
 }
-.inputBox span {
+.input:hover,
+.input:focus {
+  border-color: var(--vp-c-brand);
+}
+.input::placeholder {
+  font-weight: 500;
+  color: var(--vp-c-text-3);
+  transition: color 0.25s;
+}
+.action {
   position: absolute;
-  left: 0;
-  padding: 10px;
-  pointer-events: none;
-  font-size: 1rem;
-  transition: all 0.2s ease-in;
+  top: 7px;
+  right: 6px;
 }
-
-.inputBox input:valid ~ span,
-.inputBox input:focus ~ span {
-  transform: translateX(10px) translateY(-10px);
-  font-size: 0.7rem;
-  padding: 0 10px;
-  background: var(--vp-custom-block-info-code-bg);
-  border-radius: 6px;
-  letter-spacing: 0.1rem;
+.button {
+  border-radius: 4px;
+  padding: 0 12px;
+  letter-spacing: 0.8px;
+  line-height: 36px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vp-c-text-dark-1);
+  background-color: var(--vp-c-brand);
+  transition: background-color 0.25s;
+  cursor: pointer;
 }
-
-.inputBox input:valid,
-.inputBox input:focus {
-  border: 1px solid #f16b5f;
+.button:hover {
+  background-color: var(--vp-c-brand-dark);
+}
+.help {
+  margin: 0 auto;
+  padding: 8px;
+  max-width: 480px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vp-c-text-2);
+  transition: color 0.5s;
+}
+@media (min-width: 375px) {
+  .help {
+    padding-top: 16px;
+  }
+}
+.link {
+  color: var(--vp-c-brand);
+  transition: color 0.25s;
+}
+.link:hover {
+  color: var(--vp-c-brand-dark);
 }
 </style>

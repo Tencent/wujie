@@ -9,6 +9,8 @@
   --vp-c-brand-dark: #f15547;
   --vp-c-brand-darker: #ce5d52;
   --vp-c-brand-dimm: #c9433710;
+  --vp-z-index-nav: 99999 !important;
+  --vp-z-index-footer: -10;
 }
 
 /**

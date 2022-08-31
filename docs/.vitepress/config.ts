@@ -5,7 +5,7 @@ const ogDescription = "Next Generation Frontend Tooling";
 const ogImage = "https://main.vitejs.dev/og-image.png";
 const ogTitle = "Vite";
 const ogUrl = "https://main.vitejs.dev";
-const base = process.env.NODE_ENV === "production" ? "/doc/" : ""
+const base = process.env.NODE_ENV === "production" ? "/doc/" : "";
 
 export default defineConfig({
   title: "无界",
