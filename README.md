@@ -148,6 +148,6 @@ import WujieReact from "wujie-react";
 运行以下脚本，可以本地开发无界微前端框架，支持实时编译调试开发。
 
 ```bash
-npm i                   // 安装包依赖
+pnpm i                  // 安装包依赖，务必使用pnpm
 npm run start           // 启动所有应用
 ```

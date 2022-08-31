@@ -6,7 +6,6 @@
   "scripts": {
     "start": "lerna run start --parallel",
     "doc": "lerna run docs:dev",
-    "postinstall": "lerna bootstrap",
     "clean": "rimraf node_modules **/*/node_modules",
     "test": "lerna run test --scope wujie",
     "commitlint": "commitlint -E COMMIT_EDITMSG_PATH",
@@ -22,8 +21,9 @@
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
+    "@lerna-lite/cli": "^1.11.1",
+    "@lerna-lite/run": "^1.11.1",
     "husky": "^7.0.4",
-    "lerna": "^5.4.3",
     "lint-staged": "^12.4.1",
     "rimraf": "^3.0.2"
   },

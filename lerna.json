@@ -4,6 +4,7 @@
     "examples/*",
     "docs"
   ],
+  "npmClient": "pnpm",
   "command": {
     "version": {
       "allowBranch": "master"
