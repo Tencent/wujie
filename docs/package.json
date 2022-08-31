@@ -19,6 +19,6 @@
   "dependencies": {
     "@vue/theme": "^1.2.2",
     "vue": "^3.2.38",
-    "wujie-vue3": "workspace:*"
+    "wujie-vue3": "^1.0.0-rc.12"
   }
 }

@@ -26,7 +26,7 @@ importers:
       vite: 3.0.9
       vitepress: 1.0.0-alpha.9
       vue: ^3.2.38
-      wujie-vue3: workspace:*
+      wujie-vue3: ^1.0.0-rc.12
     dependencies:
       '@vue/theme': 1.2.2_vue@3.2.38
       vue: 3.2.38
@@ -6540,7 +6540,7 @@ packages:
       mkdirp: 1.0.4
       npm-pick-manifest: 7.0.2
       proc-log: 2.0.1
-      promise-inflight: 1.0.1
+      promise-inflight: 1.0.1_bluebird@3.7.2
       promise-retry: 2.0.1
       semver: 7.3.7
       which: 2.0.2

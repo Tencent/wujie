@@ -49,7 +49,7 @@ function preventDefault(event) {
 }
 .container {
   margin: 0 auto;
-  max-width: 512px;
+  max-width: 552px;
 }
 .title {
   text-align: center;
@@ -60,7 +60,7 @@ function preventDefault(event) {
 }
 @media (min-width: 375px) {
   .title {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
 .form {
@@ -119,7 +119,7 @@ function preventDefault(event) {
   max-width: 480px;
   text-align: center;
   line-height: 20px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--vp-c-text-2);
   transition: color 0.5s;

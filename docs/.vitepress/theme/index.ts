@@ -1,9 +1,9 @@
 import Theme from "vitepress/theme";
-import WujieVue from "wujie-vue3";
 import wujieHome from "./components/wujie-home.vue";
 import { h } from "vue";
 import "./styles/vars.css";
 
+const inBrowser = typeof window !== "undefined";
 export default {
   ...Theme,
   Layout() {
@@ -12,6 +12,9 @@ export default {
     });
   },
   enhanceApp({ app }) {
-    app.use(WujieVue);
+    inBrowser &&
+      import("wujie-vue3").then((module) => {
+        app.use(module.default);
+      });
   },
 };

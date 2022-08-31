@@ -10,7 +10,7 @@ export default defineConfig({
   css: { preprocessorOptions: { scss: { charset: false } } },
   build: {
     rollupOptions: {
-      external: ['wujie-vue3']
+      external: ['vue']
     }
   }
 })
