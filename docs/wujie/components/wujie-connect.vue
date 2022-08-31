@@ -23,7 +23,7 @@ function preventDefault(event) {
         </form>
       </div>
       <p class="help">
-        您可以输入一个允许跨域访问的<span class="link">https</span>网站来在线体验<span class="link">无界</span>
+        您可以输入一个允许跨域访问的<span class="link">https</span>协议网站来在线体验<span class="link">无界</span>
       </p>
     </div>
   </section>

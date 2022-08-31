@@ -11,7 +11,7 @@ const wujieList = [
   },
   {
     name: "React",
-    url: "https://reactjs.org/"
+    url: "https://reactjs.org/",
   },
   {
     name: "Vercel",
@@ -19,7 +19,7 @@ const wujieList = [
   },
   {
     name: "UmiJS",
-    url: "https://umijs.org/"
+    url: "https://umijs.org/",
   },
   {
     name: "Webpack",
@@ -57,11 +57,22 @@ function changeWujieUrl(item) {
 
 <template>
   <div class="baseContainer">
-    <WujieVue width="100%" height="100vh" name="vite" alive :url="wujieUrl" :sync="true"></WujieVue>
+    <div style="width: 100%">
+      <WujieVue
+        v-if="wujieUrl"
+        width="100%"
+        height="100vh"
+        :name="wujieUrl"
+        alive
+        :url="wujieUrl"
+        :sync="true"
+      ></WujieVue>
+    </div>
     <div class="wujieList">
-      <span v-for="item in wujieList" class="wujieItem" @click="changeWujieUrl(item)">
+      <h1>快速前往</h1>
+      <div v-for="item in wujieList" class="wujieItem" @click="changeWujieUrl(item)">
         {{ item.name }}
-      </span>
+      </div>
     </div>
   </div>
 </template>
@@ -72,18 +83,17 @@ function changeWujieUrl(item) {
   transition: all 0.2s ease-out;
   display: flex;
   gap: 50px;
-  width: 80vw;
+  width: 90vw;
 }
 .wujieItem {
-  padding: 4px 8px;
-  background: var(--vp-c-brand-lighter-item);
-  border-radius: 6px;
-  border: 3px solid var(--vp-c-brand);
+  color: var(--vt-c-text-2);
   cursor: pointer;
+  opacity: 0.7;
+}
+.wujieItem:hover {
+  opacity: 1;
 }
 .wujieList {
-  border: 3px solid #eee;
-  border-radius: 6px;
   padding: 15px 25px;
   max-width: 10vw;
   height: 100%;
@@ -91,6 +101,7 @@ function changeWujieUrl(item) {
   gap: 20px;
   flex-wrap: wrap;
   justify-content: space-around;
+  flex-direction: column;
 }
 .content {
   max-width: 100vw;
