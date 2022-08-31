@@ -16,7 +16,7 @@ function preventDefault(event) {
       <h2 class="title"><span class="link">开箱即用</span> , 用最简单的方式体验<span class="link">无界</span></h2>
       <div class="form">
         <form class="box" action="javascript:">
-          <input class="input" placeholder="Your Website" required pattern="https:\/\/([\w.]+\/?)\S*" v-model="url" />
+          <input class="input" placeholder="Your Website" required pattern="https:\/\/([\w.]+\/?)\S*" title="请输入允许跨域的并且是https协议的网站" v-model="url" />
           <div class="action">
             <input class="button" type="submit" @click="preventDefault" value="Magic" />
           </div>

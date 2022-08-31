@@ -1,5 +1,5 @@
+.DS_Store
 node_modules
-npm-debug.log
 dist
 site
 lib
@@ -10,3 +10,6 @@ yarn.lock
 package-lock.json
 coverage
 .history
+
+# Log files
+.pnpm-debug.log*
