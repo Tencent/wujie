@@ -136,6 +136,8 @@ export const reactMainAppInfoMap = {
   },
 };
 export const reactMainAppInfoList = Object.entries(reactMainAppInfoMap).map((item) => item[1]);
+export const reactMainAppNameList = Object.entries(reactMainAppInfoMap).map((item) => item[0]);
+
 export const vueMainAppInfoMap = {
   react16: {
     name: "react16",
@@ -275,3 +277,4 @@ export const vueMainAppInfoMap = {
   },
 };
 export const vueMainAppInfoList = Object.entries(vueMainAppInfoMap).map((item) => item[1]);
+export const vueMainAppNameList = Object.entries(vueMainAppInfoMap).map((item) => item[0]);
