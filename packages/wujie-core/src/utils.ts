@@ -272,6 +272,7 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     props: options.props || cacheOptions?.props,
     sync: options.sync !== undefined ? options.sync : cacheOptions?.sync,
     prefix: options.prefix || cacheOptions?.prefix,
+    loading: options.loading || cacheOptions?.loading,
     // 默认 {}
     attrs: options.attrs !== undefined ? options.attrs : cacheOptions?.attrs || {},
     // 默认 true

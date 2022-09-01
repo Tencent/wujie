@@ -1,4 +1,13 @@
-import { WUJIE_DATA_ID, WUJIE_IFRAME_CLASS, WUJIE_SHADE_STYLE } from "./constant";
+import {
+  WUJIE_DATA_ID,
+  WUJIE_IFRAME_CLASS,
+  WUJIE_SHADE_STYLE,
+  CONTAINER_POSITION_DATA_FLAG,
+  CONTAINER_OVERFLOW_DATA_FLAG,
+  LOADING_DATA_FLAG,
+  WUJIE_LOADING_STYLE,
+  WUJIE_LOADING_SVG,
+} from "./constant";
 import { getWujieById, rawElementAppendChild, rawElementRemoveChild, relativeElementTagAttrMap } from "./common";
 import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
@@ -58,8 +67,11 @@ export function createWujieWebComponent(id: string): HTMLElement {
 export function renderElementToContainer(element: Element, selectorOrElement: string | HTMLElement): HTMLElement {
   const container = getContainer(selectorOrElement);
   if (container && !container.contains(element)) {
-    // 清除内容
-    clearChild(container);
+    // 有 loading 无需清理，已经清理过了
+    if (!container.querySelector(`div[${LOADING_DATA_FLAG}]`)) {
+      // 清除内容
+      clearChild(container);
+    }
     // 插入元素
     if (element) {
       rawElementAppendChild.call(container, element);
@@ -242,6 +254,52 @@ export function clearChild(root: ShadowRoot | Node): void {
   }
 }
 
+/**
+ * 给容器添加loading
+ */
+export function addLoading(el: string | HTMLElement, loading: HTMLElement): void {
+  const container = getContainer(el);
+  clearChild(container);
+  // 给容器设置一些样式，防止 loading 抖动
+  const containerStyles = window.getComputedStyle(container);
+  if (containerStyles.position === "static") {
+    container.setAttribute(CONTAINER_POSITION_DATA_FLAG, containerStyles.position);
+    container.setAttribute(
+      CONTAINER_OVERFLOW_DATA_FLAG,
+      containerStyles.overflow === "visible" ? "" : containerStyles.overflow
+    );
+    container.style.setProperty("position", "relative");
+    container.style.setProperty("overflow", "hidden");
+  } else if (["relative", "sticky"].includes(containerStyles.position)) {
+    container.setAttribute(
+      CONTAINER_OVERFLOW_DATA_FLAG,
+      containerStyles.overflow === "visible" ? "" : containerStyles.overflow
+    );
+    container.style.setProperty("overflow", "hidden");
+  }
+  const loadingContainer = document.createElement("div");
+  loadingContainer.setAttribute(LOADING_DATA_FLAG, "");
+  loadingContainer.setAttribute("style", WUJIE_LOADING_STYLE);
+  if (loading) loadingContainer.appendChild(loading);
+  else loadingContainer.innerHTML = WUJIE_LOADING_SVG;
+  container.appendChild(loadingContainer);
+}
+/**
+ * 移除loading
+ */
+export function removeLoading(el: HTMLElement): void {
+  // 去除容器设置的样式
+  const positionFlag = el.getAttribute(CONTAINER_POSITION_DATA_FLAG);
+  const overflowFlag = el.getAttribute(CONTAINER_OVERFLOW_DATA_FLAG);
+  if (positionFlag) el.style.removeProperty("position");
+  if (overflowFlag !== null) {
+    overflowFlag ? el.style.setProperty("overflow", overflowFlag) : el.style.removeProperty("overflow");
+  }
+  el.removeAttribute(CONTAINER_POSITION_DATA_FLAG);
+  el.removeAttribute(CONTAINER_OVERFLOW_DATA_FLAG);
+  const loadingContainer = el.querySelector(`div[${LOADING_DATA_FLAG}]`);
+  loadingContainer && el.removeChild(loadingContainer);
+}
 /**
  * 获取修复好的样式元素
  * 主要是针对对root样式和font-face样式

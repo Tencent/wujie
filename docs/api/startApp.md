@@ -17,6 +17,8 @@ type startOption  {
   url: string;
   /** 渲染的容器 */
   el: HTMLElement | string;
+  /** 子应用加载时loading元素 */
+  loading?: HTMLElement;
   /** 路由同步开关， false刷新无效，但是前进后退依然有效 */
   sync?: boolean;
   /** 子应用短路径替换，路由同步时生效 */
@@ -82,6 +84,12 @@ type startOption  {
 - **类型：** `HTMLElement | string`
 
 - **详情：** 子应用渲染容器，子应用渲染容器的最好设置好宽高防止渲染问题，在`webcomponent`元素上无界还设置了`wujie_iframe`的`class`方便用户自定义样式
+
+## loading
+
+- **类型：** `HTMLElement`
+
+- **详情：** 自定义的`loading`元素，如果不想出现默认加载，可以赋值一个空元素：`document.createElement('span')`
 
 ## sync
 

@@ -120,7 +120,7 @@ Techniques, strategies and recipes for building a modern web app with multiple t
 
 ## 无界方案
 
-在乾坤的`issue`中一个[议题](https://github.com/umijs/qiankun/issues/286)非常有意思，有个开发者提出能否利用`iframe`来实现`js`沙箱能力，这个`ideal`启发了无界方案，下面详细介绍
+在乾坤的`issue`中一个[议题](https://github.com/umijs/qiankun/issues/286)非常有意思，有个开发者提出能否利用`iframe`来实现`js`沙箱能力，这个`idea`启发了无界方案，下面详细介绍
 
 ### 应用加载机制和 js 沙箱机制
 
