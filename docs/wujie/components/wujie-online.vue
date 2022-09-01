@@ -1,18 +1,27 @@
 <script setup>
-import { watch, ref } from "vue";
+import { watch, ref, computed } from "vue";
 import { wujieList } from "./data";
 
 const props = defineProps({
   url: String | Object,
+  flag: Boolean
 });
 
 const wujieUrl = ref("");
+
+const isScroll = computed(() => {
+  return wujieUrl.value !== "" ? "scroll" : "hidden";
+});
+const isBorder = computed(() => {
+  return wujieUrl.value !== "" ? "none" : "3px solid var(--vp-c-text-2)";
+});
 watch(
-  () => props.url,
+  () => props.flag,
   (newValue) => {
-    wujieUrl.value = newValue;
+    wujieUrl.value = props.url;
   }
 );
+
 function changeWujieUrl(item) {
   wujieUrl.value = item.url;
 }
@@ -20,16 +29,8 @@ function changeWujieUrl(item) {
 
 <template>
   <div class="baseContainer">
-    <div style="width: 100%">
-      <WujieVue
-        v-if="wujieUrl"
-        width="100%"
-        height="100vh"
-        :name="wujieUrl"
-        alive
-        :url="wujieUrl"
-        :sync="true"
-      ></WujieVue>
+    <div class="onlineContainer">
+      <WujieVue v-if="wujieUrl" width="100%" :name="wujieUrl" alive :url="wujieUrl" :sync="true"></WujieVue>
     </div>
     <div class="wujieList">
       <h1>快速前往</h1>
@@ -41,6 +42,13 @@ function changeWujieUrl(item) {
 </template>
 
 <style>
+.onlineContainer {
+  width: 100%;
+  /* border: v-bind(isBorder); */
+  border-radius: 6px;
+  /* height: 100vh; */
+  overflow: hidden;
+}
 .baseContainer {
   margin: 20px auto 50px;
   transition: all 0.2s ease-out;

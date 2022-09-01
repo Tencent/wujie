@@ -7,12 +7,14 @@ import { ref } from "vue";
 import WujieOnline from "./components/wujie-online.vue";
 import WujieConnect from "./components/wujie-connect.vue";
 const url = ref("");
+const flag = ref(null)
 function changeUrl(value) {
-  url.value = value;
+  url.value = value[0];
+  flag.value = value[1]
 }
 </script>
 
 <ClientOnly>
     <WujieConnect @changeUrl="changeUrl" />
-    <WujieOnline :url="url" />
+    <WujieOnline :url="url" :flag=flag />
 </ClientOnly>

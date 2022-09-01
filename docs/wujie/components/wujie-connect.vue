@@ -2,11 +2,14 @@
 import { ref } from "vue";
 const emit = defineEmits(["changeUrl"]);
 const url = ref("");
+const flag = ref(false);
 function preventDefault(event) {
   event.preventDefault;
   const reg = /(https):\/\/([\w.]+\/?)\S*/;
   if (reg.test(url.value)) {
-    emit("changeUrl", url.value);
+    flag.value = !flag.value;
+    console.log(flag.value);
+    emit("changeUrl", [url.value, flag.value]);
   }
 }
 </script>
@@ -16,7 +19,14 @@ function preventDefault(event) {
       <h2 class="title"><span class="link">开箱即用</span> , 用最简单的方式体验<span class="link">无界</span></h2>
       <div class="form">
         <form class="box" action="javascript:">
-          <input class="input" placeholder="Your Website" required pattern="https:\/\/([\w.]+\/?)\S*" title="请输入允许跨域的并且是https协议的网站" v-model="url" />
+          <input
+            class="input"
+            placeholder="Your Website"
+            required
+            pattern="https:\/\/([\w.]+\/?)\S*"
+            title="请输入允许跨域的并且是https协议的网站"
+            v-model="url"
+          />
           <div class="action">
             <input class="button" type="submit" @click="preventDefault" value="Magic" />
           </div>
