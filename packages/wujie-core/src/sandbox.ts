@@ -14,6 +14,7 @@ import {
   renderTemplateToShadowRoot,
   createIframeContainer,
   renderTemplateToIframe,
+  removeLoading,
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
 import { ScriptResultList } from "./entry";
@@ -320,6 +321,8 @@ export default class Wujie {
       this.execQueue.shift()?.();
     };
     this.execQueue.push(this.fiber ? () => requestIdleCallback(domLoadedTrigger) : domLoadedTrigger);
+    // 由于没有办法准确定位是哪个代码做了mount，保活、重建模式提前关闭loading
+    if (this.alive || !isFunction(this.iframe.contentWindow.__WUJIE_UNMOUNT)) removeLoading(this.el);
     this.execQueue.shift()();
 
     // 所有的execQueue队列执行完毕，start才算结束，保证串行的执行子应用
@@ -340,6 +343,7 @@ export default class Wujie {
   public mount(): void {
     if (this.mountFlag) return;
     if (isFunction(this.iframe.contentWindow.__WUJIE_MOUNT)) {
+      removeLoading(this.el);
       this.lifecycles?.beforeMount?.(this.iframe.contentWindow);
       this.iframe.contentWindow.__WUJIE_MOUNT();
       this.lifecycles?.afterMount?.(this.iframe.contentWindow);
