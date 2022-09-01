@@ -1,7 +1,7 @@
 import importHTML, { processCssLoader } from "./entry";
 import { StyleObject } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
-import { defineWujieWebComponent } from "./shadow";
+import { defineWujieWebComponent, addLoading } from "./shadow";
 import { processAppForHrefJump } from "./sync";
 import { getPlugins } from "./plugin";
 import { wujieSupport, mergeOptions, isFunction, requestIdleCallback, isMatchSyncQueryById, warn } from "./utils";
@@ -119,6 +119,8 @@ export type startOptions = baseOptions & {
   sync?: boolean;
   /** 子应用短路径替换，路由同步时生效 */
   prefix?: { [key: string]: string };
+  /** 子应用加载时loading元素 */
+  loading?: HTMLElement;
 };
 
 export type cacheOptions = baseOptions & {
@@ -130,6 +132,8 @@ export type cacheOptions = baseOptions & {
   sync?: boolean;
   /** 子应用短路径替换，路由同步时生效 */
   prefix?: { [key: string]: string };
+  /** 子应用加载时loading元素 */
+  loading?: HTMLElement;
 };
 
 /**
@@ -167,8 +171,23 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
   const cacheOptions = getOptionsById(startOptions.name);
   // 合并缓存配置
   const options = mergeOptions(startOptions, cacheOptions);
-  const { name, url, replace, fetch, props, attrs, fiber, alive, degrade, sync, prefix, el, plugins, lifecycles } =
-    options;
+  const {
+    name,
+    url,
+    replace,
+    fetch,
+    props,
+    attrs,
+    fiber,
+    alive,
+    degrade,
+    sync,
+    prefix,
+    el,
+    loading,
+    plugins,
+    lifecycles,
+  } = options;
   // 已经初始化过的应用，快速渲染
   if (sandbox) {
     sandbox.plugins = getPlugins(plugins);
@@ -212,6 +231,8 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
     }
   }
 
+  // 设置loading
+  addLoading(el, loading);
   const newSandbox = new WuJie({ name, url, attrs, fiber, degrade, plugins, lifecycles });
   newSandbox.lifecycles?.beforeLoad?.(newSandbox.iframe.contentWindow);
   const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {

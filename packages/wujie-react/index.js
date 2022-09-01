@@ -7,6 +7,7 @@ export default class WujieReact extends React.PureComponent {
     height: PropTypes.string,
     width: PropTypes.string,
     name: PropTypes.string,
+    loading: PropTypes.element,
     url: PropTypes.string,
     alive: PropTypes.bool,
     fetch: PropTypes.func,
@@ -44,6 +45,7 @@ export default class WujieReact extends React.PureComponent {
     const {
       name,
       url,
+      loading,
       alive,
       fetch,
       props,
@@ -69,6 +71,7 @@ export default class WujieReact extends React.PureComponent {
           name,
           url,
           el: this.state.myRef.current,
+          loading,
           alive,
           fetch,
           props,

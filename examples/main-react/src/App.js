@@ -1,4 +1,4 @@
-import { HashRouter as Router, Route, Routes, NavLink,  useLocation } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, NavLink, Navigate, useLocation } from "react-router-dom";
 import React, { useState } from "react";
 import Home from "./pages/Home";
 import React16 from "./pages/React16";
@@ -154,7 +154,7 @@ class App extends React.PureComponent {
               <Route exact path="/vite-sub/:path" element={<Vite />} />
               <Route exact path="/angular12" element={<Angular12 />} />
               <Route exact path="/all" element={<All />} />
-              {/* <Route path="*" element={<Navigate to="/home" replace />} /> */}
+              <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
           </div>
         </Router>

@@ -19,6 +19,8 @@ type cacheOptions  {
   exec?: boolean;
   /** 渲染的容器 */
   el?: HTMLElement | string;
+  /** 子应用加载时loading元素 */
+  loading?: HTMLElement;
   /** 路由同步开关 */
   sync?: boolean;
   /** 子应用短路径替换，路由同步时生效 */
