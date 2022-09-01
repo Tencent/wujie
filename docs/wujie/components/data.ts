@@ -1,5 +1,9 @@
 export const wujieList = [
   {
+    name: "UmiJS",
+    url: "https://umijs.org/",
+  },
+  {
     name: "TurboRepo",
     url: "https://turborepo.org/docs/getting-started",
   },
@@ -10,10 +14,6 @@ export const wujieList = [
   {
     name: "Vercel",
     url: "https://vercel.com/",
-  },
-  {
-    name: "UmiJS",
-    url: "https://umijs.org/",
   },
   {
     name: "Webpack",

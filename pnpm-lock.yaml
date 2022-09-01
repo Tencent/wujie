@@ -26,7 +26,7 @@ importers:
       vite: 3.0.9
       vitepress: 1.0.0-alpha.9
       vue: ^3.2.38
-      wujie-vue3: ^1.0.0-rc.12
+      wujie-vue3: workspace:*
     dependencies:
       '@vue/theme': 1.2.2_vue@3.2.38
       vue: 3.2.38
@@ -731,6 +731,7 @@ importers:
       cross-env: ^7.0.3
       eslint: ^8.2.0
       eslint-plugin-vue: ^8.0.3
+      vue: ^3.0.0
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
       wujie: ^1.0.0-rc.12
@@ -744,6 +745,7 @@ importers:
       cross-env: 7.0.3
       eslint: 8.23.0
       eslint-plugin-vue: 8.7.1_eslint@8.23.0
+      vue: 3.2.38
       webpack: 5.74.0_webpack-cli@4.10.0
       webpack-cli: 4.10.0_webpack@5.74.0
 

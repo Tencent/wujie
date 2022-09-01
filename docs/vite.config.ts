@@ -8,9 +8,4 @@ export default defineConfig({
   //   buildSsrCjsExternalHeuristics: true
   // }
   css: { preprocessorOptions: { scss: { charset: false } } },
-  build: {
-    rollupOptions: {
-      external: ['vue']
-    }
-  }
 })
