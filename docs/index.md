@@ -24,9 +24,9 @@ hero:
     - theme: alt
       text: React示例
       link: https://wujie-micro.github.io/demo-main-react/
-    - theme: alt
-      text: View on GitHub
-      link: https://github.com/Tencent/wujie
+    - theme: brand
+      text: 在线体验
+      link: /wujie/
 
 features:
   - icon: 🚀

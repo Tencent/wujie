@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 const emit = defineEmits(["changeUrl"]);
-const url = ref("");
+const url = ref("https://wujicode.cn/xy/app/prod/official/home");
 const flag = ref(false);
 function preventDefault(event) {
   event.preventDefault;
@@ -67,6 +67,7 @@ watch(
 }
 .container {
   margin: 0 auto;
+  padding-top: 20px;
   max-width: 552px;
 }
 .title {

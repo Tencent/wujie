@@ -12,7 +12,7 @@ const props = withDefaults(
   }>(),
   {}
 );
-const wujieUrl = ref<string>("");
+const wujieUrl = ref<string>("https://wujicode.cn/xy/app/prod/official/home");
 
 watch(
   () => props.flag,
@@ -21,22 +21,44 @@ watch(
   }
 );
 
+const loading = document.createElement("div");
+loading.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="30px" viewBox="0 0 24 30">
+<rect x="0" y="13" width="4" height="5" fill="#f16b5f">
+  <animate attributeName="height" attributeType="XML" values="5;21;5" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
+  <animate attributeName="y" attributeType="XML" values="13; 5; 13" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="10" y="13" width="4" height="5" fill="#f16b5f">
+  <animate attributeName="height" attributeType="XML" values="5;21;5" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
+  <animate attributeName="y" attributeType="XML" values="13; 5; 13" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="20" y="13" width="4" height="5" fill="#f16b5f">
+  <animate attributeName="height" attributeType="XML" values="5;21;5" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
+  <animate attributeName="y" attributeType="XML" values="13; 5; 13" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
+</rect>
+</svg>`;
+
 function changeWujieUrl(item) {
   wujieUrl.value = item.url;
-  emit('update:url', item.url)
+  emit("update:url", item.url);
 }
 </script>
 
 <template>
   <div class="baseContainer">
     <div class="onlineContainer">
-      <WujieVue v-if="wujieUrl" width="100%" :name="wujieUrl" alive :url="wujieUrl" :sync="true"></WujieVue>
+      <WujieVue
+        class="wujieContainer"
+        :key="wujieUrl"
+        v-if="wujieUrl"
+        :name="wujieUrl"
+        alive
+        :url="wujieUrl"
+        :loading="loading"
+      ></WujieVue>
     </div>
     <div class="wujieList">
       <h1>快速前往</h1>
-      <div v-for="item in wujieList" class="wujieItem" @click="changeWujieUrl(item)">
-        {{ item.name }}
-      </div>
+      <div v-for="item in wujieList" class="wujieItem" @click="changeWujieUrl(item)">{{ item.name }}</div>
     </div>
   </div>
 </template>
@@ -55,6 +77,10 @@ function changeWujieUrl(item) {
   display: flex;
   gap: 50px;
   width: 90vw;
+}
+.wujieContainer {
+  width: 100%;
+  min-height: 500px;
 }
 .wujieItem {
   color: var(--vt-c-text-2);
