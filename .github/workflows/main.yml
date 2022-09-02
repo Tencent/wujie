@@ -24,7 +24,7 @@ jobs:
       - name: install
         run: |
           npm install -g pnpm
-          pnpm i  --filter "wujie-project" --filter "./packages/**"
+          pnpm i  --filter "wujie-project" --filter "./packages/**" --no-frozen-lockfile
 
       - name: publish to npm
         run: |
