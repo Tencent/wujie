@@ -6,9 +6,12 @@
   --vp-c-brand: #f16b5f;
   --vp-c-brand-light: #ec857c;
   --vp-c-brand-lighter: #e99f98;
+  --vp-c-brand-lighter-item: #f5a5a150;
   --vp-c-brand-dark: #f15547;
   --vp-c-brand-darker: #ce5d52;
   --vp-c-brand-dimm: #c9433710;
+  --vp-z-index-nav: 999 !important;
+  --vp-z-index-footer: -10;
 }
 
 /**
