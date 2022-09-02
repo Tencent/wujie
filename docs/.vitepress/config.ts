@@ -58,7 +58,7 @@ export default defineConfig({
         items: [
           {
             text: "更新日志",
-            link: "https://github.com/Tencent/wujie/blob/master/packages/wujie-core/CHANGELOG.md",
+            link: "https://github.com/Tencent/wujie/blob/master/CHANGELOG.md",
           },
         ],
       },

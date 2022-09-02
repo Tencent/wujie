@@ -144,7 +144,7 @@ importers:
       webpack-dev-server: ^4.6.0
       webpack-manifest-plugin: ^4.0.2
       workbox-webpack-plugin: ^6.4.1
-      wujie-react: ^1.0.0-rc.12
+      wujie-react: ^1.0.0-rc.13
     dependencies:
       '@ant-design/icons': 4.7.0_sfoxds7t5ydpegc3knd667wn6m
       '@babel/core': 7.18.13
@@ -221,8 +221,8 @@ importers:
       vue: ^2.6.11
       vue-router: ^3.2.0
       vue-template-compiler: ^2.6.11
-      wujie: ^1.0.0-rc.12
-      wujie-vue2: ^1.0.0-rc.12
+      wujie: ^1.0.0-rc.13
+      wujie-vue2: ^1.0.0-rc.13
     dependencies:
       ant-design-vue: 1.7.8_42puyn3dcxirnpdjnosl7pbb6a
       core-js: 3.25.0
@@ -301,7 +301,7 @@ importers:
       webpack-dev-server: ^4.6.0
       webpack-manifest-plugin: ^4.0.2
       workbox-webpack-plugin: ^6.4.1
-      wujie-react: ^1.0.0-rc.12
+      wujie-react: ^1.0.0-rc.13
     dependencies:
       '@babel/core': 7.18.13
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.7_wt5p3h66kg5yz5633zrrqkcxnm
@@ -681,7 +681,7 @@ importers:
       prop-types: ^15.8.1
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: ^1.0.0-rc.12
+      wujie: ^1.0.0-rc.13
     dependencies:
       prop-types: 15.8.1
       wujie: link:../wujie-core
@@ -708,7 +708,7 @@ importers:
       eslint-plugin-vue: ^8.0.3
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: ^1.0.0-rc.12
+      wujie: ^1.0.0-rc.13
     dependencies:
       wujie: link:../wujie-core
     devDependencies:
@@ -734,7 +734,7 @@ importers:
       vue: ^3.0.0
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: ^1.0.0-rc.12
+      wujie: ^1.0.0-rc.13
     dependencies:
       wujie: link:../wujie-core
     devDependencies:
@@ -6542,7 +6542,7 @@ packages:
       mkdirp: 1.0.4
       npm-pick-manifest: 7.0.2
       proc-log: 2.0.1
-      promise-inflight: 1.0.1_bluebird@3.7.2
+      promise-inflight: 1.0.1
       promise-retry: 2.0.1
       semver: 7.3.7
       which: 2.0.2
