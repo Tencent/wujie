@@ -1,6 +1,6 @@
 {
   "name": "vue2",
-  "version": "1.0.0-rc.12",
+  "version": "1.0.0-rc.13",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve --mode:development",
