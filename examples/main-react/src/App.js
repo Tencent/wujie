@@ -1,4 +1,5 @@
-import { HashRouter as Router, Route, Routes, NavLink, Navigate, useLocation } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, NavLink, Navigate, useLocation, useNavigate } from "react-router-dom";
+import WujieReact from "wujie-react";
 import React, { useState } from "react";
 import Home from "./pages/Home";
 import React16 from "./pages/React16";
@@ -11,6 +12,8 @@ import All from "./pages/All";
 import Button from "antd/es/button";
 import { UnorderedListOutlined, CaretUpOutlined } from "@ant-design/icons";
 
+const { bus } = WujieReact;
+
 const subMap = {
   react16: ["home", "dialog", "location", "communication", "nest", "font"],
   react17: ["home", "dialog", "location", "communication", "state"],
@@ -21,11 +24,23 @@ const subMap = {
 
 function Nav() {
   const location = useLocation();
+  const navigation = useNavigate(); 
   const [react16Flag, setReact16Flag] = useState(location.pathname.includes("react16-sub"));
   const [react17Flag, setReact17Flag] = useState(location.pathname.includes("react7-sub"));
   const [vue2Flag, setVue2Flag] = useState(location.pathname.includes("vue2-sub"));
   const [vue3Flag, setVue3Flag] = useState(location.pathname.includes("vue3-sub"));
   const [viteFlag, setViteFlag] = useState(location.pathname.includes("vite-sub"));
+
+  // 在 xxx-sub 路由下子应用将激活路由同步给主应用，主应用跳转对应路由高亮菜单栏
+  bus.$on("sub-route-change", (name, path) => {
+    const mainName = `${name}-sub`;
+    const mainPath = `/${name}-sub${path}`;
+    const currentPath = window.location.hash.replace("#", "")
+    if(currentPath.includes(mainName) && currentPath !== mainPath) {
+      navigation(mainPath);
+    }
+  });
+
 
   const handleFlag = (name) => {
     switch (name) {

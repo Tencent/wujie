@@ -66,8 +66,7 @@
       <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click.stop="active = !active" />
     </div>
     <div class="content" @click="active = false">
-      <!-- 必须添加key否则路由共用组件不会渲染 -->
-      <router-view :key="$route.path" />
+      <router-view />
     </div>
   </div>
 </template>

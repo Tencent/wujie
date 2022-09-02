@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import logo from "./logo.svg";
-import { BrowserRouter as Router, Switch, Route, NavLink, Redirect, useHistory } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, NavLink, Redirect, useHistory, useLocation } from "react-router-dom";
 import Dialog from "./Dialog";
 import Location from "./Location";
 import Communication from "./Communication";
@@ -43,6 +44,12 @@ function Nav() {
 
   // 主应用告诉子应用跳转路由
   window.$wujie?.bus.$on("react17-router-change", routerJump);
+
+  // 在 react17-sub 路由下主动告知主应用路由跳转，主应用也跳到相应路由高亮菜单栏
+  const location = useLocation()
+  useEffect(() => {
+    window.$wujie?.bus.$emit('sub-route-change', "react17", location.pathname)
+  }, [location])
 
   return (
     <nav>

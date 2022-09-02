@@ -24,6 +24,18 @@ Vue.config.productionTip = false;
 
 bus.$on("click", (msg) => window.alert(msg));
 
+// 在 xxx-sub 路由下子应用将激活路由同步给主应用，主应用跳转对应路由高亮菜单栏
+bus.$on("sub-route-change", (name, path) => {
+  debugger;
+  const mainName = `${name}-sub`;
+  const mainPath = `/${name}-sub${path}`;
+  const currentName = router.currentRoute.name;
+  const currentPath = router.currentRoute.path;
+  if (mainName === currentName && mainPath !== currentPath) {
+    router.push({ path: mainPath });
+  }
+});
+
 const degrade = window.localStorage.getItem("degrade") === "true" || !window.Proxy || !window.CustomElementRegistry;
 const props = {
   jump: (name) => {
@@ -55,7 +67,6 @@ setupApp({
   props,
   fetch: credentialsFetch,
   degrade,
-  react17Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7100/") } : {},
   ...lifecycles,
 });
 
@@ -67,7 +78,6 @@ setupApp({
   props,
   fetch: credentialsFetch,
   degrade,
-  vue2Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7200/") } : {},
   ...lifecycles,
 });
 
@@ -83,7 +93,6 @@ setupApp({
   fetch: (url, options) =>
     url.includes(hostMap("//localhost:7300/")) ? credentialsFetch(url, options) : window.fetch(url, options),
   degrade,
-  vue3Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7300/") } : {},
   ...lifecycles,
 });
 
@@ -95,7 +104,6 @@ setupApp({
   props,
   fetch: credentialsFetch,
   degrade,
-  angular12Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7400/") } : {},
   ...lifecycles,
 });
 
@@ -107,7 +115,6 @@ setupApp({
   props,
   fetch: credentialsFetch,
   degrade,
-  viteAttrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7500/") } : {},
   ...lifecycles,
 });
 

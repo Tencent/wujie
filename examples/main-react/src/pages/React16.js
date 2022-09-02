@@ -20,7 +20,7 @@ export default function React16() {
       height="100%"
       name="react16"
       url={react16Url}
-      sync={true}
+      sync={!path}
       props={props}
     ></WujieReact>
   );

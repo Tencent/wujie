@@ -21,14 +21,13 @@ const degrade = window.localStorage.getItem("degrade") === "true" || !window.Pro
 setupApp({
   name: "react16",
   url: hostMap("//localhost:7600/"),
+  // 修正iframe的url，防止github pages csp报错，大部分业务无需使用
   attrs: isProduction ? { src: hostMap("//localhost:7600/") } : {},
   exec: true,
   fetch: credentialsFetch,
   plugins,
   prefix: { "prefix-dialog": "/dialog", "prefix-location": "/location" },
   degrade,
-  // 修正iframe的url，防止github pages csp报错
-  react16Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7600/") } : {},
   ...lifecycles,
 });
 
@@ -40,7 +39,6 @@ setupApp({
   alive: true,
   fetch: credentialsFetch,
   degrade,
-  react17Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7100/") } : {},
   ...lifecycles,
 });
 
@@ -51,7 +49,6 @@ setupApp({
   exec: true,
   fetch: credentialsFetch,
   degrade,
-  vue2Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7200/") } : {},
   ...lifecycles,
 });
 
@@ -66,7 +63,6 @@ setupApp({
   fetch: (url, options) =>
     url.includes(hostMap("//localhost:7300/")) ? credentialsFetch(url, options) : window.fetch(url, options),
   degrade,
-  vue3Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7300/") } : {},
   ...lifecycles,
 });
 
@@ -77,7 +73,6 @@ setupApp({
   exec: true,
   fetch: credentialsFetch,
   degrade,
-  angular12Attrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7400/") } : {},
   ...lifecycles,
 });
 
@@ -88,7 +83,6 @@ setupApp({
   exec: true,
   fetch: credentialsFetch,
   degrade,
-  viteAttrs: process.env.NODE_ENV === "production" ? { src: hostMap("//localhost:7500/") } : {},
   ...lifecycles,
 });
 

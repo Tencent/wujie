@@ -8,7 +8,10 @@ import { getWujieById, rawDocumentQuerySelector } from "./common";
  */
 export function syncUrlToWindow(iframeWindow: Window): void {
   const { sync, id, prefix } = iframeWindow.__WUJIE;
-  if (!sync) return;
+  let winUrlElement = anchorElementGenerator(window.location.href);
+  const queryMap = getAnchorElementQueryMap(winUrlElement);
+  // 非同步且url上没有当前id的查询参数，否则就要同步参数或者清理参数
+  if (!sync && !queryMap[id]) return (winUrlElement = null);
   const curUrl = iframeWindow.location.pathname + iframeWindow.location.search + iframeWindow.location.hash;
   let validShortPath = "";
   // 处理短路径
@@ -21,11 +24,15 @@ export function syncUrlToWindow(iframeWindow: Window): void {
       }
     });
   }
-  let winUrlElement = anchorElementGenerator(window.location.href);
-  const queryMap = getAnchorElementQueryMap(winUrlElement);
-  queryMap[id] = window.encodeURIComponent(
-    validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl
-  );
+  // 同步
+  if (sync) {
+    queryMap[id] = window.encodeURIComponent(
+      validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl
+    );
+    // 清理
+  } else {
+    delete queryMap[id];
+  }
   const newQuery =
     "?" +
     Object.keys(queryMap)

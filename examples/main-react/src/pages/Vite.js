@@ -20,7 +20,7 @@ export default function Vite() {
       height="100%"
       name="vite"
       url={viteUrl}
-      sync={true}
+      sync={!path}
       props={props}
     ></WujieReact>
   );

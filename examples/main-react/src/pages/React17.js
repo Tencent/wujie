@@ -22,7 +22,7 @@ export default function React17() {
       height="100%"
       name="react17"
       url={react17Url}
-      sync={true}
+      sync={!path}
       props={props}
     ></WujieReact>
   );

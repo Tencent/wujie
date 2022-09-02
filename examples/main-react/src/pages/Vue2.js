@@ -20,7 +20,7 @@ export default function Vue2() {
       height="100%"
       name="vue2"
       url={vue2Url}
-      sync={true}
+      sync={!path}
       props={props}
     ></WujieReact>
   );

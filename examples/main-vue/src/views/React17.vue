@@ -5,16 +5,11 @@
 
 <script>
 import hostMap from "../hostMap";
-import wujieVue from "wujie-vue2";
 export default {
   data() {
     return {
       react17Url: hostMap("//localhost:7100/"),
     };
-  },
-  mounted() {
-    // 告诉子应用要跳转哪个路由
-    this.$route.params.path && wujieVue.bus.$emit("react17-router-change", `/${this.$route.params.path}`);
   },
 };
 </script>

@@ -21,7 +21,7 @@ export default function Vue3() {
       height="100%"
       name="vue3"
       url={vue3Url}
-      sync={true}
+      sync={!path}
       props={props}
     ></WujieReact>
   );

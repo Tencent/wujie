@@ -9,7 +9,7 @@ import hostMap from "../hostMap";
 export default {
   data() {
     return {
-      react16Url: hostMap("//localhost:7600/") + (this.$route.params.path ? `${this.$route.params.path}` : ""),
+      react16Url: hostMap("//localhost:7600/"),
     };
   },
 };
