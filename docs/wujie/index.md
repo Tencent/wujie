@@ -15,6 +15,6 @@ function changeUrl(value) {
 </script>
 
 <ClientOnly>
-    <WujieConnect @changeUrl="changeUrl" />
-    <WujieOnline :url="url" :flag=flag />
+    <WujieConnect @changeUrl="changeUrl" :baseUrl="url" />
+    <WujieOnline v-model:url="url" :flag=flag />
 </ClientOnly>

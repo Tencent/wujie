@@ -1,20 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import { watch, ref, computed } from "vue";
 import { wujieList } from "./data";
 
-const props = defineProps({
-  url: String | Object,
-  flag: Boolean
-});
+const emit = defineEmits<{
+  (e: "update:url", value: string): void;
+}>();
+const props = withDefaults(
+  defineProps<{
+    url?: string;
+    flag?: boolean;
+  }>(),
+  {}
+);
+const wujieUrl = ref<string>("");
 
-const wujieUrl = ref("");
-
-const isScroll = computed(() => {
-  return wujieUrl.value !== "" ? "scroll" : "hidden";
-});
-const isBorder = computed(() => {
-  return wujieUrl.value !== "" ? "none" : "3px solid var(--vp-c-text-2)";
-});
 watch(
   () => props.flag,
   (newValue) => {
@@ -24,6 +23,7 @@ watch(
 
 function changeWujieUrl(item) {
   wujieUrl.value = item.url;
+  emit('update:url', item.url)
 }
 </script>
 

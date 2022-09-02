@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 const emit = defineEmits(["changeUrl"]);
 const url = ref("");
 const flag = ref(false);
@@ -8,10 +8,18 @@ function preventDefault(event) {
   const reg = /(https):\/\/([\w.]+\/?)\S*/;
   if (reg.test(url.value)) {
     flag.value = !flag.value;
-    console.log(flag.value);
     emit("changeUrl", [url.value, flag.value]);
   }
 }
+const props = defineProps<{
+  baseUrl?: string;
+}>();
+watch(
+  () => props.baseUrl,
+  (newValue) => {
+    url.value = newValue;
+  }
+);
 </script>
 <template>
   <section id="newsletter" class="NewsLetter">
