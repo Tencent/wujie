@@ -1,15 +1,19 @@
 <template>
   <div class="content-container VPFeature VPHero">
-    <div class="content-container-title">{{ title }}</div>
-    <div class="content-container-subTitle">{{ subTitle }}</div>
+    <div class="content-container-title">
+      {{ title }}
+    </div>
+    <div class="content-container-subTitle">
+      {{ subTitle }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps({
-  introduction: String,
-});
-const [title, subTitle] = props.introduction.split("|");
+  introduction: String
+})
+const [title, subTitle] = props.introduction.split('|')
 </script>
 <style scoped>
 .content-container {

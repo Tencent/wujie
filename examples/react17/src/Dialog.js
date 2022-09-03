@@ -1,34 +1,34 @@
-import React from "react";
-import Button from "antd/es/button";
-import Modal from "antd/es/modal";
-import Select from "antd/es/select";
-import Popover from "antd/es/popover";
+import React from 'react'
+import Button from 'antd/es/button'
+import Modal from 'antd/es/modal'
+import Select from 'antd/es/select'
+import Popover from 'antd/es/popover'
 
-const Option = Select.Option;
+const Option = Select.Option
 
 export default class Dialog extends React.Component {
-  state = { visible: false };
+  state = { visible: false }
 
   showModal = () => {
     this.setState({
-      visible: true,
-    });
-  };
+      visible: true
+    })
+  }
 
   handleOk = (e) => {
     this.setState({
-      visible: false,
-    });
-  };
+      visible: false
+    })
+  }
 
   handleCancel = (e) => {
     this.setState({
-      visible: false,
-    });
-  };
+      visible: false
+    })
+  }
 
   componentDidMount() {
-    console.log("react17 dialog mounted")
+    console.log('react17 dialog mounted')
   }
 
   render() {
@@ -37,7 +37,7 @@ export default class Dialog extends React.Component {
         <div>Content</div>
         <div>Content</div>
       </div>
-    );
+    )
     return (
       <div>
         <h2>弹窗处理</h2>
@@ -74,6 +74,6 @@ export default class Dialog extends React.Component {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }

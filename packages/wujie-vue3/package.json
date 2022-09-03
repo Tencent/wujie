@@ -14,6 +14,7 @@
     "esm": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps",
     "prepack": "bash build.sh",
     "start": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
+    "build:core": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yiludege",

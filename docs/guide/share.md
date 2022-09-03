@@ -1,4 +1,3 @@
-
 # 应用共享
 
 一个微前端系统可能同时运行多个子应用，不同子应用之间可能存在相同的包依赖，那么这个依赖就会在不同子应用中重复打包、重复执行造成性能和内存的浪费
@@ -15,10 +14,10 @@
 
 ```javascript
 // index.js
-import Antdv from "ant-design-vue";
+import Antdv from 'ant-design-vue'
 
 // 将需要共享的包挂载到主应用全局
-window.Antdv = Antdv;
+window.Antdv = Antdv
 ```
 
 2. 加载子应用时注入插件，将主应用的`Antdv`赋值到子应用的`window`对象上
@@ -27,7 +26,15 @@ window.Antdv = Antdv;
 <WujieVue
   name="A"
   url="xxxxx"
-  :plugins="[{ jsBeforeLoaders: [{ content: 'window.Antdv = window.parent.Antdv' }] }]"
+  :plugins="[
+    {
+      jsBeforeLoaders: [
+        {
+          content: 'window.Antdv = window.parent.Antdv'
+        }
+      ]
+    }
+  ]"
 ></WujieVue>
 ```
 
@@ -36,14 +43,14 @@ window.Antdv = Antdv;
 ```javascript
 module.exports = {
   externals: {
-    "ant-design-vue": {
-      root: "Antdv",
-      commonjs: "Antdv",
-      commonjs2: "Antdv",
-      amd: "Antdv",
-    },
-  },
-};
+    'ant-design-vue': {
+      root: 'Antdv',
+      commonjs: 'Antdv',
+      commonjs2: 'Antdv',
+      amd: 'Antdv'
+    }
+  }
+}
 ```
 
 ## 子应用需要单独运行
@@ -67,7 +74,14 @@ module.exports = {
   name="A"
   url="xxxxx"
   :plugins="[
-    { jsExcludes: ['xxxx/A.bundle.js'], jsBeforeLoaders: [{ content: 'window.Antdv = window.parent.Antdv' }] },
+    {
+      jsExcludes: ['xxxx/A.bundle.js'],
+      jsBeforeLoaders: [
+        {
+          content: 'window.Antdv = window.parent.Antdv'
+        }
+      ]
+    }
   ]"
 ></WujieVue>
 ```

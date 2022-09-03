@@ -11,7 +11,7 @@
 子应用可以通过[$wujie](/api/subApp.html#wujie-props)来获取：
 
 ```javascript
-const props = window.$wujie?.props; // {data: xxx, methods: xxx}
+const props = window.$wujie?.props // {data: xxx, methods: xxx}
 ```
 
 ## window 通信
@@ -21,13 +21,13 @@ const props = window.$wujie?.props; // {data: xxx, methods: xxx}
 主应用调用子应用的全局数据
 
 ```javascript
-window.document.querySelector("iframe[name=子应用id]").contentWindow.xxx;
+window.document.querySelector('iframe[name=子应用id]').contentWindow.xxx
 ```
 
 子应用调用主应用的全局数据
 
 ```javascript
-window.parent.xxx;
+window.parent.xxx
 ```
 
 ## eventBus 通信

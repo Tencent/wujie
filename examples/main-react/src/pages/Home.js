@@ -1,27 +1,27 @@
-import React from "react";
-import Switch from "antd/es/switch";
-import Tooltip from "antd/es/tooltip";
-import Button from "antd/es/button";
-import { UnorderedListOutlined } from "@ant-design/icons";
+import React from 'react'
+import Switch from 'antd/es/switch'
+import Tooltip from 'antd/es/tooltip'
+import Button from 'antd/es/button'
+import { UnorderedListOutlined } from '@ant-design/icons'
 
 export default class Home extends React.Component {
   state = {
-    checkState: window.localStorage.getItem("preload") !== "false",
+    checkState: window.localStorage.getItem('preload') !== 'false',
     disable: !window.Proxy || !window.CustomElementRegistry,
-    degradeState: window.localStorage.getItem("degrade") === "true" || !window.Proxy || !window.CustomElementRegistry,
-  };
+    degradeState: window.localStorage.getItem('degrade') === 'true' || !window.Proxy || !window.CustomElementRegistry
+  }
   checkStateChange = (check) => {
-    window.localStorage.setItem("preload", check);
-    setTimeout(() => window.location.reload(), 1000);
-  };
+    window.localStorage.setItem('preload', check)
+    setTimeout(() => window.location.reload(), 1000)
+  }
   degradeStateChange = (check) => {
-    window.localStorage.setItem("degrade", check);
-    setTimeout(() => window.location.reload(), 1000);
-  };
+    window.localStorage.setItem('degrade', check)
+    setTimeout(() => window.location.reload(), 1000)
+  }
   handleClick = (e) => {
-    this.props.changeActive(true);
-    e.stopPropagation();
-  };
+    this.props.changeActive(true)
+    e.stopPropagation()
+  }
 
   render() {
     return (
@@ -29,7 +29,9 @@ export default class Home extends React.Component {
         <div className="tool">
           <Button
             type="primary"
-            style={{ visibility: "hidden" }}
+            style={{
+              visibility: 'hidden'
+            }}
             icon={<UnorderedListOutlined />}
           ></Button>
           <div className="button-list">
@@ -73,7 +75,11 @@ export default class Home extends React.Component {
         <h1 className="header">
           <img
             alt="图片"
-            style={{ width: "70px", height: "70px", marginRight: "15px" }}
+            style={{
+              width: '70px',
+              height: '70px',
+              marginRight: '15px'
+            }}
             src="https://vfiles.gtimg.cn/wuji_dashboard/xy/test_wuji_damy/XC5WMbxE.svg"
           />
           <span className="bland">无界</span>
@@ -113,6 +119,6 @@ export default class Home extends React.Component {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }

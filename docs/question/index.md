@@ -19,7 +19,7 @@ collapsable: false
 当`credentials`设置为`include`时，服务端的`Access-Control-Allow-Origin`不能设置为`*`，原因[详见](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#credentialed_requests_and_wildcards)，服务端可以这样设置：
 
 ```javascript
-ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
+ctx.set('Access-Control-Allow-Origin', ctx.headers.origin)
 ```
 
 :::
@@ -93,6 +93,7 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 3. 子应用添加了 [jsIgnores](/guide/plugin.html#js-ignores) 的 `plugin`，对应的 `js` 文件修改了 `window.location.href`
 
 **解决方案：**
+
 1. 主应用提供一个路径比如说 `https://host/empty` ，这个路径返回不包含任何内容也不会跳转，子应用设置 [attr](/api/startApp.html#attrs) 为 `{src:'https://host/empty'}`，这样 `iframe` 的 `src` 就是 `https://host/empty`
 2. `vite` 子应用所有的 `location` 操作都必须采用 `window.$wujie.location`
 3. `jsIgnores` 对应的 `js` 文件所有的 `location` 操作都必须采用 `window.$wujie.location`
@@ -102,9 +103,10 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 **原因：** 子应用通过 `v-html`、`innerHtml`或者在`template`中动态添加`style`时，框架默认的`plugin`无法处理这种场景
 
 **解决办法：** 在子应用入口`main`文件最上面 `import "./config"`，`config`具体代码：
+
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
   // eslint-disable-next-line
-  window.__webpack_public_path__ = window.__WUJIE_PUBLIC_PATH__;
+  window.__webpack_public_path__ = window.__WUJIE_PUBLIC_PATH__
 }
 ```

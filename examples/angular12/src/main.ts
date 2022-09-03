@@ -7,13 +7,13 @@ import { environment } from './environments/environment'
 declare global {
   interface Window {
     // 是否存在无界
-    __POWERED_BY_WUJIE__?: boolean;
+    __POWERED_BY_WUJIE__?: boolean
     // 子应用公共加载路径
-    __WUJIE_PUBLIC_PATH__: string;
+    __WUJIE_PUBLIC_PATH__: string
     // 子应用mount函数
-    __WUJIE_MOUNT: () => void;
+    __WUJIE_MOUNT: () => void
     // 子应用unmount函数
-    __WUJIE_UNMOUNT: () => void;
+    __WUJIE_UNMOUNT: () => void
   }
 }
 
@@ -30,6 +30,7 @@ if (window.__POWERED_BY_WUJIE__) {
     instance.destroy()
   }
 } else {
-  platformBrowserDynamic().bootstrapModule(AppModule)
-    .catch(err => console.error(err))
+  platformBrowserDynamic()
+    .bootstrapModule(AppModule)
+    .catch((err) => console.error(err))
 }

@@ -2,7 +2,7 @@ const path = require('path')
 
 module.exports = {
   entry: './index.js',
-  target: ["web", "es5"],
+  target: ['web', 'es5'],
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './lib'),
@@ -12,13 +12,13 @@ module.exports = {
     globalObject: 'self',
     umdNamedDefine: true
   },
-  mode: "production",
+  mode: 'production',
   externals: {
     vue: {
-      root: "Vue",
-      commonjs: "vue",
-      commonjs2: "vue",
-      amd: "vue"
+      root: 'Vue',
+      commonjs: 'vue',
+      commonjs2: 'vue',
+      amd: 'vue'
     }
   },
   resolve: {

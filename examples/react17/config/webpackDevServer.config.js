@@ -1,18 +1,16 @@
+const fs = require('fs')
+const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware')
+const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware')
+const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
+const ignoredFiles = require('react-dev-utils/ignoredFiles')
+const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware')
+const paths = require('./paths')
+const getHttpsConfig = require('./getHttpsConfig')
 
-
-const fs = require('fs');
-const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
-const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
-const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
-const ignoredFiles = require('react-dev-utils/ignoredFiles');
-const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
-const paths = require('./paths');
-const getHttpsConfig = require('./getHttpsConfig');
-
-const host = process.env.HOST || '0.0.0.0';
-const sockHost = process.env.WDS_SOCKET_HOST;
-const sockPath = process.env.WDS_SOCKET_PATH; // default: '/sockjs-node'
-const sockPort = process.env.WDS_SOCKET_PORT;
+const host = process.env.HOST || '0.0.0.0'
+const sockHost = process.env.WDS_SOCKET_HOST
+const sockPath = process.env.WDS_SOCKET_PATH // default: '/sockjs-node'
+const sockPort = process.env.WDS_SOCKET_PORT
 
 module.exports = function (proxy, allowedHost) {
   return {
@@ -32,8 +30,7 @@ module.exports = function (proxy, allowedHost) {
     // So we will disable the host check normally, but enable it if you have
     // specified the `proxy` setting. Finally, we let you override it if you
     // really know what you're doing with a special environment variable.
-    disableHostCheck:
-      !proxy || process.env.DANGEROUSLY_DISABLE_HOST_CHECK === 'true',
+    disableHostCheck: !proxy || process.env.DANGEROUSLY_DISABLE_HOST_CHECK === 'true',
     // Enable gzip compression of generated files.
     compress: true,
     // Silence WebpackDevServer's own logs since they're generally not useful.
@@ -88,19 +85,19 @@ module.exports = function (proxy, allowedHost) {
     // src/node_modules is not ignored to support absolute imports
     // https://github.com/facebook/create-react-app/issues/1065
     watchOptions: {
-      ignored: ignoredFiles(paths.appSrc),
+      ignored: ignoredFiles(paths.appSrc)
     },
     https: getHttpsConfig(),
     host,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': '*'
     },
     overlay: false,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
       // See https://github.com/facebook/create-react-app/issues/387.
       disableDotRule: true,
-      index: paths.publicUrlOrPath,
+      index: paths.publicUrlOrPath
     },
     public: allowedHost,
     // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
@@ -109,13 +106,13 @@ module.exports = function (proxy, allowedHost) {
       // Keep `evalSourceMapMiddleware` and `errorOverlayMiddleware`
       // middlewares before `redirectServedPath` otherwise will not have any effect
       // This lets us fetch source contents from webpack for the error overlay
-      app.use(evalSourceMapMiddleware(server));
+      app.use(evalSourceMapMiddleware(server))
       // This lets us open files from the runtime error overlay.
-      app.use(errorOverlayMiddleware());
+      app.use(errorOverlayMiddleware())
 
       if (fs.existsSync(paths.proxySetup)) {
         // This registers user provided middleware for proxy reasons
-        require(paths.proxySetup)(app);
+        require(paths.proxySetup)(app)
       }
     },
     after(app) {
@@ -127,7 +124,7 @@ module.exports = function (proxy, allowedHost) {
       // We do this in development to avoid hitting the production cache if
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
-      app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath));
-    },
-  };
-};
+      app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath))
+    }
+  }
+}

@@ -1,10 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
-import { BrowserRouter } from "react-router-dom";
-import "./styles.css";
+import React from 'react'
+import ReactDOM from 'react-dom'
+import App from './App'
+import { BrowserRouter } from 'react-router-dom'
+import './styles.css'
 
-const basename = process.env.NODE_ENV === "production" ? "/demo-react16/" : "";
+const basename = process.env.NODE_ENV === 'production' ? '/demo-react16/' : ''
 
 if (window.__POWERED_BY_WUJIE__) {
   // eslint-disable-next-line no-undef
@@ -13,17 +13,17 @@ if (window.__POWERED_BY_WUJIE__) {
       <BrowserRouter basename={basename}>
         <App />
       </BrowserRouter>,
-      document.getElementById("root")
-    );
-  };
+      document.getElementById('root')
+    )
+  }
   window.__WUJIE_UNMOUNT = () => {
-    ReactDOM.unmountComponentAtNode(document.getElementById("root"));
-  };
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'))
+  }
 } else {
   ReactDOM.render(
     <BrowserRouter basename={basename}>
       <App />
     </BrowserRouter>,
-    document.getElementById("root")
-  );
+    document.getElementById('root')
+  )
 }

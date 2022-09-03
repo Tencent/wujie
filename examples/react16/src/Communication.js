@@ -1,20 +1,20 @@
-import React from "react";
-import Button from "antd/es/button";
+import React from 'react'
+import Button from 'antd/es/button'
 
 export default class Communication extends React.Component {
-  state = { visible: false };
+  state = { visible: false }
 
   jump = () => {
-    window.$wujie && window.$wujie.props.jump("vue3");
-  };
+    window.$wujie && window.$wujie.props.jump('vue3')
+  }
 
   handleAlert = () => {
-    window.parent && window.parent.alert("主应用alert");
-  };
+    window.parent && window.parent.alert('主应用alert')
+  }
 
   handleEmit = () => {
-    window.$wujie && window.$wujie.bus.$emit("click", "react16");
-  };
+    window.$wujie && window.$wujie.bus.$emit('click', 'react16')
+  }
   render() {
     return (
       <div>
@@ -32,13 +32,13 @@ export default class Communication extends React.Component {
             <Button onClick={this.handleAlert}>显示alert</Button>
           </p>
           <h3>3、通过 bus 方法发送去中心化的事件</h3>
-          <p>主应用 bus.$on("click", (msg) ={">"} window.alert(msg)) 监听子应用的 click 事件</p>
+          <p>主应用 bus.$on("click", (msg) ={'>'} window.alert(msg)) 监听子应用的 click 事件</p>
           <p>子应用点击按钮 $wujie.bus.$emit('click', 'react16') 发送 click 事件</p>
           <p>
             <Button onClick={this.handleEmit}>显示alert</Button>
           </p>
         </div>
       </div>
-    );
+    )
   }
 }

@@ -40,15 +40,15 @@ collapsable: false
 ```typescript
 interface Window {
   // 是否存在无界
-  __POWERED_BY_WUJIE__?: boolean;
+  __POWERED_BY_WUJIE__?: boolean
   // 子应用公共加载路径
-  __WUJIE_PUBLIC_PATH__: string;
+  __WUJIE_PUBLIC_PATH__: string
   // 子应用沙盒实例
-  __WUJIE: WuJie;
+  __WUJIE: WuJie
   // 子应用mount函数
-  __WUJIE_MOUNT: () => void;
+  __WUJIE_MOUNT: () => void
   // 子应用unmount函数
-  __WUJIE_UNMOUNT: () => void;
+  __WUJIE_UNMOUNT: () => void
 }
 ```
 
@@ -61,60 +61,60 @@ interface Window {
  * @since 2021-07-14
  */
 export default class Wujie {
-  id: string;
+  id: string
   /** 激活时路由地址 */
-  url: string;
+  url: string
   /** 子应用保活 */
-  alive: boolean;
+  alive: boolean
   /** window代理 */
-  proxy: WindowProxy;
+  proxy: WindowProxy
   /** document代理 */
-  proxyDocument: Object;
+  proxyDocument: Object
   /** location代理 */
-  proxyLocation: Object;
+  proxyLocation: Object
   /** 事件中心 */
-  bus: EventBus;
+  bus: EventBus
   /** 容器 */
-  el: HTMLElement;
+  el: HTMLElement
   /** js沙箱 */
-  iframe: HTMLIFrameElement;
+  iframe: HTMLIFrameElement
   /** css沙箱 */
-  shadowRoot: ShadowRoot;
+  shadowRoot: ShadowRoot
   /** 子应用的template */
-  template: string;
+  template: string
   /** 子应用代码替换钩子 */
-  replace: (code: string) => string;
+  replace: (code: string) => string
   /** 子应用自定义fetch */
-  fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+  fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>
   /** js沙箱ready态 */
-  iframeReady: Promise<void>;
+  iframeReady: Promise<void>
   /** 子应用预加载态 */
-  preload: Promise<void>;
+  preload: Promise<void>
   /** 子应用js执行队列 */
-  execQueue: Array<Function>;
+  execQueue: Array<Function>
   /** 子应用执行标志 */
-  execFlag: boolean;
+  execFlag: boolean
   /** 子应用mount标志 */
-  mountFlag: boolean;
+  mountFlag: boolean
   /** 路由同步标志 */
-  sync: boolean;
+  sync: boolean
   /** 子应用跳转标志 */
-  hrefFlag: boolean;
+  hrefFlag: boolean
   /** 子应用采用fiber模式执行 */
-  fiber: boolean;
+  fiber: boolean
   /** 子应用styleSheet元素 */
-  styleSheetElements: Array<HTMLLinkElement | HTMLStyleElement>;
+  styleSheetElements: Array<HTMLLinkElement | HTMLStyleElement>
   /** $wujie对象，提供给子应用的接口 */
   provide: {
-    bus: EventBus;
-    shadowRoot?: ShadowRoot | undefined;
+    bus: EventBus
+    shadowRoot?: ShadowRoot | undefined
     props?:
       | {
-          [key: string]: any;
+          [key: string]: any
         }
-      | undefined;
-    location?: Object;
-  };
+      | undefined
+    location?: Object
+  }
   /** 激活子应用
    * 1、同步路由
    * 2、动态修改iframe的fetch
@@ -122,29 +122,29 @@ export default class Wujie {
    * 4、准备子应用注入
    */
   active(options: {
-    url: string;
-    sync?: boolean;
-    template?: string;
-    el?: string | HTMLElement;
+    url: string
+    sync?: boolean
+    template?: string
+    el?: string | HTMLElement
     props?: {
-      [key: string]: any;
-    };
-    alive?: boolean;
-    fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
-    replace?: (code: string) => string;
-  }): Promise<void>;
+      [key: string]: any
+    }
+    alive?: boolean
+    fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+    replace?: (code: string) => string
+  }): Promise<void>
   /** 启动子应用
    * 1、运行js
    * 2、处理兼容样式
    */
-  start(getExternalScripts: () => ScriptResultList): Promise<void>;
-  mount(): void;
+  start(getExternalScripts: () => ScriptResultList): Promise<void>
+  mount(): void
   /** 销毁子应用 */
-  destroy(): void;
+  destroy(): void
   /** 当子应用再次激活后，只运行mount函数，样式需要重新恢复 */
-  rebuildStyleSheets(): void;
+  rebuildStyleSheets(): void
   /** 兼容:root选择器样式到:host选择器上 */
-  attachHostCssRules(): void;
+  attachHostCssRules(): void
   /**
    * @param id 子应用的id，唯一标识
    * @param url 子应用的url，可以包含protocol、host、path、query、hash
@@ -153,10 +153,10 @@ export default class Wujie {
     name: string,
     url: string,
     attrs: {
-      [key: string]: any;
+      [key: string]: any
     },
     fiber: boolean
-  );
+  )
 }
 ```
 
@@ -187,17 +187,17 @@ function stopIframeLoading(iframeWindow: Window) {
     function loop() {
       setTimeout(() => {
         // location ready
-        if (iframeWindow.location.href === "about:blank") {
-          loop();
+        if (iframeWindow.location.href === 'about:blank') {
+          loop()
         } else {
-          iframeWindow.stop();
-          initIframeDom(iframeWindow);
-          resolve();
+          iframeWindow.stop()
+          initIframeDom(iframeWindow)
+          resolve()
         }
-      }, 0);
+      }, 0)
     }
-    loop();
-  });
+    loop()
+  })
 }
 ```
 
@@ -215,7 +215,7 @@ const script = `(function(window, self, global, location) {
     window.__WUJIE.proxy,
     window.__WUJIE.proxy,
     window.__WUJIE.proxy.location,
-  );`;
+  );`
 ```
 
 ### iframe 和 shadowRoot 副作用的处理
@@ -227,23 +227,23 @@ const script = `(function(window, self, global, location) {
  * 1、location劫持后的数据修改回来，防止跨域错误
  * 2、同步路由到主应用
  */
-patchIframeHistory(iframeWindow, appPublicPath, mainPublicPath);
+patchIframeHistory(iframeWindow, appPublicPath, mainPublicPath)
 /**
  * 对window.addEventListener进行劫持，比如resize事件必须是监听主应用的
  */
-patchIframeEvents(iframeWindow);
+patchIframeEvents(iframeWindow)
 /**
  * 注入私有变量
  */
-patchIframeVariable(iframeWindow, appPublicPath);
+patchIframeVariable(iframeWindow, appPublicPath)
 /**
  * 将有DOM副作用的统一在此修改，比如mutationObserver必须调用主应用的
  */
-patchIframeDomEffect(iframeWindow);
+patchIframeDomEffect(iframeWindow)
 /**
  * 子应用前进后退，同步路由到主应用
  */
-syncIframeUrlToWindow(iframeWindow);
+syncIframeUrlToWindow(iframeWindow)
 ```
 
 `ShadowRoot` 内部的副作用必须进行处理，主要处理的就是`shadowRoot`的`head`和`body`
@@ -290,69 +290,69 @@ new Proxy(
   {},
   {
     get: function (_fakeDocument, propKey) {
-      const document = window.document;
-      const shadowRoot = iframe.contentWindow.__WUJIE.shadowRoot;
+      const document = window.document
+      const shadowRoot = iframe.contentWindow.__WUJIE.shadowRoot
       // need fix
-      if (propKey === "createElement" || propKey === "createTextNode") {
+      if (propKey === 'createElement' || propKey === 'createTextNode') {
         return new Proxy(document[propKey], {
           apply(createElement, _ctx, args) {
-            const element = createElement.apply(iframe.contentDocument, args);
-            patchElementEffect(element, iframe.contentWindow);
-            return element;
-          },
-        });
+            const element = createElement.apply(iframe.contentDocument, args)
+            patchElementEffect(element, iframe.contentWindow)
+            return element
+          }
+        })
       }
-      if (propKey === "documentURI" || propKey === "URL") {
-        return (iframe.contentWindow.__WUJIE.proxyLocation as Location).href;
+      if (propKey === 'documentURI' || propKey === 'URL') {
+        return (iframe.contentWindow.__WUJIE.proxyLocation as Location).href
       }
 
       // from shadowRoot
       if (
-        propKey === "getElementsByTagName" ||
-        propKey === "getElementsByClassName" ||
-        propKey === "getElementsByName"
+        propKey === 'getElementsByTagName' ||
+        propKey === 'getElementsByClassName' ||
+        propKey === 'getElementsByName'
       ) {
         return new Proxy(shadowRoot.querySelectorAll, {
           apply(querySelectorAll, _ctx, args) {
-            let arg = args[0];
-            if (propKey === "getElementsByClassName") arg += ".";
-            if (propKey === "getElementsByName") arg = `[name="${arg}"]`;
-            return querySelectorAll.call(shadowRoot, arg);
-          },
-        });
+            let arg = args[0]
+            if (propKey === 'getElementsByClassName') arg += '.'
+            if (propKey === 'getElementsByName') arg = `[name="${arg}"]`
+            return querySelectorAll.call(shadowRoot, arg)
+          }
+        })
       }
-      if (propKey === "getElementById") {
+      if (propKey === 'getElementById') {
         return new Proxy(shadowRoot.querySelector, {
           apply(querySelector, _ctx, args) {
-            return querySelector.call(shadowRoot, `#${args[0]}`);
-          },
-        });
+            return querySelector.call(shadowRoot, `#${args[0]}`)
+          }
+        })
       }
-      if (propKey === "querySelector" || propKey === "querySelectorAll") {
-        return shadowRoot[propKey].bind(shadowRoot);
+      if (propKey === 'querySelector' || propKey === 'querySelectorAll') {
+        return shadowRoot[propKey].bind(shadowRoot)
       }
-      if (propKey === "documentElement" || propKey === "scrollingElement") return shadowRoot.firstElementChild;
-      if (propKey === "forms") return shadowRoot.querySelectorAll("form");
-      if (propKey === "images") return shadowRoot.querySelectorAll("img");
-      if (propKey === "links") return shadowRoot.querySelectorAll("a");
+      if (propKey === 'documentElement' || propKey === 'scrollingElement') return shadowRoot.firstElementChild
+      if (propKey === 'forms') return shadowRoot.querySelectorAll('form')
+      if (propKey === 'images') return shadowRoot.querySelectorAll('img')
+      if (propKey === 'links') return shadowRoot.querySelectorAll('a')
       const { ownerProperties, shadowProperties, shadowMethods, documentProperties, documentMethods } =
-        documentProxyProperties;
+        documentProxyProperties
       if (ownerProperties.concat(shadowProperties).includes(propKey.toString())) {
-        return shadowRoot[propKey];
+        return shadowRoot[propKey]
       }
       if (shadowMethods.includes(propKey.toString())) {
-        return getTargetValue(shadowRoot, propKey) ?? getTargetValue(document, propKey);
+        return getTargetValue(shadowRoot, propKey) ?? getTargetValue(document, propKey)
       }
       // from window.document
       if (documentProperties.includes(propKey.toString())) {
-        return document[propKey];
+        return document[propKey]
       }
       if (documentMethods.includes(propKey.toString())) {
-        return getTargetValue(document, propKey);
+        return getTargetValue(document, propKey)
       }
-    },
+    }
   }
-);
+)
 ```
 
 ### iframe 的 location 改造
@@ -362,36 +362,36 @@ new Proxy(
   {},
   {
     get: function (fakeLocation, propKey) {
-      const location = target.location;
-      if (propKey === "host" || propKey === "hostname" || propKey === "protocol" || propKey === "port") {
-        return urlElement[propKey];
+      const location = target.location
+      if (propKey === 'host' || propKey === 'hostname' || propKey === 'protocol' || propKey === 'port') {
+        return urlElement[propKey]
       }
-      if (propKey === "href") {
-        return target.location[propKey].replace(mainPublicPath, appPublicPath);
+      if (propKey === 'href') {
+        return target.location[propKey].replace(mainPublicPath, appPublicPath)
       }
-      if (propKey === "reload") {
-        warn("子应用调用reload无法生效");
-        return () => null;
+      if (propKey === 'reload') {
+        warn('子应用调用reload无法生效')
+        return () => null
       }
-      return getTargetValue(location, propKey);
+      return getTargetValue(location, propKey)
     },
     set: function (location, propKey, value, receiver) {
       // 如果是跳转链接的话重开一个iframe
-      if (propKey === "href") {
-        const { shadowRoot, id } = target.__WUJIE;
-        let url = value;
+      if (propKey === 'href') {
+        const { shadowRoot, id } = target.__WUJIE
+        let url = value
         if (!/^http/.test(url)) {
-          let hrefElement = anchorElementGenerator(url);
-          url = appPublicPath + hrefElement.pathname + hrefElement.search + hrefElement.hash;
-          hrefElement = null;
+          let hrefElement = anchorElementGenerator(url)
+          url = appPublicPath + hrefElement.pathname + hrefElement.search + hrefElement.hash
+          hrefElement = null
         }
-        target.__WUJIE.hrefFlag = true;
-        renderIframeReplaceShadowRoot(url, shadowRoot);
-        pushUrlToWindow(id, url);
-        return true;
+        target.__WUJIE.hrefFlag = true
+        renderIframeReplaceShadowRoot(url, shadowRoot)
+        pushUrlToWindow(id, url)
+        return true
       }
-      return Reflect.set(location, propKey, value, receiver);
-    },
+      return Reflect.set(location, propKey, value, receiver)
+    }
   }
-);
+)
 ```

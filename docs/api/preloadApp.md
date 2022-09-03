@@ -174,24 +174,24 @@ type preOptions  {
 ```typescript
 interface ScriptObjectLoader {
   /** 脚本地址，内联为空 */
-  src?: string;
+  src?: string
   /** 脚本是否为module模块 */
-  module?: boolean;
+  module?: boolean
   /** 脚本是否设置crossorigin */
-  crossorigin?: boolean;
+  crossorigin?: boolean
   /** 脚本crossorigin的类型 */
-  crossoriginType?: "anonymous" | "use-credentials" | "";
+  crossoriginType?: 'anonymous' | 'use-credentials' | ''
   /** 内联script的代码 */
-  content?: string;
+  content?: string
   /** 执行回调钩子 */
-  callback?: (appWindow: Window) => any;
+  callback?: (appWindow: Window) => any
 }
 
 interface StyleObjectLoader {
   /** 样式地址， 内联为空 */
-  src?: string;
+  src?: string
   /** 样式代码 */
-  content?: string;
+  content?: string
 }
 
 type eventListenerHook = (
@@ -199,43 +199,43 @@ type eventListenerHook = (
   type: string,
   handler: EventListenerOrEventListenerObject,
   options?: boolean | AddEventListenerOptions
-) => void;
+) => void
 
 interface plugin {
   /** 处理html的loader */
-  htmlLoader?: (code: string) => string;
+  htmlLoader?: (code: string) => string
   /** js排除列表 */
-  jsExcludes?: Array<string | RegExp>;
+  jsExcludes?: Array<string | RegExp>
   /** js忽略列表 */
-  jsIgnores?: Array<string | RegExp>;
+  jsIgnores?: Array<string | RegExp>
   /** 处理js加载前的loader */
-  jsBeforeLoaders?: Array<ScriptObjectLoader>;
+  jsBeforeLoaders?: Array<ScriptObjectLoader>
   /** 处理js的loader */
-  jsLoader?: (code: string, url: string, base: string) => string;
+  jsLoader?: (code: string, url: string, base: string) => string
   /** 处理js加载后的loader */
-  jsAfterLoaders?: Array<ScriptObjectLoader>;
+  jsAfterLoaders?: Array<ScriptObjectLoader>
   /** css排除列表 */
-  cssExcludes?: Array<string | RegExp>;
+  cssExcludes?: Array<string | RegExp>
   /** css忽略列表 */
-  cssIgnores?: Array<string | RegExp>;
+  cssIgnores?: Array<string | RegExp>
   /** 处理css加载前的loader */
-  cssBeforeLoaders?: Array<StyleObject>;
+  cssBeforeLoaders?: Array<StyleObject>
   /** 处理css的loader */
-  cssLoader?: (code: string, url: string, base: string) => string;
+  cssLoader?: (code: string, url: string, base: string) => string
   /** 处理css加载后的loader */
-  cssAfterLoaders?: Array<StyleObject>;
+  cssAfterLoaders?: Array<StyleObject>
   /** 子应用 window addEventListener 钩子回调 */
-  windowAddEventListenerHook?: eventListenerHook;
+  windowAddEventListenerHook?: eventListenerHook
   /** 子应用 window removeEventListener 钩子回调 */
-  windowRemoveEventListenerHook?: eventListenerHook;
+  windowRemoveEventListenerHook?: eventListenerHook
   /** 子应用 document addEventListener 钩子回调 */
-  documentAddEventListenerHook?: eventListenerHook;
+  documentAddEventListenerHook?: eventListenerHook
   /** 子应用 document removeEventListener 钩子回调 */
-  documentRemoveEventListenerHook?: eventListenerHook;
+  documentRemoveEventListenerHook?: eventListenerHook
   /** 用户自定义覆盖子应用 window 属性 */
-  windowPropertyOverride?: (iframeWindow: Window) => void;
+  windowPropertyOverride?: (iframeWindow: Window) => void
   /** 用户自定义覆盖子应用 document 属性 */
-  documentPropertyOverride?: (iframeWindow: Window) => void;
+  documentPropertyOverride?: (iframeWindow: Window) => void
 }
 ```
 

@@ -34,7 +34,11 @@
     </div>
     <h1 class="header">
       <img
-        :style="{ width: '70px', height: '70px', 'margin-right': '15px' }"
+        :style="{
+          width: '70px',
+          height: '70px',
+          'margin-right': '15px'
+        }"
         src="https://vfiles.gtimg.cn/wuji_dashboard/xy/test_wuji_damy/XC5WMbxE.svg"
       />
       <span class="bland">无界</span>
@@ -78,25 +82,25 @@
 
 <script>
 export default {
-  name: "Home",
+  name: 'Home',
   data() {
     return {
-      preload: window.localStorage.getItem("preload") !== "false",
-      degrade: window.localStorage.getItem("degrade") === "true" || !window.Proxy || !window.CustomElementRegistry,
-      disable: !window.Proxy || !window.CustomElementRegistry,
-    };
+      preload: window.localStorage.getItem('preload') !== 'false',
+      degrade: window.localStorage.getItem('degrade') === 'true' || !window.Proxy || !window.CustomElementRegistry,
+      disable: !window.Proxy || !window.CustomElementRegistry
+    }
   },
   watch: {
     preload(val) {
-      window.localStorage.setItem("preload", val);
-      setTimeout(() => window.location.reload(), 1000);
+      window.localStorage.setItem('preload', val)
+      setTimeout(() => window.location.reload(), 1000)
     },
     degrade(val) {
-      window.localStorage.setItem("degrade", val);
-      setTimeout(() => window.location.reload(), 1000);
-    },
-  },
-};
+      window.localStorage.setItem('degrade', val)
+      setTimeout(() => window.location.reload(), 1000)
+    }
+  }
+}
 </script>
 
 <style scoped>

@@ -29,7 +29,7 @@ nav .active {
 }
 
 .app-jump {
-  margin: 10px
+  margin: 10px;
 }
 
 @keyframes App-logo-spin {
@@ -47,7 +47,8 @@ nav .active {
   margin: 0 auto;
 }
 
-p, div.p {
+p,
+div.p {
   margin: 30px 0;
 }
 

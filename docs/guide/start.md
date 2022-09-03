@@ -10,7 +10,7 @@ collapsable: false
 ### 引入
 
 ```javascript
-import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, setupApp, preloadApp, startApp, destroyApp } from 'wujie'
 ```
 
 ::: tip 提示
@@ -26,13 +26,13 @@ setupApp({{ name: "唯一id", url: "子应用地址", exec: true, el: "容器", 
 ### 预加载
 
 ```javascript
-preloadApp({ name: "唯一id"});
+preloadApp({ name: '唯一id' })
 ```
 
 ### 启动子应用
 
 ```javascript
-startApp({ name: "唯一id" });
+startApp({ name: '唯一id' })
 ```
 
 ## 子应用改造
@@ -47,14 +47,14 @@ startApp({ name: "唯一id" });
 app.use((req, res, next) => {
   // 路径判断等等
   res.set({
-    "Access-Control-Allow-Credentials": true,
-    "Access-Control-Allow-Origin": req.headers.origin || "*",
-    "Access-Control-Allow-Headers": "X-Requested-With,Content-Type",
-    "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS",
-    "Content-Type": "application/json; charset=utf-8",
-  });
+    'Access-Control-Allow-Credentials': true,
+    'Access-Control-Allow-Origin': req.headers.origin || '*',
+    'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
+    'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS',
+    'Content-Type': 'application/json; charset=utf-8'
+  })
   // 其他操作
-});
+})
 ```
 
 ### 运行模式
@@ -63,8 +63,8 @@ app.use((req, res, next) => {
 
 其中[保活模式](/guide/mode.html#保活模式)、[重建模式](/guide/mode.html#重建模式)子应用无需做任何改造工作，[单例模式](/guide/mode.html#单例模式)需要做生命周期改造
 
-
 ### 生命周期改造
+
 改造入口函数：
 
 - 将子应用路由的创建、实例的创建渲染挂载到`window.__WUJIE_MOUNT`函数上
@@ -77,16 +77,24 @@ app.use((req, res, next) => {
 
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
-  let instance;
+  let instance
   window.__WUJIE_MOUNT = () => {
-    const router = new VueRouter({ routes });
-    instance = new Vue({ router, render: (h) => h(App) }).$mount("#app");
-  };
+    const router = new VueRouter({
+      routes
+    })
+    instance = new Vue({
+      router,
+      render: (h) => h(App)
+    }).$mount('#app')
+  }
   window.__WUJIE_UNMOUNT = () => {
-    instance.$destroy();
-  };
+    instance.$destroy()
+  }
 } else {
-  new Vue({ router: new VueRouter({ routes }), render: (h) => h(App) }).$mount("#app");
+  new Vue({
+    router: new VueRouter({ routes }),
+    render: (h) => h(App)
+  }).$mount('#app')
 }
 ```
 
@@ -95,18 +103,28 @@ if (window.__POWERED_BY_WUJIE__) {
 
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
-  let instance;
+  let instance
   window.__WUJIE_MOUNT = () => {
-    const router = createRouter({ history: createWebHistory(), routes });
-    instance = createApp(App);
-    instance.use(router);
-    instance.mount("#app");
-  };
+    const router = createRouter({
+      history: createWebHistory(),
+      routes
+    })
+    instance = createApp(App)
+    instance.use(router)
+    instance.mount('#app')
+  }
   window.__WUJIE_UNMOUNT = () => {
-    instance.unmount();
-  };
+    instance.unmount()
+  }
 } else {
-  createApp(App).use(createRouter({ history: createWebHistory(), routes })).mount("#app");
+  createApp(App)
+    .use(
+      createRouter({
+        history: createWebHistory(),
+        routes
+      })
+    )
+    .mount('#app')
 }
 ```
 
@@ -161,19 +179,19 @@ if (window.__POWERED_BY_WUJIE__) {
       <React.StrictMode>
         <App />
       </React.StrictMode>,
-      document.getElementById("root")
-    );
-  };
+      document.getElementById('root')
+    )
+  }
   window.__WUJIE_UNMOUNT = () => {
-    ReactDOM.unmountComponentAtNode(document.getElementById("root"));
-  };
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'))
+  }
 } else {
   ReactDOM.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>,
-    document.getElementById("root")
-  );
+    document.getElementById('root')
+  )
 }
 ```
 
@@ -184,26 +202,26 @@ if (window.__POWERED_BY_WUJIE__) {
 declare global {
   interface Window {
     // 是否存在无界
-    __POWERED_BY_WUJIE__?: boolean;
+    __POWERED_BY_WUJIE__?: boolean
     // 子应用mount函数
-    __WUJIE_MOUNT: () => void;
+    __WUJIE_MOUNT: () => void
     // 子应用unmount函数
-    __WUJIE_UNMOUNT: () => void;
+    __WUJIE_UNMOUNT: () => void
   }
 }
 
 if (window.__POWERED_BY_WUJIE__) {
-  let instance: any;
+  let instance: any
   window.__WUJIE_MOUNT = async () => {
-    instance = await platformBrowserDynamic().bootstrapModule(AppModule);
-  };
+    instance = await platformBrowserDynamic().bootstrapModule(AppModule)
+  }
   window.__WUJIE_UNMOUNT = () => {
-    instance.destroy?.();
-  };
+    instance.destroy?.()
+  }
 } else {
   platformBrowserDynamic()
     .bootstrapModule(AppModule)
-    .catch((err) => console.error(err));
+    .catch((err) => console.error(err))
 }
 ```
 

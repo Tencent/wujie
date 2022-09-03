@@ -1,6 +1,6 @@
 ---
 sidebarDepth: 2
-collapsable: false 
+collapsable: false
 ---
 
 无界对子应用注入了`$wujie`对象，可以通过`$wujie`或者`window.$wujie`获取
@@ -45,4 +45,3 @@ collapsable: false
 - 当子应用发生降级时，由于`proxy`无法正常工作导致`location`无法代理，子应用所有采用`window.location.host`的代码需要统一修改成`$wujie.location.host`
 
 - 当采用非`vite`编译框架时，`proxy`代理了`window.location`，子应用代码无需做任何更改
-

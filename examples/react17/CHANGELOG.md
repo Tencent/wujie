@@ -7,10 +7,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* monorepo采用pnpm方案 ([#109](https://github.com/Tencent/wujie/issues/109)) ([34d460d](https://github.com/Tencent/wujie/commit/34d460d36f0df6b12fab79abbf98aa45aab9826d)), closes [#108](https://github.com/Tencent/wujie/issues/108) [#10](https://github.com/Tencent/wujie/issues/10)
+- monorepo 采用 pnpm 方案 ([#109](https://github.com/Tencent/wujie/issues/109)) ([34d460d](https://github.com/Tencent/wujie/commit/34d460d36f0df6b12fab79abbf98aa45aab9826d)), closes [#108](https://github.com/Tencent/wujie/issues/108) [#10](https://github.com/Tencent/wujie/issues/10)
 
 # 1.0.0-rc.9 (2022-08-15)
 
 ### Features
 
-* init ([30397aa](https://github.com/Tencent/wujie/commit/30397aaa675a4d07bde278aa9d30447c7efe6625))
+- init ([30397aa](https://github.com/Tencent/wujie/commit/30397aaa675a4d07bde278aa9d30447c7efe6625))

@@ -4,15 +4,15 @@
 </template>
 
 <script>
-import hostMap from "../hostMap";
+import hostMap from '../hostMap'
 
 export default {
   computed: {
     viteUrl() {
-      return hostMap("//localhost:7500/") + this.$route.params.path;
-    },
-  },
-};
+      return hostMap('//localhost:7500/') + this.$route.params.path
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

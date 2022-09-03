@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6", 
-    "rootDirs": ["../src","../unit"],
-  
+    "target": "es6",
+    "rootDirs": ["../src", "../unit"],
+
     /* 额外的检查 */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -15,6 +15,6 @@
     "moduleResolution": "node",
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "declaration": true,
+    "declaration": true
   }
 }

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "vue-cli-service serve --mode:development",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "ant-design-vue": "^1.7.8",

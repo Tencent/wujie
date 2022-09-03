@@ -54,4 +54,3 @@ type cacheOptions  {
 ```
 
 - **详情：** `setupApp`设置子应用默认属性，[startApp](/api/startApp.html)、[preloadApp](/api/preloadApp.html) 会从这里获取子应用默认属性，如果有相同的属性则会直接覆盖
-

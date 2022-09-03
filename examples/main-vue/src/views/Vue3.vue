@@ -4,14 +4,14 @@
 </template>
 
 <script>
-import hostMap from "../hostMap";
+import hostMap from '../hostMap'
 export default {
   data() {
     return {
-      vue3Url: hostMap("//localhost:7300/"),
-    };
-  },
-};
+      vue3Url: hostMap('//localhost:7300/')
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

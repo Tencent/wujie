@@ -48,7 +48,8 @@ nav .active {
   overflow: hidden;
 }
 
-p, div.p {
+p,
+div.p {
   margin: 30px 0;
 }
 

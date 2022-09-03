@@ -1,30 +1,33 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-const emit = defineEmits(["changeUrl"]);
-const url = ref("https://wujicode.cn/xy/app/prod/official/home");
-const flag = ref(false);
+import { ref, watch } from 'vue'
+const emit = defineEmits(['changeUrl'])
+const url = ref('https://wujicode.cn/xy/app/prod/official/home')
+const flag = ref(false)
 function preventDefault(event) {
-  event.preventDefault;
-  const reg = /(https):\/\/([\w.]+\/?)\S*/;
+  event.preventDefault
+  const reg = /(https):\/\/([\w.]+\/?)\S*/
   if (reg.test(url.value)) {
-    flag.value = !flag.value;
-    emit("changeUrl", [url.value, flag.value]);
+    flag.value = !flag.value
+    emit('changeUrl', [url.value, flag.value])
   }
 }
 const props = defineProps<{
-  baseUrl?: string;
-}>();
+  baseUrl?: string
+}>()
 watch(
   () => props.baseUrl,
   (newValue) => {
-    url.value = newValue;
+    url.value = newValue
   }
-);
+)
 </script>
 <template>
   <section id="newsletter" class="NewsLetter">
     <div class="container">
-      <h2 class="title"><span class="link">开箱即用</span> , 用最简单的方式体验<span class="link">无界</span></h2>
+      <h2 class="title">
+        <span class="link">开箱即用</span>
+        , 用最简单的方式体验<span class="link">无界</span>
+      </h2>
       <div class="form">
         <form class="box" action="javascript:">
           <input

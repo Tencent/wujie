@@ -1,7 +1,9 @@
 # 路由跳转
+
 ::: tip 提示
 无界支持子应用间的路由的跳转，下面分场景来举例路由间如何跳转的
 :::
+
 ## 主应用为 history 模式
 
 ### 子应用 A 要打开子应用 B
@@ -31,7 +33,9 @@ export default {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window.$wujie?.props.jump({ path: "/pathB" });
+  window.$wujie?.props.jump({
+    path: '/pathB'
+  })
 }
 ```
 
@@ -46,7 +50,12 @@ function handleJump() {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window.$wujie?.props.jump({ path: "/pathB", query: { B: window.encodeURIComponent("/test") } });
+  window.$wujie?.props.jump({
+    path: '/pathB',
+    query: {
+      B: window.encodeURIComponent('/test')
+    }
+  })
 }
 ```
 
@@ -63,7 +72,7 @@ function handleJump() {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window.$wujie?.bus.$emit("routeChange", "/test");
+  window.$wujie?.bus.$emit('routeChange', '/test')
 }
 ```
 
@@ -71,7 +80,7 @@ function handleJump() {
 
 ```javascript
 // 子应用 B 监听并跳转
-window.$wujie?.bus.$on("routeChange", (path) => this.$router.push({ path }));
+window.$wujie?.bus.$on('routeChange', (path) => this.$router.push({ path }))
 ```
 
 ## 主应用为 hash 模式

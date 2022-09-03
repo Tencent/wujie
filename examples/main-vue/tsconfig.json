@@ -25,7 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-      "sourceMap": true
+    "sourceMap": true
   },
   "exclude": ["node_modules", "examples", "**/*.test.ts"],
   "include": ["../../src"]

@@ -1,9 +1,9 @@
 <script setup>
-import Theme from "vitepress/theme";
-import { useData } from "vitepress";
-import WujieContent from "./wujie-content.vue";
-const { frontmatter } = useData();
-const { Layout } = Theme;
+import Theme from 'vitepress/theme'
+import { useData } from 'vitepress'
+import WujieContent from './wujie-content.vue'
+const { frontmatter } = useData()
+const { Layout } = Theme
 </script>
 
 <template>

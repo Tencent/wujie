@@ -2,7 +2,8 @@
   <div>
     <HelloWorld msg="Vue3 + vite示例"></HelloWorld>
     <div class="content" style="text-align: center">
-      <p>当前vite版本
+      <p>
+        当前vite版本
         <el-tag style="vertical-align: text-top" size="small">2.7.2</el-tag>
       </p>
       <p>
@@ -25,17 +26,17 @@
 </template>
 
 <script>
-import HelloWorld from "../components/HelloWorld.vue";
+import HelloWorld from '../components/HelloWorld.vue'
 export default {
   components: {
-    HelloWorld,
+    HelloWorld
   },
   methods: {
     handleOpen() {
       window.open('https://github.com/Tencent/wujie/tree/master/examples/vite')
     }
-  },
-};
+  }
+}
 </script>
 
 <style>

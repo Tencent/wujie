@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { bus, preloadApp, startApp, destroyApp, setupApp } from 'wujie'
 
 export default class WujieReact extends React.PureComponent {
   static propTypes = {
@@ -26,20 +26,20 @@ export default class WujieReact extends React.PureComponent {
     afterUnmount: PropTypes.func,
     activated: PropTypes.func,
     deactivated: PropTypes.func,
-    loadError: PropTypes.func,
-  };
-  static bus = bus;
-  static setupApp = setupApp;
-  static preloadApp = preloadApp;
-  static destroyApp = destroyApp;
+    loadError: PropTypes.func
+  }
+  static bus = bus
+  static setupApp = setupApp
+  static preloadApp = preloadApp
+  static destroyApp = destroyApp
 
   state = {
-    myRef: React.createRef(),
-  };
+    myRef: React.createRef()
+  }
 
-  destroy = null;
+  destroy = null
 
-  startAppQueue = Promise.resolve();
+  startAppQueue = Promise.resolve()
 
   execStartApp = () => {
     const {
@@ -63,8 +63,8 @@ export default class WujieReact extends React.PureComponent {
       afterUnmount,
       activated,
       deactivated,
-      loadError,
-    } = this.props;
+      loadError
+    } = this.props
     this.startAppQueue = this.startAppQueue.then(async () => {
       try {
         this.destroy = await startApp({
@@ -89,22 +89,22 @@ export default class WujieReact extends React.PureComponent {
           afterUnmount,
           activated,
           deactivated,
-          loadError,
-        });
+          loadError
+        })
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
-  };
+    })
+  }
 
   render() {
-    this.execStartApp();
-    return React.createElement("div", {
+    this.execStartApp()
+    return React.createElement('div', {
       style: {
         width: this.props.width,
-        height: this.props.height,
+        height: this.props.height
       },
-      ref: this.state.myRef,
-    });
+      ref: this.state.myRef
+    })
   }
 }

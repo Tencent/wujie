@@ -3,6 +3,7 @@
 ::: tip
 预加载能力可以极大的提升子应用打开的首屏时间
 :::
+
 ## 预加载
 
 预加载指的是在应用空闲的时候`requestIdleCallback`将所需要的静态资源提前从网络中加载到内存中，详见[preloadApp](/api/preloadApp.html)

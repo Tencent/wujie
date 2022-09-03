@@ -5,12 +5,15 @@
   "private": true,
   "scripts": {
     "start": "lerna run start --parallel",
-    "doc": "lerna run docs:dev",
+    "doc": "pnpm run build && lerna run docs:dev",
+    "build": "lerna run --stream --sort build:core",
     "clean": "rimraf node_modules **/*/node_modules",
     "test": "lerna run test --scope wujie",
     "commitlint": "commitlint -E COMMIT_EDITMSG_PATH",
     "husky-commitlint": "commitlint -e",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "format": "prettier --write \"**/*.{ts,js,vue,jsx,tsx,md}\"",
+    "lint-staged": "lint-staged -c ./.husky/lint-staged.config.js"
   },
   "repository": {
     "type": "git",
@@ -24,8 +27,10 @@
     "@lerna-lite/cli": "^1.11.1",
     "@lerna-lite/run": "^1.11.1",
     "husky": "^7.0.4",
-    "lint-staged": "^12.4.1",
+    "lint-staged": "^12.5.0",
     "rimraf": "^3.0.2"
   },
-  "dependencies": {}
+  "lint-staged": {
+    "packages/**/{*.vue,*.js,*.ts,*.jsx,*.tsx}": "prettier --write \"**/*.{ts,js,vue,jsx,tsx,md}\""
+  }
 }

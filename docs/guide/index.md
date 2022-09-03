@@ -208,6 +208,7 @@ Techniques, strategies and recipes for building a modern web app with multiple t
 - **去中心化的通信机制**
 
 无界提供了`EventBus`实例，注入到主应用和子应用，所有的应用可以去中心化的进行通信
+
 ### 优势
 
 通过上面原理的阐述，我们可以得出无界微前端框架的几点优势：
