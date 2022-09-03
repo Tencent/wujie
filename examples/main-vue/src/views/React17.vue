@@ -4,14 +4,14 @@
 </template>
 
 <script>
-import hostMap from '../hostMap'
+import hostMap from "../hostMap";
 export default {
   data() {
     return {
-      react17Url: hostMap('//localhost:7100/')
-    }
+      react17Url: hostMap("//localhost:7100/")
+    };
   }
-}
+};
 </script>
 
 <style lang="scss" scoped></style>

@@ -1,23 +1,23 @@
-import Vue from 'vue'
-import { bus, preloadApp, startApp, destroyApp, setupApp } from 'wujie'
+import Vue from "vue";
+import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
 
 const wujieVueOptions = {
-  name: 'WujieVue',
+  name: "WujieVue",
   props: {
     width: {
       type: String,
-      default: ''
+      default: ""
     },
     height: {
       type: String,
-      default: ''
+      default: ""
     },
-    name: { type: String, default: '' },
+    name: { type: String, default: "" },
     loading: {
       type: HTMLElement,
       default: undefined
     },
-    url: { type: String, default: '' },
+    url: { type: String, default: "" },
     sync: {
       type: Boolean,
       default: undefined
@@ -95,19 +95,19 @@ const wujieVueOptions = {
     return {
       destroy: null,
       startAppQueue: Promise.resolve()
-    }
+    };
   },
   mounted() {
-    bus.$onAll(this.handleEmit)
-    this.execStartApp()
+    bus.$onAll(this.handleEmit);
+    this.execStartApp();
     this.$watch(
       () => this.name + this.url,
       () => this.execStartApp()
-    )
+    );
   },
   methods: {
     handleEmit(event, ...args) {
-      this.$emit(event, ...args)
+      this.$emit(event, ...args);
     },
     execStartApp() {
       this.startAppQueue = this.startAppQueue.then(async () => {
@@ -135,35 +135,35 @@ const wujieVueOptions = {
             activated: this.activated,
             deactivated: this.deactivated,
             loadError: this.loadError
-          })
+          });
         } catch (error) {
-          console.log(error)
+          console.log(error);
         }
-      })
+      });
     }
   },
   beforeDestroy() {
-    bus.$offAll(this.handleEmit)
+    bus.$offAll(this.handleEmit);
   },
   render(c) {
-    return c('div', {
+    return c("div", {
       style: {
         width: this.width,
         height: this.height
       },
-      ref: 'wujie'
-    })
+      ref: "wujie"
+    });
   }
-}
+};
 
-const WujieVue = Vue.extend(wujieVueOptions)
+const WujieVue = Vue.extend(wujieVueOptions);
 
-WujieVue.setupApp = setupApp
-WujieVue.preloadApp = preloadApp
-WujieVue.bus = bus
-WujieVue.destroyApp = destroyApp
+WujieVue.setupApp = setupApp;
+WujieVue.preloadApp = preloadApp;
+WujieVue.bus = bus;
+WujieVue.destroyApp = destroyApp;
 WujieVue.install = function (Vue) {
-  Vue.component('WujieVue', WujieVue)
-}
+  Vue.component("WujieVue", WujieVue);
+};
 
-export default WujieVue
+export default WujieVue;

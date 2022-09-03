@@ -14,10 +14,10 @@
 
 ```javascript
 // index.js
-import Antdv from 'ant-design-vue'
+import Antdv from "ant-design-vue";
 
 // 将需要共享的包挂载到主应用全局
-window.Antdv = Antdv
+window.Antdv = Antdv;
 ```
 
 2. 加载子应用时注入插件，将主应用的`Antdv`赋值到子应用的`window`对象上
@@ -43,14 +43,14 @@ window.Antdv = Antdv
 ```javascript
 module.exports = {
   externals: {
-    'ant-design-vue': {
-      root: 'Antdv',
-      commonjs: 'Antdv',
-      commonjs2: 'Antdv',
-      amd: 'Antdv'
+    "ant-design-vue": {
+      root: "Antdv",
+      commonjs: "Antdv",
+      commonjs2: "Antdv",
+      amd: "Antdv"
     }
   }
-}
+};
 ```
 
 ## 子应用需要单独运行

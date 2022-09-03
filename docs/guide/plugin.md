@@ -30,9 +30,9 @@ const plugins = [
 const plugins = [
   // 子应用的 http://xxxxx.js 或者符合正则 /test\.js/ 脚本将不在子应用中进行
   {
-    jsExcludes: ['http://xxxxx.js', /test\.js/]
+    jsExcludes: ["http://xxxxx.js", /test\.js/]
   }
-]
+];
 ```
 
 ## js-ignores
@@ -47,9 +47,9 @@ const plugins = [
 const plugins = [
   // 子应用的 http://xxxxx.js 或者符合正则 /test\.js/ 脚本将由子应用自行加载
   {
-    jsIgnores: ['http://xxxxx.js', /test\.js/]
+    jsIgnores: ["http://xxxxx.js", /test\.js/]
   }
-]
+];
 ```
 
 ::: warning 警告
@@ -74,7 +74,7 @@ const plugins = [
     // 在子应用所有的js之前
     jsBeforeLoaders: [
       // 插入一个外联脚本
-      { src: 'http://xxxx.js' },
+      { src: "http://xxxx.js" },
       // 插入一个内联监本
       {
         content: 'console.log("test")'
@@ -82,12 +82,12 @@ const plugins = [
       // 执行一个回调，打印子应用名字
       {
         callback(appWindow) {
-          console.log('js-before-loader-callback', appWindow.__WUJIE.id)
+          console.log("js-before-loader-callback", appWindow.__WUJIE.id);
         }
       }
     ]
   }
-]
+];
 ```
 
 ## js-loader
@@ -102,10 +102,10 @@ const plugins = [
     // 将url为aaa.js的脚本中的aaa替换成bbb
     // code 为脚本代码、url为脚本的地址（内联脚本为''）、base为子应用当前的地址
     jsLoader: (code, url, base) => {
-      if (url === 'aaa.js') return code.replace('aaa', 'bbb')
+      if (url === "aaa.js") return code.replace("aaa", "bbb");
     }
   }
-]
+];
 ```
 
 ## js-after-loader
@@ -125,7 +125,7 @@ const plugins = [
   {
     jsAfterLoaders: [
       // 插入一个外联脚本
-      { src: 'http://xxxx.js' },
+      { src: "http://xxxx.js" },
       // 插入一个内联监本
       {
         content: 'console.log("test")'
@@ -133,12 +133,12 @@ const plugins = [
       // 执行一个回调，打印子应用名字
       {
         callback(appWindow) {
-          console.log('js-after-loader-callback', appWindow.__WUJIE.id)
+          console.log("js-after-loader-callback", appWindow.__WUJIE.id);
         }
       }
     ]
   }
-]
+];
 ```
 
 ## css-excludes
@@ -168,9 +168,9 @@ const plugins = [
 const plugins = [
   // 子应用的 http://xxxxx.css 或者符合正则 /test\.css/ 脚本将由子应用自行加载
   {
-    cssIgnores: ['http://xxxxx.css', /test\.css/]
+    cssIgnores: ["http://xxxxx.css", /test\.css/]
   }
-]
+];
 ```
 
 ## css-before-loaders
@@ -191,13 +191,13 @@ const plugins = [
     cssBeforeLoaders: [
       //在加载html所有的样式之前添加一个外联样式
       {
-        src: 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css'
+        src: "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
       },
       //在加载html所有的样式之前添加一个内联样式
-      { content: 'img{width: 300px}' }
+      { content: "img{width: 300px}" }
     ]
   }
-]
+];
 ```
 
 ## css-loader
@@ -212,11 +212,11 @@ const plugins = [
     // 对css脚本动态的进行替换
     // code 为样式代码、url为样式的地址（内联样式为''）、base为子应用当前的地址
     cssLoader: (code, url, base) => {
-      console.log('css-loader', url, code.slice(0, 50) + '...')
-      return code
+      console.log("css-loader", url, code.slice(0, 50) + "...");
+      return code;
     }
   }
-]
+];
 ```
 
 ## css-after-loaders
@@ -236,13 +236,13 @@ const plugins = [
     cssAfterLoaders: [
       //在加载html所有样式之后添加一个外联样式
       {
-        src: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css'
+        src: "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
       },
       //在加载html所有样式之后添加一个内联样式
-      { content: 'img{height: 300px}' }
+      { content: "img{height: 300px}" }
     ]
   }
-]
+];
 ```
 
 ## windowAddEventListenerHook
@@ -257,10 +257,10 @@ const plugins = [
 const plugins = [
   {
     windowAddEventListenerHook(iframeWindow, type, handler, options) {
-      container.addEventListener(type, handler, options)
+      container.addEventListener(type, handler, options);
     }
   }
-]
+];
 ```
 
 ## windowRemoveEventListenerHook
@@ -273,13 +273,13 @@ const plugins = [
 const plugins = [
   {
     windowAddEventListenerHook(iframeWindow, type, handler, options) {
-      container.addEventListener(type, handler, options)
+      container.addEventListener(type, handler, options);
     },
     windowRemoveEventListenerHook(iframeWindow, type, handler, options) {
-      container.removeEventListener(type, handler, options)
+      container.removeEventListener(type, handler, options);
     }
   }
-]
+];
 ```
 
 ## documentAddEventListenerHook
@@ -294,10 +294,10 @@ const plugins = [
 const plugins = [
   {
     documentAddEventListenerHook(iframeWindow, type, handler, options) {
-      container.addEventListener(type, handler, options)
+      container.addEventListener(type, handler, options);
     }
   }
-]
+];
 ```
 
 ## documentRemoveEventListenerHook
@@ -310,13 +310,13 @@ const plugins = [
 const plugins = [
   {
     documentAddEventListenerHook(iframeWindow, type, handler, options) {
-      container.addEventListener(type, handler, options)
+      container.addEventListener(type, handler, options);
     },
     documentRemoveEventListenerHook(iframeWindow, type, handler, options) {
-      container.removeEventListener(type, handler, options)
+      container.removeEventListener(type, handler, options);
     }
   }
-]
+];
 ```
 
 <!--

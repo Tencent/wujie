@@ -4,6 +4,6 @@ const lifecycles = {
   afterMount: (appWindow) => console.log(`${appWindow.__WUJIE.id} afterMount 生命周期`),
   beforeUnmount: (appWindow) => console.log(`${appWindow.__WUJIE.id} beforeUnmount 生命周期`),
   afterUnmount: (appWindow) => console.log(`${appWindow.__WUJIE.id} afterUnmount 生命周期`)
-}
+};
 
-export default lifecycles
+export default lifecycles;

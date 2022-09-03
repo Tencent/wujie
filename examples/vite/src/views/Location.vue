@@ -25,11 +25,11 @@
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '../components/HelloWorld.vue'
-const windowHost = window.location.href
-const wujieHost = window?.$wujie?.location.href || `$wujie不存在`
+import HelloWorld from "../components/HelloWorld.vue";
+const windowHost = window.location.href;
+const wujieHost = window?.$wujie?.location.href || `$wujie不存在`;
 export default {
-  name: 'About',
+  name: "About",
   components: {
     HelloWorld
   },
@@ -37,17 +37,17 @@ export default {
     return {
       windowHost,
       wujieHost
-    }
+    };
   },
   mounted() {
-    console.log('vite location mounted')
+    console.log("vite location mounted");
   },
   methods: {
     handleClick() {
-      window.$wujie.location.href = 'https://wujicode.cn/xy/app/prod/official/home'
+      window.$wujie.location.href = "https://wujicode.cn/xy/app/prod/official/home";
     }
   }
-}
+};
 </script>
 
 <style scoped>

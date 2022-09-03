@@ -4,13 +4,13 @@
  * @type {import('@vue/cli-service').ProjectOptions}
  */
 module.exports = {
-  publicPath: './',
+  publicPath: "./",
   devServer: {
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': '*'
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*"
     },
-    port: '7200'
+    port: "7200"
   }
-}
+};

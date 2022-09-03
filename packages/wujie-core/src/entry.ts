@@ -4,50 +4,50 @@ import processTpl, {
   ScriptObject,
   ScriptBaseObject,
   StyleObject
-} from './template'
-import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from './utils'
-import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from './constant'
-import { getEffectLoaders, isMatchUrl } from './plugin'
-import Wujie from './sandbox'
-import { plugin, loadErrorHandler } from './index'
+} from "./template";
+import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from "./utils";
+import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from "./constant";
+import { getEffectLoaders, isMatchUrl } from "./plugin";
+import Wujie from "./sandbox";
+import { plugin, loadErrorHandler } from "./index";
 
 export type ScriptResultList = (ScriptBaseObject & {
-  contentPromise: Promise<string>
-})[]
+  contentPromise: Promise<string>;
+})[];
 export type StyleResultList = {
-  src: string
-  contentPromise: Promise<string>
-  ignore?: boolean
-}[]
+  src: string;
+  contentPromise: Promise<string>;
+  ignore?: boolean;
+}[];
 
 interface htmlParseResult {
-  template: string
+  template: string;
 
-  assetPublicPath: string
+  assetPublicPath: string;
 
-  getExternalScripts(): ScriptResultList
+  getExternalScripts(): ScriptResultList;
 
-  getExternalStyleSheets(): StyleResultList
+  getExternalStyleSheets(): StyleResultList;
 }
 
 type ImportEntryOpts = {
-  fetch?: typeof window.fetch
-  plugins?: Array<plugin>
-  loadError?: loadErrorHandler
-}
+  fetch?: typeof window.fetch;
+  plugins?: Array<plugin>;
+  loadError?: loadErrorHandler;
+};
 
-const styleCache = {}
-const scriptCache = {}
-const embedHTMLCache = {}
+const styleCache = {};
+const scriptCache = {};
+const embedHTMLCache = {};
 
 if (!window.fetch) {
-  error(WUJIE_TIPS_NO_FETCH)
-  throw new Error()
+  error(WUJIE_TIPS_NO_FETCH);
+  throw new Error();
 }
-const defaultFetch = window.fetch.bind(window)
+const defaultFetch = window.fetch.bind(window);
 
 function defaultGetTemplate(tpl) {
-  return tpl
+  return tpl;
 }
 
 /**
@@ -58,16 +58,16 @@ export async function processCssLoader(
   template: string,
   getExternalStyleSheets: () => StyleResultList
 ): Promise<string> {
-  const curUrl = getCurUrl(sandbox.proxyLocation)
+  const curUrl = getCurUrl(sandbox.proxyLocation);
   /** css-loader */
-  const composeCssLoader = compose(sandbox.plugins.map((plugin) => plugin.cssLoader))
+  const composeCssLoader = compose(sandbox.plugins.map((plugin) => plugin.cssLoader));
   const processedCssList: StyleResultList = getExternalStyleSheets().map(({ src, ignore, contentPromise }) => ({
     src,
     ignore,
     contentPromise: contentPromise.then((content) => composeCssLoader(content, src, curUrl))
-  }))
-  const embedHTML = await getEmbedHTML(template, processedCssList)
-  return sandbox.replace ? sandbox.replace(embedHTML) : embedHTML
+  }));
+  const embedHTML = await getEmbedHTML(template, processedCssList);
+  return sandbox.replace ? sandbox.replace(embedHTML) : embedHTML;
 }
 
 /**
@@ -75,7 +75,7 @@ export async function processCssLoader(
  * @return embedHTML
  */
 async function getEmbedHTML(template, styleResultList: StyleResultList): Promise<string> {
-  let embedHTML = template
+  let embedHTML = template;
 
   return Promise.all(
     styleResultList.map((styleResult, index) =>
@@ -86,19 +86,19 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
             styleResult.ignore
               ? `<link href="${styleResult.src}" rel="stylesheet" type="text/css">`
               : `<style>/* ${styleResult.src} */${content}</style>`
-          )
+          );
         } else if (content) {
           embedHTML = embedHTML.replace(
             getInlineStyleReplaceSymbol(index),
             `<style>/* inline-style-${index} */${content}</style>`
-          )
+          );
         }
       })
     )
-  ).then(() => embedHTML)
+  ).then(() => embedHTML);
 }
 
-const isInlineCode = (code) => code.startsWith('<')
+const isInlineCode = (code) => code.startsWith("<");
 
 const fetchAssets = (
   src: string,
@@ -113,31 +113,31 @@ const fetchAssets = (
       // usually browser treats 4xx and 5xx response of script loading as an error and will fire a script error event
       // https://stackoverflow.com/questions/5625420/what-http-headers-responses-trigger-the-onerror-handler-on-a-script-tag/5625603
       if (response.status >= 400) {
-        cache[src] = null
+        cache[src] = null;
         if (cssFlag) {
-          error(WUJIE_TIPS_CSS_ERROR_REQUESTED, { src, response })
-          loadError?.(src, new Error(WUJIE_TIPS_CSS_ERROR_REQUESTED))
-          return ''
+          error(WUJIE_TIPS_CSS_ERROR_REQUESTED, { src, response });
+          loadError?.(src, new Error(WUJIE_TIPS_CSS_ERROR_REQUESTED));
+          return "";
         } else {
-          error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, { src, response })
-          loadError?.(src, new Error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED))
-          throw new Error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED)
+          error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, { src, response });
+          loadError?.(src, new Error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED));
+          throw new Error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED);
         }
       }
-      return response.text()
+      return response.text();
     })
     .catch((e) => {
-      cache[src] = null
+      cache[src] = null;
       if (cssFlag) {
-        error(WUJIE_TIPS_CSS_ERROR_REQUESTED, src)
-        loadError?.(src, e)
-        return ''
+        error(WUJIE_TIPS_CSS_ERROR_REQUESTED, src);
+        loadError?.(src, e);
+        return "";
       } else {
-        error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, src)
-        loadError?.(src, e)
-        throw e
+        error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, src);
+        loadError?.(src, e);
+        throw e;
       }
-    }))
+    }));
 
 // for prefetch
 export function getExternalStyleSheets(
@@ -149,24 +149,24 @@ export function getExternalStyleSheets(
     // 内联
     if (content) {
       return {
-        src: '',
+        src: "",
         contentPromise: Promise.resolve(content)
-      }
+      };
     } else if (isInlineCode(src)) {
       // if it is inline style
       return {
-        src: '',
+        src: "",
         contentPromise: Promise.resolve(getInlineCode(src))
-      }
+      };
     } else {
       // external styles
       return {
         src,
         ignore,
-        contentPromise: ignore ? Promise.resolve('') : fetchAssets(src, styleCache, fetch, true, loadError)
-      }
+        contentPromise: ignore ? Promise.resolve("") : fetchAssets(src, styleCache, fetch, true, loadError)
+      };
     }
-  })
+  });
 }
 
 // for prefetch
@@ -177,52 +177,52 @@ export function getExternalScripts(
 ): ScriptResultList {
   // module should be requested in iframe
   return scripts.map((script) => {
-    const { src, async, defer, module, ignore } = script
-    let contentPromise = null
+    const { src, async, defer, module, ignore } = script;
+    let contentPromise = null;
     // async
     if ((async || defer) && src && !module) {
       contentPromise = new Promise((resolve, reject) =>
         requestIdleCallback(() => fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject))
-      )
+      );
       // module || ignore
     } else if ((module && src) || ignore) {
-      contentPromise = Promise.resolve('')
+      contentPromise = Promise.resolve("");
       // inline
     } else if (!src) {
-      contentPromise = Promise.resolve(script.content)
+      contentPromise = Promise.resolve(script.content);
       // outline
     } else {
-      contentPromise = fetchAssets(src, scriptCache, fetch, false, loadError)
+      contentPromise = fetchAssets(src, scriptCache, fetch, false, loadError);
     }
     return {
       ...script,
       contentPromise
-    }
-  })
+    };
+  });
 }
 
 export default function importHTML(url: string, opts?: ImportEntryOpts): Promise<htmlParseResult> {
-  const fetch = opts.fetch ?? defaultFetch
-  const { plugins, loadError } = opts
-  const htmlLoader = plugins ? compose(plugins.map((plugin) => plugin.htmlLoader)) : defaultGetTemplate
-  const jsExcludes = getEffectLoaders('jsExcludes', plugins)
-  const cssExcludes = getEffectLoaders('cssExcludes', plugins)
-  const jsIgnores = getEffectLoaders('jsIgnores', plugins)
-  const cssIgnores = getEffectLoaders('cssIgnores', plugins)
-  const getPublicPath = defaultGetPublicPath
+  const fetch = opts.fetch ?? defaultFetch;
+  const { plugins, loadError } = opts;
+  const htmlLoader = plugins ? compose(plugins.map((plugin) => plugin.htmlLoader)) : defaultGetTemplate;
+  const jsExcludes = getEffectLoaders("jsExcludes", plugins);
+  const cssExcludes = getEffectLoaders("cssExcludes", plugins);
+  const jsIgnores = getEffectLoaders("jsIgnores", plugins);
+  const cssIgnores = getEffectLoaders("cssIgnores", plugins);
+  const getPublicPath = defaultGetPublicPath;
 
   const getHtmlParseResult = (url, htmlLoader) =>
     fetch(url)
       .then(
         (response) => response.text(),
         (e) => {
-          loadError?.(url, e)
-          return Promise.reject(e)
+          loadError?.(url, e);
+          return Promise.reject(e);
         }
       )
       .then((html) => {
-        const assetPublicPath = getPublicPath(url)
-        const { template, scripts, styles } = processTpl(htmlLoader(html), assetPublicPath)
+        const assetPublicPath = getPublicPath(url);
+        const { template, scripts, styles } = processTpl(htmlLoader(html), assetPublicPath);
         return {
           template: template,
           assetPublicPath,
@@ -248,13 +248,13 @@ export default function importHTML(url: string, opts?: ImportEntryOpts): Promise
               fetch,
               loadError
             )
-        }
-      })
+        };
+      });
 
   if (opts?.plugins.some((plugin) => plugin.htmlLoader)) {
-    return getHtmlParseResult(url, htmlLoader)
+    return getHtmlParseResult(url, htmlLoader);
     // 没有html-loader可以做缓存
   } else {
-    return embedHTMLCache[url] || (embedHTMLCache[url] = getHtmlParseResult(url, htmlLoader))
+    return embedHTMLCache[url] || (embedHTMLCache[url] = getHtmlParseResult(url, htmlLoader));
   }
 }

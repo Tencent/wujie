@@ -73,26 +73,26 @@
 
 <script>
 export default {
-  name: 'App',
+  name: "App",
   data() {
     return {
       active: false,
-      react16Flag: this.$route.name === 'react16-sub',
-      react17Flag: this.$route.name === 'react17-sub',
-      vue2Flag: this.$route.name === 'vue2-sub',
-      vue3Flag: this.$route.name === 'vue3-sub',
-      viteFlag: this.$route.name === 'vite-sub'
-    }
+      react16Flag: this.$route.name === "react16-sub",
+      react17Flag: this.$route.name === "react17-sub",
+      vue2Flag: this.$route.name === "vue2-sub",
+      vue3Flag: this.$route.name === "vue3-sub",
+      viteFlag: this.$route.name === "vite-sub"
+    };
   },
   methods: {
     close() {
-      if (this.active) this.active = false
+      if (this.active) this.active = false;
     },
     handleFlag(name) {
-      this[name + 'Flag'] = !this[name + 'Flag']
+      this[name + "Flag"] = !this[name + "Flag"];
     }
   }
-}
+};
 </script>
 
 <style>

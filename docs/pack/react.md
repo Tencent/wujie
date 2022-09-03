@@ -16,9 +16,9 @@ npm i wujie-react -S
 ## 引入
 
 ```javascript
-import WujieReact from 'wujie-react'
+import WujieReact from "wujie-react";
 
-const { bus, setupApp, preloadApp, destroyApp } = WujieReact
+const { bus, setupApp, preloadApp, destroyApp } = WujieReact;
 ```
 
 ## 使用

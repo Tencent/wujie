@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-const emit = defineEmits(['changeUrl'])
-const url = ref('https://wujicode.cn/xy/app/prod/official/home')
-const flag = ref(false)
+import { ref, watch } from "vue";
+const emit = defineEmits(["changeUrl"]);
+const url = ref("https://wujicode.cn/xy/app/prod/official/home");
+const flag = ref(false);
 function preventDefault(event) {
-  event.preventDefault
-  const reg = /(https):\/\/([\w.]+\/?)\S*/
+  event.preventDefault;
+  const reg = /(https):\/\/([\w.]+\/?)\S*/;
   if (reg.test(url.value)) {
-    flag.value = !flag.value
-    emit('changeUrl', [url.value, flag.value])
+    flag.value = !flag.value;
+    emit("changeUrl", [url.value, flag.value]);
   }
 }
 const props = defineProps<{
-  baseUrl?: string
-}>()
+  baseUrl?: string;
+}>();
 watch(
   () => props.baseUrl,
   (newValue) => {
-    url.value = newValue
+    url.value = newValue;
   }
-)
+);
 </script>
 <template>
   <section id="newsletter" class="NewsLetter">

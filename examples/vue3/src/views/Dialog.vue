@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue'
-import AppendBody from '@/components/AppendBody.vue'
+import HelloWorld from "@/components/HelloWorld.vue";
+import AppendBody from "@/components/AppendBody.vue";
 export default {
   components: {
     HelloWorld,
@@ -77,33 +77,33 @@ export default {
       modalVisible: false,
       options: [
         {
-          value: '选项1',
-          label: '黄金糕'
+          value: "选项1",
+          label: "黄金糕"
         },
         {
-          value: '选项2',
-          label: '双皮奶'
+          value: "选项2",
+          label: "双皮奶"
         },
         {
-          value: '选项3',
-          label: '蚵仔煎'
+          value: "选项3",
+          label: "蚵仔煎"
         },
         {
-          value: '选项4',
-          label: '龙须面'
+          value: "选项4",
+          label: "龙须面"
         },
         {
-          value: '选项5',
-          label: '北京烤鸭'
+          value: "选项5",
+          label: "北京烤鸭"
         }
       ],
-      value: ''
-    }
+      value: ""
+    };
   },
   mounted() {
-    console.log('vue3 dialog mounted')
+    console.log("vue3 dialog mounted");
   }
-}
+};
 </script>
 
 <style>

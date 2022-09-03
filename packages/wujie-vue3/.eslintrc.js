@@ -4,12 +4,12 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: ['eslint:recommended', 'plugin:vue/essential'],
+  extends: ["eslint:recommended", "plugin:vue/essential"],
   parserOptions: {
     ecmaVersion: 12,
-    sourceType: 'module'
+    sourceType: "module"
   },
-  plugins: ['vue'],
+  plugins: ["vue"],
   rules: {},
-  ignorePatterns: ['esm/*.js']
-}
+  ignorePatterns: ["esm/*.js"]
+};

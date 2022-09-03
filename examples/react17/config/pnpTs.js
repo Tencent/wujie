@@ -1,10 +1,10 @@
-'use strict'
+"use strict";
 
-const { resolveModuleName } = require('ts-pnp')
+const { resolveModuleName } = require("ts-pnp");
 
 exports.resolveModuleName = (typescript, moduleName, containingFile, compilerOptions, resolutionHost) => {
-  return resolveModuleName(moduleName, containingFile, compilerOptions, resolutionHost, typescript.resolveModuleName)
-}
+  return resolveModuleName(moduleName, containingFile, compilerOptions, resolutionHost, typescript.resolveModuleName);
+};
 
 exports.resolveTypeReferenceDirective = (typescript, moduleName, containingFile, compilerOptions, resolutionHost) => {
   return resolveModuleName(
@@ -13,5 +13,5 @@ exports.resolveTypeReferenceDirective = (typescript, moduleName, containingFile,
     compilerOptions,
     resolutionHost,
     typescript.resolveTypeReferenceDirective
-  )
-}
+  );
+};

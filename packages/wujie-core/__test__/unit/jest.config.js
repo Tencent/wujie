@@ -23,7 +23,7 @@ module.exports = {
   // collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
+  coverageDirectory: "coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
@@ -61,8 +61,8 @@ module.exports = {
 
   // A set of global variables that need to be available in all test environments
   globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.json'
+    "ts-jest": {
+      tsconfig: "<rootDir>/tsconfig.json"
     }
   },
 
@@ -97,7 +97,7 @@ module.exports = {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  preset: 'ts-jest',
+  preset: "ts-jest",
 
   // Run tests from one or more projects
   // projects: undefined,
@@ -132,7 +132,7 @@ module.exports = {
   // setupFiles: [],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
-  setupFilesAfterEnv: ['<rootDir>/jestSetup.js'],
+  setupFilesAfterEnv: ["<rootDir>/jestSetup.js"],
 
   // The number of seconds after which a test is considered as slow and reported as such in the results.
   // slowTestThreshold: 5,
@@ -141,7 +141,7 @@ module.exports = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: 'jsdom',
+  testEnvironment: "jsdom",
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -150,7 +150,7 @@ module.exports = {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  testMatch: ['<rootDir>/*.test.ts']
+  testMatch: ["<rootDir>/*.test.ts"]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
@@ -192,4 +192,4 @@ module.exports = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
-}
+};

@@ -10,25 +10,25 @@
 </template>
 
 <script>
-import hostMap from '../hostMap'
+import hostMap from "../hostMap";
 
 export default {
   data() {
     return {
-      react16Url: hostMap('//localhost:7600/'),
-      react17Url: hostMap('//localhost:7100/'),
-      vue2Url: hostMap('//localhost:7200/'),
-      vue3Url: hostMap('//localhost:7300/'),
-      vite: hostMap('//localhost:7500/'),
-      angular12Url: hostMap('//localhost:7400/')
-    }
+      react16Url: hostMap("//localhost:7600/"),
+      react17Url: hostMap("//localhost:7100/"),
+      vue2Url: hostMap("//localhost:7200/"),
+      vue3Url: hostMap("//localhost:7300/"),
+      vite: hostMap("//localhost:7500/"),
+      angular12Url: hostMap("//localhost:7400/")
+    };
   },
   methods: {
     jump(name) {
-      this.$router.push({ name })
+      this.$router.push({ name });
     }
   }
-}
+};
 </script>
 
 <style scoped>

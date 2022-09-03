@@ -4,20 +4,20 @@
 </template>
 
 <script>
-import hostMap from '../hostMap'
-import wujieVue from 'wujie-vue2'
+import hostMap from "../hostMap";
+import wujieVue from "wujie-vue2";
 export default {
   data() {
     return {
-      vue3Url: hostMap('//localhost:7300/') + this.$route.params.path
-    }
+      vue3Url: hostMap("//localhost:7300/") + this.$route.params.path
+    };
   },
   watch: {
     $route() {
-      wujieVue.bus.$emit('vue3-router-change', `/${this.$route.params.path}`)
+      wujieVue.bus.$emit("vue3-router-change", `/${this.$route.params.path}`);
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped></style>

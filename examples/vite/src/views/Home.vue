@@ -26,17 +26,17 @@
 </template>
 
 <script>
-import HelloWorld from '../components/HelloWorld.vue'
+import HelloWorld from "../components/HelloWorld.vue";
 export default {
   components: {
     HelloWorld
   },
   methods: {
     handleOpen() {
-      window.open('https://github.com/Tencent/wujie/tree/master/examples/vite')
+      window.open("https://github.com/Tencent/wujie/tree/master/examples/vite");
     }
   }
-}
+};
 </script>
 
 <style>

@@ -1,42 +1,42 @@
-const path = require('path')
+const path = require("path");
 
 module.exports = {
-  entry: './index.js',
-  target: ['web', 'es5'],
+  entry: "./index.js",
+  target: ["web", "es5"],
   output: {
-    publicPath: '/',
-    path: path.resolve(__dirname, './lib'),
-    filename: 'index.js',
-    library: 'WujieVue',
-    libraryTarget: 'umd',
-    globalObject: 'self',
+    publicPath: "/",
+    path: path.resolve(__dirname, "./lib"),
+    filename: "index.js",
+    library: "WujieVue",
+    libraryTarget: "umd",
+    globalObject: "self",
     umdNamedDefine: true
   },
-  mode: 'production',
+  mode: "production",
   externals: {
     vue: {
-      root: 'Vue',
-      commonjs: 'vue',
-      commonjs2: 'vue',
-      amd: 'vue'
+      root: "Vue",
+      commonjs: "vue",
+      commonjs2: "vue",
+      amd: "vue"
     }
   },
   resolve: {
-    extensions: ['.js']
+    extensions: [".js"]
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
-            presets: ['@babel/preset-env']
+            presets: ["@babel/preset-env"]
           }
         }
       }
     ]
   }
-}
+};

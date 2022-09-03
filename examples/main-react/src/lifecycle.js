@@ -7,6 +7,6 @@ const lifecycles = {
   activated: (appWindow) => console.log(`${appWindow.__WUJIE.id} activated 生命周期`),
   deactivated: (appWindow) => console.log(`${appWindow.__WUJIE.id} deactivated 生命周期`),
   loadError: (url, e) => console.log(`${url} 加载失败`, e)
-}
+};
 
-export default lifecycles
+export default lifecycles;

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 export default defineConfig({
   // ssr: {
@@ -12,4 +12,4 @@ export default defineConfig({
       scss: { charset: false }
     }
   }
-})
+});

@@ -19,7 +19,7 @@ collapsable: false
 当`credentials`设置为`include`时，服务端的`Access-Control-Allow-Origin`不能设置为`*`，原因[详见](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#credentialed_requests_and_wildcards)，服务端可以这样设置：
 
 ```javascript
-ctx.set('Access-Control-Allow-Origin', ctx.headers.origin)
+ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 ```
 
 :::
@@ -107,6 +107,6 @@ ctx.set('Access-Control-Allow-Origin', ctx.headers.origin)
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
   // eslint-disable-next-line
-  window.__webpack_public_path__ = window.__WUJIE_PUBLIC_PATH__
+  window.__webpack_public_path__ = window.__WUJIE_PUBLIC_PATH__;
 }
 ```

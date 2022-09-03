@@ -2,6 +2,6 @@
 export default function fetch(url, options) {
   return window.fetch(url, {
     ...options,
-    credentials: 'omit'
-  })
+    credentials: "omit"
+  });
 }

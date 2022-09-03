@@ -1,15 +1,15 @@
-import React from 'react'
-import Button from 'antd/es/button'
-import 'antd/es/button/style/css'
+import React from "react";
+import Button from "antd/es/button";
+import "antd/es/button/style/css";
 
 export default class Location extends React.Component {
-  state = { count: 10 }
+  state = { count: 10 };
   handleClick() {
-    window.location.href = 'https://wujicode.cn/xy/app/prod/official/home'
+    window.location.href = "https://wujicode.cn/xy/app/prod/official/home";
   }
 
   componentDidMount() {
-    console.log('react17 state mounted')
+    console.log("react17 state mounted");
   }
 
   render() {
@@ -42,8 +42,8 @@ export default class Location extends React.Component {
             <Button
               className="app-jump"
               onClick={() => {
-                window?.$wujie.bus.$emit('add')
-                window?.$wujie.props.jump('vue3')
+                window?.$wujie.bus.$emit("add");
+                window?.$wujie.props.jump("vue3");
               }}
             >
               vue3 state+1 跳回
@@ -51,6 +51,6 @@ export default class Location extends React.Component {
           </p>
         </div>
       </div>
-    )
+    );
   }
 }

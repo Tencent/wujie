@@ -21,13 +21,13 @@ npm i wujie-vue3 -S
 
 ```javascript
 // vue2
-import WujieVue from 'wujie-vue2'
+import WujieVue from "wujie-vue2";
 // vue3
-import WujieVue from 'wujie-vue3'
+import WujieVue from "wujie-vue3";
 
-const { bus, setupApp, preloadApp, destroyApp } = WujieVue
+const { bus, setupApp, preloadApp, destroyApp } = WujieVue;
 
-Vue.use(WujieVue)
+Vue.use(WujieVue);
 ```
 
 ## 使用
@@ -70,28 +70,28 @@ Vue.use(WujieVue)
 ## 原理
 
 ```javascript
-import Vue from 'vue'
-import { bus, setupApp, preloadApp, startApp, destroyApp } from 'wujie'
-import { createApp, h, defineComponent } from 'vue'
-const vue3Flag = !!createApp
+import Vue from "vue";
+import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
+import { createApp, h, defineComponent } from "vue";
+const vue3Flag = !!createApp;
 
 const wujieVueOptions = {
-  name: 'WujieVue',
+  name: "WujieVue",
   props: {
     width: {
       type: String,
-      default: ''
+      default: ""
     },
     height: {
       type: String,
-      default: ''
+      default: ""
     },
-    name: { type: String, default: '' },
+    name: { type: String, default: "" },
     loading: {
       type: HTMLElement,
       default: undefined
     },
-    url: { type: String, default: '' },
+    url: { type: String, default: "" },
     sync: {
       type: Boolean,
       default: false
@@ -165,19 +165,19 @@ const wujieVueOptions = {
     return {
       destroy: null,
       startAppQueue: Promise.resolve()
-    }
+    };
   },
   mounted() {
-    bus.$onAll(this.handleEmit)
-    this.execStartApp()
+    bus.$onAll(this.handleEmit);
+    this.execStartApp();
     this.$watch(
       () => this.name + this.url,
       () => this.execStartApp()
-    )
+    );
   },
   methods: {
     handleEmit(event, ...args) {
-      this.$emit(event, ...args)
+      this.$emit(event, ...args);
     },
     execStartApp() {
       this.startAppQueue = this.startAppQueue.then(async () => {
@@ -204,37 +204,37 @@ const wujieVueOptions = {
             activated: this.activated,
             deactivated: this.deactivated,
             loadError: this.loadError
-          })
+          });
         } catch (error) {
-          console.log(error)
+          console.log(error);
         }
-      })
+      });
     }
   },
   beforeDestroy() {
-    bus.$offAll(this.handleEmit)
+    bus.$offAll(this.handleEmit);
   },
   render(c) {
-    const createElement = vue3Flag ? h : c
-    return createElement('div', {
+    const createElement = vue3Flag ? h : c;
+    return createElement("div", {
       style: {
         width: this.height,
         height: this.height
       },
-      ref: 'wujie'
-    })
+      ref: "wujie"
+    });
   }
-}
+};
 
-const WujieVue = vue3Flag ? defineComponent(wujieVueOptions) : Vue.extend(wujieVueOptions)
+const WujieVue = vue3Flag ? defineComponent(wujieVueOptions) : Vue.extend(wujieVueOptions);
 
-WujieVue.setupApp = setupApp
-WujieVue.preloadApp = preloadApp
-WujieVue.bus = bus
-WujieVue.destroyApp = destroyApp
+WujieVue.setupApp = setupApp;
+WujieVue.preloadApp = preloadApp;
+WujieVue.bus = bus;
+WujieVue.destroyApp = destroyApp;
 WujieVue.install = function (Vue) {
-  Vue.component('WujieVue', WujieVue)
-}
+  Vue.component("WujieVue", WujieVue);
+};
 
-export default WujieVue
+export default WujieVue;
 ```

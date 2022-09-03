@@ -24,17 +24,17 @@
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue'
+import HelloWorld from "@/components/HelloWorld.vue";
 export default {
   data() {
     return {
       open: window.open
-    }
+    };
   },
   components: {
     HelloWorld
   }
-}
+};
 </script>
 
 <style>

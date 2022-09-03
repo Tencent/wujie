@@ -57,14 +57,14 @@ npm install wujie -S
 - 使用
 
 ```javascript
-import { startApp } from 'wujie'
+import { startApp } from "wujie";
 
 startApp({
-  name: '唯一id',
-  url: '子应用路径',
-  el: '容器',
+  name: "唯一id",
+  url: "子应用路径",
+  el: "容器",
   sync: true
-})
+});
 ```
 
 ### vue 框架
@@ -83,10 +83,10 @@ npm i wujie-vue3 -S
 
 ```javascript
 // vue2
-import WujieVue from 'wujie-vue2'
+import WujieVue from "wujie-vue2";
 // vue3
-import WujieVue from 'wujie-vue3'
-Vue.use(WujieVue)
+import WujieVue from "wujie-vue3";
+Vue.use(WujieVue);
 ```
 
 - 使用
@@ -122,7 +122,7 @@ npm i wujie-react -S
 - 引入
 
 ```javascript
-import WujieReact from 'wujie-react'
+import WujieReact from "wujie-react";
 ```
 
 - 使用

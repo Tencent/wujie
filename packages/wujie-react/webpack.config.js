@@ -1,29 +1,29 @@
-const path = require('path')
+const path = require("path");
 
 module.exports = {
-  entry: './index.js',
-  target: ['web', 'es5'],
+  entry: "./index.js",
+  target: ["web", "es5"],
   output: {
-    publicPath: '/',
-    path: path.resolve(__dirname, './lib'),
-    filename: 'index.js',
-    library: 'WujieReact',
-    libraryTarget: 'umd',
-    globalObject: 'self',
+    publicPath: "/",
+    path: path.resolve(__dirname, "./lib"),
+    filename: "index.js",
+    library: "WujieReact",
+    libraryTarget: "umd",
+    globalObject: "self",
     umdNamedDefine: true
   },
-  mode: 'production',
+  mode: "production",
   externals: {
     react: {
-      root: 'React',
-      commonjs: 'react',
-      commonjs2: 'react',
-      amd: 'React'
+      root: "React",
+      commonjs: "react",
+      commonjs2: "react",
+      amd: "React"
     }
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   resolve: {
-    extensions: ['.js']
+    extensions: [".js"]
   },
   module: {
     rules: [
@@ -31,9 +31,9 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: 'babel-loader'
+          loader: "babel-loader"
         }
       }
     ]
   }
-}
+};
