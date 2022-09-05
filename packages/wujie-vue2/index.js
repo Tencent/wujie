@@ -30,7 +30,6 @@ const wujieVueOptions = {
   },
   data() {
     return {
-      destroy: null,
       startAppQueue: Promise.resolve(),
     };
   },
@@ -49,7 +48,7 @@ const wujieVueOptions = {
     execStartApp() {
       this.startAppQueue = this.startAppQueue.then(async () => {
         try {
-          this.destroy = await startApp({
+          await startApp({
             name: this.name,
             url: this.url,
             el: this.$refs.wujie,
@@ -77,6 +76,9 @@ const wujieVueOptions = {
           console.log(error);
         }
       });
+    },
+    destroy() {
+      destroyApp(this.name);
     },
   },
   beforeDestroy() {
