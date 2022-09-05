@@ -74,10 +74,10 @@ declare global {
     $wujie: { [key: string]: any };
   }
   interface HTMLHeadElement {
-    __cacheListeners: Map<string, EventListenerOrEventListenerObject[]>;
+    _cacheListeners: Map<string, EventListenerOrEventListenerObject[]>;
   }
   interface HTMLBodyElement {
-    __cacheListeners: Map<string, EventListenerOrEventListenerObject[]>;
+    _cacheListeners: Map<string, EventListenerOrEventListenerObject[]>;
   }
 }
 
