@@ -3,6 +3,9 @@ const path = require("path");
 const http = require("http");
 let server = null;
 type Page = typeof page;
+export function sleep(time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
 
 export function initEnv() {
   server = http.createServer((_req, res) => {

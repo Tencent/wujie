@@ -1,4 +1,4 @@
-import { awaitConsoleLogMessage, triggerClickByJsSelector } from "./utils";
+import { awaitConsoleLogMessage, triggerClickByJsSelector, sleep } from "./utils";
 import { reactMainAppInfoMap, vueMainAppInfoMap } from "./common";
 
 const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainAppInfoMap) => {
@@ -8,6 +8,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await page.click(AppInfoMap.vue2.linkSelector);
     await vue2MountedPromise;
     let vue2HomeTitle = await page.evaluateHandle(AppInfoMap.vue2.titleJsSelector);
+    await sleep(100);
     expect(await vue2HomeTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(241, 107, 95)"
     );
@@ -15,6 +16,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await triggerClickByJsSelector(page, AppInfoMap.vue2.dialogNavSelector);
     await vue2DialogMountedPromise;
     const vue2DialogTitle = await page.evaluateHandle(AppInfoMap.vue2.titleJsSelector);
+    await sleep(100);
     expect(await vue2DialogTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(2, 57, 208)"
     );
@@ -23,6 +25,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await page.click(AppInfoMap.vue3.linkSelector);
     await vue3MountedPromise;
     let vue3HomeTitle = await page.evaluateHandle(AppInfoMap.vue3.titleJsSelector);
+    await sleep(100);
     expect(await vue3HomeTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(241, 107, 95)"
     );
@@ -30,6 +33,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await triggerClickByJsSelector(page, AppInfoMap.vue3.dialogNavSelector);
     await vue3DialogMountedPromise;
     let vue3DialogTitle = await page.evaluateHandle(AppInfoMap.vue3.titleJsSelector);
+    await sleep(100);
     expect(await vue3DialogTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(2, 57, 208)"
     );
@@ -38,6 +42,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await page.click(AppInfoMap.vite.linkSelector);
     await viteMountedPromise;
     let viteHomeTitle = await page.evaluateHandle(AppInfoMap.vite.titleJsSelector);
+    await sleep(100);
     expect(await viteHomeTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(241, 107, 95)"
     );
@@ -45,6 +50,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await triggerClickByJsSelector(page, AppInfoMap.vite.dialogNavSelector);
     await viteDialogMountedPromise;
     let viteDialogTitle = await page.evaluateHandle(AppInfoMap.vite.titleJsSelector);
+    await sleep(100);
     expect(await viteDialogTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(2, 57, 208)"
     );
@@ -53,12 +59,14 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await page.click(AppInfoMap.vue2.linkSelector);
     await vue2HomeMountPromise;
     vue2HomeTitle = await page.evaluateHandle(AppInfoMap.vue2.titleJsSelector);
+    await sleep(100);
     expect(await vue2HomeTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe("rgb(2, 57, 208)");
     // back to vue3
     vue3MountedPromise = awaitConsoleLogMessage(page, AppInfoMap.vue3.mountedMessage);
     await page.click(AppInfoMap.vue3.linkSelector);
     await vue3MountedPromise;
     vue3DialogTitle = await page.evaluateHandle(AppInfoMap.vue3.titleJsSelector);
+    await sleep(100);
     expect(await vue3DialogTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(2, 57, 208)"
     );
@@ -67,6 +75,7 @@ const generateTest = (AppInfoMap: typeof reactMainAppInfoMap | typeof vueMainApp
     await page.click(AppInfoMap.vite.linkSelector);
     await viteMountedPromise;
     viteDialogTitle = await page.evaluateHandle(AppInfoMap.vite.titleJsSelector);
+    await sleep(100);
     expect(await viteDialogTitle.asElement().evaluate((el) => window.getComputedStyle(el).color)).toBe(
       "rgb(2, 57, 208)"
     );

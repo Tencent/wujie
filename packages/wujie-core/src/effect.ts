@@ -46,17 +46,24 @@ function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, 
 }
 
 /**
- * 样式元素的css变量处理
+ * 样式元素的css变量处理，每个stylesheetElement单独节流
  */
-function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement, sandbox: Wujie) {
+function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement & { _patcher?: any }, sandbox: Wujie) {
   if (!stylesheetElement.innerHTML || sandbox.degrade) return;
-  const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements([stylesheetElement.sheet]);
-  if (hostStyleSheetElement) {
-    sandbox.shadowRoot.head.appendChild(hostStyleSheetElement);
+  const patcher = () => {
+    const [hostStyleSheetElement, fontStyleSheetElement] = getPatchStyleElements([stylesheetElement.sheet]);
+    if (hostStyleSheetElement) {
+      sandbox.shadowRoot.head.appendChild(hostStyleSheetElement);
+    }
+    if (fontStyleSheetElement) {
+      sandbox.shadowRoot.host.appendChild(fontStyleSheetElement);
+    }
+    stylesheetElement._patcher = undefined;
+  };
+  if (stylesheetElement._patcher) {
+    clearTimeout(stylesheetElement._patcher);
   }
-  if (fontStyleSheetElement) {
-    sandbox.shadowRoot.host.appendChild(fontStyleSheetElement);
-  }
+  stylesheetElement._patcher = setTimeout(patcher, 50);
 }
 
 /**
@@ -72,6 +79,16 @@ function patchStylesheetElement(
   const innerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
   const innerTextDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "innerText");
   const textContentDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
+  const RawInsertRule = stylesheetElement.sheet?.insertRule;
+  // 这个地方将cssRule加到innerHTML中去，防止子应用切换之后丢失
+  function patchSheetInsertRule() {
+    if (!RawInsertRule) return;
+    stylesheetElement.sheet.insertRule = (rule: string, index?: number): number => {
+      stylesheetElement.innerHTML += rule;
+      return RawInsertRule.call(stylesheetElement.sheet, rule, index);
+    };
+  }
+  patchSheetInsertRule();
   Object.defineProperties(stylesheetElement, {
     innerHTML: {
       get: function () {
@@ -104,10 +121,13 @@ function patchStylesheetElement(
       value: function (node: Node): Node {
         nextTick(() => handleStylesheetElementPatch(this, sandbox));
         if (node.nodeType === Node.TEXT_NODE) {
-          return rawAppendChild.call(
+          const res = rawAppendChild.call(
             stylesheetElement,
             stylesheetElement.ownerDocument.createTextNode(cssLoader(node.textContent, "", curUrl))
           );
+          // 当appendChild之后，样式元素的sheet对象发生改变，要重新patch
+          patchSheetInsertRule();
+          return res;
         } else return rawAppendChild(node);
       },
     },
@@ -183,14 +203,14 @@ function rewriteAppendOrInsertChild(opts: {
           return rawDOMAppendOrInsertBefore.call(this, comment, refChild);
         }
         case "STYLE": {
-          const stylesheetElement: HTMLLinkElement | HTMLStyleElement = newChild as any;
+          const stylesheetElement: HTMLStyleElement = newChild as any;
           styleSheetElements.push(stylesheetElement);
           const content = stylesheetElement.innerHTML;
           const cssLoader = getCssLoader({ plugins, replace });
           content && (stylesheetElement.innerHTML = cssLoader(content, "", curUrl));
-          patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
           const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
           // 处理样式补丁
+          patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
           handleStylesheetElementPatch(stylesheetElement, sandbox);
           return res;
         }
@@ -277,7 +297,7 @@ function rewriteAppendOrInsertChild(opts: {
  */
 function patchEventListener(element: HTMLHeadElement | HTMLBodyElement) {
   const listenerMap = new Map<string, EventListenerOrEventListenerObject[]>();
-  element.__cacheListeners = listenerMap;
+  element._cacheListeners = listenerMap;
 
   element.addEventListener = (
     type: string,
@@ -307,7 +327,7 @@ function patchEventListener(element: HTMLHeadElement | HTMLBodyElement) {
  * 清空head和body的绑定的事件
  */
 export function removeEventListener(element: HTMLHeadElement | HTMLBodyElement) {
-  const listenerMap = element.__cacheListeners;
+  const listenerMap = element._cacheListeners;
   [...listenerMap.entries()].forEach(([type, listeners]) => {
     listeners.forEach((listener) => rawRemoveEventListener.call(element, type, listener));
   });
