@@ -12,7 +12,7 @@ const props = withDefaults(
   }>(),
   {}
 );
-const wujieUrl = ref<string>("https://wujicode.cn/xy/app/prod/official/home");
+const wujieUrl = ref<string>("https://wujicode.cn/xy/app/prod/official/index");
 
 watch(
   () => props.flag,
@@ -37,6 +37,8 @@ loading.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24px" height
 </rect>
 </svg>`;
 
+const attrs = process.env.NODE_ENV === "production" ? { src: "//wujie-micro.github.io/doc" } : {};
+
 function changeWujieUrl(item) {
   wujieUrl.value = item.url;
   emit("update:url", item.url);
@@ -51,6 +53,7 @@ function changeWujieUrl(item) {
         :key="wujieUrl"
         v-if="wujieUrl"
         :name="wujieUrl"
+        :attrs="attrs"
         alive
         :url="wujieUrl"
         :loading="loading"
