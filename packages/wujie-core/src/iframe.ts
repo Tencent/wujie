@@ -520,14 +520,28 @@ function patchDocumentEffect(iframeWindow: Window): void {
 
 /**
  * patch Node effect
+ * 1、处理 getRootNode
+ * 2、处理 appendChild、insertBefore，当插入的节点为 svg 时，createElement 的 patch 会被去除，需要重新 patch
  * @param iframeWindow
  */
 function patchNodeEffect(iframeWindow: Window): void {
   const rawGetRootNode = iframeWindow.Node.prototype.getRootNode;
+  const rawAppendChild = iframeWindow.Node.prototype.appendChild;
+  const RawInsertRule = iframeWindow.Node.prototype.insertBefore;
   iframeWindow.Node.prototype.getRootNode = function (options?: GetRootNodeOptions): Node {
     const rootNode = rawGetRootNode.call(this, options);
     if (rootNode === iframeWindow.__WUJIE.shadowRoot) return iframeWindow.document;
     else return rootNode;
+  };
+  iframeWindow.Node.prototype.appendChild = function <T extends Node>(node: T): T {
+    const res = rawAppendChild.call(this, node);
+    patchElementEffect(node, iframeWindow);
+    return res;
+  };
+  iframeWindow.Node.prototype.insertBefore = function <T extends Node>(node: T, child: Node | null): T {
+    const res = RawInsertRule.call(this, node, child);
+    patchElementEffect(node, iframeWindow);
+    return res;
   };
 }
 
@@ -601,16 +615,23 @@ function stopIframeLoading(iframeWindow: Window, url: string) {
   });
 }
 
-export function patchElementEffect(element: HTMLElement | ShadowRoot, iframeWindow: Window): void {
+export function patchElementEffect(
+  element: (HTMLElement | Node | ShadowRoot) & { _hasPatch?: boolean },
+  iframeWindow: Window
+): void {
   const proxyLocation = iframeWindow.__WUJIE.proxyLocation as Location;
-  Object.defineProperty(element, "baseURI", {
-    configurable: true,
-    get: () => proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname,
-    set: undefined,
-  });
-  Object.defineProperty(element, "ownerDocument", {
-    configurable: true,
-    get: () => iframeWindow.document,
+  if (element._hasPatch) return;
+  Object.defineProperties(element, {
+    baseURI: {
+      configurable: true,
+      get: () => proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname,
+      set: undefined,
+    },
+    ownerDocument: {
+      configurable: true,
+      get: () => iframeWindow.document,
+    },
+    _hasPatch: { get: () => true },
   });
 }
 
