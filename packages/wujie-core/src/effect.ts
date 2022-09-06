@@ -9,7 +9,7 @@ import {
   rawRemoveEventListener,
 } from "./common";
 import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
-import { insertScriptToIframe } from "./iframe";
+import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
@@ -70,12 +70,12 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement & { _p
  * 劫持处理样式元素的属性
  */
 function patchStylesheetElement(
-  stylesheetElement: HTMLStyleElement & { _hasPatch?: boolean },
+  stylesheetElement: HTMLStyleElement & { _hasPatchStyle?: boolean },
   cssLoader: (code: string, url: string, base: string) => string,
   sandbox: Wujie,
   curUrl: string
 ) {
-  if (stylesheetElement._hasPatch) return;
+  if (stylesheetElement._hasPatchStyle) return;
   const innerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
   const innerTextDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "innerText");
   const textContentDesc = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
@@ -131,7 +131,7 @@ function patchStylesheetElement(
         } else return rawAppendChild(node);
       },
     },
-    _hasPatch: { get: () => true },
+    _hasPatchStyle: { get: () => true },
   });
 }
 
@@ -148,11 +148,14 @@ function rewriteAppendOrInsertChild(opts: {
     const { rawDOMAppendOrInsertBefore, wujieId } = opts;
     const sandbox = getWujieById(wujieId);
 
+    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation } = sandbox;
+
     if (!isHijackingTag(element.tagName) || !wujieId) {
-      return rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
+      const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
+      patchElementEffect(element, iframe.contentWindow);
+      return res;
     }
 
-    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation } = sandbox;
     const iframeDocument = iframe.contentDocument;
     const curUrl = getCurUrl(proxyLocation);
 
