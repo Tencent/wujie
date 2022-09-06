@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.14](https://github.com/Tencent/wujie/compare/v1.0.0-rc.13...v1.0.0-rc.14) (2022-09-06)
+
+### Bug Fixes
+
+* 修复使用twind切换应用样式丢失的问题 ([#131](https://github.com/Tencent/wujie/issues/131)) ([71d81b7](https://github.com/Tencent/wujie/commit/71d81b7bdee1d921c0c6d1e6e043462526d477d5)), closes [#116](https://github.com/Tencent/wujie/issues/116)
+
 # [1.0.0-rc.13](https://github.com/Tencent/wujie/compare/v1.0.0-rc.12...v1.0.0-rc.13) (2022-09-02)
 
 ### Features
