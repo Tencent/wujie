@@ -41,7 +41,7 @@ class WujieApp extends HTMLElement {
 
   disconnectedCallback(): void {
     const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
-    sandbox.unmount();
+    sandbox?.unmount();
   }
 }
 
