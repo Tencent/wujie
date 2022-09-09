@@ -188,7 +188,7 @@ export function getCurUrl(proxyLocation: Object): string {
   return location.protocol + "//" + location.host + location.pathname;
 }
 
-export function getAbsolutePath(url: string, base: string, hash): string {
+export function getAbsolutePath(url: string, base: string, hash?: boolean): string {
   try {
     // 为空值无需处理
     if (url) {

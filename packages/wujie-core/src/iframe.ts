@@ -673,7 +673,7 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
 );`;
     }
     // 解决 webpack publicPath 为 auto 无法加载资源的问题
-    Object.defineProperty(scriptElement, "src", { get: () => src });
+    Object.defineProperty(scriptElement, "src", { get: () => src || "" });
     // 非内联脚本
   } else {
     src && scriptElement.setAttribute("src", src);
