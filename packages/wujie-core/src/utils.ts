@@ -164,7 +164,7 @@ export function fixElementCtrSrcOrHref(
   const rawElementSetAttribute = iframeWindow.Element.prototype.setAttribute;
   elementCtr.prototype.setAttribute = function (name: string, value: string): void {
     let targetValue = value;
-    if (name === attr) targetValue = getAbsolutePath(value, this.baseURI || "");
+    if (name === attr) targetValue = getAbsolutePath(value, this.baseURI || "", true);
     rawElementSetAttribute.call(this, name, targetValue);
   };
   // patch href get and set
@@ -177,7 +177,7 @@ export function fixElementCtrSrcOrHref(
       return get.call(this);
     },
     set: function (href) {
-      set.call(this, getAbsolutePath(href, this.baseURI));
+      set.call(this, getAbsolutePath(href, this.baseURI, true));
     },
   });
   // TODO: innerHTML的处理
@@ -188,10 +188,12 @@ export function getCurUrl(proxyLocation: Object): string {
   return location.protocol + "//" + location.host + location.pathname;
 }
 
-export function getAbsolutePath(url: string, base: string): string {
+export function getAbsolutePath(url: string, base: string, hash): string {
   try {
-    // 为空值或者hash值无需处理
-    if (url && !url.startsWith("#")) {
+    // 为空值无需处理
+    if (url) {
+      // 需要处理hash的场景
+      if (hash && url.startsWith("#")) return url;
       return new URL(url, base).href;
     } else return url;
   } catch {
