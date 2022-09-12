@@ -144,7 +144,6 @@ export const appDocumentOnEvents = ["onreadystatechange"];
 export const mainDocumentAddEventListenerEvents = [
   "fullscreenchange",
   "fullscreenerror",
-  "scroll",
   "selectionchange",
   "visibilitychange",
   "wheel",
