@@ -17,19 +17,21 @@ export default class WujieReact extends React.PureComponent {
 
   startAppQueue = Promise.resolve();
 
+  startApp = async () => {
+    try {
+      const props = this.props;
+      const { current: el } = this.state.myRef;
+      this.destroy = await startApp({
+        ...props,
+        el,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   execStartApp = () => {
-    const props = this.props;
-    const { current: el } = this.state.myRef;
-    this.startAppQueue = this.startAppQueue.then(async () => {
-      try {
-        this.destroy = await startApp({
-          ...props,
-          el,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    });
+    this.startAppQueue = this.startAppQueue.then(this.startApp);
   };
 
   render() {

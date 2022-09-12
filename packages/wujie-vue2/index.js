@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
+import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp } from "wujie";
 
 const wujieVueOptions = {
   name: "WujieVue",
@@ -47,7 +47,8 @@ const wujieVueOptions = {
     },
     async startApp() {
       try {
-        await startApp({
+        // $props 是vue 2.2版本才有的属性，所以这里直接全部写一遍
+        await rawStartApp({
           name: this.name,
           url: this.url,
           el: this.$refs.wujie,
