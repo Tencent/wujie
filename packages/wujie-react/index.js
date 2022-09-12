@@ -3,7 +3,45 @@ import PropTypes from "prop-types";
 import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
 
 export default class WujieReact extends React.PureComponent {
-  static propTypes = {
+  static propTypes = propTypes;
+  static bus = bus;
+  static setupApp = setupApp;
+  static preloadApp = preloadApp;
+  static destroyApp = destroyApp;
+
+  state = {
+    myRef: React.createRef(),
+  };
+
+  destroy = null;
+
+  startAppQueue = Promise.resolve();
+
+  execStartApp = () => {
+    const props = this.props;
+    const { current: el } = this.state.myRef;
+    this.startAppQueue = this.startAppQueue.then(async () => {
+      try {
+        this.destroy = await startApp({
+          ...props,
+          el,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  };
+
+  render() {
+    this.execStartApp();
+
+    const { width, height } = this.props;
+    const { myRef: ref } = this.state;
+    return <div style={{ width, height }} ref={ref} />;
+  }
+}
+
+const propTypes = {
     height: PropTypes.string,
     width: PropTypes.string,
     name: PropTypes.string,
@@ -27,84 +65,4 @@ export default class WujieReact extends React.PureComponent {
     activated: PropTypes.func,
     deactivated: PropTypes.func,
     loadError: PropTypes.func,
-  };
-  static bus = bus;
-  static setupApp = setupApp;
-  static preloadApp = preloadApp;
-  static destroyApp = destroyApp;
-
-  state = {
-    myRef: React.createRef(),
-  };
-
-  destroy = null;
-
-  startAppQueue = Promise.resolve();
-
-  execStartApp = () => {
-    const {
-      name,
-      url,
-      loading,
-      alive,
-      fetch,
-      props,
-      attrs,
-      replace,
-      sync,
-      prefix,
-      fiber,
-      degrade,
-      plugins,
-      beforeLoad,
-      beforeMount,
-      afterMount,
-      beforeUnmount,
-      afterUnmount,
-      activated,
-      deactivated,
-      loadError,
-    } = this.props;
-    this.startAppQueue = this.startAppQueue.then(async () => {
-      try {
-        this.destroy = await startApp({
-          name,
-          url,
-          el: this.state.myRef.current,
-          loading,
-          alive,
-          fetch,
-          props,
-          attrs,
-          replace,
-          sync,
-          prefix,
-          fiber,
-          degrade,
-          plugins,
-          beforeLoad,
-          beforeMount,
-          afterMount,
-          beforeUnmount,
-          afterUnmount,
-          activated,
-          deactivated,
-          loadError,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    });
-  };
-
-  render() {
-    this.execStartApp();
-    return React.createElement("div", {
-      style: {
-        width: this.props.width,
-        height: this.props.height,
-      },
-      ref: this.state.myRef,
-    });
   }
-}
