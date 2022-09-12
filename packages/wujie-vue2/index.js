@@ -30,7 +30,6 @@ const wujieVueOptions = {
   },
   data() {
     return {
-      destroy: null,
       startAppQueue: Promise.resolve(),
     };
   },
@@ -46,37 +45,41 @@ const wujieVueOptions = {
     handleEmit(event, ...args) {
       this.$emit(event, ...args);
     },
+    async startApp() {
+      try {
+        await startApp({
+          name: this.name,
+          url: this.url,
+          el: this.$refs.wujie,
+          loading: this.loading,
+          alive: this.alive,
+          fetch: this.fetch,
+          props: this.props,
+          attrs: this.attrs,
+          replace: this.replace,
+          sync: this.sync,
+          prefix: this.prefix,
+          fiber: this.fiber,
+          degrade: this.degrade,
+          plugins: this.plugins,
+          beforeLoad: this.beforeLoad,
+          beforeMount: this.beforeMount,
+          afterMount: this.afterMount,
+          beforeUnmount: this.beforeUnmount,
+          afterUnmount: this.afterUnmount,
+          activated: this.activated,
+          deactivated: this.deactivated,
+          loadError: this.loadError,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     execStartApp() {
-      this.startAppQueue = this.startAppQueue.then(async () => {
-        try {
-          this.destroy = await startApp({
-            name: this.name,
-            url: this.url,
-            el: this.$refs.wujie,
-            loading: this.loading,
-            alive: this.alive,
-            fetch: this.fetch,
-            props: this.props,
-            attrs: this.attrs,
-            replace: this.replace,
-            sync: this.sync,
-            prefix: this.prefix,
-            fiber: this.fiber,
-            degrade: this.degrade,
-            plugins: this.plugins,
-            beforeLoad: this.beforeLoad,
-            beforeMount: this.beforeMount,
-            afterMount: this.afterMount,
-            beforeUnmount: this.beforeUnmount,
-            afterUnmount: this.afterUnmount,
-            activated: this.activated,
-            deactivated: this.deactivated,
-            loadError: this.loadError,
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      });
+      this.startAppQueue = this.startAppQueue.then(this.startApp);
+    },
+    destroy() {
+      destroyApp(this.name);
     },
   },
   beforeDestroy() {
