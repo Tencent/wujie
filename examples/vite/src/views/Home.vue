@@ -10,7 +10,7 @@
         <el-tag style="vertical-align: text-top" size="small">3.2.26</el-tag>
       </p>
       <p>
-        当前element版本
+        当前element-plus版本
         <el-tag style="vertical-align: text-top" size="small">2.2.6</el-tag>
       </p>
       <p>

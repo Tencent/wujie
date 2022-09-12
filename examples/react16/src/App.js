@@ -26,7 +26,7 @@ const Home = () => (
     <p>
       当前antd版本{" "}
       <Tag style={{ verticalAlign: "text-top" }} color="geekblue">
-        3.26.19
+        4.18.3
       </Tag>
     </p>
     <p>

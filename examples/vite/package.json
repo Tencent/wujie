@@ -7,9 +7,9 @@
     "build": "vue-tsc --noEmit && vite build"
   },
   "dependencies": {
-    "ant-design-vue": "^2.2.8",
+    "ant-design-vue": "2.2.8",
     "core-js": "^3.6.5",
-    "element-plus": "^2.2.6",
+    "element-plus": "2.2.6",
     "vue": "^3.2.25",
     "vue-router": "^4.0.0-0"
   },
