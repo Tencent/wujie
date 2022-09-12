@@ -1,6 +1,6 @@
 {
   "name": "react17",
-  "version": "1.0.0-rc.13",
+  "version": "1.0.0-rc.16",
   "private": true,
   "dependencies": {
     "@babel/core": "7.12.3",

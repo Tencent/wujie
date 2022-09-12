@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
+
+### Bug Fixes
+
+* 修复 destroy 丢失 this 上下文的问题 ([#128](https://github.com/Tencent/wujie/issues/128)) ([c4c42a3](https://github.com/Tencent/wujie/commit/c4c42a30cdd99dac2a1a405b3c3f85e0e30844be)), closes [#138](https://github.com/Tencent/wujie/issues/138) [#139](https://github.com/Tencent/wujie/issues/139)
+
 # [1.0.0-rc.15](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.15) (2022-09-09)
 
 **Note:** Version bump only for package wujie-vue2

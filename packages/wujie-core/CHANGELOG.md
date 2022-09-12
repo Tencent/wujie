@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
+
+### Bug Fixes
+
+* 修复绝对路径对hash路由的影响 ([#140](https://github.com/Tencent/wujie/issues/140)) ([cb62f2f](https://github.com/Tencent/wujie/commit/cb62f2f7bb733f6d4bfc2c7d5e4b1b8f8a58e78b)), closes [#136](https://github.com/Tencent/wujie/issues/136)
+* 修复react16 scroll合成事件无法触发问题 ([#144](https://github.com/Tencent/wujie/issues/144)) ([454606c](https://github.com/Tencent/wujie/commit/454606c053777a2519e4016942cdd5c5ab7240bb))
+* 修正 destroy 后 unmount 报错 ([#129](https://github.com/Tencent/wujie/issues/129)) ([7c31393](https://github.com/Tencent/wujie/commit/7c31393550877a8d5ac02126db37708dc7de9e2c))
+
 # [1.0.0-rc.15](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.15) (2022-09-09)
 
 ### Bug Fixes
