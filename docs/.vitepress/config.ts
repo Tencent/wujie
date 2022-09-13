@@ -22,14 +22,14 @@ export default defineConfig({
   vue: {
     reactivityTransform: true,
   },
-
+  lastUpdated: true,
   themeConfig: {
     logo: "/wujie.svg",
     editLink: {
       pattern: "https://github.com/Tencent/wujie/tree/master/docs/:path",
       text: "编辑本页",
     },
-
+    lastUpdatedText: "最近更新时间",
     socialLinks: [{ icon: "github", link: "https://github.com/Tencent/wujie" }],
     // algolia: {
     //   appId: "",
@@ -91,6 +91,10 @@ export default defineConfig({
             {
               text: "快速上手",
               link: "/guide/start",
+            },
+            {
+              text: "定制Demo",
+              link: "/guide/demo",
             },
           ],
         },
