@@ -92,6 +92,10 @@ export default defineConfig({
               text: "快速上手",
               link: "/guide/start",
             },
+            {
+              text: "定制Demo",
+              link: "/guide/demo",
+            },
           ],
         },
         {
