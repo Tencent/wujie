@@ -30,7 +30,6 @@ const wujieVueOptions = {
   },
   data() {
     return {
-      destroy: null,
       startAppQueue: Promise.resolve(),
     };
   },
