@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "start": "lerna run start --parallel",
-    "doc": "lerna run docs:dev",
+    "doc": "pnpm run build && lerna run docs:dev",
     "clean": "rimraf node_modules **/*/node_modules",
+    "build": "lerna run --stream --sort build:core",
     "test": "lerna run test --scope wujie",
     "commitlint": "commitlint -E COMMIT_EDITMSG_PATH",
     "husky-commitlint": "commitlint -e",
