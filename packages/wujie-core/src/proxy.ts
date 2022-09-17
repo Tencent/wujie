@@ -162,6 +162,13 @@ export function proxyGenerator(
           warn(WUJIE_TIPS_RELOAD_DISABLED);
           return () => null;
         }
+        if (propKey === "replace") {
+          return new Proxy(location[propKey], {
+            apply(replace, _ctx, args) {
+              return replace.call(location, args[0]?.replace(appHostPath, mainHostPath));
+            },
+          });
+        }
         return getTargetValue(location, propKey);
       },
       set: function (_fakeLocation, propKey, value) {
