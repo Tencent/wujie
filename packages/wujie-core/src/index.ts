@@ -260,7 +260,8 @@ export function preloadApp(preOptions: preOptions): void {
     const cacheOptions = getOptionsById(preOptions.name);
     // 合并缓存配置
     const options = mergeOptions({ ...preOptions }, cacheOptions);
-    const { name, url, props, alive, replace, exec, attrs, fiber, degrade, plugins, lifecycles } = options;
+    const { name, url, props, alive, replace, fetch, exec, attrs, fiber, degrade, prefix, plugins, lifecycles } =
+      options;
 
     const sandbox = new WuJie({ name, url, attrs, fiber, degrade, plugins, lifecycles });
     if (sandbox.preload) return sandbox.preload;
@@ -272,7 +273,7 @@ export function preloadApp(preOptions: preOptions): void {
         loadError: sandbox.lifecycles.loadError,
       });
       const processedHtml = await processCssLoader(sandbox, template, getExternalStyleSheets);
-      await sandbox.active({ url, props, alive, template: processedHtml, fetch, replace });
+      await sandbox.active({ url, props, prefix, alive, template: processedHtml, fetch, replace });
       if (exec) {
         await sandbox.start(getExternalScripts);
       }
