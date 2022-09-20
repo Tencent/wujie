@@ -17,7 +17,8 @@ import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
 如果主应用是`vue`框架可直接使用 [wujie-vue](/pack/)，`react`框架可直接使用 [wujie-react](/pack/react.html)
 :::
 
-### 创建主应用
+### 设置子应用
+非必须，由于`preloadApp`和`startApp`参数重复，为了避免重复输入，可以通过`setupApp`来设置默认参数。
 
 ```javascript
 setupApp({{ name: "唯一id", url: "子应用地址", exec: true, el: "容器", sync: true }})
