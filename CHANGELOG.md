@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.17](https://github.com/Tencent/wujie/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2022-09-20)
+
+### Bug Fixes
+
+* 解决 data 与 methods 存在相同属性导致 vue 警告 ([#147](https://github.com/Tencent/wujie/issues/147)) ([bf37422](https://github.com/Tencent/wujie/commit/bf37422e939acc0425eeb0860954431efd564c57))
+* 修复preload 没有使用自定义fetch ([#160](https://github.com/Tencent/wujie/issues/160)) ([136a41c](https://github.com/Tencent/wujie/commit/136a41cf944a8434a2f75ffca1a207bb34d1dddc))
+* 修复react hash 模式下异常 ([#155](https://github.com/Tencent/wujie/issues/155)) ([085687c](https://github.com/Tencent/wujie/commit/085687c954f14a908ca07abcc9549308716d99b0)), closes [#151](https://github.com/Tencent/wujie/issues/151)
+
+### Features
+
+* **docs:** add Customized demo cli ([#148](https://github.com/Tencent/wujie/issues/148)) ([6878f24](https://github.com/Tencent/wujie/commit/6878f24f5bcf771bff4173e2ea0f6b7d867b2eb4))
+
 # [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
 
 ### Bug Fixes

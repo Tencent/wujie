@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.17](https://github.com/Tencent/wujie/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2022-09-20)
+
+### Bug Fixes
+
+* 解决 data 与 methods 存在相同属性导致 vue 警告 ([#147](https://github.com/Tencent/wujie/issues/147)) ([bf37422](https://github.com/Tencent/wujie/commit/bf37422e939acc0425eeb0860954431efd564c57))
+
 # [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
 
 **Note:** Version bump only for package wujie-vue3

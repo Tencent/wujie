@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.17](https://github.com/Tencent/wujie/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2022-09-20)
+
+### Bug Fixes
+
+* 修复preload 没有使用自定义fetch ([#160](https://github.com/Tencent/wujie/issues/160)) ([136a41c](https://github.com/Tencent/wujie/commit/136a41cf944a8434a2f75ffca1a207bb34d1dddc))
+* 修复react hash 模式下异常 ([#155](https://github.com/Tencent/wujie/issues/155)) ([085687c](https://github.com/Tencent/wujie/commit/085687c954f14a908ca07abcc9549308716d99b0)), closes [#151](https://github.com/Tencent/wujie/issues/151)
+
 # [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
 
 ### Bug Fixes

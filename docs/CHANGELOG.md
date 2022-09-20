@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.17](https://github.com/Tencent/wujie/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2022-09-20)
+
+### Features
+
+* **docs:** add Customized demo cli ([#148](https://github.com/Tencent/wujie/issues/148)) ([6878f24](https://github.com/Tencent/wujie/commit/6878f24f5bcf771bff4173e2ea0f6b7d867b2eb4))
+
 # [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
 
 **Note:** Version bump only for package wujie-docs
