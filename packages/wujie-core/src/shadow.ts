@@ -103,7 +103,8 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
         styleElement.setAttribute("type", "text/css");
         styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src, curUrl) : content));
         const head = html.querySelector("head");
-        head?.insertBefore(styleElement, html.querySelector("head")?.firstChild);
+        const body = html.querySelector("body");
+        html.insertBefore(styleElement, head || body || html.firstChild);
       });
     }),
     Promise.all(
