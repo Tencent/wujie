@@ -163,7 +163,10 @@ function rewriteAppendOrInsertChild(opts: {
     if (element.tagName) {
       switch (element.tagName?.toUpperCase()) {
         case "LINK": {
-          const { href } = element as HTMLLinkElement;
+          const { href, rel, type } = element as HTMLLinkElement;
+          const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
+          // 非 stylesheet 不做处理
+          if (!styleFlag) return rawDOMAppendOrInsertBefore.call(this, element, refChild);
           // 排除css
           if (href && !isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
             getExternalStyleSheets(
