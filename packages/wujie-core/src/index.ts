@@ -101,6 +101,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
           fetch: fetch || window.fetch,
           plugins: sandbox.plugins,
           loadError: sandbox.lifecycles.loadError,
+          fiber,
         });
         await sandbox.start(getExternalScripts);
       }
@@ -134,6 +135,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
     fetch: fetch || window.fetch,
     plugins: newSandbox.plugins,
     loadError: newSandbox.lifecycles.loadError,
+    fiber,
   });
 
   const processedHtml = await processCssLoader(newSandbox, template, getExternalStyleSheets);
@@ -166,6 +168,7 @@ export function preloadApp(preOptions: preOptions): void {
         fetch: fetch || window.fetch,
         plugins: sandbox.plugins,
         loadError: sandbox.lifecycles.loadError,
+        fiber,
       });
       const processedHtml = await processCssLoader(sandbox, template, getExternalStyleSheets);
       await sandbox.active({ url, props, prefix, alive, template: processedHtml, fetch, replace });
