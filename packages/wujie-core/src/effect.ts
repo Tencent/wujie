@@ -148,7 +148,7 @@ function rewriteAppendOrInsertChild(opts: {
     const { rawDOMAppendOrInsertBefore, wujieId } = opts;
     const sandbox = getWujieById(wujieId);
 
-    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation } = sandbox;
+    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation, fiber } = sandbox;
 
     if (!isHijackingTag(element.tagName) || !wujieId) {
       const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
@@ -238,13 +238,13 @@ function rewriteAppendOrInsertChild(opts: {
               crossoriginType: crossOrigin || "",
               ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
             } as ScriptObject;
-            getExternalScripts([scriptOptions], fetch, lifecycles.loadError).forEach((scriptResult) =>
+            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) =>
               scriptResult.contentPromise.then(
                 (content) => {
                   if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
                   const execQueueLength = sandbox.execQueue?.length;
                   sandbox.execQueue.push(() =>
-                    sandbox.fiber
+                    fiber
                       ? requestIdleCallback(() => {
                           execScript({ ...scriptResult, content });
                         })
@@ -262,9 +262,11 @@ function rewriteAppendOrInsertChild(opts: {
           } else {
             const execQueueLength = sandbox.execQueue?.length;
             sandbox.execQueue.push(() =>
-              requestIdleCallback(() => {
-                insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow);
-              })
+              fiber
+                ? requestIdleCallback(() => {
+                    insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow);
+                  })
+                : insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow)
             );
             if (!execQueueLength) sandbox.execQueue.shift()();
           }
