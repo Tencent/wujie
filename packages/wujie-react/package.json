@@ -30,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "prop-types": "^15.8.1",
-    "wujie": "^1.0.0-rc.17"
+    "wujie": "workspace:^1.0.0-rc.17"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",

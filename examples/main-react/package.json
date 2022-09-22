@@ -59,7 +59,7 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "wujie-react": "^1.0.0-rc.17"
+    "wujie-react": "workspace:^1.0.0-rc.17"
   },
   "scripts": {
     "start": "node scripts/start.js",
