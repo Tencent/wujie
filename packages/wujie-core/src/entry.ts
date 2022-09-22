@@ -26,6 +26,7 @@ interface htmlParseResult {
 
 type ImportEntryOpts = {
   fetch?: typeof window.fetch;
+  fiber?: boolean;
   plugins?: Array<plugin>;
   loadError?: loadErrorHandler;
 };
@@ -161,7 +162,8 @@ export function getExternalStyleSheets(
 export function getExternalScripts(
   scripts: ScriptObject[],
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> = defaultFetch,
-  loadError: loadErrorHandler
+  loadError: loadErrorHandler,
+  fiber: boolean
 ): ScriptResultList {
   // module should be requested in iframe
   return scripts.map((script) => {
@@ -170,7 +172,9 @@ export function getExternalScripts(
     // async
     if ((async || defer) && src && !module) {
       contentPromise = new Promise((resolve, reject) =>
-        requestIdleCallback(() => fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject))
+        fiber
+          ? requestIdleCallback(() => fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject))
+          : fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject)
       );
       // module || ignore
     } else if ((module && src) || ignore) {
@@ -188,6 +192,7 @@ export function getExternalScripts(
 
 export default function importHTML(url: string, opts?: ImportEntryOpts): Promise<htmlParseResult> {
   const fetch = opts.fetch ?? defaultFetch;
+  const fiber = opts.fiber ?? true;
   const { plugins, loadError } = opts;
   const htmlLoader = plugins ? compose(plugins.map((plugin) => plugin.htmlLoader)) : defaultGetTemplate;
   const jsExcludes = getEffectLoaders("jsExcludes", plugins);
@@ -217,7 +222,8 @@ export default function importHTML(url: string, opts?: ImportEntryOpts): Promise
                 .filter((script) => !script.src || !isMatchUrl(script.src, jsExcludes))
                 .map((script) => ({ ...script, ignore: script.src && isMatchUrl(script.src, jsIgnores) })),
               fetch,
-              loadError
+              loadError,
+              fiber
             ),
           getExternalStyleSheets: () =>
             getExternalStyleSheets(
