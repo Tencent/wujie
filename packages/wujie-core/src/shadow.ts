@@ -8,7 +8,7 @@ import {
   WUJIE_LOADING_STYLE,
   WUJIE_LOADING_SVG,
 } from "./constant";
-import { rawElementAppendChild, rawElementRemoveChild, relativeElementTagAttrMap } from "./common";
+import { rawAppendChild, rawElementAppendChild, rawElementRemoveChild, relativeElementTagAttrMap } from "./common";
 import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
@@ -160,14 +160,14 @@ function replaceHeadAndBody(html: HTMLHtmlElement, head: HTMLHeadElement, body: 
   const bodyElement = html.querySelector("body");
   if (headElement) {
     while (headElement.firstChild) {
-      head.appendChild(headElement.firstChild.cloneNode(true));
+      rawAppendChild.call(head, headElement.firstChild.cloneNode(true));
       headElement.removeChild(headElement.firstChild);
     }
     headElement.parentNode.replaceChild(head, headElement);
   }
   if (bodyElement) {
     while (bodyElement.firstChild) {
-      body.appendChild(bodyElement.firstChild.cloneNode(true));
+      rawAppendChild.call(body, bodyElement.firstChild.cloneNode(true));
       bodyElement.removeChild(bodyElement.firstChild);
     }
     bodyElement.parentNode.replaceChild(body, bodyElement);

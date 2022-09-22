@@ -30,7 +30,7 @@ import {
   rawRemoveEventListener,
 } from "./common";
 import { getJsLoader } from "./plugin";
-import { WUJIE_TIPS_EMPTY_CALLBACK, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
+import { WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
 import { ScriptObjectLoader } from "./types";
 
 declare global {
@@ -53,8 +53,6 @@ declare global {
     __WUJIE_UNMOUNT: () => void;
     // document type
     Document: typeof Document;
-    HTMLHeadElement: typeof HTMLHeadElement;
-    HTMLBodyElement: typeof HTMLBodyElement;
     // img type
     HTMLImageElement: typeof HTMLImageElement;
     // node type
@@ -437,8 +435,6 @@ function patchDocumentEffect(iframeWindow: Window): void {
         return;
       }
       sandbox.shadowRoot.removeEventListener(type, callback, options);
-    } else {
-      warn(WUJIE_TIPS_EMPTY_CALLBACK);
     }
   };
   // 处理onEvent
