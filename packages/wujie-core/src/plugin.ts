@@ -1,5 +1,4 @@
-import { plugin, ScriptObjectLoader } from "./index";
-import { StyleObject } from "./template";
+import { plugin, ScriptObjectLoader, StyleObject } from "./types";
 import { compose, getAbsolutePath } from "./utils";
 
 interface loaderOption {

@@ -1,13 +1,5 @@
 import { getExternalStyleSheets, getExternalScripts } from "./entry";
-import {
-  getWujieById,
-  rawAppendChild,
-  rawHeadInsertBefore,
-  rawBodyInsertBefore,
-  rawDocumentQuerySelector,
-  rawAddEventListener,
-  rawRemoveEventListener,
-} from "./common";
+import { getWujieById } from "./cache";
 import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
 import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
@@ -15,6 +7,14 @@ import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
 import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
 import { ScriptObject } from "./template";
+import {
+  rawAddEventListener,
+  rawAppendChild,
+  rawBodyInsertBefore,
+  rawDocumentQuerySelector,
+  rawHeadInsertBefore,
+  rawRemoveEventListener,
+} from "./common";
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -35,7 +35,7 @@ function patchCustomEvent(
 /**
  * 手动触发事件回调
  */
-function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, event: string): void {
+export function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, event: string): void {
   const customEvent = new CustomEvent(event);
   const patchedEvent = patchCustomEvent(customEvent, () => element);
   if (isFunction(element[`on${event}`])) {
@@ -84,21 +84,27 @@ function patchStylesheetElement(
   function patchSheetInsertRule() {
     if (!RawInsertRule) return;
     stylesheetElement.sheet.insertRule = (rule: string, index?: number): number => {
-      stylesheetElement.innerHTML += rule;
+      innerHTMLDesc ? (stylesheetElement.innerHTML += rule) : (stylesheetElement.innerText += rule);
       return RawInsertRule.call(stylesheetElement.sheet, rule, index);
     };
   }
   patchSheetInsertRule();
+
+  if (innerHTMLDesc) {
+    Object.defineProperties(stylesheetElement, {
+      innerHTML: {
+        get: function () {
+          return innerHTMLDesc.get.call(stylesheetElement);
+        },
+        set: function (code: string) {
+          innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+          nextTick(() => handleStylesheetElementPatch(this, sandbox));
+        },
+      },
+    });
+  }
+
   Object.defineProperties(stylesheetElement, {
-    innerHTML: {
-      get: function () {
-        return innerHTMLDesc.get.call(stylesheetElement);
-      },
-      set: function (code: string) {
-        innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
-        nextTick(() => handleStylesheetElementPatch(this, sandbox));
-      },
-    },
     innerText: {
       get: function () {
         return innerTextDesc.get.call(stylesheetElement);
@@ -156,7 +162,7 @@ function rewriteAppendOrInsertChild(opts: {
       return res;
     }
 
-    const iframeDocument = iframe.contentDocument;
+    const iframeDocument = iframe.contentWindow.document;
     const curUrl = getCurUrl(proxyLocation);
 
     // TODO 过滤可以开放
@@ -211,8 +217,8 @@ function rewriteAppendOrInsertChild(opts: {
         case "STYLE": {
           const stylesheetElement: HTMLStyleElement = newChild as any;
           styleSheetElements.push(stylesheetElement);
-          const content = stylesheetElement.innerHTML;
           const cssLoader = getCssLoader({ plugins, replace });
+          const content = stylesheetElement.innerHTML;
           content && (stylesheetElement.innerHTML = cssLoader(content, "", curUrl));
           const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
           // 处理样式补丁
@@ -285,7 +291,10 @@ function rewriteAppendOrInsertChild(opts: {
               const patchScript = (element as HTMLIFrameElement).contentWindow.document.createElement("script");
               patchScript.type = "text/javascript";
               patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
-              element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);
+              element.contentWindow.document.head.insertBefore(
+                patchScript,
+                element.contentWindow.document.head.firstChild
+              );
             }
           } catch (e) {
             error(e);
@@ -353,17 +362,17 @@ export function patchRenderEffect(render: ShadowRoot | Document, id: string, deg
   render.head.appendChild = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawAppendChild,
     wujieId: id,
-  }) as typeof rawAppendChild;
+  });
   render.head.insertBefore = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawHeadInsertBefore as any,
     wujieId: id,
-  }) as typeof rawHeadInsertBefore;
+  });
   render.body.appendChild = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawAppendChild,
     wujieId: id,
-  }) as typeof rawAppendChild;
+  });
   render.body.insertBefore = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawBodyInsertBefore as any,
     wujieId: id,
-  }) as typeof rawBodyInsertBefore;
+  });
 }

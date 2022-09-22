@@ -1,5 +1,6 @@
 import { WUJIE_TIPS_NO_URL, WUJIE_DATA_ID } from "./constant";
-import { plugin, cacheOptions } from "./index";
+import { plugin } from "./types";
+import { cacheOptions } from "./cache";
 
 export function toArray<T>(array: T | T[]): T[] {
   return Array.isArray(array) ? array : [array];
@@ -118,13 +119,15 @@ export function appRouteParse(url: string): {
   }
   const urlElement = anchorElementGenerator(url);
   const appHostPath = urlElement.protocol + "//" + urlElement.host;
-  const appRoutePath = urlElement.pathname + urlElement.search + urlElement.hash;
+  let appRoutePath = urlElement.pathname + urlElement.search + urlElement.hash;
+  if (!appRoutePath.startsWith("/")) appRoutePath = "/" + appRoutePath; // fuck ie
   return { urlElement, appHostPath, appRoutePath };
 }
 
 export function anchorElementGenerator(url: string): HTMLAnchorElement {
   const element = window.document.createElement("a");
   element.href = url;
+  element.href = element.href; // fuck ie
   return element;
 }
 

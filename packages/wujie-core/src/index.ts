@@ -1,114 +1,22 @@
 import importHTML, { processCssLoader } from "./entry";
-import { StyleObject } from "./template";
-import WuJie, { lifecycle } from "./sandbox";
+import WuJie from "./sandbox";
 import { defineWujieWebComponent, addLoading } from "./shadow";
 import { processAppForHrefJump } from "./sync";
 import { getPlugins } from "./plugin";
 import { wujieSupport, mergeOptions, isFunction, requestIdleCallback, isMatchSyncQueryById, warn } from "./utils";
-import { getWujieById, getOptionsById, addSandboxCacheWithOptions } from "./common";
+import { getWujieById, getOptionsById, addSandboxCacheWithOptions, cacheOptions } from "./cache";
 import { EventBus } from "./event";
 import { WUJIE_TIPS_STOP_APP, WUJIE_TIPS_NOT_SUPPORTED } from "./constant";
+import { baseOptions } from "./types";
 
 export const bus = new EventBus(Date.now().toString());
 
-export interface ScriptObjectLoader {
-  /** 脚本地址，内联为空 */
-  src?: string;
-  /** 脚本是否为module模块 */
-  module?: boolean;
-  /** 脚本是否设置crossorigin */
-  crossorigin?: boolean;
-  /** 脚本crossorigin的类型 */
-  crossoriginType?: "anonymous" | "use-credentials" | "";
-  /** 内联script的代码 */
-  content?: string;
-  /** 执行回调钩子 */
-  callback?: (appWindow: Window) => any;
-}
-export interface plugin {
-  /** 处理html的loader */
-  htmlLoader?: (code: string) => string;
-  /** js排除列表 */
-  jsExcludes?: Array<string | RegExp>;
-  /** js忽略列表 */
-  jsIgnores?: Array<string | RegExp>;
-  /** 处理js加载前的loader */
-  jsBeforeLoaders?: Array<ScriptObjectLoader>;
-  /** 处理js的loader */
-  jsLoader?: (code: string, url: string, base: string) => string;
-  /** 处理js加载后的loader */
-  jsAfterLoaders?: Array<ScriptObjectLoader>;
-  /** css排除列表 */
-  cssExcludes?: Array<string | RegExp>;
-  /** css忽略列表 */
-  cssIgnores?: Array<string | RegExp>;
-  /** 处理css加载前的loader */
-  cssBeforeLoaders?: Array<StyleObject>;
-  /** 处理css的loader */
-  cssLoader?: (code: string, url: string, base: string) => string;
-  /** 处理css加载后的loader */
-  cssAfterLoaders?: Array<StyleObject>;
-  /** 子应用 window addEventListener 钩子回调 */
-  windowAddEventListenerHook?: eventListenerHook;
-  /** 子应用 window removeEventListener 钩子回调 */
-  windowRemoveEventListenerHook?: eventListenerHook;
-  /** 子应用 document addEventListener 钩子回调 */
-  documentAddEventListenerHook?: eventListenerHook;
-  /** 子应用 document removeEventListener 钩子回调 */
-  documentRemoveEventListenerHook?: eventListenerHook;
-  /** 用户自定义覆盖子应用 window 属性 */
-  windowPropertyOverride?: (iframeWindow: Window) => void;
-  /** 用户自定义覆盖子应用 document 属性 */
-  documentPropertyOverride?: (iframeWindow: Window) => void;
-}
-
-type eventListenerHook = (
-  iframeWindow: Window,
-  type: string,
-  handler: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
-) => void;
-
-export type loadErrorHandler = (url: string, e: Error) => any;
-
-type baseOptions = {
-  /** 唯一性用户必须保证 */
-  name: string;
-  /** 需要渲染的url */
-  url: string;
-  /** 代码替换钩子 */
-  replace?: (code: string) => string;
-  /** 自定义fetch */
-  fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
-  /** 注入给子应用的属性 */
-  props?: { [key: string]: any };
-  /** 自定义iframe属性 */
-  attrs?: { [key: string]: any };
-  /** 子应用采用fiber模式执行 */
-  fiber?: boolean;
-  /** 子应用保活，state不会丢失 */
-  alive?: boolean;
-  /** 子应用采用降级iframe方案 */
-  degrade?: boolean;
-  /** 子应用插件 */
-  plugins?: Array<plugin>;
-  /** 子应用生命周期 */
-  beforeLoad?: lifecycle;
-  beforeMount?: lifecycle;
-  afterMount?: lifecycle;
-  beforeUnmount?: lifecycle;
-  afterUnmount?: lifecycle;
-  activated?: lifecycle;
-  deactivated?: lifecycle;
-  loadError?: loadErrorHandler;
-};
-
-export type preOptions = baseOptions & {
+type preOptions = baseOptions & {
   /** 预执行 */
   exec?: boolean;
 };
 
-export type startOptions = baseOptions & {
+type startOptions = baseOptions & {
   /** 渲染的容器 */
   el: HTMLElement | string;
   /**
@@ -116,19 +24,6 @@ export type startOptions = baseOptions & {
    * 如果false，子应用跳转主应用路由无变化，但是主应用的history还是会增加
    * https://html.spec.whatwg.org/multipage/history.html#the-history-interface
    */
-  sync?: boolean;
-  /** 子应用短路径替换，路由同步时生效 */
-  prefix?: { [key: string]: string };
-  /** 子应用加载时loading元素 */
-  loading?: HTMLElement;
-};
-
-export type cacheOptions = baseOptions & {
-  /** 预执行 */
-  exec?: boolean;
-  /** 渲染的容器 */
-  el?: HTMLElement | string;
-  /** 路由同步开关 */
   sync?: boolean;
   /** 子应用短路径替换，路由同步时生效 */
   prefix?: { [key: string]: string };
@@ -233,7 +128,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
 
   // 设置loading
   addLoading(el, loading);
-  const newSandbox = new WuJie({ name, url, attrs, fiber, degrade, plugins, lifecycles });
+  const newSandbox = await WuJie.build({ name, url, attrs, fiber, degrade, plugins, lifecycles });
   newSandbox.lifecycles?.beforeLoad?.(newSandbox.iframe.contentWindow);
   const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {
     fetch: fetch || window.fetch,
@@ -251,7 +146,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
  * 预加载无界APP
  */
 export function preloadApp(preOptions: preOptions): void {
-  requestIdleCallback((): void | Promise<void> => {
+  requestIdleCallback(async () => {
     /**
      * 已经存在
      * url查询参数中有子应用的id，大概率是刷新浏览器或者分享url，此时需要直接打开子应用，无需预加载
@@ -263,7 +158,7 @@ export function preloadApp(preOptions: preOptions): void {
     const { name, url, props, alive, replace, fetch, exec, attrs, fiber, degrade, prefix, plugins, lifecycles } =
       options;
 
-    const sandbox = new WuJie({ name, url, attrs, fiber, degrade, plugins, lifecycles });
+    const sandbox = await WuJie.build({ name, url, attrs, fiber, degrade, plugins, lifecycles });
     if (sandbox.preload) return sandbox.preload;
     const runPreload = async () => {
       sandbox.lifecycles?.beforeLoad?.(sandbox.iframe.contentWindow);

@@ -1,7 +1,8 @@
 import { anchorElementGenerator, getAnchorElementQueryMap, getSyncUrl, appRouteParse, getDegradeIframe } from "./utils";
 import { renderIframeReplaceApp, patchEventTimeStamp } from "./iframe";
-import { renderElementToContainer, createIframeContainer, clearChild } from "./shadow";
-import { getWujieById, rawDocumentQuerySelector } from "./common";
+import { renderElementToContainer, initRenderIframeAndContainer } from "./shadow";
+import { getWujieById } from "./cache";
+import { rawDocumentQuerySelector } from "./common";
 
 /**
  * 同步子应用路由到主应用路由
@@ -77,7 +78,7 @@ export function clearInactiveAppUrl(): void {
     if (!sandbox) return;
     // 子应用执行过并且已经卸载才需要清除
     const clearFlag = sandbox.degrade
-      ? !window.document.contains(getDegradeIframe(sandbox.id))
+      ? !window.document.body.contains(getDegradeIframe(sandbox.id))
       : !window.document.contains(sandbox?.shadowRoot?.host);
     if (sandbox.execFlag && sandbox.sync && !sandbox.hrefFlag && clearFlag) {
       delete queryMap[id];
@@ -125,11 +126,11 @@ export function processAppForHrefJump(): void {
       .filter((sandbox) => sandbox)
       .forEach((sandbox) => {
         const url = queryMap[sandbox.id];
-        const iframeBody = rawDocumentQuerySelector.call(sandbox.iframe.contentDocument, "body");
+        const iframeBody = rawDocumentQuerySelector.call(sandbox.iframe.contentWindow.document, "body");
         // 前进href
         if (/http/.test(url)) {
           if (sandbox.degrade) {
-            renderElementToContainer(sandbox.document.firstElementChild, iframeBody);
+            renderElementToContainer(sandbox.document.firstChild, iframeBody);
             renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(sandbox.id).parentElement);
           } else renderIframeReplaceApp(window.decodeURIComponent(url), sandbox.shadowRoot.host.parentElement);
           sandbox.hrefFlag = true;
@@ -137,15 +138,13 @@ export function processAppForHrefJump(): void {
         } else if (sandbox.hrefFlag) {
           if (sandbox.degrade) {
             // 走全套流程，但是事件恢复不需要
-            const iframe = createIframeContainer(sandbox.id);
-            renderElementToContainer(iframe, sandbox.el);
-            clearChild(iframe.contentDocument);
+            const { iframe } = initRenderIframeAndContainer(sandbox.id, sandbox.el);
             patchEventTimeStamp(iframe.contentWindow, sandbox.iframe.contentWindow);
             iframe.contentWindow.onunload = () => {
               sandbox.unmount();
             };
-            iframe.contentDocument.appendChild(iframeBody.firstElementChild);
-            sandbox.document = iframe.contentDocument;
+            iframe.contentWindow.document.appendChild(iframeBody.firstElementChild);
+            sandbox.document = iframe.contentWindow.document;
           } else renderElementToContainer(sandbox.shadowRoot.host, sandbox.el);
           sandbox.hrefFlag = false;
         }

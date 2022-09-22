@@ -3,13 +3,12 @@ import processTpl, {
   getInlineStyleReplaceSymbol,
   ScriptObject,
   ScriptBaseObject,
-  StyleObject,
 } from "./template";
 import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from "./utils";
 import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from "./constant";
 import { getEffectLoaders, isMatchUrl } from "./plugin";
 import Wujie from "./sandbox";
-import { plugin, loadErrorHandler } from "./index";
+import { plugin, loadErrorHandler, StyleObject } from "./types";
 
 export type ScriptResultList = (ScriptBaseObject & { contentPromise: Promise<string> })[];
 export type StyleResultList = { src: string; contentPromise: Promise<string>; ignore?: boolean }[];
