@@ -1,12 +1,5 @@
 import { getExternalStyleSheets, getExternalScripts } from "./entry";
 import { getWujieById } from "./cache";
-import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
-import { insertScriptToIframe, patchElementEffect } from "./iframe";
-import Wujie from "./sandbox";
-import { getPatchStyleElements } from "./shadow";
-import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
-import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
-import { ScriptObject } from "./template";
 import {
   rawAddEventListener,
   rawAppendChild,
@@ -15,6 +8,13 @@ import {
   rawHeadInsertBefore,
   rawRemoveEventListener,
 } from "./common";
+import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
+import { insertScriptToIframe, patchElementEffect } from "./iframe";
+import Wujie from "./sandbox";
+import { getPatchStyleElements } from "./shadow";
+import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
+import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
+import { ScriptObject } from "./template";
 
 function patchCustomEvent(
   e: CustomEvent,
