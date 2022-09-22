@@ -10,8 +10,10 @@
   "dependencies": {
     "ant-design-vue": "^1.7.8",
     "core-js": "^3.6.5",
+    "custom-event-polyfill": "^1.0.7",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
+    "whatwg-fetch": "^3.6.2",
     "wujie": "workspace:^1.0.0-rc.17",
     "wujie-vue2": "workspace:^1.0.0-rc.17"
   },

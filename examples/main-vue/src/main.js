@@ -1,3 +1,6 @@
+import "whatwg-fetch"; // fetch polyfill
+import "custom-event-polyfill";
+
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -125,24 +128,24 @@ setupApp({
 });
 
 if (window.localStorage.getItem("preload") !== "false") {
-  preloadApp({
-    name: "react16",
-  });
-  preloadApp({
-    name: "react17",
-  });
+  // preloadApp({
+  //   name: "react16",
+  // });
+  // preloadApp({
+  //   name: "react17",
+  // });
   preloadApp({
     name: "vue2",
   });
-  preloadApp({
-    name: "vue3",
-  });
-  preloadApp({
-    name: "angular12",
-  });
-  preloadApp({
-    name: "vite",
-  });
+  // preloadApp({
+  //   name: "vue3",
+  // });
+  // preloadApp({
+  //   name: "angular12",
+  // });
+  // preloadApp({
+  //   name: "vite",
+  // });
 }
 
 new Vue({

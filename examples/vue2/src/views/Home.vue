@@ -15,30 +15,28 @@
         <el-tag style="vertical-align: text-top" size="small">1.7.8</el-tag>
       </p>
       <p>
-        <el-button @click="() => open('https://github.com/Tencent/wujie/tree/master/examples/vue2')"
-          >仓库地址</el-button
-        >
+        <el-button @click="open('https://github.com/Tencent/wujie/tree/master/examples/vue2')">仓库地址</el-button>
       </p>
     </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from "@/components/HelloWorld.vue";
-export default {
-  data() {
-    return {
-      open: window.open,
-    };
-  },
-  components: {
-    HelloWorld,
-  },
-};
+  import HelloWorld from "@/components/HelloWorld.vue";
+  export default {
+    data() {
+      return {
+        open: window.open,
+      };
+    },
+    components: {
+      HelloWorld,
+    },
+  };
 </script>
 
 <style>
-:root {
-  --host-color: #f16b5f;
-}
+  :root {
+    --host-color: #f16b5f;
+  }
 </style>
