@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.18](https://github.com/Tencent/wujie/compare/v1.0.0-rc.17...v1.0.0-rc.18) (2022-09-22)
+
+### Bug Fixes
+
+* 修复子应用切换插件样式重复问题 ([#163](https://github.com/Tencent/wujie/issues/163)) ([bf0fb18](https://github.com/Tencent/wujie/commit/bf0fb18f579707bd1774ce941f4149f10507c0d7)), closes [#161](https://github.com/Tencent/wujie/issues/161)
+* 修复子应用切换模板样式重复问题 ([#164](https://github.com/Tencent/wujie/issues/164)) ([80e1b4b](https://github.com/Tencent/wujie/commit/80e1b4b60ab6b54b1f61d1988ee66d92d794d133))
+
+### Features
+
+* 去除removeEventListener无回调函数告警 ([149e8e9](https://github.com/Tencent/wujie/commit/149e8e97095d286e4cdc6505c3cc0c4973396a8f))
+
 # [1.0.0-rc.17](https://github.com/Tencent/wujie/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2022-09-20)
 
 ### Bug Fixes

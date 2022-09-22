@@ -1,6 +1,6 @@
 {
   "name": "main-vue",
-  "version": "1.0.0-rc.17",
+  "version": "1.0.0-rc.18",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve",
@@ -12,8 +12,8 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
-    "wujie": "^1.0.0-rc.17",
-    "wujie-vue2": "^1.0.0-rc.17"
+    "wujie": "^1.0.0-rc.18",
+    "wujie-vue2": "^1.0.0-rc.18"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
