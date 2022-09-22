@@ -28,7 +28,7 @@ import {
   windowRegWhiteList,
 } from "./common";
 import { getJsLoader } from "./plugin";
-import { WUJIE_TIPS_EMPTY_CALLBACK, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
+import { WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
 import { ScriptObjectLoader } from "./index";
 
 declare global {
@@ -420,8 +420,6 @@ function patchDocumentEffect(iframeWindow: Window): void {
         return;
       }
       sandbox.shadowRoot.removeEventListener(type, callback, options);
-    } else {
-      warn(WUJIE_TIPS_EMPTY_CALLBACK);
     }
   };
   // 处理onEvent
