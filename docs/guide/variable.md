@@ -83,4 +83,4 @@ declare global {
 
 ## $wujie
 
-[详见](/api/subApp.html#wujie)
+[详见](/api/wujie.html#wujie)
