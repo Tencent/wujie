@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.19](https://github.com/Tencent/wujie/compare/v1.0.0-rc.18...v1.0.0-rc.19) (2022-09-23)
+
+### Bug Fixes
+
+* 修复async脚本导致脚本执行顺序错乱问题 ([#173](https://github.com/Tencent/wujie/issues/173)) ([60a3e0c](https://github.com/Tencent/wujie/commit/60a3e0c5644ace3fadd88474c3b11c4193ebdbb3))
+
 # [1.0.0-rc.18](https://github.com/Tencent/wujie/compare/v1.0.0-rc.17...v1.0.0-rc.18) (2022-09-22)
 
 **Note:** Version bump only for package wujie-docs
