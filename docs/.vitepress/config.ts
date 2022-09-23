@@ -195,8 +195,8 @@ export default defineConfig({
           collapsible: true,
           items: [
             {
-              text: "$wujie",
-              link: "/api/subApp",
+              text: "wujie",
+              link: "/api/wujie",
             },
           ],
         },
