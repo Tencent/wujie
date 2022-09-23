@@ -404,6 +404,7 @@ module.exports = function (webpackEnv) {
                     require.resolve('babel-preset-react-app'),
                     {
                       runtime: hasJsxRuntime ? 'automatic' : 'classic',
+                      targets: { "browsers": [">1%", "last 2 versions", "ie >= 11"] }
                     },
                   ],
                 ],
@@ -446,7 +447,7 @@ module.exports = function (webpackEnv) {
                 presets: [
                   [
                     require.resolve('babel-preset-react-app/dependencies'),
-                    { helpers: true },
+                    { helpers: true, targets: { "browsers": [">1%", "last 2 versions", "ie >= 11"] } },
                   ],
                 ],
                 cacheDirectory: true,
