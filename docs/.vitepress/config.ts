@@ -1,15 +1,15 @@
 import { defineConfig } from "vitepress";
 import { version } from "../../packages/wujie-core/package.json";
 import path from "path";
-const ogDescription = "Next Generation Frontend Tooling";
-const ogImage = "https://main.vitejs.dev/og-image.png";
-const ogTitle = "Vite";
-const ogUrl = "https://main.vitejs.dev";
+const ogDescription = "极致的微前端框架";
+const ogImage = "https://wujie-micro.github.io/doc/wujie.png";
+const ogTitle = "无界";
+const ogUrl = "https://wujie-micro.github.io/doc/";
 const base = process.env.NODE_ENV === "production" ? "/doc/" : "";
 
 export default defineConfig({
   title: "无界",
-  description: "Next Generation Frontend Tooling",
+  description: "极致的微前端框架",
   base,
   head: [
     ["link", { rel: "icon", href: `${base}/favicon.ico` }],
