@@ -384,7 +384,6 @@ export default class Wujie {
   public destroy() {
     this.bus.$clear();
     this.shadowRoot = null;
-    this.iframe = null;
     this.proxy = null;
     this.proxyDocument = null;
     this.proxyLocation = null;
@@ -392,7 +391,6 @@ export default class Wujie {
     this.provide = null;
     this.styleSheetElements = null;
     this.bus = null;
-    this.el = null;
     this.replace = null;
     this.fetch = null;
     this.execFlag = null;
@@ -408,13 +406,15 @@ export default class Wujie {
     this.inject = null;
     this.execQueue = null;
     this.prefix = null;
-
-    (window.__POWERED_BY_WUJIE__
-      ? window.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__.call(window.document, "iframe")
-      : window.document.querySelectorAll("iframe")
-    ).forEach((iframe) => {
-      if (iframe.name === this.id) iframe.parentNode.removeChild(iframe);
-    });
+    // 清除 dom
+    if (this.el) {
+      clearChild(this.el);
+      this.el = null;
+    }
+    // 清除 iframe 沙箱
+    if (this.iframe) {
+      this.iframe.parentNode?.removeChild(this.iframe);
+    }
     deleteWujieById(this.id);
   }
 
