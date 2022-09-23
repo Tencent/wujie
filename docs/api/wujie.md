@@ -1,11 +1,6 @@
----
-sidebarDepth: 2
-collapsable: false 
----
-
 无界对子应用注入了`$wujie`对象，可以通过`$wujie`或者`window.$wujie`获取
 
-## $wujie
+# $wujie
 
 - **类型：**
 
