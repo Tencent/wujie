@@ -148,7 +148,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
  * 预加载无界APP
  */
 export function preloadApp(preOptions: preOptions): void {
-  requestIdleCallback(async () => {
+  requestIdleCallback(() => {
     /**
      * 已经存在
      * url查询参数中有子应用的id，大概率是刷新浏览器或者分享url，此时需要直接打开子应用，无需预加载
@@ -157,26 +157,7 @@ export function preloadApp(preOptions: preOptions): void {
     const cacheOptions = getOptionsById(preOptions.name);
     // 合并缓存配置
     const options = mergeOptions({ ...preOptions }, cacheOptions);
-    const { name, url, props, alive, replace, fetch, exec, attrs, fiber, degrade, prefix, plugins, lifecycles } =
-      options;
-
-    const sandbox = await WuJie.build({ name, url, attrs, fiber, degrade, plugins, lifecycles });
-    if (sandbox.preload) return sandbox.preload;
-    const runPreload = async () => {
-      sandbox.lifecycles?.beforeLoad?.(sandbox.iframe.contentWindow);
-      const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {
-        fetch: fetch || window.fetch,
-        plugins: sandbox.plugins,
-        loadError: sandbox.lifecycles.loadError,
-        fiber,
-      });
-      const processedHtml = await processCssLoader(sandbox, template, getExternalStyleSheets);
-      await sandbox.active({ url, props, prefix, alive, template: processedHtml, fetch, replace });
-      if (exec) {
-        await sandbox.start(getExternalScripts);
-      }
-    };
-    sandbox.preload = runPreload();
+    WuJie.build(options);
   });
 }
 

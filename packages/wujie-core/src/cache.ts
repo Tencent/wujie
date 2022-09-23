@@ -1,5 +1,5 @@
 import Wujie from "./sandbox";
-import { baseOptions } from "./types";
+import { baseOptions, lifecycles } from "./types";
 
 export type cacheOptions = baseOptions & {
   /** 预执行 */
@@ -12,6 +12,7 @@ export type cacheOptions = baseOptions & {
   prefix?: { [key: string]: string };
   /** 子应用加载时loading元素 */
   loading?: HTMLElement;
+  lifecycles?: lifecycles;
 };
 
 export interface SandboxCache {

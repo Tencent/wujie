@@ -609,13 +609,7 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
  * 防止运行主应用的js代码，给子应用带来很多副作用
  */
 // TODO 更加准确抓取停止时机
-function stopIframeLoading(
-  iframeWindow: Window,
-  wujie: WuJie,
-  mainHostPath: string,
-  appHostPath: string,
-  appRoutePath: string
-) {
+function stopIframeLoading(iframeWindow: Window) {
   return new Promise<void>((resolve) => {
     function loop() {
       setTimeout(() => {
@@ -623,14 +617,7 @@ function stopIframeLoading(
         if (iframeWindow.location.href === "about:blank") {
           loop();
         } else {
-          wujie.degrade ? iframeWindow.document.execCommand("Stop") : iframeWindow.stop();
-          initIframeDom(iframeWindow, wujie, mainHostPath, appHostPath);
-          /**
-           * 如果有同步优先同步，非同步从url读取
-           */
-          if (!isMatchSyncQueryById(wujie.id)) {
-            iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
-          }
+          iframeWindow.stop ? iframeWindow.stop() : iframeWindow.document.execCommand("Stop");
           resolve();
         }
       }, 0);
@@ -753,8 +740,16 @@ export async function iframeGenerator(
   window.document.body.appendChild(iframe);
 
   const iframeWindow = iframe.contentWindow;
-  const iframeReady = stopIframeLoading(iframeWindow, sandbox, mainHostPath, appHostPath, appRoutePath);
+  const iframeReady = stopIframeLoading(iframeWindow);
   iframeWindow.location.href = mainHostPath;
   await iframeReady;
+
+  initIframeDom(iframeWindow, sandbox, mainHostPath, appHostPath);
+  /**
+   * 如果有同步优先同步，非同步从url读取
+   */
+  if (!isMatchSyncQueryById(sandbox.id)) {
+    iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
+  }
   return iframe;
 }

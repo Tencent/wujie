@@ -17,10 +17,10 @@ import {
   initRenderIframeAndContainer,
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
-import { ScriptResultList } from "./entry";
+import importHTML, { processCssLoader, ScriptResultList } from "./entry";
 import { getPlugins, getPresetLoaders } from "./plugin";
 import { removeEventListener } from "./effect";
-import { SandboxCache, idToSandboxCacheMap, addSandboxCacheWithWujie, deleteWujieById } from "./cache";
+import { SandboxCache, idToSandboxCacheMap, addSandboxCacheWithWujie, deleteWujieById, cacheOptions } from "./cache";
 import { EventBus, appEventObjMap, EventObj } from "./event";
 import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getAbsolutePath, eventTrigger } from "./utils";
 import { WUJIE_DATA_ATTACH_CSS_FLAG, WUJIE_DATA_ID } from "./constant";
@@ -448,15 +448,7 @@ export default class Wujie {
    * @param id 子应用的id，唯一标识
    * @param url 子应用的url，可以包含protocol、host、path、query、hash
    */
-  private constructor(options: {
-    name: string;
-    url: string;
-    attrs: { [key: string]: any };
-    fiber: boolean;
-    degrade;
-    plugins: Array<plugin>;
-    lifecycles: lifecycles;
-  }) {
+  private constructor(options: cacheOptions) {
     // 传递inject给嵌套子应用
     if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject;
     else {
@@ -479,15 +471,7 @@ export default class Wujie {
     this.plugins = getPlugins(plugins);
   }
 
-  public static async build(options: {
-    name: string;
-    url: string;
-    attrs: { [key: string]: any };
-    fiber: boolean;
-    degrade;
-    plugins: Array<plugin>;
-    lifecycles: lifecycles;
-  }): Promise<Wujie> {
+  public static async build(options: cacheOptions, needPreload: boolean = false): Promise<Wujie> {
     const result = new Wujie(options);
     // 创建目标地址的解析
     const { urlElement, appHostPath, appRoutePath } = appRouteParse(options.url);
@@ -517,6 +501,29 @@ export default class Wujie {
     }
     result.provide.location = result.proxyLocation;
     addSandboxCacheWithWujie(result.id, result);
+    if (needPreload) {
+      this.runPreload(result, options);
+    }
     return result;
+  }
+
+  private static runPreload(wujie: Wujie, options: cacheOptions): void {
+    if (wujie.preload) return;
+    const { url, props, alive, replace, fetch, exec, fiber, prefix } = options;
+    const preload = async () => {
+      wujie.lifecycles?.beforeLoad?.(wujie.iframe.contentWindow);
+      const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {
+        fetch: fetch || window.fetch,
+        plugins: wujie.plugins,
+        loadError: wujie.lifecycles.loadError,
+        fiber,
+      });
+      const processedHtml = await processCssLoader(wujie, template, getExternalStyleSheets);
+      await wujie.active({ url, props, prefix, alive, template: processedHtml, fetch, replace });
+      if (exec) {
+        await wujie.start(getExternalScripts);
+      }
+    };
+    wujie.preload = preload();
   }
 }
