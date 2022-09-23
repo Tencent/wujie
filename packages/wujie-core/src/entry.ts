@@ -130,7 +130,7 @@ const fetchAssets = (
       } else {
         error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, src);
         loadError?.(src, e);
-        throw e;
+        return "";
       }
     }));
 
