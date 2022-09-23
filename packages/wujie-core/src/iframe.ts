@@ -748,15 +748,13 @@ export async function iframeGenerator(
   appRoutePath: string
 ): Promise<HTMLIFrameElement> {
   const iframe = window.document.createElement("iframe");
-  const attrsMerge = { src: mainHostPath, ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
+  const attrsMerge = { ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
   Object.keys(attrsMerge).forEach((key) => iframe.setAttribute(key, attrsMerge[key]));
   window.document.body.appendChild(iframe);
 
   const iframeWindow = iframe.contentWindow;
   const iframeReady = stopIframeLoading(iframeWindow, sandbox, mainHostPath, appHostPath, appRoutePath);
-  if (sandbox.degrade) {
-    iframeWindow.location.href = mainHostPath;
-  }
+  iframeWindow.location.href = mainHostPath;
   await iframeReady;
   return iframe;
 }
