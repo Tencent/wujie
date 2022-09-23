@@ -177,6 +177,8 @@ interface ScriptObjectLoader {
   src?: string;
   /** 脚本是否为module模块 */
   module?: boolean;
+  /** 脚本是否为async执行 */
+  async?: boolean;
   /** 脚本是否设置crossorigin */
   crossorigin?: boolean;
   /** 脚本crossorigin的类型 */
