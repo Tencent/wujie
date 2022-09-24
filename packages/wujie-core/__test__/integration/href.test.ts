@@ -23,7 +23,7 @@ describe("main react location href test", () => {
       await triggerClickByJsSelector(page, (appInfo as LooseObject).routeNavSelector);
       await appInfoRouteMountedPromise;
       await triggerClickByJsSelector(page, (appInfo as LooseObject).routeJumpButtonSelector);
-      await page.waitForSelector("iframe[src='https://wujicode.cn/xy/app/prod/official/home']");
+      await page.waitForSelector("iframe[src='https://wujicode.cn/xy/app/prod/official/index']");
       await page.goBack();
       await page.waitForSelector("wujie-app");
     })
@@ -50,7 +50,7 @@ describe("main vue location href test", () => {
       await triggerClickByJsSelector(page, (appInfo as LooseObject).routeNavSelector);
       await appInfoRouteMountedPromise;
       await triggerClickByJsSelector(page, (appInfo as LooseObject).routeJumpButtonSelector);
-      await page.waitForSelector("iframe[src='https://wujicode.cn/xy/app/prod/official/home']");
+      await page.waitForSelector("iframe[src='https://wujicode.cn/xy/app/prod/official/index']");
       await page.goBack();
       await page.waitForSelector("wujie-app");
     })

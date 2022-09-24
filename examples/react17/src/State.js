@@ -5,7 +5,7 @@ import "antd/es/button/style/css";
 export default class Location extends React.Component {
   state = { count: 10 };
   handleClick() {
-    window.location.href = "https://wujicode.cn/xy/app/prod/official/home";
+    window.location.href = "https://wujicode.cn/xy/app/prod/official/index";
   }
 
   componentDidMount() {

@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     handleClick() {
-      window.$wujie.location.href = "https://wujicode.cn/xy/app/prod/official/home";
+      window.$wujie.location.href = "https://wujicode.cn/xy/app/prod/official/index";
     },
   },
 };
