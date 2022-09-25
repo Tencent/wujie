@@ -650,7 +650,7 @@ export function syncIframeUrlToWindow(iframeWindow: Window): void {
  * @param iframeWindow
  */
 export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLoader, iframeWindow: Window) {
-  const { src, module, content, crossorigin, crossoriginType, callback } = scriptResult as ScriptObjectLoader;
+  const { src, module, content, crossorigin, crossoriginType, async, callback } = scriptResult as ScriptObjectLoader;
   const scriptElement = iframeWindow.document.createElement("script");
   const nextScriptElement = iframeWindow.document.createElement("script");
   const { replace, plugins, proxyLocation } = iframeWindow.__WUJIE;
@@ -686,14 +686,15 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
 
   if (/^<!DOCTYPE html/i.test(code)) {
     error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, scriptResult);
-    return container.appendChild(nextScriptElement);
+    return !async && container.appendChild(nextScriptElement);
   }
   container.appendChild(scriptElement);
 
   // 调用回调
   callback?.(iframeWindow);
 
-  container.appendChild(nextScriptElement);
+  // async脚本不在执行队列，无需next操作
+  !async && container.appendChild(nextScriptElement);
 }
 
 /**
