@@ -1,6 +1,6 @@
 {
   "name": "wujie-react",
-  "version": "1.0.0-rc.18",
+  "version": "1.0.0-rc.19",
   "description": "无界微前端React组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
@@ -30,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "prop-types": "^15.8.1",
-    "wujie": "workspace:^1.0.0-rc.18"
+    "wujie": "workspace:^1.0.0-rc.19"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
