@@ -42,5 +42,5 @@
 
 /example/test/name => {test}/name
 
-/example/prod/debug?id=5&age=10 => {prodId}5&age=10
+/example/prod/debug?id=5&age=10 => {prodId}&age=10
 ```
