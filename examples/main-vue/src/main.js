@@ -128,24 +128,26 @@ setupApp({
 });
 
 if (window.localStorage.getItem("preload") !== "false") {
-  // preloadApp({
-  //   name: "react16",
-  // });
-  // preloadApp({
-  //   name: "react17",
-  // });
+  preloadApp({
+    name: "react16",
+  });
+  preloadApp({
+    name: "react17",
+  });
   preloadApp({
     name: "vue2",
   });
-  // preloadApp({
-  //   name: "vue3",
-  // });
-  // preloadApp({
-  //   name: "angular12",
-  // });
-  // preloadApp({
-  //   name: "vite",
-  // });
+  preloadApp({
+    name: "angular12",
+  });
+  if (window.Proxy) {
+    preloadApp({
+      name: "vue3",
+    });
+    preloadApp({
+      name: "vite",
+    });
+  }
 }
 
 new Vue({

@@ -157,7 +157,7 @@ export function preloadApp(preOptions: preOptions): void {
     const cacheOptions = getOptionsById(preOptions.name);
     // 合并缓存配置
     const options = mergeOptions({ ...preOptions }, cacheOptions);
-    WuJie.build(options);
+    WuJie.build(options, true);
   });
 }
 

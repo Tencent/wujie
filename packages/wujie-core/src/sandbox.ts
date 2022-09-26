@@ -184,13 +184,20 @@ export default class Wujie {
       };
       if (this.document) {
         if (this.alive) {
-          iframe.contentWindow.document.appendChild(this.document.firstChild);
+          iframe.contentWindow.document.replaceChild(
+            this.document.documentElement,
+            iframe.contentWindow.document.documentElement
+          );
           // 保活场景需要事件全部恢复
-          recoverEventListeners(iframe.contentWindow.document.firstChild, iframeWindow);
+          recoverEventListeners(iframe.contentWindow.document.documentElement, iframeWindow);
         } else {
           await renderTemplateToIframe(iframe.contentWindow, this.iframe.contentWindow, this.template);
           // 非保活场景需要恢复根节点的事件，防止react16监听事件丢失
-          recoverDocumentListeners(this.document.firstChild, iframe.contentWindow.document.firstChild, iframeWindow);
+          recoverDocumentListeners(
+            this.document.documentElement,
+            iframe.contentWindow.document.documentElement,
+            iframeWindow
+          );
         }
       } else {
         await renderTemplateToIframe(iframe.contentWindow, this.iframe.contentWindow, this.template);

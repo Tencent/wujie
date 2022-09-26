@@ -27,7 +27,7 @@ function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: 
   iframe.contentWindow.__WUJIE.hrefFlag = true;
   if (degrade) {
     const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
-    renderElementToContainer(document.firstChild, iframeBody);
+    renderElementToContainer(document.documentElement, iframeBody);
     renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement);
   } else renderIframeReplaceApp(url, shadowRoot.host.parentElement);
   pushUrlToWindow(id, url);

@@ -130,7 +130,7 @@ export function processAppForHrefJump(): void {
         // 前进href
         if (/http/.test(url)) {
           if (sandbox.degrade) {
-            renderElementToContainer(sandbox.document.firstChild, iframeBody);
+            renderElementToContainer(sandbox.document.documentElement, iframeBody);
             renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(sandbox.id).parentElement);
           } else renderIframeReplaceApp(window.decodeURIComponent(url), sandbox.shadowRoot.host.parentElement);
           sandbox.hrefFlag = true;
