@@ -118,13 +118,15 @@ export function appRouteParse(url: string): {
   }
   const urlElement = anchorElementGenerator(url);
   const appHostPath = urlElement.protocol + "//" + urlElement.host;
-  const appRoutePath = urlElement.pathname + urlElement.search + urlElement.hash;
+  let appRoutePath = urlElement.pathname + urlElement.search + urlElement.hash;
+  if (!appRoutePath.startsWith("/")) appRoutePath = "/" + appRoutePath; // fuck ie
   return { urlElement, appHostPath, appRoutePath };
 }
 
 export function anchorElementGenerator(url: string): HTMLAnchorElement {
   const element = window.document.createElement("a");
   element.href = url;
+  element.href = element.href; // fuck ie
   return element;
 }
 
@@ -276,7 +278,7 @@ export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Arr
 }
 
 // 合并缓存
-export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) {
+export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions): cacheOptions {
   return {
     name: options.name,
     el: options.el || cacheOptions?.el,

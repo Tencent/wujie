@@ -104,6 +104,7 @@ export const documentProxyProperties = {
     "referrer",
     "visibilityState",
     "fonts",
+    "defaultView",
   ],
 
   // 需要从主应用document中获取的方法
@@ -189,8 +190,10 @@ export const rawElementAppendChild = HTMLElement.prototype.appendChild;
 export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
 export const rawBodyInsertBefore = HTMLBodyElement.prototype.insertBefore;
-export const rawAddEventListener = EventTarget.prototype.addEventListener;
-export const rawRemoveEventListener = EventTarget.prototype.removeEventListener;
+export const rawAddEventListener = Node.prototype.addEventListener;
+export const rawRemoveEventListener = Node.prototype.removeEventListener;
+export const rawWindowAddEventListener = window.addEventListener;
+export const rawWindowRemoveEventListener = window.removeEventListener;
 export const rawAppendChild = Node.prototype.appendChild;
 export const rawDocumentQuerySelector = window.__POWERED_BY_WUJIE__
   ? window.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__
