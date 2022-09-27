@@ -84,21 +84,27 @@ function patchStylesheetElement(
   function patchSheetInsertRule() {
     if (!RawInsertRule) return;
     stylesheetElement.sheet.insertRule = (rule: string, index?: number): number => {
-      stylesheetElement.innerHTML += rule;
+      innerHTMLDesc ? (stylesheetElement.innerHTML += rule) : (stylesheetElement.innerText += rule);
       return RawInsertRule.call(stylesheetElement.sheet, rule, index);
     };
   }
   patchSheetInsertRule();
+
+  if (innerHTMLDesc) {
+    Object.defineProperties(stylesheetElement, {
+      innerHTML: {
+        get: function () {
+          return innerHTMLDesc.get.call(stylesheetElement);
+        },
+        set: function (code: string) {
+          innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+          nextTick(() => handleStylesheetElementPatch(this, sandbox));
+        },
+      },
+    });
+  }
+
   Object.defineProperties(stylesheetElement, {
-    innerHTML: {
-      get: function () {
-        return innerHTMLDesc.get.call(stylesheetElement);
-      },
-      set: function (code: string) {
-        innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
-        nextTick(() => handleStylesheetElementPatch(this, sandbox));
-      },
-    },
     innerText: {
       get: function () {
         return innerTextDesc.get.call(stylesheetElement);
@@ -156,7 +162,7 @@ function rewriteAppendOrInsertChild(opts: {
       return res;
     }
 
-    const iframeDocument = iframe.contentDocument;
+    const iframeDocument = iframe.contentWindow.document;
     const curUrl = getCurUrl(proxyLocation);
 
     // TODO 过滤可以开放
@@ -287,7 +293,10 @@ function rewriteAppendOrInsertChild(opts: {
               const patchScript = (element as HTMLIFrameElement).contentWindow.document.createElement("script");
               patchScript.type = "text/javascript";
               patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
-              element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);
+              element.contentWindow.document.head.insertBefore(
+                patchScript,
+                element.contentWindow.document.head.firstChild
+              );
             }
           } catch (e) {
             error(e);

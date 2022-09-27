@@ -1,3 +1,4 @@
+import WuJie from "./sandbox";
 import { patchElementEffect, renderIframeReplaceApp } from "./iframe";
 import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
@@ -26,7 +27,7 @@ function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: 
   iframe.contentWindow.__WUJIE.hrefFlag = true;
   if (degrade) {
     const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
-    renderElementToContainer(document.firstElementChild, iframeBody);
+    renderElementToContainer(document.documentElement, iframeBody);
     renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement);
   } else renderIframeReplaceApp(url, shadowRoot.host.parentElement);
   pushUrlToWindow(id, url);
@@ -84,7 +85,7 @@ export function proxyGenerator(
         if (propKey === "createElement" || propKey === "createTextNode") {
           return new Proxy(document[propKey], {
             apply(createElement, _ctx, args) {
-              const element = createElement.apply(iframe.contentDocument, args);
+              const element = createElement.apply(iframe.contentWindow.document, args);
               patchElementEffect(element, iframe.contentWindow);
               return element;
             },
@@ -104,7 +105,7 @@ export function proxyGenerator(
             apply(querySelectorAll, _ctx, args) {
               let arg = args[0];
               if (propKey === "getElementsByTagName" && arg === "script") {
-                return iframe.contentDocument.scripts;
+                return iframe.contentWindow.document.scripts;
               }
               if (propKey === "getElementsByClassName") arg = "." + arg;
               if (propKey === "getElementsByName") arg = `[name="${arg}"]`;
@@ -195,6 +196,7 @@ export function proxyGenerator(
  */
 export function localGenerator(
   iframe: HTMLIFrameElement,
+  sandbox: WuJie,
   urlElement: HTMLAnchorElement,
   mainHostPath: string,
   appHostPath: string
@@ -204,13 +206,12 @@ export function localGenerator(
 } {
   // 代理 document
   const proxyDocument = {};
-  const sandbox = iframe.contentWindow.__WUJIE;
   // 特殊处理
   Object.defineProperties(proxyDocument, {
     createElement: {
       get: () => {
         return function (...args) {
-          const element = window.document.createElement.apply(iframe.contentDocument, args);
+          const element = window.document.createElement.apply(iframe.contentWindow.document, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -219,7 +220,7 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = window.document.createTextNode.apply(iframe.contentDocument, args);
+          const element = window.document.createTextNode.apply(iframe.contentWindow.document, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -236,7 +237,7 @@ export function localGenerator(
         return function (...args) {
           const tagName = args[0];
           if (tagName === "script") {
-            return iframe.contentDocument.scripts as any;
+            return iframe.contentWindow.document.scripts as any;
           }
           return sandbox.document.getElementsByTagName(tagName) as any;
         };

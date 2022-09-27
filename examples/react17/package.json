@@ -50,7 +50,7 @@
     "postcss-safe-parser": "5.0.2",
     "prompts": "2.4.0",
     "react": "^17.0.2",
-    "react-app-polyfill": "^2.0.0",
+    "react-app-polyfill": "^3.0.0",
     "react-dev-utils": "^11.0.3",
     "react-dom": "^17.0.2",
     "react-refresh": "^0.8.3",
@@ -85,14 +85,14 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      ">1%",
+      "last 2 versions",
+      "ie >= 11"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      ">1%",
+      "last 2 versions",
+      "ie >= 11"
     ]
   },
   "jest": {
@@ -151,5 +151,9 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.17.12",
+    "@babel/plugin-proposal-optional-chaining": "^7.17.12"
   }
 }
