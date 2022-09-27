@@ -224,11 +224,12 @@ function rewriteAppendOrInsertChild(opts: {
           const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
           if (!isMatchUrl(src, getEffectLoaders("jsExcludes", plugins))) {
-            const execScript = (scriptResult) => {
+            const execScript = (scriptResult: ScriptObject) => {
               // 假如子应用被连续渲染两次，两次渲染会导致处理流程的交叉污染
               if (sandbox.iframe === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
               insertScriptToIframe(scriptResult, sandbox.iframe.contentWindow);
-              manualInvokeElementEvent(element, "load");
+              // 只有外联转内联才需要手动触发load
+              if (scriptResult.content) manualInvokeElementEvent(element, "load");
               element = null;
             };
             const scriptOptions = {
