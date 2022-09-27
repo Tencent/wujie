@@ -84,21 +84,27 @@ function patchStylesheetElement(
   function patchSheetInsertRule() {
     if (!RawInsertRule) return;
     stylesheetElement.sheet.insertRule = (rule: string, index?: number): number => {
-      stylesheetElement.innerHTML += rule;
+      innerHTMLDesc ? (stylesheetElement.innerHTML += rule) : (stylesheetElement.innerText += rule);
       return RawInsertRule.call(stylesheetElement.sheet, rule, index);
     };
   }
   patchSheetInsertRule();
+
+  if (innerHTMLDesc) {
+    Object.defineProperties(stylesheetElement, {
+      innerHTML: {
+        get: function () {
+          return innerHTMLDesc.get.call(stylesheetElement);
+        },
+        set: function (code: string) {
+          innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+          nextTick(() => handleStylesheetElementPatch(this, sandbox));
+        },
+      },
+    });
+  }
+
   Object.defineProperties(stylesheetElement, {
-    innerHTML: {
-      get: function () {
-        return innerHTMLDesc.get.call(stylesheetElement);
-      },
-      set: function (code: string) {
-        innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
-        nextTick(() => handleStylesheetElementPatch(this, sandbox));
-      },
-    },
     innerText: {
       get: function () {
         return innerTextDesc.get.call(stylesheetElement);
@@ -292,7 +298,7 @@ function rewriteAppendOrInsertChild(opts: {
           try {
             // 降级的dom-iframe无需处理
             if (!element.getAttribute(WUJIE_DATA_ID)) {
-              const patchScript = (element as HTMLIFrameElement).contentWindow.document.createElement("script");
+              const patchScript = (element as HTMLIFrameElement).contentDocument.createElement("script");
               patchScript.type = "text/javascript";
               patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
               element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);

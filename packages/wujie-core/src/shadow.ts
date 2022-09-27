@@ -34,29 +34,26 @@ declare global {
 }
 
 /**
- * 制作webComponent沙箱
- */
-class WujieApp extends HTMLElement {
-  connectedCallback(): void {
-    if (this.shadowRoot) return;
-    const shadowRoot = this.attachShadow({ mode: "open" });
-    const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
-    patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
-    sandbox.shadowRoot = shadowRoot;
-  }
-
-  disconnectedCallback(): void {
-    const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
-    sandbox?.unmount();
-  }
-}
-
-/**
  * 定义 wujie webComponent，将shadow包裹并获得dom装载和卸载的生命周期
  */
 export function defineWujieWebComponent() {
-  if (!customElements.get("wujie-app")) {
-    customElements.define("wujie-app", WujieApp);
+  const customElements = window.customElements;
+  if (customElements && !customElements?.get("wujie-app")) {
+    class WujieApp extends HTMLElement {
+      connectedCallback(): void {
+        if (this.shadowRoot) return;
+        const shadowRoot = this.attachShadow({ mode: "open" });
+        const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
+        patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
+        sandbox.shadowRoot = shadowRoot;
+      }
+
+      disconnectedCallback(): void {
+        const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
+        sandbox?.unmount();
+      }
+    }
+    customElements?.define("wujie-app", WujieApp);
   }
 }
 
@@ -70,7 +67,10 @@ export function createWujieWebComponent(id: string): HTMLElement {
 /**
  * 将准备好的内容插入容器
  */
-export function renderElementToContainer(element: Element, selectorOrElement: string | HTMLElement): HTMLElement {
+export function renderElementToContainer(
+  element: Element | ChildNode,
+  selectorOrElement: string | HTMLElement
+): HTMLElement {
   const container = getContainer(selectorOrElement);
   if (container && !container.contains(element)) {
     // 有 loading 无需清理，已经清理过了
@@ -169,7 +169,7 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
     sandbox.head = html.querySelector("head");
     sandbox.body = html.querySelector("body");
   }
-  const ElementIterator = document.createTreeWalker(html, NodeFilter.SHOW_ELEMENT);
+  const ElementIterator = document.createTreeWalker(html, NodeFilter.SHOW_ELEMENT, null, false);
   let nextElement = ElementIterator.currentNode as HTMLElement;
   while (nextElement) {
     patchElementEffect(nextElement, iframeWindow);
@@ -242,7 +242,7 @@ export async function renderTemplateToIframe(
   renderDocument.appendChild(processedHtml);
 
   // 修复 html parentNode
-  Object.defineProperty(renderDocument.firstElementChild, "parentNode", {
+  Object.defineProperty(renderDocument.documentElement, "parentNode", {
     enumerable: true,
     configurable: true,
     get: () => iframeWindow.document,

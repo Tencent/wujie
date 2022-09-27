@@ -11,6 +11,7 @@ export default function React16() {
   const vue3Url = hostMap("//localhost:7300/");
   const vite = hostMap("//localhost:7500/");
   const angular12Url = hostMap("//localhost:7400/");
+  const degrade = window.Proxy
   // 修正iframe的url，防止github pages csp报错
   const props = {
     jump: (name) => {
@@ -50,7 +51,7 @@ export default function React16() {
           props={props}
         ></WujieReact>
       </div>
-      <div className="all-item">
+      {degrade && <div className="all-item">
         <WujieReact
           height="100%"
           width="100%"
@@ -60,8 +61,8 @@ export default function React16() {
           props={props}
           alive={true}
         ></WujieReact>
-      </div>
-      <div className="all-item">
+      </div>}
+      {degrade && <div className="all-item">
         <WujieReact
           height="100%"
           width="100%"
@@ -70,7 +71,7 @@ export default function React16() {
           sync={true}
           props={props}
         ></WujieReact>
-      </div>
+      </div>}
       <div className="all-item">
         <WujieReact
           height="100%"

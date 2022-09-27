@@ -1,3 +1,6 @@
+import "react-app-polyfill/stable";
+import "react-app-polyfill/ie11";
+
 import React from "react";
 import ReactDOM from "react-dom";
 import WujieReact from "wujie-react";
@@ -105,14 +108,16 @@ if (window.localStorage.getItem("preload") !== "false") {
     name: "vue2",
   });
   preloadApp({
-    name: "vue3",
-  });
-  preloadApp({
     name: "angular12",
   });
-  preloadApp({
-    name: "vite",
-  });
+  if (window.Proxy) {
+    preloadApp({
+      name: "vue3",
+    });
+    preloadApp({
+      name: "vite",
+    });
+  }
 }
 
 ReactDOM.render(<App />, document.getElementById("root"));
