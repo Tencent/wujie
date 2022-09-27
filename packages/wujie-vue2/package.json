@@ -29,7 +29,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "wujie": "^1.0.0-rc.19"
+    "wujie": "workspace:^1.0.0-rc.19"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
