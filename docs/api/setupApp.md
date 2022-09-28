@@ -10,21 +10,11 @@
 type lifecycle = (appWindow: Window) => any;
 type loadErrorHandler = (url: string, e: Error) => any;
 
-type cacheOptions  {
-   /** 唯一性用户必须保证 */
+type baseOptions = {
+  /** 唯一性用户必须保证 */
   name: string;
   /** 需要渲染的url */
   url: string;
-  /** 预执行 */
-  exec?: boolean;
-  /** 渲染的容器 */
-  el?: HTMLElement | string;
-  /** 子应用加载时loading元素 */
-  loading?: HTMLElement;
-  /** 路由同步开关 */
-  sync?: boolean;
-  /** 子应用短路径替换，路由同步时生效 */
-  prefix?: { [key: string]: string };
   /** 代码替换钩子 */
   replace?: (code: string) => string;
   /** 自定义fetch */
@@ -51,7 +41,36 @@ type cacheOptions  {
   deactivated?: lifecycle;
   loadError?: loadErrorHandler;
 };
+
+type preOptions = baseOptions & {
+  /** 预执行 */
+  exec?: boolean;
+};
+
+type startOptions = baseOptions & {
+  /** 渲染的容器 */
+  el: HTMLElement | string;
+  /**
+   * 路由同步开关
+   * 如果false，子应用跳转主应用路由无变化，但是主应用的history还是会增加
+   * https://html.spec.whatwg.org/multipage/history.html#the-history-interface
+   */
+  sync?: boolean;
+  /** 子应用短路径替换，路由同步时生效 */
+  prefix?: { [key: string]: string };
+  /** 子应用加载时loading元素 */
+  loading?: HTMLElement;
+};
+
+type optionProperty = "url" | "el";
+
+/**
+ * 合并 preOptions 和 startOptions，并且将 url 和 el 变成可选
+ */
+type cacheOptions = Omit<preOptions & startOptions, optionProperty> &
+  Partial<Pick<startOptions, optionProperty>>;
+
 ```
 
-- **详情：** `setupApp`设置子应用默认属性，[startApp](/api/startApp.html)、[preloadApp](/api/preloadApp.html) 会从这里获取子应用默认属性，如果有相同的属性则会直接覆盖
+- **详情：** `setupApp`设置子应用默认属性，非必须。[startApp](/api/startApp.html)、[preloadApp](/api/preloadApp.html) 会从这里获取子应用默认属性，如果有相同的属性则会直接覆盖
 

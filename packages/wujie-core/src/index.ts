@@ -125,18 +125,13 @@ export type startOptions = baseOptions & {
   loading?: HTMLElement;
 };
 
-export type cacheOptions = baseOptions & {
-  /** 预执行 */
-  exec?: boolean;
-  /** 渲染的容器 */
-  el?: HTMLElement | string;
-  /** 路由同步开关 */
-  sync?: boolean;
-  /** 子应用短路径替换，路由同步时生效 */
-  prefix?: { [key: string]: string };
-  /** 子应用加载时loading元素 */
-  loading?: HTMLElement;
-};
+type optionProperty = "url" | "el";
+
+/**
+ * 合并 preOptions 和 startOptions，并且将 url 和 el 变成可选
+ */
+export type cacheOptions = Omit<preOptions & startOptions, optionProperty> &
+  Partial<Pick<startOptions, optionProperty>>;
 
 /**
  * 强制中断主应用运行
