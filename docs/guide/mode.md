@@ -13,7 +13,7 @@ collapsable: false
 
 子应用的 [alive](/api/startApp.html#alive) 设置为`true`时进入保活模式，内部的数据和路由的状态不会随着页面切换而丢失。
 
-在保活模式下，子应用只会进行一次渲染，页面发生切换时承载子应用`dom`的`webcomponent`会保留在内存中，当子应用重新激活时无界会将内存中的`webcomponent`从新挂载到容器上
+在保活模式下，子应用只会进行一次渲染，页面发生切换时承载子应用`dom`的`webcomponent`会保留在内存中，当子应用重新激活时无界会将内存中的`webcomponent`重新挂载到容器上
 
 保活模式下改变 [url](/api/startApp.html#url) 子应用的路由不会发生变化，需要采用 [通信](/guide/communication.html) 的方式对子应用路由进行跳转
 
