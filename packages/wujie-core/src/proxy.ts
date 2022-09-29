@@ -152,7 +152,13 @@ export function proxyGenerator(
     {
       get: function (_fakeLocation, propKey) {
         const location = iframe.contentWindow.location;
-        if (propKey === "host" || propKey === "hostname" || propKey === "protocol" || propKey === "port") {
+        if (
+          propKey === "host" ||
+          propKey === "hostname" ||
+          propKey === "protocol" ||
+          propKey === "port" ||
+          propKey === "origin"
+        ) {
           return urlElement[propKey];
         }
         if (propKey === "href") {
