@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.20](https://github.com/Tencent/wujie/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2022-09-30)
+
+### Bug Fixes
+
+* 依赖使用 pnpm workspace 协议 ([#186](https://github.com/Tencent/wujie/issues/186)) ([ef34944](https://github.com/Tencent/wujie/commit/ef349446937082924f47d6cd2f1f22798ea81fa4))
+
 # [1.0.0-rc.19](https://github.com/Tencent/wujie/compare/v1.0.0-rc.18...v1.0.0-rc.19) (2022-09-23)
 
 **Note:** Version bump only for package react16

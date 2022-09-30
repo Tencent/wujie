@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.20](https://github.com/Tencent/wujie/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2022-09-30)
+
+### Bug Fixes
+
+* 修复cacheOptions类型不正确的问题 ([#191](https://github.com/Tencent/wujie/issues/191)) ([2051e01](https://github.com/Tencent/wujie/commit/2051e01c9569ba5a8b8429537f42a0390102341d)), closes [#179](https://github.com/Tencent/wujie/issues/179)
+
 # [1.0.0-rc.19](https://github.com/Tencent/wujie/compare/v1.0.0-rc.18...v1.0.0-rc.19) (2022-09-23)
 
 ### Bug Fixes

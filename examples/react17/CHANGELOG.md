@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.20](https://github.com/Tencent/wujie/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2022-09-30)
+
+**Note:** Version bump only for package react17
+
 # [1.0.0-rc.16](https://github.com/Tencent/wujie/compare/v1.0.0-rc.14...v1.0.0-rc.16) (2022-09-12)
 
 **Note:** Version bump only for package react17
