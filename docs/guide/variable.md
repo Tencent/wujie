@@ -24,8 +24,8 @@ declare global {
     // 注入对象
     $wujie: {
       bus: EventBus;
-      shadowRoot?: ShadowRoot | undefined;
-      props?: { [key: string]: any } | undefined;
+      shadowRoot?: ShadowRoot;
+      props?: { [key: string]: any };
       location?: Object;
     };
   }
