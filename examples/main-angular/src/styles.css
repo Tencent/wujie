@@ -1,0 +1,11 @@
+/* Add application styles & imports to this file! */
+@import "~ng-zorro-antd/ng-zorro-antd.min.css";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  height: 100vh;
+  --theme: rgb(241, 107, 95);
+}
