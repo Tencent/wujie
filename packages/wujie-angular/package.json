@@ -1,0 +1,61 @@
+{
+  "name": "wujie-angular",
+  "version": "1.0.0-rc.20",
+  "description": "无界微前端angular模块封装",
+  "main": "./lib/bundles/wujie-angular.umd.js",
+  "module": "./lib/fesm2015/wujie-angular.js",
+  "es2015": "./lib/fesm2015/wujie-angular.js",
+  "esm2015": "./lib/esm2015/wujie-angular.js",
+  "fesm2015": "./lib/fesm2015/wujie-angular.js",
+  "typings": "./lib/wujie-angular.d.ts",
+  "types": "./lib/index.d.ts",
+  "metadata": "./lib/wujie-angular.metadata.json",
+  "sideEffects": false,
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "ng": "ng",
+    "start": "npm run watch",
+    "lib": "ng build --prod",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "prepublishOnly": "node --eval \"console.error('ERROR: Trying to publish a package that has been compiled by NGCC. This is not allowed.\\nPlease delete and rebuild the package, without compiling with NGCC, before attempting to publish.\\nNote that NGCC may have been run by importing this package into another project that is being built with Ivy enabled.\\n')\" && exit 1"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^11.0.8",
+    "@angular/core": "^11.0.8"
+  },
+  "dependencies": {
+    "wujie": "workspace:^1.0.0-rc.20",
+    "tslib": "^2.1.0"
+  },
+  "devDependencies": {
+    "@angular/animations": "^11.0.8",
+    "@angular/common": "^11.0.8",
+    "@angular/compiler": "^11.0.8",
+    "@angular/core": "^11.0.8",
+    "@angular/forms": "^11.0.8",
+    "@angular/platform-browser": "^11.0.8",
+    "@angular/platform-browser-dynamic": "^11.0.8",
+    "@angular/router": "^11.0.8",
+    "classlist.js": "^1.1.20150312",
+    "rxjs": "~6.6.0",
+    "@angular-devkit/build-angular": "~0.1002.0",
+    "@angular-devkit/build-ng-packagr": "~0.1002.0",
+    "@angular/cli": "^11.0.8",
+    "@angular/compiler-cli": "^11.0.8",
+    "@types/jasmine": "~3.6.0",
+    "@types/node": "^12.11.1",
+    "jasmine-core": "~3.7.0",
+    "karma": "~6.3.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.0.3",
+    "karma-jasmine": "~4.0.0",
+    "karma-jasmine-html-reporter": "^1.5.0",
+    "ng-packagr": "^11.0.0",
+    "typescript": "~4.0.2",
+    "zone.js": "~0.10.3"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": false
+  },
+  "version": 1,
+  "newProjectRoot": "wujie-angular",
+  "projects": {
+    "wujie-angular": {
+      "projectType": "library",
+      "root": "wujie-angular",
+      "sourceRoot": "wujie-ngx/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "assets": [
+            {
+              "glob": "**/*",
+              "input": "wujie-ngx/doc/index.md",
+              "output": "/README.md"
+            }
+          ],
+          "options": {
+            "project": "wujie-ngx/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "wujie-ngx/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "wujie-ngx/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "wujie-ngx/src/test.ts",
+            "tsConfig": "wujie-ngx/tsconfig.spec.json",
+            "karmaConfig": "wujie-ngx/karma.conf.js"
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "examples"
+}

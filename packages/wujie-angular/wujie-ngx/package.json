@@ -1,0 +1,13 @@
+{
+  "name": "wujie-angular",
+  "version": "1.0.0-rc.20",
+  "description": "无界微前端angular组件封装",
+  "peerDependencies": {
+    "@angular/common": "^11.0.8",
+    "@angular/core": "^11.0.8",
+    "wujie": "^1.0.0-rc.20"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  }
+}
