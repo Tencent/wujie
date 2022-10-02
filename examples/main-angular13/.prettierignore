@@ -1,0 +1,17 @@
+**/*.md
+**/*.svg
+# **/*.html
+**/test.ts
+src/index.html
+projects/commons/assets/**/*
+
+.stylelintrc
+.prettierrc
+
+_nginx/
+_screenshot/
+node_modules/
+dist/
+package.json
+src/templates/
+**/*.min.*

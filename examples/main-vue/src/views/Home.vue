@@ -28,6 +28,12 @@
             >react主应用</a
           >
         </a-tooltip>
+        <a-tooltip placement="top">
+          <template slot="title">主应用为hash模式</template>
+          <a href="https://wujie-micro.github.io/demo-main-angular/" target="_blank" class="docs button-gap"
+          >angular主应用</a
+          >
+        </a-tooltip>
         <a href="https://github.com/Tencent/wujie" target="_blank" class="docs button-gap">仓库</a>
         <a href="https://wujie-micro.github.io/doc/" target="_blank" class="docs button-gap">文档</a>
       </div>

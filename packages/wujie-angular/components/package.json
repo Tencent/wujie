@@ -1,0 +1,23 @@
+{
+  "name": "wujie-angular",
+  "version": "1.0.0-rc.19",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m310851010/wujie-angular.git"
+  },
+  "author": "m310851010",
+  "publishConfig": {
+    "access": "public"
+  },
+  "config": {
+    "unsafe-perm": true,
+    "registry": "https://registry.npmjs.org/"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/core": ">=9.0.0"
+  },
+  "dependencies": {
+    "wujie": "workspace:^1.0.0-rc.19"
+  }
+}

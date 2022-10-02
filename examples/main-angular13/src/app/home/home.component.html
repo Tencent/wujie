@@ -1,0 +1,93 @@
+
+<div class="home">
+  <div class="tool">
+    <button nz-button style="visibility: hidden" class="button-gap" nzType="primary" nzSize="large" >
+      <i nz-icon nzType="unordered-list"></i>
+    </button>
+    <div class="button-list">
+        <nz-switch
+          class="switch button-gap"
+          [nzDisabled]="disable"
+          nzCheckedChildren="降级开"
+          nzUnCheckedChildren="降级关"
+          [(ngModel)]="degrade"
+          (ngModelChange)="onDegradeChange($event)"
+          nz-tooltip
+          nzTooltipPlacement="bottom"
+          nzTooltipTitle="主动降级，去除shadow+proxy"
+        ></nz-switch>
+
+        <nz-switch
+          class="switch button-gap"
+          nzCheckedChildren="预加载开"
+          nzUnCheckedChildren="预加载关"
+          [(ngModel)]="preload"
+          (ngModelChange)="onPreloadChange($event)"
+          nz-tooltip
+          nzTooltipPlacement="bottom"
+          nzTooltipTitle="预加载+预执行"
+        ></nz-switch>
+
+
+      <a href="https://wujie-micro.github.io/demo-main-react/" target="_blank" class="docs button-gap"
+         rel="noreferrer"
+         nz-tooltip
+         nzTooltipPlacement="bottom"
+         nzTooltipTitle="主应用为history模式"
+         (click)="$event.stopPropagation();"
+      >vue主应用</a>
+      <a href="https://wujie-micro.github.io/demo-main-react/" target="_blank" class="docs button-gap"
+         rel="noreferrer"
+         nz-tooltip
+         nzTooltipPlacement="bottom"
+         nzTooltipTitle="主应用为hash模式"
+         (click)="$event.stopPropagation();"
+      >react主应用</a>
+
+      <a href="https://github.com/Tencent/wujie" target="_blank" class="docs button-gap" (click)="$event.stopPropagation();">仓库</a>
+      <a href="https://wujie-micro.github.io/doc/" target="_blank" class="docs button-gap" (click)="$event.stopPropagation();">文档</a>
+    </div>
+  </div>
+  <h1 class="header">
+    <img
+      [ngStyle]="{ width: '70px', height: '70px', 'margin-right': '15px' }"
+      src="https://vfiles.gtimg.cn/wuji_dashboard/xy/test_wuji_damy/XC5WMbxE.svg"
+    />
+    <span class="bland">无界</span>
+  </h1>
+
+  <h2 class="subtitle">—极致的微前端框架</h2>
+
+  <div class="detail-content">
+    <div class="item">
+      <div class="title">极速 🚀</div>
+      <div class="detail">
+        <ul>
+          <li>极致预加载提速</li>
+          <li>应用秒开无白屏</li>
+          <li>应用丝滑般切换</li>
+        </ul>
+      </div>
+    </div>
+    <div class="item">
+      <div class="title">强大 💪</div>
+      <div class="detail">
+        <ul>
+          <li>多应用同时激活在线</li>
+          <li>应用级别保活</li>
+          <li>去中心化的通信</li>
+        </ul>
+      </div>
+    </div>
+    <div class="item">
+      <div class="title">简单 🤞</div>
+      <div class="detail">
+        <ul>
+          <li>更小的体积</li>
+          <li>精简的API</li>
+          <li>开箱即用</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

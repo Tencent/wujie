@@ -1,0 +1,146 @@
+:host {
+  flex: 1;
+
+  .button-gap {
+    margin-bottom: 10px;
+  }
+
+  .button-list {
+    flex: 1;
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+  }
+
+  .tool {
+    margin: 30px 20px 30px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .header {
+    font-size: 70px;
+    margin-top: 100px;
+    text-align: center;
+    font-weight: 300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 200px;
+  }
+
+  .subtitle {
+    font-size: 50px;
+    margin-left: 250px;
+    text-align: center;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .bland {
+    display: inline-block;
+    font-weight: 400;
+  }
+
+  .title {
+    font-size: 30px;
+    color: var(--theme);
+    text-align: center;
+  }
+
+  .switch ::ng-deep {
+    .ant-switch{
+      margin-left: 15px;
+      padding: 5px;
+      height: 40px;
+    }
+
+    .ant-switch-handle {
+      top: 7px;
+      width: 25px;
+      height: 25px;
+      &::before{
+        border-radius: 50%;
+      }
+    }
+
+    .ant-switch-checked .ant-switch-handle {
+      left: calc(100% - 18px - 9px);
+    }
+
+    .ant-switch-inner {
+      font-size: 20px;
+    }
+  }
+
+
+  .docs {
+    font-size: 20px;
+    border: 1px solid rgb(217, 217, 217);
+    box-shadow: 0 2px #00000004;
+    color: rgb(44, 62, 80);
+    padding: 5px 20px;
+    border-radius: 20px;
+    margin-left: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.1s linear;
+  }
+
+  .docs:hover {
+    color: var(--theme);
+    border: 1px solid var(--theme);
+  }
+
+  .detail-content {
+    width: 900px;
+    margin: 150px auto 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .detail-content .item ul {
+    margin: 15px 0;
+  }
+
+  .home {
+    font-size: 20px;
+  }
+
+  .home ::ng-deep .ant-switch-checked {
+    background-color: var(--theme);
+  }
+
+  span.switch {
+    margin-left: 0;
+    padding: 0;
+  }
+
+  @media screen and (max-width: 768px) {
+    .subtitle {
+      font-size: 35px;
+      margin-left: 0;
+      font-weight: 150;
+    }
+
+    .header {
+      margin-right: 0;
+    }
+
+    .detail-content {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: auto;
+    }
+
+    .item {
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}

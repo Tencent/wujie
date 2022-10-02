@@ -24,6 +24,9 @@ hero:
     - theme: alt
       text: React示例
       link: https://wujie-micro.github.io/demo-main-react/
+    - theme: alt
+      text: Angular示例
+      link: https://wujie-micro.github.io/demo-main-angular/
     - theme: brand
       text: 在线体验
       link: /wujie/

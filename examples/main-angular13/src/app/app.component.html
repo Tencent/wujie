@@ -1,0 +1,73 @@
+<div id="nav" [class.active]="active" (click)="close()">
+  <div class="nav-inner">
+    <a routerLinkActive="router-link-active" [routerLink]="['/home']" >介绍</a>
+    <!-- react16相关路由 -->
+    <a routerLinkActive="router-link-active" [routerLink]="['/react16']">
+      react16
+      <i nz-icon class="main-icon"  [class.active]="react16Flag" nzType="caret-up" (click)="handleFlag($event, 'react16Flag')" ></i>
+    </a>
+    <div class="sub-menu" [hidden]="!react16Flag">
+      <a routerLinkActive="router-link-active" [routerLink]="['/react16-sub/home']">home</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react16-sub/dialog']">dialog</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react16-sub/location']">location</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react16-sub/communication']">communication</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react16-sub/nest']">nest</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react16-sub/font']">font</a>
+    </div>
+    <!-- react17相关路由 -->
+    <a routerLinkActive="router-link-active" [routerLink]="['/react17']">
+      react17
+      <span class="alive">保活</span>
+      <i nz-icon class="main-icon" [class.active]="react17Flag" nzType="caret-up"  (click)="handleFlag($event, 'react17Flag')"></i>
+    </a>
+    <div class="sub-menu" [hidden]="!react17Flag">
+      <a routerLinkActive="router-link-active" [routerLink]="['/react17-sub/home']">home</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react17-sub/dialog']">dialog</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react17-sub/location']">location</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react17-sub/communication']">communication</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/react17-sub/state']">state</a>
+    </div>
+    <!-- vue2相关路由 -->
+    <a routerLinkActive="router-link-active" [routerLink]="['/vue2']">
+      vue2
+      <i nz-icon class="main-icon" [class.active]="vue2Flag" nzType="caret-up" (click)="handleFlag($event, 'vue2Flag')"></i>
+    </a>
+    <div class="sub-menu" [hidden]="!vue2Flag">
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue2-sub/home']">home</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue2-sub/dialog']">dialog</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue2-sub/location']">location</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue2-sub/communication']">communication</a>
+    </div>
+    <!-- vue3相关路由 -->
+    <a routerLinkActive="router-link-active" [routerLink]="['/vue3']">
+      vue3<span class="alive">保活</span>
+      <i nz-icon class="main-icon" [class.active]="vue3Flag" nzType="caret-up"  (click)="handleFlag($event, 'vue3Flag')"></i>
+    </a>
+    <div class="sub-menu" [hidden]="!vue3Flag">
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue3-sub/home']">home</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue3-sub/dialog']">dialog</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue3-sub/location']">location</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue3-sub/contact']">contact</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vue3-sub/state']">state</a>
+    </div>
+    <a routerLinkActive="router-link-active" [routerLink]="['/vite']"
+    >vite
+      <i nz-icon class="main-icon" nzType="caret-up" [class.active]="viteFlag" (click)="handleFlag($event, 'viteFlag')"></i>
+    </a>
+    <div class="sub-menu" [hidden]="!viteFlag">
+      <a routerLinkActive="router-link-active" [routerLink]="['/vite-sub/home']">home</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vite-sub/dialog']">dialog</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vite-sub/location']">location</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/vite-sub/contact']">contact</a>
+    </div>
+    <a routerLinkActive="router-link-active" [routerLink]="['/angular12']">angular12</a>
+    <a routerLinkActive="router-link-active" [routerLink]="['/all']">all</a>
+  </div>
+  <button nz-button class="menu-icon" nzType="primary" nzSize="large" (click)="$event.stopPropagation(); active = !active" >
+    <i nz-icon nzType="unordered-list"></i>
+  </button>
+</div>
+<div class="content" (click)="$event.stopPropagation();$event.preventDefault(); active = false">
+  <router-outlet></router-outlet>
+</div>
+

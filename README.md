@@ -138,6 +138,47 @@ import WujieReact from "wujie-react";
 ></WujieReact>
 ```
 
+### angular框架
+
+
+- 安装
+
+```bash
+npm i wujie-angular -S
+
+```
+
+- 引入
+
+``` ts
+import { WujieModule } from 'wujie-angular';
+
+@NgModule({
+  imports: [ WujieModule ]
+})
+export class AppModule {}
+```
+
+- 使用
+
+```html
+<wujie-angular
+    width="100%"
+    height="100%"
+    name="xxx"
+    [url]="xxx"
+    [sync]="true"
+    [fetch]="fetch"
+    [props]="props"
+    (beforeLoad)="onBeforeLoad($event)"
+    (beforeMount)="onBeforeMount($event)"
+    (afterMount)="onAfterMount($event)"
+    (beforeUnmount)="onBeforeUnmount($event)"
+    (afterUnmount)="onAfterUnmount($event)"
+    (event)="onEvent($event)"
+></wujie-angular>
+```
+
 ## 常见问题
 
 [详见文档](https://wujie-micro.github.io/doc/question/#_1%E3%80%81%E8%AF%B7%E6%B1%82%E8%B5%84%E6%BA%90%E6%8A%A5%E9%94%99)
