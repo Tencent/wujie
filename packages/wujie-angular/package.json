@@ -1,6 +1,6 @@
 {
   "name": "wujie-angular",
-  "version": "1.0.0-rc.19",
+  "version": "1.0.0-rc.20",
   "description": "无界微前端angular组件封装",
   "scripts": {
     "ng": "ng",
