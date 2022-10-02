@@ -219,6 +219,10 @@ export default defineConfig({
               text: "React组件封装",
               link: "/pack/react",
             },
+            {
+              text: "Angular组件封装",
+              link: "/pack/angular",
+            },
           ],
         },
       ],
