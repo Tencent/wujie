@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, NgZone, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import hostMap from "../../hostMap";
 
 @Component({
@@ -81,10 +81,17 @@ export class MultipleComponent implements OnInit {
   react17Url = hostMap("//localhost:7100/");
   vue2Url = hostMap("//localhost:7200/");
   vue3Url = hostMap("//localhost:7300/");
-  vite = hostMap("//localhost:7500/");
+  viteUrl = hostMap("//localhost:7500/");
   angular12Url = hostMap("//localhost:7400/");
 
-  constructor() {}
+  props = {
+    jump: ((name) => {
+      const url = this.router.config.find((x) => x.data.name === name)?.path;
+      url && this.zone.run(() => this.router.navigateByUrl(url));
+    }).bind(this),
+  };
+
+  constructor(private router: Router, private zone: NgZone) {}
 
   ngOnInit(): void {
     console.log("[all] init");

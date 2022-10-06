@@ -13,14 +13,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "assets": [
-            {
-              "glob": "**/*",
-              "input": "wujie-ngx/doc/index.md",
-              "output": "/README.md"
-            }
-          ],
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "project": "wujie-ngx/ng-package.json"
           },
