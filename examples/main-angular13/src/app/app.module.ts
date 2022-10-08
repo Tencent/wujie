@@ -21,6 +21,7 @@ import {ViteComponent} from './views/vite.component';
 import {NzToolTipModule} from 'ng-zorro-antd/tooltip';
 import {NzSwitchModule} from 'ng-zorro-antd/switch';
 import {Angular12Component} from './views/angular12.component';
+import {Angular12SubComponent} from './views/angular12-sub.component';
 import {MultipleComponent} from './views/multiple.component';
 import {React16Component} from './views/react16.component';
 import {React16SubComponent} from './views/react16-sub.component';
@@ -42,6 +43,7 @@ const icons: IconDefinition[] = [ UnorderedListOutline ];
     AppComponent,
     HomeComponent,
     Angular12Component,
+    Angular12SubComponent,
     Vue2Component,
     ViteComponent,
     MultipleComponent,

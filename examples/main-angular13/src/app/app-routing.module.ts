@@ -12,6 +12,7 @@ import { ViteSubComponent } from './views/vite-sub.component';
 import { Vue3Component } from './views/vue3.component';
 import { Vue3SubComponent } from './views/vue3-sub.component';
 import { Angular12Component } from './views/angular12.component';
+import { Angular12SubComponent } from './views/angular12-sub.component';
 import { MultipleComponent } from './views/multiple.component';
 
 const routes: Routes = [
@@ -74,6 +75,11 @@ const routes: Routes = [
     path: 'angular12',
     data: { name: 'angular12' },
     component: Angular12Component
+  },
+  {
+    path: 'angular12-sub/:path',
+    data: { name: 'angular12-sub' },
+    component: Angular12SubComponent
   },
   {
     path: 'all',

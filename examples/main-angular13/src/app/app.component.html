@@ -60,7 +60,16 @@
       <a routerLinkActive="router-link-active" [routerLink]="['/vite-sub/location']">location</a>
       <a routerLinkActive="router-link-active" [routerLink]="['/vite-sub/contact']">contact</a>
     </div>
-    <a routerLinkActive="router-link-active" [routerLink]="['/angular12']">angular12</a>
+    <a routerLinkActive="router-link-active" [routerLink]="['/angular12']">angular12<span class="alive">保活</span>
+      <i nz-icon class="main-icon" [class.active]="vue3Flag" nzType="caret-up"  (click)="handleFlag($event, 'angular12Flag')"></i>
+    </a>
+    <div class="sub-menu" [hidden]="!angular12Flag">
+      <a routerLinkActive="router-link-active" [routerLink]="['/angular12-sub/home']">home</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/angular12-sub/dialog']">dialog</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/angular12-sub/location']">location</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/angular12-sub/contact']">contact</a>
+      <a routerLinkActive="router-link-active" [routerLink]="['/angular12-sub/state']">state</a>
+    </div>
     <a routerLinkActive="router-link-active" [routerLink]="['/all']">all</a>
   </div>
   <button nz-button class="menu-icon" nzType="primary" nzSize="large" (click)="$event.stopPropagation(); active = !active" >

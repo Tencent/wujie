@@ -103,6 +103,7 @@ setupApp({
   url: hostMap('//localhost:7400/'),
   attrs,
   exec: true,
+  alive: true,
   props,
   fetch: credentialsFetch,
   degrade,

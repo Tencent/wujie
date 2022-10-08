@@ -1,0 +1,35 @@
+<app-hello-world>弹窗处理</app-hello-world>
+
+<div class="content">
+  <p>弹窗无需子应用做任何处理就可使用</p>
+  <h3>1、打开antd弹窗</h3>
+  <p>
+    <button nz-button (click)="modalVisible = true">Open Modal</button>
+  </p>
+  <h3>2、打开antd选择器</h3>
+  <p>
+    <nz-select nzPlaceHolder="Select a person" nzShowSearch [nzOptions]="options" style="width: 200px">
+    </nz-select>
+  </p>
+  <h3>3、打开antd气泡卡片</h3>
+  <p>
+    <button nz-button nz-popover nzPopoverTitle="Title" [nzPopoverContent]="contentTemplate">Hover me</button>
+    <ng-template #contentTemplate>
+      <div>
+        <div>Content</div>
+        <div>Content</div>
+      </div>
+    </ng-template>
+  </p>
+
+</div>
+
+<nz-modal [(nzVisible)]="modalVisible" nzTitle="Basic Modal"
+          (nzOnCancel)="modalVisible = false"
+          (nzOnOk)="modalVisible = false">
+  <ng-container *nzModalContent>
+    <div>Some contents...</div>
+    <div>Some contents...</div>
+    <div>Some contents...</div>
+  </ng-container>
+</nz-modal>

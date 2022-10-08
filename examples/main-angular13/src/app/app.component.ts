@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
   vue2Flag = false;
   vue3Flag = false;
   viteFlag = false;
+  angular12Flag = false;
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router) {}
 
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit {
       this.vue2Flag = routeName === 'vue2-sub';
       this.vue3Flag = routeName === 'vue3-sub';
       this.viteFlag = routeName === 'vite-sub';
+      this.angular12Flag = routeName === 'angular12-sub';
     });
 
     pathChangeObservable.subscribe(path => this.router.navigate([path]));
