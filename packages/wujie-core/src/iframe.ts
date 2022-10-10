@@ -650,7 +650,8 @@ export function syncIframeUrlToWindow(iframeWindow: Window): void {
  * @param iframeWindow
  */
 export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLoader, iframeWindow: Window) {
-  const { src, module, content, crossorigin, crossoriginType, async, callback } = scriptResult as ScriptObjectLoader;
+  const { src, module, content, crossorigin, crossoriginType, async, callback, onload } =
+    scriptResult as ScriptObjectLoader;
   const scriptElement = iframeWindow.document.createElement("script");
   const nextScriptElement = iframeWindow.document.createElement("script");
   const { replace, plugins, proxyLocation } = iframeWindow.__WUJIE;
@@ -674,6 +675,8 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
     Object.defineProperty(scriptElement, "src", { get: () => src || "" });
     // 非内联脚本
   } else {
+    // 外联自动触发onload
+    onload && (scriptElement.onload = onload as (this: GlobalEventHandlers, ev: Event) => any);
     src && scriptElement.setAttribute("src", src);
     crossorigin && scriptElement.setAttribute("crossorigin", crossoriginType);
   }
@@ -690,6 +693,8 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
   }
   container.appendChild(scriptElement);
 
+  // 外联转内联调用手动触发onload
+  content && onload?.();
   // 调用回调
   callback?.(iframeWindow);
 
