@@ -26,6 +26,8 @@ export interface ScriptObjectLoader {
   content?: string;
   /** 执行回调钩子 */
   callback?: (appWindow: Window) => any;
+  /** 子应用加载完毕事件 */
+  onload?: Function;
 }
 export interface plugin {
   /** 处理html的loader */

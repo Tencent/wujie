@@ -42,6 +42,8 @@ export type ScriptObject = ScriptBaseObject & {
   content?: string;
   /** 忽略，子应用自行请求 */
   ignore?: boolean;
+  /** 子应用加载完毕事件 */
+  onload?: Function;
 };
 
 /** 样式对象 */
