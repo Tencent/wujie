@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.21](https://github.com/Tencent/wujie/compare/v1.0.0-rc.20...v1.0.0-rc.21) (2022-10-10)
+
+### Bug Fixes
+
+* 修复esm和jsIgnores脚本的onload事件没有触发 ([#211](https://github.com/Tencent/wujie/issues/211)) ([7846853](https://github.com/Tencent/wujie/commit/7846853830357fc87b9a8ce2f95843fa6fce210c)), closes [#210](https://github.com/Tencent/wujie/issues/210)
+
 # [1.0.0-rc.20](https://github.com/Tencent/wujie/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2022-09-30)
 
 ### Bug Fixes
