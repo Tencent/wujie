@@ -145,7 +145,7 @@ function patchStylesheetElement(
 }
 
 function patchFixedElementOffsetParent(element: any, iframeWindow: Window) {
-  if (element.offsetParent) {
+  if (element.offsetParent && element.offsetParent.tagName !== "BODY") {
     return;
   }
 
@@ -154,8 +154,8 @@ function patchFixedElementOffsetParent(element: any, iframeWindow: Window) {
     offsetParent: {
       configurable: true,
       get: function () {
-        const offsetParent = offsetParentDesc.get.call(element);
-        if (offsetParent || element.style.position !== "fixed") {
+        const offsetParent = offsetParentDesc.get.call(this);
+        if ((offsetParent && offsetParent.tagName !== "BODY") || element.style.position !== "fixed") {
           return offsetParent;
         }
 
