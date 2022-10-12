@@ -8,7 +8,16 @@ import {
   rawAddEventListener,
   rawRemoveEventListener,
 } from "./common";
-import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
+import {
+  isFunction,
+  isHijackingTag,
+  requestIdleCallback,
+  error,
+  warn,
+  nextTick,
+  getCurUrl,
+  getTargetValue,
+} from "./utils";
 import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
@@ -135,6 +144,34 @@ function patchStylesheetElement(
   });
 }
 
+function patchFixedElementOffsetParent(element: any, iframeWindow: Window) {
+  if (element.offsetParent) {
+    return;
+  }
+
+  const offsetParentDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetParent");
+  Object.defineProperties(element, {
+    offsetParent: {
+      configurable: true,
+      get: function () {
+        const offsetParent = offsetParentDesc.get.call(element);
+        if (offsetParent || element.style.position !== "fixed") {
+          return offsetParent;
+        }
+
+        return new Proxy(window.document.documentElement, {
+          get: (de, propKey) => {
+            if (propKey === "parentNode") {
+              return iframeWindow.document.documentElement.parentNode;
+            }
+            return getTargetValue(de, propKey);
+          },
+        });
+      },
+    },
+  });
+}
+
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
   wujieId: string;
@@ -153,6 +190,7 @@ function rewriteAppendOrInsertChild(opts: {
     if (!isHijackingTag(element.tagName) || !wujieId) {
       const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
       patchElementEffect(element, iframe.contentWindow);
+      patchFixedElementOffsetParent(element, iframe.contentWindow);
       return res;
     }
 

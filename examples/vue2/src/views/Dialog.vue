@@ -22,13 +22,7 @@
       </p>
       <h3>3、打开气泡卡片</h3>
       <p>
-        <el-popover
-          placement="top-start"
-          title="标题"
-          width="200"
-          trigger="hover"
-          content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"
-        >
+        <el-popover placement="top-start" title="标题" width="200" trigger="hover" content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。">
           <el-button slot="reference">el-popover hover 激活</el-button>
         </el-popover>
         <a-popover title="Title" style="margin-left: 15px">
@@ -45,7 +39,9 @@
       </p>
     </div>
     <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-      <span>这是一段信息</span>
+      <el-select v-model="value" placeholder="el-select">
+        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+      </el-select>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -60,50 +56,50 @@
 </template>
 
 <script>
-import HelloWorld from "@/components/HelloWorld.vue";
-import AppendBody from "@/components/AppendBody.vue";
-export default {
-  components: {
-    HelloWorld,
-    AppendBody,
-  },
-  data() {
-    return {
-      dialogVisible: false,
-      modalVisible: false,
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕",
-        },
-        {
-          value: "选项2",
-          label: "双皮奶",
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎",
-        },
-        {
-          value: "选项4",
-          label: "龙须面",
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭",
-        },
-      ],
-      value: "",
-    };
-  },
-  mounted() {
-    console.log("vue2 dialog mounted");
-  },
-};
+  import HelloWorld from "@/components/HelloWorld.vue";
+  import AppendBody from "@/components/AppendBody.vue";
+  export default {
+    components: {
+      HelloWorld,
+      AppendBody,
+    },
+    data() {
+      return {
+        dialogVisible: false,
+        modalVisible: false,
+        options: [
+          {
+            value: "选项1",
+            label: "黄金糕",
+          },
+          {
+            value: "选项2",
+            label: "双皮奶",
+          },
+          {
+            value: "选项3",
+            label: "蚵仔煎",
+          },
+          {
+            value: "选项4",
+            label: "龙须面",
+          },
+          {
+            value: "选项5",
+            label: "北京烤鸭",
+          },
+        ],
+        value: "",
+      };
+    },
+    mounted() {
+      console.log("vue2 dialog mounted");
+    },
+  };
 </script>
 
 <style>
-:root {
-  --host-color: #0239d0;
-}
+  :root {
+    --host-color: #0239d0;
+  }
 </style>
