@@ -185,12 +185,12 @@ function rewriteAppendOrInsertChild(opts: {
     const { rawDOMAppendOrInsertBefore, wujieId } = opts;
     const sandbox = getWujieById(wujieId);
 
-    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation, fiber } = sandbox;
+    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation, fiber, degrade } = sandbox;
 
     if (!isHijackingTag(element.tagName) || !wujieId) {
       const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
       patchElementEffect(element, iframe.contentWindow);
-      patchFixedElementOffsetParent(element, iframe.contentWindow);
+      !degrade && patchFixedElementOffsetParent(element, iframe.contentWindow);
       return res;
     }
 
