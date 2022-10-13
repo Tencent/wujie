@@ -78,9 +78,10 @@ npm i wujie-vue3 -S
 ```javascript
 // vue2
 import WujieVue from "wujie-vue2";
+Vue.use(WujieVue);
 // vue3
 import WujieVue from "wujie-vue3";
-Vue.use(WujieVue);
+app.use(WujieVue);
 ```
 
 - 使用
