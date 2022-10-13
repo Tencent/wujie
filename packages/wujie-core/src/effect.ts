@@ -8,7 +8,7 @@ import {
   rawAddEventListener,
   rawRemoveEventListener,
 } from "./common";
-import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
+import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl, execHooks } from "./utils";
 import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
@@ -153,6 +153,7 @@ function rewriteAppendOrInsertChild(opts: {
     if (!isHijackingTag(element.tagName) || !wujieId) {
       const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
       patchElementEffect(element, iframe.contentWindow);
+      execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
       return res;
     }
 
@@ -166,7 +167,11 @@ function rewriteAppendOrInsertChild(opts: {
           const { href, rel, type } = element as HTMLLinkElement;
           const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
           // 非 stylesheet 不做处理
-          if (!styleFlag) return rawDOMAppendOrInsertBefore.call(this, element, refChild);
+          if (!styleFlag) {
+            const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return res;
+          }
           // 排除css
           if (href && !isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
             getExternalStyleSheets(
@@ -218,6 +223,7 @@ function rewriteAppendOrInsertChild(opts: {
           // 处理样式补丁
           patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
           handleStylesheetElementPatch(stylesheetElement, sandbox);
+          execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
           return res;
         }
         case "SCRIPT": {
@@ -294,6 +300,7 @@ function rewriteAppendOrInsertChild(opts: {
           } catch (e) {
             error(e);
           }
+          execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
           return res;
         }
         default:

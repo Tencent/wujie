@@ -304,6 +304,22 @@ const plugins = [
   },
 ];
 ```
+## appendOrInsertElementHook
+
+子应用往`body`、`head`插入元素后执行的回调函数
+
+- **示例**
+
+```javascript
+const plugins = [
+  {
+    // element 为插入的元素，window 为子应用的 window
+    appendOrInsertElementHook(element, iframeWindow) {
+      console.log(element, iframeWindow)
+    }
+  },
+];
+```
 
 <!--
 ## windowPropertyOverride

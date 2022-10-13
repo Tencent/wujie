@@ -697,7 +697,8 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
   content && onload?.();
   // 调用回调
   callback?.(iframeWindow);
-
+  // 执行 hooks
+  execHooks(plugins, "appendOrInsertElementHook", scriptElement, iframeWindow);
   // async脚本不在执行队列，无需next操作
   !async && container.appendChild(nextScriptElement);
 }

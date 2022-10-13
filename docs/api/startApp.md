@@ -263,6 +263,8 @@ interface plugin {
   documentAddEventListenerHook?: eventListenerHook;
   /** 子应用 document removeEventListener 钩子回调 */
   documentRemoveEventListenerHook?: eventListenerHook;
+  /** 子应用 向body、head插入元素后执行的钩子回调 */
+  appendOrInsertElementHook?: <T extends Node>(element: T, iframeWindow: Window) => void;
   /** 用户自定义覆盖子应用 window 属性 */
   windowPropertyOverride?: (iframeWindow: Window) => void;
   /** 用户自定义覆盖子应用 document 属性 */
