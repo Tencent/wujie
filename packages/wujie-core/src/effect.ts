@@ -237,7 +237,7 @@ function rewriteAppendOrInsertChild(opts: {
                 manualInvokeElementEvent(element, "load");
                 element = null;
               };
-              insertScriptToIframe({ ...scriptResult, onload }, sandbox.iframe.contentWindow);
+              insertScriptToIframe({ ...scriptResult, onload }, sandbox.iframe.contentWindow, element);
             };
             const scriptOptions = {
               src,
@@ -272,9 +272,9 @@ function rewriteAppendOrInsertChild(opts: {
             sandbox.execQueue.push(() =>
               fiber
                 ? requestIdleCallback(() => {
-                    insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow);
+                    insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow, element);
                   })
-                : insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow)
+                : insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow, element)
             );
             if (!execQueueLength) sandbox.execQueue.shift()();
           }
