@@ -313,9 +313,9 @@ const plugins = [
 ```javascript
 const plugins = [
   {
-    // element 为插入的元素，window 为子应用的 window
-    appendOrInsertElementHook(element, iframeWindow) {
-      console.log(element, iframeWindow)
+    // element 为真正插入的元素，window 为子应用的 window, rawElement为原始插入元素 
+    appendOrInsertElementHook(element, iframeWindow, rawElement) {
+      console.log(element, iframeWindow, rawElement)
     }
   },
 ];

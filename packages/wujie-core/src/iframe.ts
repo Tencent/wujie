@@ -648,8 +648,13 @@ export function syncIframeUrlToWindow(iframeWindow: Window): void {
  * iframe插入脚本
  * @param scriptResult script请求结果
  * @param iframeWindow
+ * @param rawElement 原始的脚本
  */
-export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLoader, iframeWindow: Window) {
+export function insertScriptToIframe(
+  scriptResult: ScriptObject | ScriptObjectLoader,
+  iframeWindow: Window,
+  rawElement?: HTMLScriptElement
+) {
   const { src, module, content, crossorigin, crossoriginType, async, callback, onload } =
     scriptResult as ScriptObjectLoader;
   const scriptElement = iframeWindow.document.createElement("script");
@@ -693,12 +698,13 @@ export function insertScriptToIframe(scriptResult: ScriptObject | ScriptObjectLo
   }
   container.appendChild(scriptElement);
 
-  // 外联转内联调用手动触发onload
-  content && onload?.();
   // 调用回调
   callback?.(iframeWindow);
   // 执行 hooks
-  execHooks(plugins, "appendOrInsertElementHook", scriptElement, iframeWindow);
+  execHooks(plugins, "appendOrInsertElementHook", scriptElement, iframeWindow, rawElement);
+  // 外联转内联调用手动触发onload
+  content && onload?.();
+
   // async脚本不在执行队列，无需next操作
   !async && container.appendChild(nextScriptElement);
 }
