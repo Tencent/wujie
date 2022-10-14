@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.23](https://github.com/Tencent/wujie/compare/v1.0.0-rc.22...v1.0.0-rc.23) (2022-10-14)
+
+**Note:** Version bump only for package wujie-react
+
 # [1.0.0-rc.22](https://github.com/Tencent/wujie/compare/v1.0.0-rc.21...v1.0.0-rc.22) (2022-10-13)
 
 **Note:** Version bump only for package wujie-react

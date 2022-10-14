@@ -1,6 +1,6 @@
 {
   "name": "main-react",
-  "version": "1.0.0-rc.22",
+  "version": "1.0.0-rc.23",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
@@ -59,7 +59,7 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "wujie-react": "workspace:^1.0.0-rc.22"
+    "wujie-react": "workspace:^1.0.0-rc.23"
   },
   "scripts": {
     "start": "node scripts/start.js",
