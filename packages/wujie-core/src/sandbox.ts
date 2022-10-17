@@ -77,8 +77,6 @@ export default class Wujie {
   public lifecycles: lifecycles;
   /** 子应用的插件 */
   public plugins: Array<plugin>;
-  /** js沙箱ready态 */
-  public iframeReady: Promise<void>;
   /** 子应用预加载态 */
   public preload: Promise<void>;
   /** 子应用js执行队列 */
@@ -151,8 +149,6 @@ export default class Wujie {
     this.prefix = prefix ?? this.prefix;
     this.replace = replace ?? this.replace;
     this.provide.props = props ?? this.provide.props;
-    // wait iframe init
-    await this.iframeReady;
 
     // 处理子应用自定义fetch
     // TODO fetch检验合法性

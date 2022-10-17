@@ -115,9 +115,10 @@ function patchIframeEvents(iframeWindow: Window) {
   };
 }
 
-function patchIframeVariable(iframeWindow: Window, appHostPath: string): void {
+function patchIframeVariable(iframeWindow: Window, wujie: WuJie, appHostPath: string): void {
+  iframeWindow.__WUJIE = wujie;
   iframeWindow.__WUJIE_PUBLIC_PATH__ = appHostPath + "/";
-  iframeWindow.$wujie = iframeWindow.__WUJIE.provide;
+  iframeWindow.$wujie = wujie.provide;
   iframeWindow.__WUJIE_RAW_WINDOW__ = iframeWindow;
   iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__ = iframeWindow.Document.prototype.querySelector;
   iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__ = iframeWindow.Document.prototype.querySelectorAll;
@@ -571,46 +572,37 @@ export function initBase(iframeWindow: Window, url: string): void {
  * 初始化iframe的dom结构
  * @param iframeWindow
  */
-function initIframeDom(iframeWindow: Window): void {
+function initIframeDom(
+  iframeWindow: Window,
+  wujie: WuJie,
+  mainHostPath: string,
+  appHostPath: string,
+  appRoutePath: string
+): void {
   const iframeDocument = iframeWindow.document;
-  clearChild(iframeDocument);
-  const html = iframeDocument.createElement("html");
-  html.innerHTML = "<head></head><body></body>";
-  iframeDocument.appendChild(html);
+  iframeDocument.open();
+  iframeDocument.write("<!DOCTYPE html><html><head></head><body></body></html>");
+  iframeDocument.close();
 
-  initBase(iframeWindow, iframeWindow.__WUJIE.url);
+  patchIframeVariable(iframeWindow, wujie, appHostPath);
+  initBase(iframeWindow, wujie.url);
+
+  /**
+   * 如果有同步优先同步，非同步从url读取
+   */
+  if (!isMatchSyncQueryById(wujie.id)) {
+    iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
+  }
+
   patchWindowEffect(iframeWindow);
   patchDocumentEffect(iframeWindow);
   patchNodeEffect(iframeWindow);
   patchRelativeUrlEffect(iframeWindow);
-}
 
-/**
- * 防止运行主应用的js代码，给子应用带来很多副作用
- */
-// TODO 更加准确抓取停止时机
-function stopIframeLoading(iframeWindow: Window, url: string) {
-  iframeWindow.__WUJIE.iframeReady = new Promise<void>((resolve) => {
-    function loop() {
-      setTimeout(() => {
-        // location ready
-        if (iframeWindow.location.href === "about:blank") {
-          loop();
-        } else {
-          iframeWindow.stop();
-          initIframeDom(iframeWindow);
-          /**
-           * 如果有同步优先同步，非同步从url读取
-           */
-          if (!isMatchSyncQueryById(iframeWindow.__WUJIE.id)) {
-            iframeWindow.history.replaceState(null, "", url);
-          }
-          resolve();
-        }
-      }, 0);
-    }
-    loop();
-  });
+  patchIframeHistory(iframeWindow, appHostPath, mainHostPath);
+  patchIframeEvents(iframeWindow);
+  if (wujie.degrade) recordEventListeners(iframeWindow);
+  syncIframeUrlToWindow(iframeWindow);
 }
 
 export function patchElementEffect(
@@ -734,17 +726,13 @@ export function iframeGenerator(
   appRoutePath: string
 ): HTMLIFrameElement {
   const iframe = window.document.createElement("iframe");
-  const url = mainHostPath + appRoutePath;
-  const attrsMerge = { src: mainHostPath, ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
-  Object.keys(attrsMerge).forEach((key) => iframe.setAttribute(key, attrsMerge[key]));
+  const attrsMerge = { ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
+  Object.keys(attrsMerge)
+    .filter((key) => key !== "src")
+    .forEach((key) => iframe.setAttribute(key, attrsMerge[key]));
   window.document.body.appendChild(iframe);
+
   const iframeWindow = iframe.contentWindow;
-  iframeWindow.__WUJIE = sandbox;
-  patchIframeVariable(iframeWindow, appHostPath);
-  stopIframeLoading(iframeWindow, url);
-  patchIframeHistory(iframeWindow, appHostPath, mainHostPath);
-  patchIframeEvents(iframeWindow);
-  if (iframeWindow.__WUJIE.degrade) recordEventListeners(iframeWindow);
-  syncIframeUrlToWindow(iframeWindow);
+  initIframeDom(iframeWindow, sandbox, mainHostPath, appHostPath, appRoutePath);
   return iframe;
 }
