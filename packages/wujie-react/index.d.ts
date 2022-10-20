@@ -12,6 +12,7 @@ export default class WujieReact extends React.PureComponent {
     alive: typeof PropTypes.bool;
     fetch: typeof PropTypes.func;
     props: typeof PropTypes.object;
+    attrs: typeof PropTypes.object;
     replace: typeof PropTypes.func;
     sync: typeof PropTypes.bool;
     prefix: typeof PropTypes.object;

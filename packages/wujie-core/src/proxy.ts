@@ -1,7 +1,7 @@
 import { patchElementEffect, renderIframeReplaceApp } from "./iframe";
 import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
-import { documentProxyProperties, rawDocumentQuerySelector } from "./common";
+import { documentProxyProperties, rawDocumentQuerySelector, rawCreateElement, rawCreateTextNode } from "./common";
 import { WUJIE_TIPS_RELOAD_DISABLED } from "./constant";
 import {
   getTargetValue,
@@ -83,8 +83,9 @@ export function proxyGenerator(
         // need fix
         if (propKey === "createElement" || propKey === "createTextNode") {
           return new Proxy(document[propKey], {
-            apply(createElement, _ctx, args) {
-              const element = createElement.apply(iframe.contentDocument, args);
+            apply(_createElement, _ctx, args) {
+              const rawCreateMethod = propKey === "createElement" ? rawCreateElement : rawCreateTextNode;
+              const element = rawCreateMethod.apply(iframe.contentDocument, args);
               patchElementEffect(element, iframe.contentWindow);
               return element;
             },
@@ -216,7 +217,7 @@ export function localGenerator(
     createElement: {
       get: () => {
         return function (...args) {
-          const element = window.document.createElement.apply(iframe.contentDocument, args);
+          const element = rawCreateElement.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -225,7 +226,7 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = window.document.createTextNode.apply(iframe.contentDocument, args);
+          const element = rawCreateTextNode.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
