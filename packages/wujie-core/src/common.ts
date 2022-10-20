@@ -185,6 +185,9 @@ export const windowRegWhiteList = [
 ];
 
 // 保存原型方法
+// 子应用的Document.prototype已经被改写了
+export const rawCreateElement = window.top.Document.prototype.createElement;
+export const rawCreateTextNode = window.top.Document.prototype.createTextNode;
 export const rawElementAppendChild = HTMLElement.prototype.appendChild;
 export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
