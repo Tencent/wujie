@@ -1,7 +1,7 @@
 import { patchElementEffect, renderIframeReplaceApp } from "./iframe";
 import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
-import { documentProxyProperties, rawDocumentQuerySelector, rawCreateElement, rawCreateTextNode } from "./common";
+import { documentProxyProperties, rawDocumentQuerySelector } from "./common";
 import { WUJIE_TIPS_RELOAD_DISABLED } from "./constant";
 import {
   getTargetValue,
@@ -79,12 +79,12 @@ export function proxyGenerator(
     {
       get: function (_fakeDocument, propKey) {
         const document = window.document;
-        const shadowRoot = iframe.contentWindow.__WUJIE.shadowRoot;
+        const { shadowRoot, inject, proxyLocation } = iframe.contentWindow.__WUJIE;
         // need fix
         if (propKey === "createElement" || propKey === "createTextNode") {
           return new Proxy(document[propKey], {
             apply(_createElement, _ctx, args) {
-              const rawCreateMethod = propKey === "createElement" ? rawCreateElement : rawCreateTextNode;
+              const rawCreateMethod = propKey === "createElement" ? inject.rawCreateElement : inject.rawCreateTextNode;
               const element = rawCreateMethod.apply(iframe.contentDocument, args);
               patchElementEffect(element, iframe.contentWindow);
               return element;
@@ -92,7 +92,7 @@ export function proxyGenerator(
           });
         }
         if (propKey === "documentURI" || propKey === "URL") {
-          return (iframe.contentWindow.__WUJIE.proxyLocation as Location).href;
+          return (proxyLocation as Location).href;
         }
 
         // from shadowRoot
@@ -217,7 +217,7 @@ export function localGenerator(
     createElement: {
       get: () => {
         return function (...args) {
-          const element = rawCreateElement.apply(iframe.contentDocument, args);
+          const element = sandbox.inject.rawCreateElement.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -226,7 +226,7 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = rawCreateTextNode.apply(iframe.contentDocument, args);
+          const element = sandbox.inject.rawCreateTextNode.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };

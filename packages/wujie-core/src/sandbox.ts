@@ -124,6 +124,8 @@ export default class Wujie {
     idToSandboxMap: Map<String, SandboxCache>;
     appEventObjMap: Map<String, EventObj>;
     mainHostPath: string;
+    rawCreateElement: typeof Document.prototype.createElement;
+    rawCreateTextNode: typeof Document.prototype.createTextNode;
   };
 
   /** 激活子应用
@@ -472,6 +474,8 @@ export default class Wujie {
         idToSandboxMap: idToSandboxCacheMap,
         appEventObjMap,
         mainHostPath: window.location.protocol + "//" + window.location.host,
+        rawCreateElement: window.document.createElement,
+        rawCreateTextNode: window.document.createTextNode,
       };
     }
     const { name, url, attrs, fiber, degrade, lifecycles, plugins } = options;

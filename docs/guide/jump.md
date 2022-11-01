@@ -46,12 +46,11 @@ function handleJump() {
 ```javascript
 // 子应用 A 点击跳转处理函数
 function handleJump() {
-  window.$wujie?.props.jump({ path: "/pathB", query: { B: window.encodeURIComponent("/test") } });
+  window.$wujie?.props.jump({ path: "/pathB", query: { B: "/test" } });
 }
 ```
 
-由于跳转后的链接的查询参数带上了 B 应用的路径信息，而子应用 B 开启了路由同步的能力，所以能从 url 上读回需要同步的路径
-
+由于跳转后的链接的查询参数带上了 B 应用的路径信息，而子应用 B 开启了路由同步的能力，所以能从 url 上读回需要同步的路径，注意这种办法只有在 B 应用未曾激活过才生效。
 ### 子应用 B 为保活应用
 
 如果子应用 B 是保活应用并且没有被打开过，也就是还没有实例化，上述的打开指定路由的方式可以正常工作，但如果子应用 B 已经实例化，保活应用的内部数据和路由状态都会保存下来不随子应用切换而丢失。
