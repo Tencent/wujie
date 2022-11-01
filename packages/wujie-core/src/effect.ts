@@ -162,7 +162,7 @@ function rewriteAppendOrInsertChild(opts: {
       return res;
     }
 
-    const iframeDocument = iframe.contentWindow.document;
+    const iframeDocument = iframe.contentDocument;
     const curUrl = getCurUrl(proxyLocation);
 
     // TODO 过滤可以开放
@@ -290,13 +290,10 @@ function rewriteAppendOrInsertChild(opts: {
           try {
             // 降级的dom-iframe无需处理
             if (!element.getAttribute(WUJIE_DATA_ID)) {
-              const patchScript = (element as HTMLIFrameElement).contentWindow.document.createElement("script");
+              const patchScript = (element as HTMLIFrameElement).contentDocument.createElement("script");
               patchScript.type = "text/javascript";
               patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
-              element.contentWindow.document.head.insertBefore(
-                patchScript,
-                element.contentWindow.document.head.firstChild
-              );
+              element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);
             }
           } catch (e) {
             error(e);

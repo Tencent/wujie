@@ -104,7 +104,6 @@ export const documentProxyProperties = {
     "referrer",
     "visibilityState",
     "fonts",
-    "defaultView",
   ],
 
   // 需要从主应用document中获取的方法

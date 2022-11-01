@@ -593,7 +593,6 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
     : iframeDocument.appendChild(newDocumentElement);
 
   initBase(iframeWindow, wujie.url);
-  patchIframeVariable(iframeWindow, wujie, appHostPath);
   patchIframeHistory(iframeWindow, appHostPath, mainHostPath);
   patchIframeEvents(iframeWindow);
   if (wujie.degrade) recordEventListeners(iframeWindow);
@@ -609,8 +608,9 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
  * 防止运行主应用的js代码，给子应用带来很多副作用
  */
 // TODO 更加准确抓取停止时机
-function stopIframeLoading(iframeWindow: Window) {
-  return new Promise<void>((resolve) => {
+function stopIframeLoading(iframeWindow: Window, mainHostPath: string, appHostPath: string, appRoutePath: string) {
+  const sandbox = iframeWindow.__WUJIE;
+  sandbox.iframeReady = new Promise<void>((resolve) => {
     function loop() {
       setTimeout(() => {
         // location ready
@@ -618,9 +618,16 @@ function stopIframeLoading(iframeWindow: Window) {
           loop();
         } else {
           iframeWindow.stop ? iframeWindow.stop() : iframeWindow.document.execCommand("Stop");
+          initIframeDom(iframeWindow, sandbox, mainHostPath, appHostPath);
+          /**
+           * 如果有同步优先同步，非同步从url读取
+           */
+          if (!isMatchSyncQueryById(iframeWindow.__WUJIE.id)) {
+            iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
+          }
           resolve();
         }
-      }, 0);
+      }, 1);
     }
     loop();
   });
@@ -727,29 +734,21 @@ export function renderIframeReplaceApp(src: string, element: HTMLElement): void 
  * 创建和主应用同源的iframe，路径携带了子路由的路由信息
  * iframe必须禁止加载html，防止进入主应用的路由逻辑
  */
-export async function iframeGenerator(
+export function iframeGenerator(
   sandbox: WuJie,
   attrs: { [key: string]: any },
   mainHostPath: string,
   appHostPath: string,
   appRoutePath: string
-): Promise<HTMLIFrameElement> {
+): HTMLIFrameElement {
   const iframe = window.document.createElement("iframe");
-  const attrsMerge = { ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
+  const attrsMerge = { src: mainHostPath, ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
   Object.keys(attrsMerge).forEach((key) => iframe.setAttribute(key, attrsMerge[key]));
   window.document.body.appendChild(iframe);
 
   const iframeWindow = iframe.contentWindow;
-  const iframeReady = stopIframeLoading(iframeWindow);
-  iframeWindow.location.href = mainHostPath;
-  await iframeReady;
-
-  initIframeDom(iframeWindow, sandbox, mainHostPath, appHostPath);
-  /**
-   * 如果有同步优先同步，非同步从url读取
-   */
-  if (!isMatchSyncQueryById(sandbox.id)) {
-    iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
-  }
+  // 变量需要提前注入，在入口函数通过变量防止死循环
+  patchIframeVariable(iframeWindow, sandbox, appHostPath);
+  stopIframeLoading(iframeWindow, mainHostPath, appHostPath, appRoutePath);
   return iframe;
 }

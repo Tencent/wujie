@@ -85,7 +85,7 @@ export function proxyGenerator(
         if (propKey === "createElement" || propKey === "createTextNode") {
           return new Proxy(document[propKey], {
             apply(createElement, _ctx, args) {
-              const element = createElement.apply(iframe.contentWindow.document, args);
+              const element = createElement.apply(iframe.contentDocument, args);
               patchElementEffect(element, iframe.contentWindow);
               return element;
             },
@@ -105,7 +105,7 @@ export function proxyGenerator(
             apply(querySelectorAll, _ctx, args) {
               let arg = args[0];
               if (propKey === "getElementsByTagName" && arg === "script") {
-                return iframe.contentWindow.document.scripts;
+                return iframe.contentDocument.scripts;
               }
               if (propKey === "getElementsByClassName") arg = "." + arg;
               if (propKey === "getElementsByName") arg = `[name="${arg}"]`;
@@ -196,7 +196,6 @@ export function proxyGenerator(
  */
 export function localGenerator(
   iframe: HTMLIFrameElement,
-  sandbox: WuJie,
   urlElement: HTMLAnchorElement,
   mainHostPath: string,
   appHostPath: string
@@ -206,12 +205,13 @@ export function localGenerator(
 } {
   // 代理 document
   const proxyDocument = {};
+  const sandbox = iframe.contentWindow.__WUJIE;
   // 特殊处理
   Object.defineProperties(proxyDocument, {
     createElement: {
       get: () => {
         return function (...args) {
-          const element = window.document.createElement.apply(iframe.contentWindow.document, args);
+          const element = window.document.createElement.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -220,7 +220,7 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = window.document.createTextNode.apply(iframe.contentWindow.document, args);
+          const element = window.document.createTextNode.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -237,7 +237,7 @@ export function localGenerator(
         return function (...args) {
           const tagName = args[0];
           if (tagName === "script") {
-            return iframe.contentWindow.document.scripts as any;
+            return iframe.contentDocument.scripts as any;
           }
           return sandbox.document.getElementsByTagName(tagName) as any;
         };
@@ -259,8 +259,10 @@ export function localGenerator(
     .concat(ownerProperties, shadowProperties, shadowMethods, documentProperties, documentMethods)
     .forEach((key) => {
       Object.defineProperty(proxyDocument, key, {
-        get: () =>
-          isCallable(sandbox.document[key]) ? sandbox.document[key].bind(sandbox.document) : sandbox.document[key],
+        get: () => {
+          const value = sandbox.document?.[key];
+          return isCallable(value) ? value.bind(sandbox.document) : value;
+        },
       });
     });
 

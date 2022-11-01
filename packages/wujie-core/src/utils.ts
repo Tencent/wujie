@@ -278,7 +278,7 @@ export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Arr
 }
 
 // 合并缓存
-export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions): cacheOptions {
+export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) {
   return {
     name: options.name,
     el: options.el || cacheOptions?.el,

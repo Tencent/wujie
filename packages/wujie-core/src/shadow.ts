@@ -36,34 +36,25 @@ declare global {
 /**
  * 定义 wujie webComponent，将shadow包裹并获得dom装载和卸载的生命周期
  */
-export let defineWujieWebComponent = function () {};
+export function defineWujieWebComponent() {
+  const customElements = window.customElements;
+  if (customElements && !customElements?.get("wujie-app")) {
+    class WujieApp extends HTMLElement {
+      connectedCallback(): void {
+        if (this.shadowRoot) return;
+        const shadowRoot = this.attachShadow({ mode: "open" });
+        const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
+        patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
+        sandbox.shadowRoot = shadowRoot;
+      }
 
-// IE 下 typeof HTMLElement === 'object'，造成 babel 生成的代码在加载时就会报错，导致 wujie 执行中断
-// https://github.com/babel/babel/issues/8915
-if (typeof HTMLElement === "function") {
-  /**
-   * 制作webComponent沙箱
-   */
-  class WujieApp extends HTMLElement {
-    connectedCallback(): void {
-      if (this.shadowRoot) return;
-      const shadowRoot = this.attachShadow({ mode: "open" });
-      const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
-      patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
-      sandbox.shadowRoot = shadowRoot;
+      disconnectedCallback(): void {
+        const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
+        sandbox?.unmount();
+      }
     }
-
-    disconnectedCallback(): void {
-      const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
-      sandbox?.unmount();
-    }
+    customElements?.define("wujie-app", WujieApp);
   }
-
-  defineWujieWebComponent = function () {
-    if (!customElements.get("wujie-app")) {
-      customElements.define("wujie-app", WujieApp);
-    }
-  };
 }
 
 export function createWujieWebComponent(id: string): HTMLElement {
@@ -95,24 +86,11 @@ export function renderElementToContainer(
   return container;
 }
 
-export function initRenderIframeAndContainer(
-  id: string,
-  parent: string | HTMLElement
-): { iframe: HTMLIFrameElement; container: HTMLElement } {
-  const iframe = createIframeContainer(id);
-  const container = renderElementToContainer(iframe, parent);
-  const contentDocument = iframe.contentWindow.document;
-  contentDocument.open();
-  contentDocument.write("<!DOCTYPE html><html><head></head><body></body></html>");
-  contentDocument.close();
-  return { iframe, container };
-}
-
 /**
  * 处理css-before-loader 以及 css-after-loader
  */
 async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement): Promise<HTMLHtmlElement> {
-  const document = sandbox.iframe.contentWindow.document;
+  const document = sandbox.iframe.contentDocument;
   const { plugins, replace, proxyLocation } = sandbox;
   const cssLoader = getCssLoader({ plugins, replace });
   const cssBeforeLoaders = getPresetLoaders("cssBeforeLoaders", plugins);
@@ -251,16 +229,17 @@ export function createIframeContainer(id: string): HTMLIFrameElement {
  * 将template渲染到iframe
  */
 export async function renderTemplateToIframe(
-  renderWindow: Window,
+  renderDocument: Document,
   iframeWindow: Window,
   template: string
 ): Promise<void> {
-  const renderDocument = renderWindow.document;
+  // 清除iframe
+  clearChild(renderDocument);
   // 插入template
   const html = renderTemplateToHtml(iframeWindow, template);
   // 处理 css-before-loader 和 css-after-loader
   const processedHtml = await processCssLoaderForTemplate(iframeWindow.__WUJIE, html);
-  renderDocument.replaceChild(processedHtml, renderDocument.documentElement);
+  renderDocument.appendChild(processedHtml);
 
   // 修复 html parentNode
   Object.defineProperty(renderDocument.documentElement, "parentNode", {
