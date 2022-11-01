@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.25](https://github.com/Tencent/wujie/compare/v1.0.0-rc.24...v1.0.0-rc.25) (2022-11-01)
+
+### Bug Fixes
+
+* 修复无界主应用内嵌在iframe内部报错 ([#246](https://github.com/Tencent/wujie/issues/246)) ([56ff61e](https://github.com/Tencent/wujie/commit/56ff61e4784b140a68a57a1489d6a1a647f7c4e8))
+
 # [1.0.0-rc.24](https://github.com/Tencent/wujie/compare/v1.0.0-rc.23...v1.0.0-rc.24) (2022-10-20)
 
 **Note:** Version bump only for package wujie-docs
