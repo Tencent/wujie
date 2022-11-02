@@ -1,29 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
-import { BrowserRouter } from "react-router-dom";
-import "./styles.css";
+import { bindReactRuntime, preFetchLib } from 'hel-micro';
 
-const basename = process.env.NODE_ENV === "production" ? "/demo-react16/" : "";
+bindReactRuntime({ React, ReactDOM });
 
-if (window.__POWERED_BY_WUJIE__) {
-  // eslint-disable-next-line no-undef
-  window.__WUJIE_MOUNT = () => {
-    ReactDOM.render(
-      <BrowserRouter basename={basename}>
-        <App />
-      </BrowserRouter>,
-      document.getElementById("root")
-    );
-  };
-  window.__WUJIE_UNMOUNT = () => {
-    ReactDOM.unmountComponentAtNode(document.getElementById("root"));
-  };
-} else {
-  ReactDOM.render(
-    <BrowserRouter basename={basename}>
-      <App />
-    </BrowserRouter>,
-    document.getElementById("root")
-  );
-}
+(async function () {
+  await preFetchLib('hel-lodash'); // 预加载 hel-lodash，方便其他地方可以静态导入 hel-lodash
+  await import('./loadApp');
+})().catch(console.error);
