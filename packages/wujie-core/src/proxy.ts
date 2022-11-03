@@ -1,4 +1,3 @@
-import WuJie from "./sandbox";
 import { patchElementEffect, renderIframeReplaceApp } from "./iframe";
 import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
