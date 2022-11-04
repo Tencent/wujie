@@ -1,0 +1,111 @@
+<div id="app">
+  <div id="nav" [class.active]="active" (click)="close()">
+    <a [routerLink]="['/home']" routerLinkActive="router-link-active">介绍 </a>
+    <!-- react16相关路由 -->
+    <a [routerLink]="['/react16']" routerLinkActive="router-link-active">
+      react16
+      <span
+        nz-icon
+        nzType="caret-up"
+        class="main-icon"
+        [ngClass]="{ active: react16Flag }"
+        nzTheme="outline"
+        (click)="handleFlag('react16')"
+      ></span>
+    </a>
+    <div class="sub-menu" [hidden]="!react16Flag">
+      <a [routerLink]="['/react16-sub/home']" routerLinkActive="router-link-active">home</a>
+      <a [routerLink]="['/react16-sub/dialog']" routerLinkActive="router-link-active">dialog</a>
+      <a [routerLink]="['/react16-sub/location']" routerLinkActive="router-link-active">location</a>
+      <a [routerLink]="['/react16-sub/communication']" routerLinkActive="router-link-active">communication</a>
+      <a [routerLink]="['/react16-sub/nest']" routerLinkActive="router-link-active">nest</a>
+      <a [routerLink]="['/react16-sub/font']" routerLinkActive="router-link-active">font</a>
+    </div>
+
+    <!-- react17相关路由 -->
+    <a [routerLink]="['/react17']" routerLinkActive="router-link-active">
+      react17
+      <span class="alive">保活</span>
+      <span
+        nz-icon
+        nzType="caret-up"
+        class="main-icon"
+        [ngClass]="{ active: react17Flag }"
+        nzTheme="outline"
+        (click)="handleFlag('react17')"
+      ></span>
+    </a>
+    <div class="sub-menu" [hidden]="!react17Flag">
+      <a [routerLink]="['/react17-sub/home']" routerLinkActive="router-link-active">home</a>
+      <a [routerLink]="['/react17-sub/dialog']" routerLinkActive="router-link-active">dialog</a>
+      <a [routerLink]="['/react17-sub/location']" routerLinkActive="router-link-active">location</a>
+      <a [routerLink]="['/react17-sub/communication']" routerLinkActive="router-link-active">communication</a>
+      <a [routerLink]="['/react17-sub/state']" routerLinkActive="router-link-active">state</a>
+    </div>
+
+    <!-- vue2相关路由 -->
+    <a [routerLink]="['/vue2']" routerLinkActive="router-link-active">
+      vue2
+      <span
+        nz-icon
+        nzType="caret-up"
+        class="main-icon"
+        [ngClass]="{ active: vue2Flag }"
+        nzTheme="outline"
+        (click)="handleFlag('vue2')"
+      ></span>
+    </a>
+    <div class="sub-menu" [hidden]="!vue2Flag">
+      <a [routerLink]="['/vue2-sub/home']" routerLinkActive="router-link-active">home</a>
+      <a [routerLink]="['/vue2-sub/dialog']" routerLinkActive="router-link-active">dialog</a>
+      <a [routerLink]="['/vue2-sub/location']" routerLinkActive="router-link-active">location</a>
+      <a [routerLink]="['/vue2-sub/communication']" routerLinkActive="router-link-active">communication</a>
+    </div>
+
+    <!-- vue3相关路由 -->
+    <a [routerLink]="['/vue3']" routerLinkActive="router-link-active">
+      vue3
+      <span class="alive">保活</span>
+      <span
+        nz-icon
+        nzType="caret-up"
+        class="main-icon"
+        [ngClass]="{ active: vue3Flag }"
+        nzTheme="outline"
+        (click)="handleFlag('vue3')"
+      ></span>
+    </a>
+    <div class="sub-menu" [hidden]="!vue3Flag">
+      <a [routerLink]="['/vue3-sub/home']" routerLinkActive="router-link-active">home</a>
+      <a [routerLink]="['/vue3-sub/dialog']" routerLinkActive="router-link-active">dialog</a>
+      <a [routerLink]="['/vue3-sub/location']" routerLinkActive="router-link-active">location</a>
+      <a [routerLink]="['/vue3-sub/contact']" routerLinkActive="router-link-active">contact</a>
+      <a [routerLink]="['/vue3-sub/state']" routerLinkActive="router-link-active">state</a>
+    </div>
+
+    <!-- vite相关路由 -->
+    <a [routerLink]="['/vite']" routerLinkActive="router-link-active">
+      vite
+      <span
+        nz-icon
+        nzType="caret-up"
+        class="main-icon"
+        [ngClass]="{ active: viteFlag }"
+        nzTheme="outline"
+        (click)="handleFlag('vite')"
+      ></span>
+    </a>
+    <div class="sub-menu" [hidden]="!viteFlag">
+      <a [routerLink]="['/vite-sub/home']" routerLinkActive="router-link-active">home</a>
+      <a [routerLink]="['/vite-sub/dialog']" routerLinkActive="router-link-active">dialog</a>
+      <a [routerLink]="['/vite-sub/location']" routerLinkActive="router-link-active">location</a>
+      <a [routerLink]="['/vite-sub/contact']" routerLinkActive="router-link-active">contact</a>
+    </div>
+
+    <a [routerLink]="['/angular12']" routerLinkActive="router-link-active">angular12</a>
+    <a [routerLink]="['/all']" routerLinkActive="router-link-active">all</a>
+  </div>
+  <div class="content" (click)="active = false">
+    <router-outlet></router-outlet>
+  </div>
+</div>
