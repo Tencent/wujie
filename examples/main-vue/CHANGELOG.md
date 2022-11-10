@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/Tencent/wujie/compare/v1.0.0-rc.25...v1.0.0) (2022-11-10)
+
+### Features
+
+* ie11 compatibility ([#248](https://github.com/Tencent/wujie/issues/248)) ([f6fd307](https://github.com/Tencent/wujie/commit/f6fd307c3365801a300ea22050aca1447f81b197)), closes [#185](https://github.com/Tencent/wujie/issues/185) [#185](https://github.com/Tencent/wujie/issues/185)
+
 # [1.0.0-rc.25](https://github.com/Tencent/wujie/compare/v1.0.0-rc.24...v1.0.0-rc.25) (2022-11-01)
 
 **Note:** Version bump only for package main-vue
