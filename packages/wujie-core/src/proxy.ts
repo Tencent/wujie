@@ -26,7 +26,7 @@ function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: 
   iframe.contentWindow.__WUJIE.hrefFlag = true;
   if (degrade) {
     const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
-    renderElementToContainer(document.firstElementChild, iframeBody);
+    renderElementToContainer(document.documentElement, iframeBody);
     renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement);
   } else renderIframeReplaceApp(url, shadowRoot.host.parentElement);
   pushUrlToWindow(id, url);
@@ -265,8 +265,10 @@ export function localGenerator(
     .concat(ownerProperties, shadowProperties, shadowMethods, documentProperties, documentMethods)
     .forEach((key) => {
       Object.defineProperty(proxyDocument, key, {
-        get: () =>
-          isCallable(sandbox.document[key]) ? sandbox.document[key].bind(sandbox.document) : sandbox.document[key],
+        get: () => {
+          const value = sandbox.document?.[key];
+          return isCallable(value) ? value.bind(sandbox.document) : value;
+        },
       });
     });
 

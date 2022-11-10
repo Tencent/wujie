@@ -12,4 +12,7 @@ module.exports = {
     open: process.env.NODE_ENV === "development",
     port: "8000",
   },
+  transpileDependencies: [
+    "sockjs-client",
+  ],
 };

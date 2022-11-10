@@ -24,6 +24,9 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": ["warn"],
     "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
     "no-prototype-builtins": "off",
+    "no-self-assign": "off",
+    "no-empty": ["error", { allowEmptyCatch: true }],
+    "prettier/prettier": ["error", { endOfLine: "auto" }],
   },
   ignorePatterns: ["esm/*.js", "__test__/apps/*/*.html"],
 };

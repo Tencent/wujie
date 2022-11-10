@@ -77,7 +77,7 @@ export function clearInactiveAppUrl(): void {
     if (!sandbox) return;
     // 子应用执行过并且已经卸载才需要清除
     const clearFlag = sandbox.degrade
-      ? !window.document.contains(getDegradeIframe(sandbox.id))
+      ? !window.document.body.contains(getDegradeIframe(sandbox.id))
       : !window.document.contains(sandbox?.shadowRoot?.host);
     if (sandbox.execFlag && sandbox.sync && !sandbox.hrefFlag && clearFlag) {
       delete queryMap[id];
@@ -129,7 +129,7 @@ export function processAppForHrefJump(): void {
         // 前进href
         if (/http/.test(url)) {
           if (sandbox.degrade) {
-            renderElementToContainer(sandbox.document.firstElementChild, iframeBody);
+            renderElementToContainer(sandbox.document.documentElement, iframeBody);
             renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(sandbox.id).parentElement);
           } else renderIframeReplaceApp(window.decodeURIComponent(url), sandbox.shadowRoot.host.parentElement);
           sandbox.hrefFlag = true;

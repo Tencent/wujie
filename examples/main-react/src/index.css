@@ -38,7 +38,7 @@ body {
 .nav .menu-icon {
   display: none;
   border: none;
-  background: var(--theme) !important;
+  background: rgb(241, 107, 95) !important;
 }
 
 .main-icon {
@@ -107,18 +107,18 @@ h3 {
 }
 
 .nav a:hover {
-  color: var(--theme);
+  color: rgb(241, 107, 95);
 }
 
 .nav a.active {
-  color: var(--theme);
+  color: rgb(241, 107, 95);
   background: rgba(0, 0, 0, 0.05);
 }
 
 .alive {
   display: inline-block;
   white-space: nowrap;
-  background-color: var(--theme);
+  background-color: rgb(241, 107, 95);
   border-radius: 8px;
   margin-left: 4px;
   font-size: 10px;
@@ -152,7 +152,7 @@ h3 {
 
 .title {
   font-size: 30px;
-  color: var(--theme);
+  color: rgb(241, 107, 95);
   text-align: center;
 }
 
@@ -169,6 +169,12 @@ h3 {
   margin-left: 15px;
   padding: 5px;
   height: 40px;
+}
+
+.ant-switch-disabled {
+  height: 40px;
+  padding: 5px;
+  margin-top: -5px;
 }
 
 .switch.ant-switch::after {
@@ -190,8 +196,8 @@ h3 {
   transition: all 0.1s linear;
 }
 .docs:hover {
-  color: var(--theme);
-  border: 1px solid var(--theme)
+  color: rgb(241, 107, 95);
+  border: 1px solid rgb(241, 107, 95)
 }
 
 
@@ -213,7 +219,7 @@ h3 {
 .home .ant-switch-checked {
   border: 1px solid rgb(217, 217, 217);
   box-shadow: 0 2px #00000004;
-  background: var(--theme);
+  background: rgb(241, 107, 95);
   color: rgb(44, 62, 80); 
 }
 

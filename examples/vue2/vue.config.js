@@ -13,4 +13,7 @@ module.exports = {
     },
     port: "7200",
   },
+  transpileDependencies: [
+    "sockjs-client",
+  ],
 };
