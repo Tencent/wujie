@@ -104,6 +104,10 @@ export function proxyGenerator(
           return new Proxy(shadowRoot.querySelectorAll, {
             apply(querySelectorAll, _ctx, args) {
               let arg = args[0];
+              if (_ctx !== iframe.contentDocument) {
+                return _ctx[propKey].apply(_ctx, args);
+              }
+
               if (propKey === "getElementsByTagName" && arg === "script") {
                 return iframe.contentDocument.scripts;
               }
@@ -116,12 +120,22 @@ export function proxyGenerator(
         if (propKey === "getElementById") {
           return new Proxy(shadowRoot.querySelector, {
             apply(querySelector, _ctx, args) {
+              if (_ctx !== iframe.contentDocument) {
+                return _ctx[propKey].apply(_ctx, args);
+              }
               return querySelector.call(shadowRoot, `[id="${args[0]}"]`);
             },
           });
         }
         if (propKey === "querySelector" || propKey === "querySelectorAll") {
-          return shadowRoot[propKey].bind(shadowRoot);
+          return new Proxy(shadowRoot[propKey], {
+            apply(target, _ctx, args) {
+              if (_ctx !== iframe.contentDocument) {
+                return _ctx[propKey].apply(_ctx, args);
+              }
+              return shadowRoot[propKey].apply(shadowRoot, args);
+            },
+          });
         }
         if (propKey === "documentElement" || propKey === "scrollingElement") return shadowRoot.firstElementChild;
         if (propKey === "forms") return shadowRoot.querySelectorAll("form");
