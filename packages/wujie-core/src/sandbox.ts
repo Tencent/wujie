@@ -389,6 +389,7 @@ export default class Wujie {
     this.proxyLocation = null;
     this.execQueue = null;
     this.provide = null;
+    this.iframeStyle = null;
     this.styleSheetElements = null;
     this.bus = null;
     this.replace = null;
