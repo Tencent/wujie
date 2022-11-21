@@ -16,12 +16,20 @@ import {
  * location href 的set劫持操作
  */
 function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: string): boolean {
-  const { shadowRoot, id, degrade, document } = iframe.contentWindow.__WUJIE;
+  const { shadowRoot, id, degrade, document, proxyLocation } = iframe.contentWindow.__WUJIE;
   let url = value;
   if (!/^http/.test(url)) {
     let hrefElement = anchorElementGenerator(url);
     url = appHostPath + hrefElement.pathname + hrefElement.search + hrefElement.hash;
     hrefElement = null;
+  }
+  const originalHref = (proxyLocation as Location).href;
+  if (url === originalHref) {
+    return true
+  }
+  if (url.indexOf(originalHref) === 0) {
+    (proxyLocation as Location).replace(url)
+    return true
   }
   iframe.contentWindow.__WUJIE.hrefFlag = true;
   if (degrade) {
