@@ -130,14 +130,23 @@ export function processAppForHrefJump(): void {
         if (/http/.test(url)) {
           if (sandbox.degrade) {
             renderElementToContainer(sandbox.document.documentElement, iframeBody);
-            renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(sandbox.id).parentElement);
-          } else renderIframeReplaceApp(window.decodeURIComponent(url), sandbox.shadowRoot.host.parentElement);
+            renderIframeReplaceApp(
+              window.decodeURIComponent(url),
+              getDegradeIframe(sandbox.id).parentElement,
+              sandbox.iframeStyle
+            );
+          } else
+            renderIframeReplaceApp(
+              window.decodeURIComponent(url),
+              sandbox.shadowRoot.host.parentElement,
+              sandbox.iframeStyle
+            );
           sandbox.hrefFlag = true;
           // href后退
         } else if (sandbox.hrefFlag) {
           if (sandbox.degrade) {
             // 走全套流程，但是事件恢复不需要
-            const iframe = createIframeContainer(sandbox.id);
+            const iframe = createIframeContainer(sandbox.id, sandbox.iframeStyle);
             renderElementToContainer(iframe, sandbox.el);
             clearChild(iframe.contentDocument);
             patchEventTimeStamp(iframe.contentWindow, sandbox.iframe.contentWindow);

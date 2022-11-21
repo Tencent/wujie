@@ -16,7 +16,7 @@ import {
  * location href 的set劫持操作
  */
 function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: string): boolean {
-  const { shadowRoot, id, degrade, document } = iframe.contentWindow.__WUJIE;
+  const { shadowRoot, id, degrade, document, iframeStyle } = iframe.contentWindow.__WUJIE;
   let url = value;
   if (!/^http/.test(url)) {
     let hrefElement = anchorElementGenerator(url);
@@ -27,8 +27,8 @@ function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: 
   if (degrade) {
     const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
     renderElementToContainer(document.documentElement, iframeBody);
-    renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement);
-  } else renderIframeReplaceApp(url, shadowRoot.host.parentElement);
+    renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement, iframeStyle);
+  } else renderIframeReplaceApp(url, shadowRoot.host.parentElement, iframeStyle);
   pushUrlToWindow(id, url);
   return true;
 }

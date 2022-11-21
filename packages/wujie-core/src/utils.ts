@@ -292,6 +292,7 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     loading: options.loading || cacheOptions?.loading,
     // 默认 {}
     attrs: options.attrs !== undefined ? options.attrs : cacheOptions?.attrs || {},
+    iframeStyle: options.iframeStyle !== undefined ? options.iframeStyle : cacheOptions?.iframeStyle || {},
     // 默认 true
     fiber: options.fiber !== undefined ? options.fiber : cacheOptions?.fiber !== undefined ? cacheOptions?.fiber : true,
     alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,

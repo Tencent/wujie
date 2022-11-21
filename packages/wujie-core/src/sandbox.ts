@@ -81,6 +81,8 @@ export default class Wujie {
   public iframeReady: Promise<void>;
   /** 子应用预加载态 */
   public preload: Promise<void>;
+  /** iframe 渲染子应用时的样式 */
+  public iframeStyle: { [key: string]: string };
   /** 子应用js执行队列 */
   public execQueue: Array<Function>;
   /** 子应用执行标志 */
@@ -183,7 +185,7 @@ export default class Wujie {
 
     /* 降级处理 */
     if (this.degrade) {
-      const iframe = createIframeContainer(this.id);
+      const iframe = createIframeContainer(this.id, this.iframeStyle);
       const iframeBody = rawDocumentQuerySelector.call(iframeWindow.document, "body") as HTMLElement;
       this.el = renderElementToContainer(iframe, el ?? iframeBody);
       clearChild(iframe.contentDocument);
@@ -458,6 +460,7 @@ export default class Wujie {
     name: string;
     url: string;
     attrs: { [key: string]: any };
+    iframeStyle: { [key: string]: any };
     fiber: boolean;
     degrade;
     plugins: Array<plugin>;
@@ -474,12 +477,13 @@ export default class Wujie {
         rawCreateTextNode: window.document.createTextNode,
       };
     }
-    const { name, url, attrs, fiber, degrade, lifecycles, plugins } = options;
+    const { name, url, attrs, fiber, iframeStyle, degrade, lifecycles, plugins } = options;
     this.id = name;
     this.fiber = fiber;
     this.degrade = degrade || !wujieSupport;
     this.bus = new EventBus(this.id);
     this.url = url;
+    this.iframeStyle = iframeStyle;
     this.provide = { bus: this.bus };
     this.styleSheetElements = [];
     this.execQueue = [];

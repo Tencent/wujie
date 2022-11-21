@@ -218,10 +218,11 @@ export async function renderTemplateToShadowRoot(
   patchRenderEffect(shadowRoot, iframeWindow.__WUJIE.id, false);
 }
 
-export function createIframeContainer(id: string): HTMLIFrameElement {
+export function createIframeContainer(id: string, style: { [key: string]: string } = {}): HTMLIFrameElement {
   const iframe = document.createElement("iframe");
   iframe.setAttribute("style", "width: 100%; height:100%");
   iframe.setAttribute(WUJIE_DATA_ID, id);
+  Object.assign(iframe.style, style);
   return iframe;
 }
 
