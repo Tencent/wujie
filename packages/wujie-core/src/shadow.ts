@@ -20,7 +20,7 @@ import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
-import { getAbsolutePath, getContainer, getCurUrl } from "./utils";
+import { getAbsolutePath, getContainer, getCurUrl, mergeAttrsToElement } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -218,11 +218,11 @@ export async function renderTemplateToShadowRoot(
   patchRenderEffect(shadowRoot, iframeWindow.__WUJIE.id, false);
 }
 
-export function createIframeContainer(id: string, style: { [key: string]: string } = {}): HTMLIFrameElement {
+export function createIframeContainer(id: string, degrateAttrs: { [key: string]: any } = {}): HTMLIFrameElement {
   const iframe = document.createElement("iframe");
   iframe.setAttribute("style", "width: 100%; height:100%");
   iframe.setAttribute(WUJIE_DATA_ID, id);
-  Object.assign(iframe.style, style);
+  mergeAttrsToElement(iframe, degrateAttrs);
   return iframe;
 }
 
