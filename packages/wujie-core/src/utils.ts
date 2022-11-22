@@ -310,7 +310,7 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     loading: options.loading || cacheOptions?.loading,
     // 默认 {}
     attrs: options.attrs !== undefined ? options.attrs : cacheOptions?.attrs || {},
-    degrateAttrs: options.degrateAttrs !== undefined ? options.degrateAttrs : cacheOptions?.degrateAttrs || {},
+    degradeAttrs: options.degradeAttrs !== undefined ? options.degradeAttrs : cacheOptions?.degradeAttrs || {},
     // 默认 true
     fiber: options.fiber !== undefined ? options.fiber : cacheOptions?.fiber !== undefined ? cacheOptions?.fiber : true,
     alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,

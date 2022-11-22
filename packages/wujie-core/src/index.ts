@@ -91,7 +91,7 @@ type baseOptions = {
   /** 自定义iframe属性 */
   attrs?: { [key: string]: any };
   /** 降级时渲染iframe的属性 */
-  degrateAttrs?: { [key: string]: any };
+  degradeAttrs?: { [key: string]: any };
   /** 子应用采用fiber模式执行 */
   fiber?: boolean;
   /** 子应用保活，state不会丢失 */
@@ -181,7 +181,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
     fetch,
     props,
     attrs,
-    degrateAttrs,
+    degradeAttrs,
     fiber,
     alive,
     degrade,
@@ -238,7 +238,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
 
   // 设置loading
   addLoading(el, loading);
-  const newSandbox = new WuJie({ name, url, attrs, degrateAttrs, fiber, degrade, plugins, lifecycles });
+  const newSandbox = new WuJie({ name, url, attrs, degradeAttrs, fiber, degrade, plugins, lifecycles });
   newSandbox.lifecycles?.beforeLoad?.(newSandbox.iframe.contentWindow);
   const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {
     fetch: fetch || window.fetch,
@@ -275,7 +275,7 @@ export function preloadApp(preOptions: preOptions): void {
       fetch,
       exec,
       attrs,
-      degrateAttrs,
+      degradeAttrs,
       fiber,
       degrade,
       prefix,
@@ -283,7 +283,7 @@ export function preloadApp(preOptions: preOptions): void {
       lifecycles,
     } = options;
 
-    const sandbox = new WuJie({ name, url, attrs, degrateAttrs, fiber, degrade, plugins, lifecycles });
+    const sandbox = new WuJie({ name, url, attrs, degradeAttrs, fiber, degrade, plugins, lifecycles });
     if (sandbox.preload) return sandbox.preload;
     const runPreload = async () => {
       sandbox.lifecycles?.beforeLoad?.(sandbox.iframe.contentWindow);

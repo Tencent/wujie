@@ -133,20 +133,20 @@ export function processAppForHrefJump(): void {
             renderIframeReplaceApp(
               window.decodeURIComponent(url),
               getDegradeIframe(sandbox.id).parentElement,
-              sandbox.degrateAttrs
+              sandbox.degradeAttrs
             );
           } else
             renderIframeReplaceApp(
               window.decodeURIComponent(url),
               sandbox.shadowRoot.host.parentElement,
-              sandbox.degrateAttrs
+              sandbox.degradeAttrs
             );
           sandbox.hrefFlag = true;
           // href后退
         } else if (sandbox.hrefFlag) {
           if (sandbox.degrade) {
             // 走全套流程，但是事件恢复不需要
-            const iframe = createIframeContainer(sandbox.id, sandbox.degrateAttrs);
+            const iframe = createIframeContainer(sandbox.id, sandbox.degradeAttrs);
             renderElementToContainer(iframe, sandbox.el);
             clearChild(iframe.contentDocument);
             patchEventTimeStamp(iframe.contentWindow, sandbox.iframe.contentWindow);
