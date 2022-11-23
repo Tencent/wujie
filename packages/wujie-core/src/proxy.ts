@@ -79,12 +79,14 @@ export function proxyGenerator(
     {
       get: function (_fakeDocument, propKey) {
         const document = window.document;
-        const { shadowRoot, inject, proxyLocation } = iframe.contentWindow.__WUJIE;
+        const { shadowRoot, proxyLocation } = iframe.contentWindow.__WUJIE;
+        const rawCreateElement = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__;
+        const rawCreateTextNode = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__;
         // need fix
         if (propKey === "createElement" || propKey === "createTextNode") {
           return new Proxy(document[propKey], {
             apply(_createElement, _ctx, args) {
-              const rawCreateMethod = propKey === "createElement" ? inject.rawCreateElement : inject.rawCreateTextNode;
+              const rawCreateMethod = propKey === "createElement" ? rawCreateElement : rawCreateTextNode;
               const element = rawCreateMethod.apply(iframe.contentDocument, args);
               patchElementEffect(element, iframe.contentWindow);
               return element;
@@ -226,12 +228,14 @@ export function localGenerator(
   // 代理 document
   const proxyDocument = {};
   const sandbox = iframe.contentWindow.__WUJIE;
+  const rawCreateElement = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__;
+  const rawCreateTextNode = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__;
   // 特殊处理
   Object.defineProperties(proxyDocument, {
     createElement: {
       get: () => {
         return function (...args) {
-          const element = sandbox.inject.rawCreateElement.apply(iframe.contentDocument, args);
+          const element = rawCreateElement.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -240,7 +244,7 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = sandbox.inject.rawCreateTextNode.apply(iframe.contentDocument, args);
+          const element = rawCreateTextNode.apply(iframe.contentDocument, args);
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
