@@ -12,6 +12,7 @@ import {
   execHooks,
   getCurUrl,
   getAbsolutePath,
+  mergeAttrsToElement,
 } from "./utils";
 import {
   documentProxyProperties,
@@ -743,10 +744,15 @@ export function insertScriptToIframe(
  * @param src 地址
  * @param shadowRoot
  */
-export function renderIframeReplaceApp(src: string, element: HTMLElement): void {
+export function renderIframeReplaceApp(
+  src: string,
+  element: HTMLElement,
+  degradeAttrs: { [key: string]: any } = {}
+): void {
   const iframe = window.document.createElement("iframe");
   iframe.setAttribute("src", src);
   iframe.setAttribute("style", "height:100%;width:100%");
+  mergeAttrsToElement(iframe, degradeAttrs);
   renderElementToContainer(iframe, element);
 }
 

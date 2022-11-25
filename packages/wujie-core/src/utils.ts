@@ -107,6 +107,24 @@ export function getDegradeIframe(id: string): HTMLIFrameElement {
   return window.document.querySelector(`iframe[${WUJIE_DATA_ID}="${id}"]`);
 }
 
+export function mergeAttrsToElement(element: HTMLElement, attrs: { [key: string]: any }) {
+  Object.keys(attrs).forEach((name) => {
+    if (name === "style") {
+      const style: { [key: string]: string } = {};
+      const styleAttrs = attrs[name].split(";");
+      styleAttrs.forEach((styleAttr) => {
+        if (styleAttr && styleAttr.length) {
+          const [key, value] = styleAttr.split(":");
+          style[key.trim()] = value.trim();
+        }
+      });
+      Object.assign(element.style, style);
+    } else {
+      element.setAttribute(name, attrs[name]);
+    }
+  });
+}
+
 export function appRouteParse(url: string): {
   urlElement: HTMLAnchorElement;
   appHostPath: string;
@@ -292,6 +310,7 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     loading: options.loading || cacheOptions?.loading,
     // 默认 {}
     attrs: options.attrs !== undefined ? options.attrs : cacheOptions?.attrs || {},
+    degradeAttrs: options.degradeAttrs !== undefined ? options.degradeAttrs : cacheOptions?.degradeAttrs || {},
     // 默认 true
     fiber: options.fiber !== undefined ? options.fiber : cacheOptions?.fiber !== undefined ? cacheOptions?.fiber : true,
     alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,

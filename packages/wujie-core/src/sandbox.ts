@@ -81,6 +81,8 @@ export default class Wujie {
   public iframeReady: Promise<void>;
   /** 子应用预加载态 */
   public preload: Promise<void>;
+  /** 降级时渲染iframe的属性 */
+  public degradeAttrs: { [key: string]: any };
   /** 子应用js执行队列 */
   public execQueue: Array<Function>;
   /** 子应用执行标志 */
@@ -181,7 +183,7 @@ export default class Wujie {
 
     /* 降级处理 */
     if (this.degrade) {
-      const iframe = createIframeContainer(this.id);
+      const iframe = createIframeContainer(this.id, this.degradeAttrs);
       const iframeBody = rawDocumentQuerySelector.call(iframeWindow.document, "body") as HTMLElement;
       this.el = renderElementToContainer(iframe, el ?? iframeBody);
       clearChild(iframe.contentDocument);
@@ -385,6 +387,7 @@ export default class Wujie {
     this.proxyLocation = null;
     this.execQueue = null;
     this.provide = null;
+    this.degradeAttrs = null;
     this.styleSheetElements = null;
     this.bus = null;
     this.replace = null;
@@ -456,6 +459,7 @@ export default class Wujie {
     name: string;
     url: string;
     attrs: { [key: string]: any };
+    degradeAttrs: { [key: string]: any };
     fiber: boolean;
     degrade;
     plugins: Array<plugin>;
@@ -470,12 +474,13 @@ export default class Wujie {
         mainHostPath: window.location.protocol + "//" + window.location.host,
       };
     }
-    const { name, url, attrs, fiber, degrade, lifecycles, plugins } = options;
+    const { name, url, attrs, fiber, degradeAttrs, degrade, lifecycles, plugins } = options;
     this.id = name;
     this.fiber = fiber;
     this.degrade = degrade || !wujieSupport;
     this.bus = new EventBus(this.id);
     this.url = url;
+    this.degradeAttrs = degradeAttrs;
     this.provide = { bus: this.bus };
     this.styleSheetElements = [];
     this.execQueue = [];
