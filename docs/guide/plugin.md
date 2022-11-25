@@ -102,6 +102,11 @@ const plugins = [
 ];
 ```
 
+::: warning 警告
+- 对于 esm 脚本不会经过 js-loader 插件处理
+- 对于 js-ignores 脚本不会经过 js-loader 插件处理会
+:::
+
 ## js-after-loader
 
 如果用户想在`html`中所有的`js`之后做：

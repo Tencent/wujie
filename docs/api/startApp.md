@@ -31,8 +31,10 @@ type startOption  {
   fiber?: boolean;
   /** 子应用采用降级iframe方案 */
   degrade?: boolean;
-  /** 自定义iframe属性 */
+  /** 自定义运行iframe的属性 */
   attrs?: { [key: string]: any };
+  /** 自定义降级渲染iframe的属性 */
+  degradeAttrs?: { [key: string]: any };
   /** 代码替换钩子 */
   replace?: (codeText: string) => string;
   /** 自定义fetch，资源和接口 */

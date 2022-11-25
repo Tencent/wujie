@@ -88,9 +88,9 @@ type baseOptions = {
   fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
   /** 注入给子应用的属性 */
   props?: { [key: string]: any };
-  /** 自定义iframe属性 */
+  /** 自定义运行iframe的属性 */
   attrs?: { [key: string]: any };
-  /** 降级时渲染iframe的属性 */
+  /** 自定义降级渲染iframe的属性 */
   degradeAttrs?: { [key: string]: any };
   /** 子应用采用fiber模式执行 */
   fiber?: boolean;

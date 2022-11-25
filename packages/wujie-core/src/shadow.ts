@@ -20,7 +20,7 @@ import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
-import { getAbsolutePath, getContainer, getCurUrl, mergeAttrsToElement } from "./utils";
+import { getAbsolutePath, getContainer, getCurUrl, setAttrsToElement } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -220,9 +220,12 @@ export async function renderTemplateToShadowRoot(
 
 export function createIframeContainer(id: string, degradeAttrs: { [key: string]: any } = {}): HTMLIFrameElement {
   const iframe = document.createElement("iframe");
-  iframe.setAttribute("style", "width: 100%; height:100%");
-  iframe.setAttribute(WUJIE_DATA_ID, id);
-  mergeAttrsToElement(iframe, degradeAttrs);
+  const defaultStyle = "height:100%;width:100%";
+  setAttrsToElement(iframe, {
+    ...degradeAttrs,
+    style: [defaultStyle, degradeAttrs.style].join(";"),
+    [WUJIE_DATA_ID]: id,
+  });
   return iframe;
 }
 
@@ -269,7 +272,12 @@ export function addLoading(el: string | HTMLElement, loading: HTMLElement): void
   const container = getContainer(el);
   clearChild(container);
   // 给容器设置一些样式，防止 loading 抖动
-  const containerStyles = window.getComputedStyle(container);
+  let containerStyles = null;
+  try {
+    containerStyles = window.getComputedStyle(container);
+  } catch {
+    return;
+  }
   if (containerStyles.position === "static") {
     container.setAttribute(CONTAINER_POSITION_DATA_FLAG, containerStyles.position);
     container.setAttribute(

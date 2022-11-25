@@ -107,21 +107,9 @@ export function getDegradeIframe(id: string): HTMLIFrameElement {
   return window.document.querySelector(`iframe[${WUJIE_DATA_ID}="${id}"]`);
 }
 
-export function mergeAttrsToElement(element: HTMLElement, attrs: { [key: string]: any }) {
+export function setAttrsToElement(element: HTMLElement, attrs: { [key: string]: any }) {
   Object.keys(attrs).forEach((name) => {
-    if (name === "style") {
-      const style: { [key: string]: string } = {};
-      const styleAttrs = attrs[name].split(";");
-      styleAttrs.forEach((styleAttr) => {
-        if (styleAttr && styleAttr.length) {
-          const [key, value] = styleAttr.split(":");
-          style[key.trim()] = value.trim();
-        }
-      });
-      Object.assign(element.style, style);
-    } else {
-      element.setAttribute(name, attrs[name]);
-    }
+    element.setAttribute(name, attrs[name]);
   });
 }
 

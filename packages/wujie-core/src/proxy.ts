@@ -121,21 +121,22 @@ export function proxyGenerator(
         }
         if (propKey === "getElementById") {
           return new Proxy(shadowRoot.querySelector, {
-            apply(querySelector, _ctx, args) {
-              if (_ctx !== iframe.contentDocument) {
-                return _ctx[propKey].apply(_ctx, args);
+            // case document.querySelector.call
+            apply(target, ctx, args) {
+              if (ctx !== iframe.contentDocument) {
+                return ctx[propKey]?.apply(ctx, args);
               }
-              return querySelector.call(shadowRoot, `[id="${args[0]}"]`);
+              return target.call(shadowRoot, `[id="${args[0]}"]`);
             },
           });
         }
         if (propKey === "querySelector" || propKey === "querySelectorAll") {
           return new Proxy(shadowRoot[propKey], {
-            apply(target, _ctx, args) {
-              if (_ctx !== iframe.contentDocument) {
-                return _ctx[propKey].apply(_ctx, args);
+            apply(target, ctx, args) {
+              if (ctx !== iframe.contentDocument) {
+                return ctx[propKey]?.apply(ctx, args);
               }
-              return shadowRoot[propKey].apply(shadowRoot, args);
+              return target.apply(shadowRoot, args);
             },
           });
         }

@@ -12,7 +12,7 @@ import {
   execHooks,
   getCurUrl,
   getAbsolutePath,
-  mergeAttrsToElement,
+  setAttrsToElement,
 } from "./utils";
 import {
   documentProxyProperties,
@@ -750,9 +750,8 @@ export function renderIframeReplaceApp(
   degradeAttrs: { [key: string]: any } = {}
 ): void {
   const iframe = window.document.createElement("iframe");
-  iframe.setAttribute("src", src);
-  iframe.setAttribute("style", "height:100%;width:100%");
-  mergeAttrsToElement(iframe, degradeAttrs);
+  const defaultStyle = "height:100%;width:100%";
+  setAttrsToElement(iframe, { ...degradeAttrs, src, style: [defaultStyle, degradeAttrs.style].join(";") });
   renderElementToContainer(iframe, element);
 }
 
@@ -770,7 +769,7 @@ export function iframeGenerator(
 ): HTMLIFrameElement {
   const iframe = window.document.createElement("iframe");
   const attrsMerge = { src: mainHostPath, ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
-  Object.keys(attrsMerge).forEach((key) => iframe.setAttribute(key, attrsMerge[key]));
+  setAttrsToElement(iframe, attrsMerge);
   window.document.body.appendChild(iframe);
 
   const iframeWindow = iframe.contentWindow;
