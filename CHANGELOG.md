@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/Tencent/wujie/compare/v1.0.0...v1.0.1) (2022-11-25)
+
+### Bug Fixes
+
+* 兼容主应用拦截原生的createElement ([#275](https://github.com/Tencent/wujie/issues/275)) ([9d657ee](https://github.com/Tencent/wujie/commit/9d657ee98470089071c2e906848c7476105343c9)), closes [#274](https://github.com/Tencent/wujie/issues/274)
+* 修正其他document调用获取元素函数无法获取的问题 ([#263](https://github.com/Tencent/wujie/issues/263)) ([9c7cccd](https://github.com/Tencent/wujie/commit/9c7cccd3f3d63e19fcc335bd855b187bdb2a50c3)), closes [#262](https://github.com/Tencent/wujie/issues/262)
+
+### Features
+
+* 增加degradeAttrs参数用于控制降级时的Iframe属性 ([#272](https://github.com/Tencent/wujie/issues/272)) ([16adfd4](https://github.com/Tencent/wujie/commit/16adfd41c7ec75830f908cd7e4a7ae31fbb1364d)), closes [#271](https://github.com/Tencent/wujie/issues/271)
+
 # [1.0.0](https://github.com/Tencent/wujie/compare/v1.0.0-rc.25...v1.0.0) (2022-11-10)
 
 ### Features
