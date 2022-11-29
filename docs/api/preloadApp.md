@@ -12,7 +12,7 @@ type preOptions  {
   /** 唯一性用户必须保证 */
   name: string;
   /** 需要渲染的url */
-  url: string;
+  url?: string;
   /** 注入给子应用的数据 */
   props?: { [key: string]: any };
   /** 自定义运行iframe的属性 */

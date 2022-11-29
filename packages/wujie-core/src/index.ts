@@ -111,9 +111,9 @@ type baseOptions = {
   loadError?: loadErrorHandler;
 };
 
-export type preOptions = baseOptions & {
-  /** 预执行 */
-  exec?: boolean;
+export type preOptions = Partial<baseOptions> & {
+  /** 唯一性用户必须保证 */
+  name: string;
 };
 
 export type startOptions = baseOptions & {
