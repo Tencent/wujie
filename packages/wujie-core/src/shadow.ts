@@ -323,7 +323,7 @@ export function removeLoading(el: HTMLElement): void {
 export function getPatchStyleElements(rootStyleSheets: Array<CSSStyleSheet>): Array<HTMLStyleElement | null> {
   const rootCssRules = [];
   const fontCssRules = [];
-  const rootStyleReg = /:root/g;
+  const rootStyleReg = /^:root(\[.*\])|:root/g;
 
   // 找出root的cssRules
   for (let i = 0; i < rootStyleSheets.length; i++) {
@@ -332,7 +332,15 @@ export function getPatchStyleElements(rootStyleSheets: Array<CSSStyleSheet>): Ar
       const cssRuleText = cssRules[j].cssText;
       // 如果是root的cssRule
       if (rootStyleReg.test(cssRuleText)) {
-        rootCssRules.push(cssRuleText.replace(rootStyleReg, (match) => cssSelectorMap[match]));
+        rootCssRules.push(
+          cssRuleText.replace(rootStyleReg, (match, attr) => {
+            if (attr) {
+              // 取match前5个字符，并将属性挂到html上
+              return `${cssSelectorMap[match.slice(0, 5)]} html${attr}`;
+            }
+            return cssSelectorMap[match];
+          })
+        );
       }
       // 如果是font-face的cssRule
       if (cssRules[j].type === CSSRule.FONT_FACE_RULE) {
