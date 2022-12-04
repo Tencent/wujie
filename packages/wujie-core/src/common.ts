@@ -147,6 +147,9 @@ export const mainDocumentAddEventListenerEvents = [
   "selectionchange",
   "visibilitychange",
   "wheel",
+  "keydown",
+  "keypress",
+  "keyup",
 ];
 
 // 需要同时挂载到主应用document和shadow上的事件（互斥）
