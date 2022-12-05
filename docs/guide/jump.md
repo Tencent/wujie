@@ -87,7 +87,7 @@ window.$wujie?.bus.$on("routeChange", (path) => this.$router.push({ path }));
 
 ```vue
 <template>
-  <wujie-vue name="A" url="//hostA.com" :props="{jump}" ></WujieVue>
+  <wujie-vue name="A" url="//hostA.com" :props="{jump}" ></wujie-vue>
 </template>
 
 <script>
