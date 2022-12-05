@@ -39,7 +39,7 @@ export default {
 </script>
 
 <style>
-:root {
+:root[data-theme="dark"] {
   --host-color: #f16b5f;
 }
 </style>

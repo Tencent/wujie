@@ -336,7 +336,7 @@ export function getPatchStyleElements(rootStyleSheets: Array<CSSStyleSheet>): Ar
           cssRuleText.replace(rootStyleReg, (match, attr) => {
             if (attr) {
               // 取match前5个字符，并将属性挂到html上
-              return `${cssSelectorMap[match.slice(0, 5)]} html${attr}`;
+              return `${cssSelectorMap[match.slice(0, 5)]} :where(html,body)${attr}`;
             }
             return cssSelectorMap[match];
           })
