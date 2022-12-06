@@ -15,6 +15,8 @@ type startOption  {
   name: string;
   /** 需要渲染的url */
   url: string;
+  /** 需要渲染的html, 如果用户已有则无需从url请求 */
+  html?: string;
   /** 渲染的容器 */
   el: HTMLElement | string;
   /** 子应用加载时loading元素 */
@@ -84,6 +86,11 @@ type startOption  {
   - 如果子应用为 [保活模式](/guide/mode.html#保活模式)，改变`url`则无效，需要采用 [通信](/guide/communication.html) 的方式对子应用路由进行跳转
   - 如果子应用为 [重建模式](/guide/mode.html#保活模式)，改变 `url` 子应用的路由会跳转对应路由，但是在 [路由同步](/guide/sync.html) 场景并且子应用的路由同步参数已经同步到主应用`url`上时则无法生效，因为改变`url`后会导致子应用销毁重新渲染，此时如果有同步参数则同步参数的优先级最高
 
+## html
+
+- **类型：** `String`
+
+- **详情：** 子应用的html，设置后子应用将直接读取该值，没有设置则子应用通过`url`请求获取
 
 ## el
 

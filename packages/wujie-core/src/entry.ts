@@ -190,7 +190,12 @@ export function getExternalScripts(
   });
 }
 
-export default function importHTML(url: string, opts?: ImportEntryOpts): Promise<htmlParseResult> {
+export default function importHTML(params: {
+  url: string;
+  html?: string;
+  opts: ImportEntryOpts;
+}): Promise<htmlParseResult> {
+  const { url, opts, html } = params;
   const fetch = opts.fetch ?? defaultFetch;
   const fiber = opts.fiber ?? true;
   const { plugins, loadError } = opts;
@@ -201,45 +206,46 @@ export default function importHTML(url: string, opts?: ImportEntryOpts): Promise
   const cssIgnores = getEffectLoaders("cssIgnores", plugins);
   const getPublicPath = defaultGetPublicPath;
 
-  const getHtmlParseResult = (url, htmlLoader) =>
-    fetch(url)
-      .then(
-        (response) => response.text(),
-        (e) => {
-          loadError?.(url, e);
-          return Promise.reject(e);
-        }
-      )
-      .then((html) => {
-        const assetPublicPath = getPublicPath(url);
-        const { template, scripts, styles } = processTpl(htmlLoader(html), assetPublicPath);
-        return {
-          template: template,
-          assetPublicPath,
-          getExternalScripts: () =>
-            getExternalScripts(
-              scripts
-                .filter((script) => !script.src || !isMatchUrl(script.src, jsExcludes))
-                .map((script) => ({ ...script, ignore: script.src && isMatchUrl(script.src, jsIgnores) })),
-              fetch,
-              loadError,
-              fiber
-            ),
-          getExternalStyleSheets: () =>
-            getExternalStyleSheets(
-              styles
-                .filter((style) => !style.src || !isMatchUrl(style.src, cssExcludes))
-                .map((style) => ({ ...style, ignore: style.src && isMatchUrl(style.src, cssIgnores) })),
-              fetch,
-              loadError
-            ),
-        };
-      });
+  const getHtmlParseResult = (url, html, htmlLoader) =>
+    (html
+      ? Promise.resolve(html)
+      : fetch(url).then(
+          (response) => response.text(),
+          (e) => {
+            loadError?.(url, e);
+            return Promise.reject(e);
+          }
+        )
+    ).then((html) => {
+      const assetPublicPath = getPublicPath(url);
+      const { template, scripts, styles } = processTpl(htmlLoader(html), assetPublicPath);
+      return {
+        template: template,
+        assetPublicPath,
+        getExternalScripts: () =>
+          getExternalScripts(
+            scripts
+              .filter((script) => !script.src || !isMatchUrl(script.src, jsExcludes))
+              .map((script) => ({ ...script, ignore: script.src && isMatchUrl(script.src, jsIgnores) })),
+            fetch,
+            loadError,
+            fiber
+          ),
+        getExternalStyleSheets: () =>
+          getExternalStyleSheets(
+            styles
+              .filter((style) => !style.src || !isMatchUrl(style.src, cssExcludes))
+              .map((style) => ({ ...style, ignore: style.src && isMatchUrl(style.src, cssIgnores) })),
+            fetch,
+            loadError
+          ),
+      };
+    });
 
   if (opts?.plugins.some((plugin) => plugin.htmlLoader)) {
-    return getHtmlParseResult(url, htmlLoader);
+    return getHtmlParseResult(url, html, htmlLoader);
     // 没有html-loader可以做缓存
   } else {
-    return embedHTMLCache[url] || (embedHTMLCache[url] = getHtmlParseResult(url, htmlLoader));
+    return embedHTMLCache[url] || (embedHTMLCache[url] = getHtmlParseResult(url, html, htmlLoader));
   }
 }

@@ -82,6 +82,8 @@ type baseOptions = {
   name: string;
   /** 需要渲染的url */
   url: string;
+  /** 需要渲染的html, 如果已有则无需从url请求 */
+  html?: string;
   /** 代码替换钩子 */
   replace?: (code: string) => string;
   /** 自定义fetch */
@@ -177,6 +179,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
   const {
     name,
     url,
+    html,
     replace,
     fetch,
     props,
@@ -206,11 +209,15 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
       // 预加载但是没有执行的情况
       if (!sandbox.execFlag) {
         sandbox.lifecycles?.beforeLoad?.(sandbox.iframe.contentWindow);
-        const { getExternalScripts } = await importHTML(url, {
-          fetch: fetch || window.fetch,
-          plugins: sandbox.plugins,
-          loadError: sandbox.lifecycles.loadError,
-          fiber,
+        const { getExternalScripts } = await importHTML({
+          url,
+          html,
+          opts: {
+            fetch: fetch || window.fetch,
+            plugins: sandbox.plugins,
+            loadError: sandbox.lifecycles.loadError,
+            fiber,
+          },
         });
         await sandbox.start(getExternalScripts);
       }
@@ -240,11 +247,15 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
   addLoading(el, loading);
   const newSandbox = new WuJie({ name, url, attrs, degradeAttrs, fiber, degrade, plugins, lifecycles });
   newSandbox.lifecycles?.beforeLoad?.(newSandbox.iframe.contentWindow);
-  const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {
-    fetch: fetch || window.fetch,
-    plugins: newSandbox.plugins,
-    loadError: newSandbox.lifecycles.loadError,
-    fiber,
+  const { template, getExternalScripts, getExternalStyleSheets } = await importHTML({
+    url,
+    html,
+    opts: {
+      fetch: fetch || window.fetch,
+      plugins: newSandbox.plugins,
+      loadError: newSandbox.lifecycles.loadError,
+      fiber,
+    },
   });
 
   const processedHtml = await processCssLoader(newSandbox, template, getExternalStyleSheets);
@@ -269,6 +280,7 @@ export function preloadApp(preOptions: preOptions): void {
     const {
       name,
       url,
+      html,
       props,
       alive,
       replace,
@@ -287,11 +299,15 @@ export function preloadApp(preOptions: preOptions): void {
     if (sandbox.preload) return sandbox.preload;
     const runPreload = async () => {
       sandbox.lifecycles?.beforeLoad?.(sandbox.iframe.contentWindow);
-      const { template, getExternalScripts, getExternalStyleSheets } = await importHTML(url, {
-        fetch: fetch || window.fetch,
-        plugins: sandbox.plugins,
-        loadError: sandbox.lifecycles.loadError,
-        fiber,
+      const { template, getExternalScripts, getExternalStyleSheets } = await importHTML({
+        url,
+        html,
+        opts: {
+          fetch: fetch || window.fetch,
+          plugins: sandbox.plugins,
+          loadError: sandbox.lifecycles.loadError,
+          fiber,
+        },
       });
       const processedHtml = await processCssLoader(sandbox, template, getExternalStyleSheets);
       await sandbox.active({ url, props, prefix, alive, template: processedHtml, fetch, replace });

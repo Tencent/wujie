@@ -289,6 +289,7 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     name: options.name,
     el: options.el || cacheOptions?.el,
     url: options.url || cacheOptions?.url,
+    html: options.html || cacheOptions?.html,
     exec: options.exec !== undefined ? options.exec : cacheOptions?.exec,
     replace: options.replace || cacheOptions?.replace,
     fetch: options.fetch || cacheOptions?.fetch,
