@@ -13,6 +13,8 @@ type preOptions  {
   name: string;
   /** 需要渲染的url */
   url: string;
+  /** 需要渲染的html, 如果用户已有则无需从url请求 */
+  html?: string;
   /** 注入给子应用的数据 */
   props?: { [key: string]: any };
   /** 自定义运行iframe的属性 */
@@ -73,6 +75,12 @@ type preOptions  {
 - **类型：** `String`
 
 - **详情：** 子应用的路径地址
+
+## html
+
+- **类型：** `String`
+
+- **详情：** 子应用的html，设置后子应用将直接读取该值，没有设置则子应用通过`url`请求获取
 
 ## props
 
