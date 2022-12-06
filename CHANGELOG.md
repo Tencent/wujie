@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/Tencent/wujie/compare/v1.0.1...v1.0.2) (2022-12-06)
+
+### Bug Fixes
+
+* 子应用KeyboardEvent不生效 ([#305](https://github.com/Tencent/wujie/issues/305)) ([a4e1775](https://github.com/Tencent/wujie/commit/a4e17753b6224bd4bff93f21e696251030ab7cc4)), closes [#304](https://github.com/Tencent/wujie/issues/304)
+
+### Features
+
+* 添加子应用可以直接读取html的能力 ([#307](https://github.com/Tencent/wujie/issues/307)) ([f45e57e](https://github.com/Tencent/wujie/commit/f45e57e150b9ecb83ed593331bb7ac03cb848ee2))
+
 ## [1.0.1](https://github.com/Tencent/wujie/compare/v1.0.0...v1.0.1) (2022-11-25)
 
 ### Bug Fixes
