@@ -1,6 +1,6 @@
 import { anchorElementGenerator, getAnchorElementQueryMap, getSyncUrl, appRouteParse, getDegradeIframe } from "./utils";
 import { renderIframeReplaceApp, patchEventTimeStamp } from "./iframe";
-import { renderElementToContainer, createIframeContainer, clearChild } from "./shadow";
+import { renderElementToContainer, initRenderIframeAndContainer } from "./shadow";
 import { getWujieById, rawDocumentQuerySelector } from "./common";
 
 /**
@@ -146,9 +146,7 @@ export function processAppForHrefJump(): void {
         } else if (sandbox.hrefFlag) {
           if (sandbox.degrade) {
             // 走全套流程，但是事件恢复不需要
-            const iframe = createIframeContainer(sandbox.id, sandbox.degradeAttrs);
-            renderElementToContainer(iframe, sandbox.el);
-            clearChild(iframe.contentDocument);
+            const { iframe } = initRenderIframeAndContainer(sandbox.id, sandbox.el, sandbox.degradeAttrs);
             patchEventTimeStamp(iframe.contentWindow, sandbox.iframe.contentWindow);
             iframe.contentWindow.onunload = () => {
               sandbox.unmount();

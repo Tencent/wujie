@@ -12,8 +12,8 @@ import {
   getPatchStyleElements,
   renderElementToContainer,
   renderTemplateToShadowRoot,
-  createIframeContainer,
   renderTemplateToIframe,
+  initRenderIframeAndContainer,
   removeLoading,
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
@@ -183,10 +183,9 @@ export default class Wujie {
 
     /* 降级处理 */
     if (this.degrade) {
-      const iframe = createIframeContainer(this.id, this.degradeAttrs);
       const iframeBody = rawDocumentQuerySelector.call(iframeWindow.document, "body") as HTMLElement;
-      this.el = renderElementToContainer(iframe, el ?? iframeBody);
-      clearChild(iframe.contentDocument);
+      const { iframe, container } = initRenderIframeAndContainer(this.id, el ?? iframeBody, this.degradeAttrs);
+      this.el = container;
       // 销毁js运行iframe容器内部dom
       if (el) clearChild(iframeBody);
       // 修复vue的event.timeStamp问题
@@ -197,7 +196,7 @@ export default class Wujie {
       };
       if (this.document) {
         if (this.alive) {
-          iframe.contentDocument.appendChild(this.document.documentElement);
+          iframe.contentDocument.replaceChild(this.document.documentElement, iframe.contentDocument.documentElement);
           // 保活场景需要事件全部恢复
           recoverEventListeners(iframe.contentDocument.documentElement, iframeWindow);
         } else {
