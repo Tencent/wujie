@@ -87,6 +87,23 @@ export function renderElementToContainer(
 }
 
 /**
+ * 将降级的iframe挂在到容器上并进行初始化
+ */
+export function initRenderIframeAndContainer(
+  id: string,
+  parent: string | HTMLElement,
+  degradeAttrs: { [key: string]: any } = {}
+): { iframe: HTMLIFrameElement; container: HTMLElement } {
+  const iframe = createIframeContainer(id, degradeAttrs);
+  const container = renderElementToContainer(iframe, parent);
+  const contentDocument = iframe.contentWindow.document;
+  contentDocument.open();
+  contentDocument.write("<!DOCTYPE html><html><head></head><body></body></html>");
+  contentDocument.close();
+  return { iframe, container };
+}
+
+/**
  * 处理css-before-loader 以及 css-after-loader
  */
 async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement): Promise<HTMLHtmlElement> {
@@ -237,13 +254,11 @@ export async function renderTemplateToIframe(
   iframeWindow: Window,
   template: string
 ): Promise<void> {
-  // 清除iframe
-  clearChild(renderDocument);
   // 插入template
   const html = renderTemplateToHtml(iframeWindow, template);
   // 处理 css-before-loader 和 css-after-loader
   const processedHtml = await processCssLoaderForTemplate(iframeWindow.__WUJIE, html);
-  renderDocument.appendChild(processedHtml);
+  renderDocument.replaceChild(processedHtml, renderDocument.documentElement);
 
   // 修复 html parentNode
   Object.defineProperty(renderDocument.documentElement, "parentNode", {
