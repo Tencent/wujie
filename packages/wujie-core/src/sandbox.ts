@@ -169,10 +169,7 @@ export default class Wujie {
     }
 
     // 处理子应用路由同步
-    if (this.execFlag && this.alive) {
-      // 当保活模式下子应用重新激活时，只需要将子应用路径同步回主应用
-      syncUrlToWindow(iframeWindow);
-    } else {
+    if (!this.execFlag || !this.alive) {
       // 先将url同步回iframe，然后再同步回浏览器url
       syncUrlToIframe(iframeWindow);
       syncUrlToWindow(iframeWindow);
@@ -219,7 +216,11 @@ export default class Wujie {
        this may lead memory leak risk
        */
       this.el = renderElementToContainer(this.shadowRoot.host, el);
-      if (this.alive) return;
+      if (this.alive) {
+        // 保活模式下子应用重新激活时，需要将子应用路径同步回主应用
+        syncUrlToWindow(this.iframe.contentWindow);
+        return;
+      }
     } else {
       // 预执行无容器，暂时插入iframe内部触发Web Component的connect
       const iframeBody = rawDocumentQuerySelector.call(iframeWindow.document, "body") as HTMLElement;
