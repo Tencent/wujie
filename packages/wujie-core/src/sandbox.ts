@@ -354,8 +354,10 @@ export default class Wujie {
 
   /** 保活模式和使用proxyLocation.href跳转链接都不应该销毁shadow */
   public unmount(): void {
-    // 清理子应用过期的同步参数，降级时调用需要等iframe完全销毁再clear
-    this.degrade ? setTimeout(() => clearInactiveAppUrl()) : clearInactiveAppUrl();
+    // 清理子应用过期的同步参数
+    // 非降级时如果子应用共用一个无界需要异步清理
+    // 降级时调用需要等iframe完全销毁再clear
+    setTimeout(() => clearInactiveAppUrl());
     if (this.alive) {
       this.lifecycles?.deactivated?.(this.iframe.contentWindow);
     }
