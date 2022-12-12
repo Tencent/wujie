@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3](https://github.com/Tencent/wujie/compare/v1.0.2...v1.0.3) (2022-12-12)
+
+### Bug Fixes
+
+* 修复保活模式下路由参数丢失的问题 ([#323](https://github.com/Tencent/wujie/issues/323)) ([ffd2d60](https://github.com/Tencent/wujie/commit/ffd2d60663ca53ccebb326afe53be90f67bdd551))
+* 修复降级场景下文档非标准模式问题 ([#312](https://github.com/Tencent/wujie/issues/312)) ([d21365a](https://github.com/Tencent/wujie/commit/d21365a815e9caa48f736ab63f3de1206e86e0b5)), closes [#302](https://github.com/Tencent/wujie/issues/302)
+
 ## [1.0.2](https://github.com/Tencent/wujie/compare/v1.0.1...v1.0.2) (2022-12-06)
 
 ### Bug Fixes
