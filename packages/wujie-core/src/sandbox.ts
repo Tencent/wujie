@@ -85,8 +85,10 @@ export default class Wujie {
   public degradeAttrs: { [key: string]: any };
   /** 子应用js执行队列 */
   public execQueue: Array<Function>;
-  /** 子应用执行标志 */
+  /** 子应用执行过标志 */
   public execFlag: boolean;
+  /** 子应用激活标志 */
+  public activeFlag: boolean;
   /** 子应用mount标志 */
   public mountFlag: boolean;
   /** 路由同步标志 */
@@ -153,6 +155,7 @@ export default class Wujie {
     this.prefix = prefix ?? this.prefix;
     this.replace = replace ?? this.replace;
     this.provide.props = props ?? this.provide.props;
+    this.activeFlag = true;
     // wait iframe init
     await this.iframeReady;
 
@@ -354,10 +357,9 @@ export default class Wujie {
 
   /** 保活模式和使用proxyLocation.href跳转链接都不应该销毁shadow */
   public unmount(): void {
+    this.activeFlag = false;
     // 清理子应用过期的同步参数
-    // 非降级时如果子应用共用一个无界需要异步清理
-    // 降级时调用需要等iframe完全销毁再clear
-    setTimeout(() => clearInactiveAppUrl());
+    clearInactiveAppUrl();
     if (this.alive) {
       this.lifecycles?.deactivated?.(this.iframe.contentWindow);
     }

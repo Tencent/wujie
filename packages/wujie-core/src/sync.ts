@@ -75,11 +75,8 @@ export function clearInactiveAppUrl(): void {
   Object.keys(queryMap).forEach((id) => {
     const sandbox = getWujieById(id);
     if (!sandbox) return;
-    // 子应用执行过并且已经卸载才需要清除
-    const clearFlag = sandbox.degrade
-      ? !window.document.body.contains(getDegradeIframe(sandbox.id))
-      : !window.document.contains(sandbox?.shadowRoot?.host);
-    if (sandbox.execFlag && sandbox.sync && !sandbox.hrefFlag && clearFlag) {
+    // 子应用执行过并且已经失活才需要清除
+    if (sandbox.execFlag && sandbox.sync && !sandbox.hrefFlag && !sandbox.activeFlag) {
       delete queryMap[id];
     }
   });
