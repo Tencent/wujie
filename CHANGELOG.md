@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.4](https://github.com/Tencent/wujie/compare/v1.0.3...v1.0.4) (2022-12-30)
+
+### Bug Fixes
+
+* 适配domain修改 ([#310](https://github.com/Tencent/wujie/issues/310)) ([ac18816](https://github.com/Tencent/wujie/commit/ac1881632fe6bc8c4b019fd95e0a957a637c37d9))
+* 修复子应用html加载失败后无法重试 ([#339](https://github.com/Tencent/wujie/issues/339)) ([86d93ba](https://github.com/Tencent/wujie/commit/86d93ba3fd3c93a813088face6caf81c1ab94a73))
+
 ## [1.0.3](https://github.com/Tencent/wujie/compare/v1.0.2...v1.0.3) (2022-12-12)
 
 ### Bug Fixes
