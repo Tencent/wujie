@@ -212,6 +212,7 @@ export default function importHTML(params: {
       : fetch(url).then(
           (response) => response.text(),
           (e) => {
+            embedHTMLCache[url] = null;
             loadError?.(url, e);
             return Promise.reject(e);
           }
