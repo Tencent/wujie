@@ -233,7 +233,7 @@ Techniques, strategies and recipes for building a modern web app with multiple t
 
 - **性能和体积兼具**
 
-  - 子应用执行性能和原生一致，子应用实例`instance`运行在`iframe`的`window`上下文中，避免`with(proxyWindow){code}`这样指定代码执行上下文导致的性能下降，但是多了实例化`iframe`的一次性的开销，可以通过 [proload](/api/preloadApp.html) 提前实例化
+  - 子应用执行性能和原生一致，子应用实例`instance`运行在`iframe`的`window`上下文中，避免`with(proxyWindow){code}`这样指定代码执行上下文导致的性能下降，但是多了实例化`iframe`的一次性的开销，可以通过 [preload](/api/preloadApp.html) 提前实例化
   - 体积比较轻量，借助`iframe`和`webcomponent`来实现沙箱，有效的减小了代码量
 
 - **开箱即用**
