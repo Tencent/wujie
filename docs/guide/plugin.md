@@ -15,6 +15,7 @@ const plugins = [
     htmlLoader: (code) => {
       return code.replace('aaa', 'bbb');
     },
+  }
 ];
 ```
 
