@@ -13,6 +13,8 @@ import {
   getCurUrl,
   getAbsolutePath,
   setAttrsToElement,
+  isFunction,
+  kebab2CamelCase,
 } from "./utils";
 import {
   documentProxyProperties,
@@ -30,7 +32,7 @@ import {
   rawWindowAddEventListener,
   rawWindowRemoveEventListener,
 } from "./common";
-import { getJsLoader } from "./plugin";
+import { getCssLoader, getJsLoader } from "./plugin";
 import { WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
 import { ScriptObjectLoader } from "./index";
 
@@ -658,6 +660,74 @@ function stopIframeLoading(
   });
 }
 
+const styleWeakMap = new WeakMap<
+  CSSStyleDeclaration,
+  Record<"background" | "backgroundImage", string | (() => string)>
+>();
+
+/**
+ * 拦截修改元素style中背景图片的地址
+ */
+function patchElementStyle(element: HTMLElement, iframeWindow: Window) {
+  const { replace, plugins, proxyLocation } = iframeWindow.__WUJIE;
+  const curUrl = getCurUrl(proxyLocation);
+  const cssLoader = getCssLoader({ plugins, replace });
+  const style = element.style;
+  styleWeakMap.set(style, { background: "", backgroundImage: "" });
+
+  const patchBackgroundUrl = (attr: "background" | "background-image"): PropertyDescriptor => {
+    return {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        const value = styleWeakMap.get(style)[kebab2CamelCase(attr)];
+        return isFunction(value) ? value() : value;
+      },
+      set: (value) => {
+        styleWeakMap.get(style)[kebab2CamelCase(attr)] = () => cssLoader(`${attr}: ${value}`, "", curUrl);
+        element.setAttribute("style", `${element.style.cssText}${attr}: ${value};`);
+      },
+    };
+  };
+  const extractBackgroundValue = (cssText: string, attr: "background" | "background-image") => {
+    const value = cssText
+      .match(new RegExp(`${attr}:[^;]+;?`, "g"))
+      ?.at(-1)
+      .match(new RegExp(`${attr}:([^;]+);?`))?.[1]
+      .trim();
+
+    if (value) {
+      styleWeakMap.get(style)[kebab2CamelCase(attr)] = () => cssLoader(`${attr}: ${value}`, "", curUrl);
+    }
+  };
+  Object.defineProperties(style, {
+    background: patchBackgroundUrl("background"),
+    backgroundImage: patchBackgroundUrl("background-image"),
+    cssText: {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        let cssText = "";
+        for (let i = 0; i < style.length; i++) {
+          const attr = element.style[i];
+          cssText += `${attr}: ${style[kebab2CamelCase(attr)]};`;
+        }
+        return cssText;
+      },
+      set: (value) => {
+        extractBackgroundValue(value, "background");
+        extractBackgroundValue(value, "background-image");
+        element.setAttribute("style", value);
+      },
+    },
+  });
+
+  const rawElementSetAttribute = iframeWindow.Element.prototype.setAttribute;
+  element.setAttribute = function (attr, value) {
+    rawElementSetAttribute.call(element, attr, attr === "style" ? cssLoader(value, "", curUrl) : value);
+  };
+}
+
 export function patchElementEffect(
   element: (HTMLElement | Node | ShadowRoot) & { _hasPatch?: boolean },
   iframeWindow: Window
@@ -676,6 +746,11 @@ export function patchElementEffect(
     },
     _hasPatch: { get: () => true },
   });
+
+  const style = (element as HTMLElement).style;
+  if (style) {
+    patchElementStyle(element as HTMLElement, iframeWindow);
+  }
 }
 
 /**

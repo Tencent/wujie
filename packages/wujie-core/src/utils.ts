@@ -5,7 +5,7 @@ export function toArray<T>(array: T | T[]): T[] {
   return Array.isArray(array) ? array : [array];
 }
 
-export function isFunction(value: any): boolean {
+export function isFunction(value: any): value is (...args: any[]) => any {
   return typeof value === "function";
 }
 
@@ -330,4 +330,8 @@ export function eventTrigger(el: HTMLElement | Window | Document, eventName: str
     event.initCustomEvent(eventName, true, false, detail);
   }
   el.dispatchEvent(event);
+}
+
+export function kebab2CamelCase(name: string) {
+  return name.replace(/(-([a-z]))/g, (...args) => args[2].toUpperCase());
 }
