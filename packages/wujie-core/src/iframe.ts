@@ -696,7 +696,7 @@ export function syncIframeUrlToWindow(iframeWindow: Window): void {
  * @param iframeWindow
  * @param rawElement 原始的脚本
  */
-export function insertScriptToIframe(
+export async function insertScriptToIframe(
   scriptResult: ScriptObject | ScriptObjectLoader,
   iframeWindow: Window,
   rawElement?: HTMLScriptElement
@@ -726,9 +726,6 @@ export function insertScriptToIframe(
     Object.defineProperty(scriptElement, "src", { get: () => src || "" });
     // 非内联脚本
   } else {
-    // 外联自动触发onload
-    onload && (scriptElement.onload = onload as (this: GlobalEventHandlers, ev: Event) => any);
-    src && scriptElement.setAttribute("src", src);
     crossorigin && scriptElement.setAttribute("crossorigin", crossoriginType);
   }
   module && scriptElement.setAttribute("type", "module");
@@ -742,7 +739,22 @@ export function insertScriptToIframe(
     error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, scriptResult);
     return !async && container.appendChild(nextScriptElement);
   }
-  container.appendChild(scriptElement);
+  if (content || async) {
+    // 内联脚本或者async直接添加
+    container.appendChild(scriptElement);
+  } else {
+    // 外联脚本需要阻塞加载顺序执行
+    await new Promise<void>((resolve) => {
+      scriptElement.onload = function (e) {
+        // 外联自动触发onload
+        onload?.call(this, e);
+        resolve();
+      };
+      scriptElement.onerror = () => resolve();
+      src && scriptElement.setAttribute("src", src);
+      container.appendChild(scriptElement);
+    });
+  }
 
   // 调用回调
   callback?.(iframeWindow);

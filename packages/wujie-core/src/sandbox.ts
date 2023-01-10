@@ -260,8 +260,8 @@ export default class Wujie {
     // defer代码需要保证顺序并且DOMContentLoaded前完成，这里统一放置同步脚本后执行
     const deferScriptResultList: ScriptResultList = [];
     scriptResultList.forEach((scriptResult) => {
-      if (scriptResult.defer) deferScriptResultList.push(scriptResult);
-      else if (scriptResult.async) asyncScriptResultList.push(scriptResult);
+      if (scriptResult.async) asyncScriptResultList.push(scriptResult);
+      else if (scriptResult.defer || scriptResult.module) deferScriptResultList.push(scriptResult);
       else syncScriptResultList.push(scriptResult);
     });
 

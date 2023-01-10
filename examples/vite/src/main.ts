@@ -73,3 +73,5 @@ if (window.__POWERED_BY_WUJIE__) {
     .use(createRouter({ history: createWebHistory(basename), routes }))
     .mount("#app");
 }
+
+console.log("script---main");
