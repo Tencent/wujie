@@ -676,6 +676,7 @@ export function patchElementEffect(
     },
     _hasPatch: { get: () => true },
   });
+  execHooks(iframeWindow.__WUJIE.plugins, "patchElementHook", element, iframeWindow);
 }
 
 /**
