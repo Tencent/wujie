@@ -327,6 +327,22 @@ const plugins = [
 ];
 ```
 
+## patchElementHook
+
+子应用创建元素后执行的回调函数
+
+- **示例**
+
+```javascript
+const plugins = [
+  {
+    patchElementHook(element, iframeWindow ) {
+      console.log(element, iframeWindow )
+    }
+  },
+];
+```
+
 <!--
 ## windowPropertyOverride
 
