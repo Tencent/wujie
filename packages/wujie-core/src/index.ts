@@ -315,6 +315,8 @@ export function preloadApp(preOptions: preOptions): void {
       await sandbox.active({ url, props, prefix, alive, template: processedHtml, fetch, replace });
       if (exec) {
         await sandbox.start(getExternalScripts);
+      } else {
+        await getExternalScripts();
       }
     };
     sandbox.preload = runPreload();
