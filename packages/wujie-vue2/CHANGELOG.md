@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.6](https://github.com/Tencent/wujie/compare/v1.0.5...v1.0.6) (2023-02-08)
+
+### Bug Fixes
+
+* **chore:** 修复 Vue.use(WujieVue) 时类型错误 ([#382](https://github.com/Tencent/wujie/issues/382)) ([f293697](https://github.com/Tencent/wujie/commit/f293697e9174cee5485c09871fb9cdbbf2e89686))
+
 ## [1.0.5](https://github.com/Tencent/wujie/compare/v1.0.4...v1.0.5) (2023-01-10)
 
 **Note:** Version bump only for package wujie-vue2
