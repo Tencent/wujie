@@ -203,7 +203,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
     sandbox.lifecycles = lifecycles;
     const iframeWindow = sandbox.iframe.contentWindow;
     if (sandbox.preload) {
-      await Promise.resolve(sandbox.preload);
+      await sandbox.preload;
     }
     if (alive) {
       // 保活
