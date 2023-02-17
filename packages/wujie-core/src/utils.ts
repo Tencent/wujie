@@ -274,10 +274,12 @@ export function nextTick(cb: () => any): void {
 //执行钩子函数
 export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Array<any>): void {
   try {
-    plugins
-      .map((plugin) => plugin[hookName])
-      .filter((hook) => isFunction(hook))
-      .forEach((hook) => hook(...args));
+    if(plugins&&plugins.length>0){
+      plugins
+        .map((plugin) => plugin[hookName])
+        .filter((hook) => isFunction(hook))
+        .forEach((hook) => hook(...args));
+    }
   } catch (e) {
     error(e);
   }
