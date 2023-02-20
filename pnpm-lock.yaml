@@ -144,7 +144,7 @@ importers:
       webpack-dev-server: ^4.6.0
       webpack-manifest-plugin: ^4.0.2
       workbox-webpack-plugin: ^6.4.1
-      wujie-react: workspace:^1.0.0-rc.25
+      wujie-react: workspace:^1.0.6
     dependencies:
       '@ant-design/icons': 4.7.0_sfoxds7t5ydpegc3knd667wn6m
       '@babel/core': 7.18.13
@@ -223,8 +223,8 @@ importers:
       vue-router: ^3.2.0
       vue-template-compiler: ^2.6.11
       whatwg-fetch: ^3.6.2
-      wujie: workspace:^1.0.0-rc.25
-      wujie-vue2: workspace:^1.0.0-rc.25
+      wujie: workspace:^1.0.6
+      wujie-vue2: workspace:^1.0.6
     dependencies:
       ant-design-vue: 1.7.8_42puyn3dcxirnpdjnosl7pbb6a
       core-js: 3.25.0
@@ -307,7 +307,7 @@ importers:
       webpack-dev-server: ^4.6.0
       webpack-manifest-plugin: ^4.0.2
       workbox-webpack-plugin: ^6.4.1
-      wujie-react: workspace:^1.0.0-rc.25
+      wujie-react: workspace:^1.0.6
     dependencies:
       '@babel/core': 7.18.13
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.7_wt5p3h66kg5yz5633zrrqkcxnm
@@ -695,7 +695,7 @@ importers:
       prop-types: ^15.8.1
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: workspace:^1.0.0-rc.25
+      wujie: workspace:1.0.6
     dependencies:
       prop-types: 15.8.1
       wujie: link:../wujie-core
@@ -722,7 +722,7 @@ importers:
       eslint-plugin-vue: ^8.0.3
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: workspace:^1.0.0-rc.25
+      wujie: workspace:1.0.6
     dependencies:
       wujie: link:../wujie-core
     devDependencies:
@@ -748,7 +748,7 @@ importers:
       vue: ^3.0.0
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: workspace:^1.0.0-rc.25
+      wujie: workspace:1.0.6
     dependencies:
       wujie: link:../wujie-core
     devDependencies:
@@ -5688,6 +5688,7 @@ packages:
   /@discoveryjs/json-ext/0.5.7:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
     engines: {node: '>=10.0.0'}
+    dev: true
 
   /@docsearch/css/3.2.1:
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
@@ -8392,7 +8393,7 @@ packages:
       '@vue/cli-service': ^3.0.0 || ^4.0.0-0
       eslint: '>= 1.6.0 < 7.0.0'
     dependencies:
-      '@vue/cli-service': 4.5.19_42puyn3dcxirnpdjnosl7pbb6a
+      '@vue/cli-service': 4.5.19_lkq4ousnc7vzls4uafs2kgxwfm
       '@vue/cli-shared-utils': 4.5.19
       eslint: 6.8.0
       eslint-loader: 2.2.1_pfvmeq6opgydpezktw7j2dwffi
@@ -9235,6 +9236,7 @@ packages:
     dependencies:
       webpack: 5.74.0_webpack-cli@4.10.0
       webpack-cli: 4.10.0_webpack@5.74.0
+    dev: true
 
   /@webpack-cli/info/1.5.0_webpack-cli@4.10.0:
     resolution: {integrity: sha512-e8tSXZpw2hPl2uMJY6fsMswaok5FdlGNRTktvFk2sD8RjH0hE2+XistawJx1vmKteh4NmGmNUrp+Tb2w+udPcQ==}
@@ -9243,6 +9245,7 @@ packages:
     dependencies:
       envinfo: 7.8.1
       webpack-cli: 4.10.0_webpack@5.74.0
+    dev: true
 
   /@webpack-cli/serve/1.7.0_webpack-cli@4.10.0:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -9254,6 +9257,7 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.74.0
+    dev: true
 
   /@xtuc/ieee754/1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -10322,7 +10326,7 @@ packages:
       loader-utils: 2.0.2
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.74.0_webpack-cli@4.10.0
+      webpack: 5.74.0
 
   /babel-plugin-dynamic-import-node/2.2.0:
     resolution: {integrity: sha512-fP899ELUnTaBcIzmrW7nniyqqdYWrWuJUyPWHxFa/c7r7hS6KC8FscNfLlBNIoPSc55kYMGEEKjPjJGCLbE1qA==}
@@ -11015,7 +11019,7 @@ packages:
       mississippi: 3.0.0
       mkdirp: 0.5.6
       move-concurrently: 1.0.1
-      promise-inflight: 1.0.1_bluebird@3.7.2
+      promise-inflight: 1.0.1
       rimraf: 2.7.1
       ssri: 6.0.2
       unique-filename: 1.1.1
@@ -11492,6 +11496,7 @@ packages:
       is-plain-object: 2.0.4
       kind-of: 6.0.3
       shallow-clone: 3.0.1
+    dev: true
 
   /clone/1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
@@ -13592,6 +13597,7 @@ packages:
     resolution: {integrity: sha512-/o+BXHmB7ocbHEAs6F2EnG0ogybVVUdkRunTT2glZU9XAaGmhqskrvKwqXuDfNjEO0LZKWdejEEpnq8aM0tOaw==}
     engines: {node: '>=4'}
     hasBin: true
+    dev: true
 
   /err-code/2.0.3:
     resolution: {integrity: sha512-2bmlRpNKBxT/CRmPOlyISQpNj+qSeYvcym/uT0Jx2bMOlKLtSy1ZmLuVxSEKKyor/N5yhvp/ZiG1oE3DEYMSFA==}
@@ -15404,6 +15410,7 @@ packages:
   /fastest-levenshtein/1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
     engines: {node: '>= 4.9.1'}
+    dev: true
 
   /fastq/1.13.0:
     resolution: {integrity: sha512-YpkpUnK8od0o1hmeSc7UUs/eB/vIPWJYjKck2QKIzAf71Vm1AAQ3EbuZB3g2JIy+pg+ERD0vqI79KyZiB2e2Nw==}
@@ -17051,6 +17058,7 @@ packages:
   /interpret/2.2.0:
     resolution: {integrity: sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==}
     engines: {node: '>= 0.10'}
+    dev: true
 
   /intersperse/1.0.0:
     resolution: {integrity: sha512-LGcfug7OTeWkaQ8PEq8XbTy9Jl6uCNg8DrPnQUmwxSY8UETj1Y+LLmpdD0qHdEj6KVchuH3BE3ZzIXQ1t3oFUw==}
@@ -22589,16 +22597,6 @@ packages:
       bluebird:
         optional: true
 
-  /promise-inflight/1.0.1_bluebird@3.7.2:
-    resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
-    peerDependencies:
-      bluebird: '*'
-    peerDependenciesMeta:
-      bluebird:
-        optional: true
-    dependencies:
-      bluebird: 3.7.2
-
   /promise-retry/2.0.1:
     resolution: {integrity: sha512-y+WKFlBR8BGXnsNlIHFGPZmyDf3DFMoLhaflAnyZgV6rG6xu+JwesTo2Q9R6XwYmtmwAFCkAk3e35jEdoeh/3g==}
     engines: {node: '>=10'}
@@ -24653,6 +24651,7 @@ packages:
     engines: {node: '>= 0.10'}
     dependencies:
       resolve: 1.22.1
+    dev: true
 
   /recursive-readdir/2.2.2:
     resolution: {integrity: sha512-nRCcW9Sj7NuZwa2XvH9co8NPeXUBhZP7CRKJtU+cS6PW9FpCIFoI5ib0NT1ZrbNuPoRy0ylyCaUL8Gih4LSyFg==}
@@ -25205,7 +25204,7 @@ packages:
     dependencies:
       klona: 2.0.5
       neo-async: 2.6.2
-      webpack: 5.74.0_webpack-cli@4.10.0
+      webpack: 5.74.0
 
   /sass/1.36.0:
     resolution: {integrity: sha512-fQzEjipfOv5kh930nu3Imzq3ie/sGDc/4KtQMJlt7RRdrkQSfe37Bwi/Rf/gfuYHsIuE1fIlDMvpyMcEwjnPvg==}
@@ -25484,6 +25483,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       kind-of: 6.0.3
+    dev: true
 
   /shallow-equal/1.2.1:
     resolution: {integrity: sha512-S4vJDjHHMBaiZuT9NPb616CSmLf618jawtv3sufLl6ivK8WocjAo58cXwbRV1cgqxH0Qbv+iUt6m05eqEa2IRA==}
@@ -28157,6 +28157,7 @@ packages:
       rechoir: 0.7.1
       webpack: 5.74.0_webpack-cli@4.10.0
       webpack-merge: 5.8.0
+    dev: true
 
   /webpack-dev-middleware/3.7.3_webpack@4.44.2:
     resolution: {integrity: sha512-djelc/zGiz9nZj/U7PTBi2ViorGJXEWo/3ltkPbDyxCXhhEXkW0ce99falaok4TPj+AsxLiXJR0EBOb0zh9fKQ==}
@@ -28470,6 +28471,7 @@ packages:
     dependencies:
       clone-deep: 4.0.1
       wildcard: 2.0.0
+    dev: true
 
   /webpack-sources/1.4.3:
     resolution: {integrity: sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==}
@@ -28697,6 +28699,7 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
+    dev: true
 
   /websocket-driver/0.7.4:
     resolution: {integrity: sha512-b17KeDIQVjvb0ssuSDF2cYXSg2iztliJ4B9WdsuB6J952qCPKmnVq4DyW5motImXHDC1cBT/1UezrJVsKw5zjg==}
@@ -28778,6 +28781,7 @@ packages:
 
   /wildcard/2.0.0:
     resolution: {integrity: sha512-JcKqAHLPxcdb9KM49dufGXn2x3ssnfjbcaQdLlfZsL9rH9wgDQjUtDxbo8NE0F6SFvydeu1VhZe7hZuHsB2/pw==}
+    dev: true
 
   /with/7.0.2:
     resolution: {integrity: sha512-RNGKj82nUPg3g5ygxkQl0R937xLyho1J24ItRCBTr/m1YnZkzJy1hUiHUJrc/VlsDQzsCnInEGSg3bci0Lmd4w==}

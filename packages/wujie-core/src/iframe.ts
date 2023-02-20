@@ -77,6 +77,8 @@ declare global {
     HTMLLinkElement: typeof HTMLLinkElement;
     // script type
     HTMLScriptElement: typeof HTMLScriptElement;
+    // media type
+    HTMLMediaElement: typeof HTMLMediaElement;
     EventTarget: typeof EventTarget;
     Event: typeof Event;
     ShadowRoot: typeof ShadowRoot;
@@ -576,6 +578,7 @@ function patchRelativeUrlEffect(iframeWindow: Window): void {
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLSourceElement, "src");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLLinkElement, "href");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLScriptElement, "src");
+  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLMediaElement, "src");
 }
 
 /**
