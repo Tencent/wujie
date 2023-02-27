@@ -171,6 +171,7 @@ export function fixElementCtrSrcOrHref(
   // patch setAttribute
   const rawElementSetAttribute = iframeWindow.Element.prototype.setAttribute;
   elementCtr.prototype.setAttribute = function (name: string, value: string): void {
+    value = value.startsWith("/") ? value : `/${value}`;
     let targetValue = value;
     if (name === attr) targetValue = getAbsolutePath(value, this.baseURI || "", true);
     rawElementSetAttribute.call(this, name, targetValue);
@@ -185,6 +186,7 @@ export function fixElementCtrSrcOrHref(
       return get.call(this);
     },
     set: function (href) {
+      href = href.startsWith("/") ? href : `/${href}`;
       set.call(this, getAbsolutePath(href, this.baseURI, true));
     },
   });
