@@ -784,7 +784,7 @@ export function iframeGenerator(
   appRoutePath: string
 ): HTMLIFrameElement {
   const iframe = window.document.createElement("iframe");
-  const attrsMerge = { src: mainHostPath, ...attrs, style: "display: none", name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
+  const attrsMerge = { src: mainHostPath, style: "display: none", ...attrs, name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
   setAttrsToElement(iframe, attrsMerge);
   window.document.body.appendChild(iframe);
 
