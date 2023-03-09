@@ -191,7 +191,8 @@ function rewriteAppendOrInsertChild(opts: {
                   if (ignore && src) {
                     const stylesheetElement = iframeDocument.createElement("link");
                     stylesheetElement.setAttribute("type", "text/css");
-                    stylesheetElement.setAttribute("ref", "stylesheet");
+                    stylesheetElement.setAttribute("rel", "stylesheet");
+                    stylesheetElement.setAttribute("href", src);
                     rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                     manualInvokeElementEvent(element, "load");
                   } else {
