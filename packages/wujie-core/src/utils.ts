@@ -125,14 +125,14 @@ export function appRouteParse(url: string): {
   const urlElement = anchorElementGenerator(url);
   const appHostPath = urlElement.protocol + "//" + urlElement.host;
   let appRoutePath = urlElement.pathname + urlElement.search + urlElement.hash;
-  if (!appRoutePath.startsWith("/")) appRoutePath = "/" + appRoutePath; // fuck ie
+  if (!appRoutePath.startsWith("/")) appRoutePath = "/" + appRoutePath; // hack ie
   return { urlElement, appHostPath, appRoutePath };
 }
 
 export function anchorElementGenerator(url: string): HTMLAnchorElement {
   const element = window.document.createElement("a");
   element.href = url;
-  element.href = element.href; // fuck ie
+  element.href = element.href; // hack ie
   return element;
 }
 
