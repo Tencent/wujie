@@ -275,7 +275,7 @@ export function nextTick(cb: () => any): void {
 //执行钩子函数
 export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Array<any>): void {
   try {
-    if(plugins&&plugins.length>0){
+    if (plugins && plugins.length > 0) {
       plugins
         .map((plugin) => plugin[hookName])
         .filter((hook) => isFunction(hook))
