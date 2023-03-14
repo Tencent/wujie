@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.8](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.8) (2023-03-14)
+
+### Bug Fixes
+
+* 回退style属性 ([87540da](https://github.com/Tencent/wujie/commit/87540da4ed76510a1150398d7314c03a7d3e2912))
+
+### Features
+
+* wujie dom support style props ([#375](https://github.com/Tencent/wujie/issues/375)) ([3e72e68](https://github.com/Tencent/wujie/commit/3e72e68352dde07046e1dbe7bc5ad9d0ebd87d84))
+
 ## [1.0.7](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.7) (2023-03-14)
 
 ### Features

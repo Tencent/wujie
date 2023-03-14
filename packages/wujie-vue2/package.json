@@ -1,6 +1,6 @@
 {
   "name": "wujie-vue2",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "无界微前端Vue2组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
@@ -29,7 +29,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "wujie": "workspace:1.0.7"
+    "wujie": "workspace:1.0.8"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
