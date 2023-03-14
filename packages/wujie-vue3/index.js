@@ -1,5 +1,6 @@
 import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp } from "wujie";
 import { h, defineComponent } from "vue";
+import CSS from 'csstype'
 
 const wujieVueOptions = {
   name: "WujieVue",
@@ -27,6 +28,7 @@ const wujieVueOptions = {
     activated: { type: Function, default: null },
     deactivated: { type: Function, default: null },
     loadError: { type: Function, default: null },
+    style: { type: CSS.Properties, default: {} },
   },
   data() {
     return {
@@ -90,6 +92,7 @@ const wujieVueOptions = {
       style: {
         width: this.width,
         height: this.height,
+        ...this.style,
       },
       ref: "wujie",
     });

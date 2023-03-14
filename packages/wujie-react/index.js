@@ -37,9 +37,9 @@ export default class WujieReact extends React.PureComponent {
   render() {
     this.execStartApp();
 
-    const { width, height } = this.props;
+    const { width, height, style } = this.props;
     const { myRef: ref } = this.state;
-    return <div style={{ width, height }} ref={ref} />;
+    return <div style={{ width, height, ...style }} ref={ref} />;
   }
 }
 
@@ -67,4 +67,5 @@ const propTypes = {
     activated: PropTypes.func,
     deactivated: PropTypes.func,
     loadError: PropTypes.func,
+    style: PropTypes.object
   }
