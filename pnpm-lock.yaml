@@ -144,7 +144,7 @@ importers:
       webpack-dev-server: ^4.6.0
       webpack-manifest-plugin: ^4.0.2
       workbox-webpack-plugin: ^6.4.1
-      wujie-react: workspace:^1.0.0-rc.25
+      wujie-react: workspace:^1.0.7
     dependencies:
       '@ant-design/icons': 4.7.0_sfoxds7t5ydpegc3knd667wn6m
       '@babel/core': 7.18.13
@@ -223,8 +223,8 @@ importers:
       vue-router: ^3.2.0
       vue-template-compiler: ^2.6.11
       whatwg-fetch: ^3.6.2
-      wujie: workspace:^1.0.0-rc.25
-      wujie-vue2: workspace:^1.0.0-rc.25
+      wujie: workspace:^1.0.7
+      wujie-vue2: workspace:^1.0.7
     dependencies:
       ant-design-vue: 1.7.8_42puyn3dcxirnpdjnosl7pbb6a
       core-js: 3.25.0
@@ -307,7 +307,7 @@ importers:
       webpack-dev-server: ^4.6.0
       webpack-manifest-plugin: ^4.0.2
       workbox-webpack-plugin: ^6.4.1
-      wujie-react: workspace:^1.0.0-rc.25
+      wujie-react: workspace:^1.0.7
     dependencies:
       '@babel/core': 7.18.13
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.7_wt5p3h66kg5yz5633zrrqkcxnm
@@ -695,7 +695,7 @@ importers:
       prop-types: ^15.8.1
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: workspace:^1.0.0-rc.25
+      wujie: workspace:1.0.7
     dependencies:
       prop-types: 15.8.1
       wujie: link:../wujie-core
@@ -718,11 +718,12 @@ importers:
       '@babel/preset-env': ^7.16.0
       babel-loader: ^8.2.3
       cross-env: ^7.0.3
+      csstype: ^3.1.1
       eslint: ^8.2.0
       eslint-plugin-vue: ^8.0.3
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: workspace:^1.0.0-rc.25
+      wujie: workspace:1.0.7
     dependencies:
       wujie: link:../wujie-core
     devDependencies:
@@ -731,6 +732,7 @@ importers:
       '@babel/preset-env': 7.18.10_@babel+core@7.18.13
       babel-loader: 8.2.5_tb6moc662p5idmcg3l5ipbhpta
       cross-env: 7.0.3
+      csstype: 3.1.1
       eslint: 8.23.0
       eslint-plugin-vue: 8.7.1_eslint@8.23.0
       webpack: 5.74.0_webpack-cli@4.10.0
@@ -743,12 +745,13 @@ importers:
       '@babel/preset-env': ^7.16.0
       babel-loader: ^8.2.3
       cross-env: ^7.0.3
+      csstype: ^3.1.1
       eslint: ^8.2.0
       eslint-plugin-vue: ^8.0.3
       vue: ^3.0.0
       webpack: ^5.61.0
       webpack-cli: ^4.9.1
-      wujie: workspace:^1.0.0-rc.25
+      wujie: workspace:1.0.7
     dependencies:
       wujie: link:../wujie-core
     devDependencies:
@@ -757,6 +760,7 @@ importers:
       '@babel/preset-env': 7.18.10_@babel+core@7.18.13
       babel-loader: 8.2.5_tb6moc662p5idmcg3l5ipbhpta
       cross-env: 7.0.3
+      csstype: 3.1.1
       eslint: 8.23.0
       eslint-plugin-vue: 8.7.1_eslint@8.23.0
       vue: 3.2.38
@@ -11015,7 +11019,7 @@ packages:
       mississippi: 3.0.0
       mkdirp: 0.5.6
       move-concurrently: 1.0.1
-      promise-inflight: 1.0.1_bluebird@3.7.2
+      promise-inflight: 1.0.1
       rimraf: 2.7.1
       ssri: 6.0.2
       unique-filename: 1.1.1
@@ -12807,6 +12811,10 @@ packages:
 
   /csstype/3.1.0:
     resolution: {integrity: sha512-uX1KG+x9h5hIJsaKR9xHUeUraxf8IODOwq9JLNPq6BwB04a/xgpq3rcx47l5BZu5zBPlgD342tdke3Hom/nJRA==}
+
+  /csstype/3.1.1:
+    resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
+    dev: true
 
   /custom-event-polyfill/1.0.7:
     resolution: {integrity: sha512-TDDkd5DkaZxZFM8p+1I3yAlvM3rSr1wbrOliG4yJiwinMZN8z/iGL7BTlDkrJcYTmgUSb4ywVCc3ZaUtOtC76w==}
@@ -22588,16 +22596,6 @@ packages:
     peerDependenciesMeta:
       bluebird:
         optional: true
-
-  /promise-inflight/1.0.1_bluebird@3.7.2:
-    resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
-    peerDependencies:
-      bluebird: '*'
-    peerDependenciesMeta:
-      bluebird:
-        optional: true
-    dependencies:
-      bluebird: 3.7.2
 
   /promise-retry/2.0.1:
     resolution: {integrity: sha512-y+WKFlBR8BGXnsNlIHFGPZmyDf3DFMoLhaflAnyZgV6rG6xu+JwesTo2Q9R6XwYmtmwAFCkAk3e35jEdoeh/3g==}
