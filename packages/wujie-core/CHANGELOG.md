@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.7](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.7) (2023-03-14)
+
+### Bug Fixes
+
+* 修复子应用媒体元素资源路径错误的问题 ([#439](https://github.com/Tencent/wujie/issues/439)) ([68f85a8](https://github.com/Tencent/wujie/commit/68f85a8cc7089367db4f0bdfc4620135540dbd92))
+* iframe的style允许被覆盖 ([#430](https://github.com/Tencent/wujie/issues/430)) ([a7c0bcd](https://github.com/Tencent/wujie/commit/a7c0bcdaa51558a55f2f80a0d85dc56fda7cb2e0))
+* ignore的 link 未正确设置 ([#432](https://github.com/Tencent/wujie/issues/432)) ([ba57da9](https://github.com/Tencent/wujie/commit/ba57da9aee153652372a048bde7974672340d265))
+
+### Features
+
+* 执行hooks托底逻辑 ([#403](https://github.com/Tencent/wujie/issues/403)) ([2d0ba7e](https://github.com/Tencent/wujie/commit/2d0ba7ef9d03dead6bbcf5f24157325bfa878009))
+
 ## [1.0.6](https://github.com/Tencent/wujie/compare/v1.0.5...v1.0.6) (2023-02-08)
 
 ### Bug Fixes
