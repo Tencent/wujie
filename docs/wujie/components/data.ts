@@ -1,15 +1,15 @@
 export const wujieList = [
   {
+    name: "无极",
+    url: "https://wujicode.cn/xy/app/prod/official/index",
+  },
+  {
     name: "UmiJS",
     url: "https://umijs.org/",
   },
   {
-    name: "TurboRepo",
-    url: "https://turborepo.org/docs/getting-started",
-  },
-  {
     name: "React",
-    url: "https://reactjs.org/",
+    url: "https://beta.reactjs.org/",
   },
   {
     name: "Vercel",
@@ -26,11 +26,6 @@ export const wujieList = [
   {
     name: "AntDesign",
     url: "https://ant.design/components/drawer-cn/",
-  },
-
-  {
-    name: "AntV",
-    url: "https://g2.antv.vision/zh",
   },
   {
     name: "NaiveUI",
