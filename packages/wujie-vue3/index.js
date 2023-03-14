@@ -27,7 +27,6 @@ const wujieVueOptions = {
     activated: { type: Function, default: null },
     deactivated: { type: Function, default: null },
     loadError: { type: Function, default: null },
-    style: { type: Object, default: {} },
   },
   data() {
     return {
@@ -91,7 +90,6 @@ const wujieVueOptions = {
       style: {
         width: this.width,
         height: this.height,
-        ...this.style,
       },
       ref: "wujie",
     });
