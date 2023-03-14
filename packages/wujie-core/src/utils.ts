@@ -165,7 +165,8 @@ export function fixElementCtrSrcOrHref(
     | typeof HTMLAnchorElement
     | typeof HTMLSourceElement
     | typeof HTMLLinkElement
-    | typeof HTMLScriptElement,
+    | typeof HTMLScriptElement
+    | typeof HTMLMediaElement,
   attr
 ): void {
   // patch setAttribute
