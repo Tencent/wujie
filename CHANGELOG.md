@@ -8,16 +8,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Bug Fixes
 
 * 回退style属性 ([87540da](https://github.com/Tencent/wujie/commit/87540da4ed76510a1150398d7314c03a7d3e2912))
-* 修复 vue3 组件注册时类型错误 ([#393](https://github.com/Tencent/wujie/issues/393)) ([#394](https://github.com/Tencent/wujie/issues/394)) ([6487308](https://github.com/Tencent/wujie/commit/6487308236c50e1a99d714728bc6c7118581034a))
-* 修复子应用媒体元素资源路径错误的问题 ([#439](https://github.com/Tencent/wujie/issues/439)) ([68f85a8](https://github.com/Tencent/wujie/commit/68f85a8cc7089367db4f0bdfc4620135540dbd92))
-* iframe的style允许被覆盖 ([#430](https://github.com/Tencent/wujie/issues/430)) ([a7c0bcd](https://github.com/Tencent/wujie/commit/a7c0bcdaa51558a55f2f80a0d85dc56fda7cb2e0))
-* ignore的 link 未正确设置 ([#432](https://github.com/Tencent/wujie/issues/432)) ([ba57da9](https://github.com/Tencent/wujie/commit/ba57da9aee153652372a048bde7974672340d265))
-
-### Features
-
-* 执行hooks托底逻辑 ([#403](https://github.com/Tencent/wujie/issues/403)) ([2d0ba7e](https://github.com/Tencent/wujie/commit/2d0ba7ef9d03dead6bbcf5f24157325bfa878009))
-* wujie dom support style props ([#375](https://github.com/Tencent/wujie/issues/375)) ([3e72e68](https://github.com/Tencent/wujie/commit/3e72e68352dde07046e1dbe7bc5ad9d0ebd87d84))
-
 ## [1.0.7](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.7) (2023-03-14)
 
 ### Bug Fixes
