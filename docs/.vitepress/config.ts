@@ -31,14 +31,11 @@ export default defineConfig({
     },
     lastUpdatedText: "最近更新时间",
     socialLinks: [{ icon: "github", link: "https://github.com/Tencent/wujie" }],
-    // algolia: {
-    //   appId: "",
-    //   apiKey: "",
-    //   indexName: "wujie",
-    //   searchParameters: {
-    //     facetFilters: ["tags:en"],
-    //   },
-    // },
+    algolia: {
+      indexName: "relaxed-adny",
+      appId: "OJPCLF4RYC",
+      apiKey: "b6a6026b9ca3bb7826445ffcb764d724",
+    },
 
     footer: {
       message: "Released the MIT License.",

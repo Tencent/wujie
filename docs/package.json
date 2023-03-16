@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "docs:dev": "vitepress dev --open",
+    "docs:dev": "vitepress dev --open --port=9765",
     "docs:build": "vitepress build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,7 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "vite": "3.0.9",
-    "vitepress": "1.0.0-alpha.9"
+    "vitepress": "1.0.0-alpha.60"
   },
   "dependencies": {
     "@vue/theme": "^1.2.2",
