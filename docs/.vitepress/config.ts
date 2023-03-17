@@ -96,7 +96,7 @@ export default defineConfig({
         },
         {
           text: "指南",
-          collapsed: true,
+          collapsed: false,
           items: [
             {
               text: "预加载",
@@ -155,6 +155,16 @@ export default defineConfig({
             {
               text: "react主应用",
               link: "https://github.com/Tencent/wujie/tree/master/examples/main-react",
+            },
+          ],
+        },
+        {
+          text: "插件推荐",
+          collapsed: true,
+          items: [
+            {
+              text: "wujie-polyfill",
+              link: "https://github.com/jardenliu/wujie-polyfill",
             },
           ],
         },
