@@ -1,6 +1,6 @@
 :root {
   --vp-z-index-doc-search: 1000 !important;
-  --vp-doc-search-background-color: linear-gradient(45deg, var(--color1), var(--color2), var(--color1));
+  --vp-doc-search-background-color: linear-gradient(45deg, var(--color1), var(--color1), var(--color2), var(--color1));
 }
 
 .DocSearch {
@@ -28,14 +28,13 @@
 
 .DocSearch-Button:before {
   content: "";
-  /* background: linear-gradient(45deg, #ff0000, #000, #ff0000); */
   background: var(--vp-doc-search-background-color);
   position: absolute;
   top: -2px;
   left: -2px;
   background-size: 400%;
   z-index: -1;
-  filter: blur(2px);
+  filter: blur(4px);
   width: calc(100% + 4px);
   height: calc(100% + 4px);
   animation: RhyshaKachari-glowing 20s linear infinite;
