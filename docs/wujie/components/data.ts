@@ -9,7 +9,7 @@ export const wujieList = [
   },
   {
     name: "React",
-    url: "https://beta.reactjs.org/",
+    url: "https://react.dev/",
   },
   {
     name: "Vercel",

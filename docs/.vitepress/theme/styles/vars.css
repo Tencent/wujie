@@ -11,7 +11,6 @@
   --vp-c-brand-darker: #ce5d52;
   --vp-c-brand-dimm: #c9433710;
   --vp-z-index-nav: 999 !important;
-  --vp-z-index-doc-search: 1000 !important;
   --vp-z-index-footer: -10;
 }
 
@@ -77,14 +76,6 @@
 /**
  * Component: Algolia
  * -------------------------------------------------------------------------- */
-
-.DocSearch {
-  --docsearch-primary-color: var(--vp-c-brand) !important;
-}
-
-.DocSearch-Container {
-  z-index: var(--vp-z-index-doc-search);
-}
 
 .link {
   padding: 4px 0;

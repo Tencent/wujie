@@ -2,6 +2,7 @@ import Theme from "vitepress/theme";
 import wujieHome from "./components/wujie-home.vue";
 import { h } from "vue";
 import "./styles/vars.css";
+import "./styles/DocSearch.css";
 
 const inBrowser = typeof window !== "undefined";
 export default {
