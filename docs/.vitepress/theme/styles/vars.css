@@ -77,10 +77,6 @@
  * Component: Algolia
  * -------------------------------------------------------------------------- */
 
-.DocSearch {
-  --docsearch-primary-color: var(--vp-c-brand) !important;
-}
-
 .link {
   padding: 4px 0;
 }
