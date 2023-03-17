@@ -32,9 +32,9 @@ export default defineConfig({
     lastUpdatedText: "最近更新时间",
     socialLinks: [{ icon: "github", link: "https://github.com/Tencent/wujie" }],
     algolia: {
-      indexName: "relaxed-adny",
-      appId: "OJPCLF4RYC",
-      apiKey: "b6a6026b9ca3bb7826445ffcb764d724",
+      appId: "QMIAJMDLL1",
+      apiKey: "4eaef57a0122ce0454d3aed08f822178",
+      indexName: "wujie-microio",
     },
 
     footer: {
@@ -79,7 +79,7 @@ export default defineConfig({
       "/guide/": [
         {
           text: "入门",
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: "介绍",
@@ -97,7 +97,7 @@ export default defineConfig({
         },
         {
           text: "指南",
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: "预加载",
@@ -147,7 +147,7 @@ export default defineConfig({
         },
         {
           text: "项目实战",
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: "vue主应用",
@@ -163,7 +163,7 @@ export default defineConfig({
       "/api/": [
         {
           text: "主应用",
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: "bus",
@@ -189,7 +189,7 @@ export default defineConfig({
         },
         {
           text: "子应用",
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: "wujie",
@@ -202,7 +202,7 @@ export default defineConfig({
       "/pack/": [
         {
           text: "框架封装",
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: "Vue组件封装",
