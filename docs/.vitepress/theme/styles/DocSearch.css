@@ -27,7 +27,7 @@
 }
 
 .DocSearch-Button:before {
-  content: "";
+  /* content: ""; */
   background: var(--vp-doc-search-background-color);
   position: absolute;
   top: -2px;
