@@ -13,6 +13,8 @@ import {
   getCurUrl,
   getAbsolutePath,
   setAttrsToElement,
+  setTagToScript,
+  getTagFromScript,
 } from "./utils";
 import {
   documentProxyProperties,
@@ -48,6 +50,9 @@ declare global {
 
     // iframe内原生的createTextNode
     __WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__: typeof Document.prototype.createTextNode;
+
+    // iframe内原生的head
+    __WUJIE_RAW_DOCUMENT_HEAD__: typeof Document.prototype.head;
 
     // 原生的querySelector
     __WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__: typeof Document.prototype.querySelectorAll;
@@ -604,7 +609,7 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
   iframeDocument.documentElement
     ? iframeDocument.replaceChild(newDocumentElement, iframeDocument.documentElement)
     : iframeDocument.appendChild(newDocumentElement);
-
+  iframeWindow.__WUJIE_RAW_DOCUMENT_HEAD__ = iframeDocument.head;
   initBase(iframeWindow, wujie.url);
   patchIframeHistory(iframeWindow, appHostPath, mainHostPath);
   patchIframeEvents(iframeWindow);
@@ -744,6 +749,9 @@ export function insertScriptToIframe(
   if (/^<!DOCTYPE html/i.test(code)) {
     error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, scriptResult);
     return !async && container.appendChild(nextScriptElement);
+  }
+  if (rawElement) {
+    setTagToScript(scriptElement, getTagFromScript(rawElement));
   }
   container.appendChild(scriptElement);
 
