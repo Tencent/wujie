@@ -42,21 +42,107 @@ startApp({ name: "唯一id" });
 
 ### 前提
 
-子应用的资源和接口的请求都在主域名发起，所以会有跨域问题，子应用必须做[cors 设置](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS)
+子应用的资源和接口的请求都在主域名发起，所以会有跨域问题。**子应用**必须做[cors 设置](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS)
+
+#### 普通跨域请求
+
+::: details webpack
 
 ```javascript
-app.use((req, res, next) => {
-  // 路径判断等等
-  res.set({
-    "Access-Control-Allow-Credentials": true,
-    "Access-Control-Allow-Origin": req.headers.origin || "*",
-    "Access-Control-Allow-Headers": "X-Requested-With,Content-Type",
-    "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS",
-    "Content-Type": "application/json; charset=utf-8",
-  });
-  // 其他操作
+// webpack.config.js
+module.exports = {
+  devServer: {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
+    }
+  }
+}
+```
+
+:::
+
+::: details vite
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  server: {
+    cors: {
+      origin: "*",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+    }
+  }
 });
 ```
+
+:::
+
+#### 带凭证的跨域请求
+
+::: tip 提示
+
+Credentials （凭证） 可以是 cookies、authorization headers 或 TLS client certificates。--mdn
+
+:::
+
+- 首先，请求方法的改造
+
+::: details window.fetch
+
+```javascript
+window.fetch(url, { credentials: 'include' })
+```
+
+:::
+
+::: details XMLHttpRequest
+
+```javascript
+// 以axios为例子
+
+axios.get(url, { withCredentials: true }) 
+```
+
+:::
+
+- 其次，开发环境服务改造
+
+::: details webpack
+
+```javascript
+// webpack.config.js
+module.exports = {
+  devServer: {
+    headers: {
+      "Access-Control-Allow-Origin": "https:localhost:6060", // req.headers.origin （可以理解为父应用的origin）
+      "Access-Control-Allow-Credentials": true, // 允许携带凭证
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
+    }
+  }
+}
+```
+
+:::
+
+::: details vite
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  server: {
+    cors: {
+      origin: 'https:localhost:6060', // req.headers.origin
+      credentials: true,
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+    }
+  }
+});
+```
+
+:::
 
 ### 运行模式
 
