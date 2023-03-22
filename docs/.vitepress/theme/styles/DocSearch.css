@@ -13,7 +13,7 @@
 
 .DocSearch-Button {
   font-weight: bold;
-  width: 18vw;
+  width: 300px;
   display: flex;
   justify-content: space-between;
   border: none;
@@ -27,7 +27,7 @@
 }
 
 .DocSearch-Button:before {
-  content: "";
+  /* content: ""; */
   background: var(--vp-doc-search-background-color);
   position: absolute;
   top: -2px;

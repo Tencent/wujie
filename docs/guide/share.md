@@ -5,7 +5,12 @@
 
 这里提供一种工程上的策略结合无界的插件能力，可以有效的解决这个问题
 
-以这个场景举例：主应用使用到了`ant-design-vue`，子应用 A 也使用到了相同版本的`ant-design-vue`
+以这个场景举例：主应用使用到了`lodash`，子应用 A 也使用到了相同版本的`lodash`
+
+::: warning 警告
+应用共享原理是主应用和子应用运行iframe沙箱同域可以共享内存，对于组件库这样有副作用的第三方包，可能无法共享
+:::
+
 
 ## 子应用只运行在微前端框架
 
@@ -15,19 +20,19 @@
 
 ```javascript
 // index.js
-import Antdv from "ant-design-vue";
+import lodash from "lodash";
 
 // 将需要共享的包挂载到主应用全局
-window.Antdv = Antdv;
+window.lodash = lodash;
 ```
 
-2. 加载子应用时注入插件，将主应用的`Antdv`赋值到子应用的`window`对象上
+2. 加载子应用时注入插件，将主应用的`lodash`赋值到子应用的`window`对象上
 
 ```vue
 <WujieVue
   name="A"
   url="xxxxx"
-  :plugins="[{ jsBeforeLoaders: [{ content: 'window.Antdv = window.parent.Antdv' }] }]"
+  :plugins="[{ jsBeforeLoaders: [{ content: 'window.lodash = window.parent.lodash' }] }]"
 ></WujieVue>
 ```
 
@@ -36,11 +41,11 @@ window.Antdv = Antdv;
 ```javascript
 module.exports = {
   externals: {
-    "ant-design-vue": {
-      root: "Antdv",
-      commonjs: "Antdv",
-      commonjs2: "Antdv",
-      amd: "Antdv",
+    "lodash": {
+      root: "lodash",
+      commonjs: "lodash",
+      commonjs2: "lodash",
+      amd: "lodash",
     },
   },
 };
@@ -48,9 +53,9 @@ module.exports = {
 
 ## 子应用需要单独运行
 
-子应用如果需要单独运行的话，由于上面步骤将`Antdv` `externals` 掉了所以子应用运行会报错，为了让子应用可以单独运行需要做如下步骤：
+子应用如果需要单独运行的话，由于上面步骤将`lodash` `externals` 掉了所以子应用运行会报错，为了让子应用可以单独运行需要做如下步骤：
 
-1. 此时需要将子应用 `externals` 掉的包单独打成一个包（比如：`A.bundle.js`），这个包需要打包`Antv`并将其注入到`window`中
+1. 此时需要将子应用 `externals` 掉的包单独打成一个包（比如：`A.bundle.js`），这个包需要打包`lodash`并将其注入到`window`中
 
 2. 在子应用的`html`的`head`中将`A.bundle.js`放进去
 
@@ -67,7 +72,7 @@ module.exports = {
   name="A"
   url="xxxxx"
   :plugins="[
-    { jsExcludes: ['xxxx/A.bundle.js'], jsBeforeLoaders: [{ content: 'window.Antdv = window.parent.Antdv' }] },
+    { jsExcludes: ['xxxx/A.bundle.js'], jsBeforeLoaders: [{ content: 'window.lodash = window.parent.lodash' }] },
   ]"
 ></WujieVue>
 ```
