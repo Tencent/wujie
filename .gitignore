@@ -14,3 +14,4 @@ coverage
 # Log files
 .pnpm-debug.log*
 cache
+.idea

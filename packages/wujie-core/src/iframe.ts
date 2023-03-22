@@ -621,15 +621,9 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
  * 防止运行主应用的js代码，给子应用带来很多副作用
  */
 // TODO 更加准确抓取停止时机
-function stopIframeLoading(
-  iframeWindow: Window,
-  mainHostPath: string,
-  appHostPath: string,
-  appRoutePath: string,
-  sandbox: WuJie
-) {
+function stopIframeLoading(iframeWindow: Window) {
   const oldDoc = iframeWindow.document;
-  sandbox.iframeReady = new Promise<void>((resolve) => {
+  return new Promise<void>((resolve) => {
     function loop() {
       setTimeout(() => {
         let newDoc = null;
@@ -643,16 +637,6 @@ function stopIframeLoading(
           loop();
         } else {
           iframeWindow.stop ? iframeWindow.stop() : iframeWindow.document.execCommand("Stop");
-          if (!iframeWindow.__WUJIE) {
-            patchIframeVariable(iframeWindow, sandbox, appHostPath);
-          }
-          initIframeDom(iframeWindow, sandbox, mainHostPath, appHostPath);
-          /**
-           * 如果有同步优先同步，非同步从url读取
-           */
-          if (!isMatchSyncQueryById(iframeWindow.__WUJIE.id)) {
-            iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
-          }
           resolve();
         }
       }, 1);
@@ -794,6 +778,17 @@ export function iframeGenerator(
   const iframeWindow = iframe.contentWindow;
   // 变量需要提前注入，在入口函数通过变量防止死循环
   patchIframeVariable(iframeWindow, sandbox, appHostPath);
-  stopIframeLoading(iframeWindow, mainHostPath, appHostPath, appRoutePath, sandbox);
+  sandbox.iframeReady = stopIframeLoading(iframeWindow).then(() => {
+    if (!iframeWindow.__WUJIE) {
+      patchIframeVariable(iframeWindow, sandbox, appHostPath);
+    }
+    initIframeDom(iframeWindow, sandbox, mainHostPath, appHostPath);
+    /**
+     * 如果有同步优先同步，非同步从url读取
+     */
+    if (!isMatchSyncQueryById(iframeWindow.__WUJIE.id)) {
+      iframeWindow.history.replaceState(null, "", mainHostPath + appRoutePath);
+    }
+  });
   return iframe;
 }
