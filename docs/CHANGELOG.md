@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.9](https://github.com/Tencent/wujie/compare/v1.0.8...v1.0.9) (2023-03-23)
+
+### Bug Fixes
+
+* 修复子应用html默认属性 ([#462](https://github.com/Tencent/wujie/issues/462)) ([08e6fd2](https://github.com/Tencent/wujie/commit/08e6fd27b8f5facf4e11bdfdc3426706dca646f9))
+
+### Features
+
+* **doc:** add algolia search ([#447](https://github.com/Tencent/wujie/issues/447)) ([c8c022a](https://github.com/Tencent/wujie/commit/c8c022ac4b61377d7711d33fb19eef2fe5760dde))
+
 ## [1.0.8](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.8) (2023-03-14)
 
 **Note:** Version bump only for package wujie-docs

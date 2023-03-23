@@ -1,6 +1,6 @@
 {
   "name": "wujie",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "极致的微前端框架",
   "main": "./lib/index.js",
   "module": "./esm/index.js",

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.9](https://github.com/Tencent/wujie/compare/v1.0.8...v1.0.9) (2023-03-23)
+
+### Bug Fixes
+
+* 适配子应用处理script标签 ([#453](https://github.com/Tencent/wujie/issues/453)) ([f7e83b8](https://github.com/Tencent/wujie/commit/f7e83b88b0007143d60374197ec3f9e6d4c3c178))
+* 修复子应用html默认属性 ([#462](https://github.com/Tencent/wujie/issues/462)) ([08e6fd2](https://github.com/Tencent/wujie/commit/08e6fd27b8f5facf4e11bdfdc3426706dca646f9))
+* 修复chrome85以下版本window.window报错问题 ([#444](https://github.com/Tencent/wujie/issues/444)) ([0905c28](https://github.com/Tencent/wujie/commit/0905c284b52368aaef10f97fc501e28e2556ee4b)), closes [#280](https://github.com/Tencent/wujie/issues/280)
+* 修复js执行顺序的问题 ([#468](https://github.com/Tencent/wujie/issues/468)) ([dfc1cd2](https://github.com/Tencent/wujie/commit/dfc1cd237fe8736f37e2f37504bf74808d653676)), closes [#424](https://github.com/Tencent/wujie/issues/424)
+
+### Features
+
+* **doc:** add algolia search ([#447](https://github.com/Tencent/wujie/issues/447)) ([c8c022a](https://github.com/Tencent/wujie/commit/c8c022ac4b61377d7711d33fb19eef2fe5760dde))
+
 ## [1.0.8](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.8) (2023-03-14)
 
 ### Bug Fixes
