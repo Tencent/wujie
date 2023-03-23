@@ -1,4 +1,4 @@
-import { WUJIE_TIPS_NO_URL, WUJIE_DATA_ID } from "./constant";
+import { WUJIE_SCRIPT_ID, WUJIE_TIPS_NO_URL, WUJIE_APP_ID } from "./constant";
 import { plugin, cacheOptions } from "./index";
 
 export function toArray<T>(array: T | T[]): T[] {
@@ -104,7 +104,7 @@ export function getTargetValue(target: any, p: any): any {
 }
 
 export function getDegradeIframe(id: string): HTMLIFrameElement {
-  return window.document.querySelector(`iframe[${WUJIE_DATA_ID}="${id}"]`);
+  return window.document.querySelector(`iframe[${WUJIE_APP_ID}="${id}"]`);
 }
 
 export function setAttrsToElement(element: HTMLElement, attrs: { [key: string]: any }) {
@@ -293,13 +293,13 @@ export function isScriptElement(element: HTMLElement): boolean {
 export function setTagToScript(element: HTMLScriptElement, tag?: string): void {
   if (isScriptElement(element)) {
     const scriptTag = tag || `${new Date().valueOf()}`;
-    element.setAttribute("wujie", scriptTag);
+    element.setAttribute(WUJIE_SCRIPT_ID, scriptTag);
   }
 }
 
 export function getTagFromScript(element: HTMLScriptElement): string | null {
   if (isScriptElement(element)) {
-    return element.getAttribute("wujie");
+    return element.getAttribute(WUJIE_SCRIPT_ID);
   }
   return null;
 }

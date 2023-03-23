@@ -1,5 +1,6 @@
 // 私有元素属性
-export const WUJIE_DATA_ID = "data-wujie-id";
+export const WUJIE_APP_ID = "data-wujie-id";
+export const WUJIE_SCRIPT_ID = "data-wujie-script-id";
 export const WUJIE_DATA_FLAG = "data-wujie-Flag";
 export const CONTAINER_POSITION_DATA_FLAG = "data-container-position-flag";
 export const CONTAINER_OVERFLOW_DATA_FLAG = "data-container-overflow-flag";

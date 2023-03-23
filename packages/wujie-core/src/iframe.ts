@@ -716,10 +716,7 @@ export function insertScriptToIframe(
     }
     // 解决 webpack publicPath 为 auto 无法加载资源的问题
     Object.defineProperty(scriptElement, "src", { get: () => src || "" });
-    // 非内联脚本
   } else {
-    // 外联自动触发onload
-    onload && (scriptElement.onload = onload as (this: GlobalEventHandlers, ev: Event) => any);
     src && scriptElement.setAttribute("src", src);
     crossorigin && scriptElement.setAttribute("crossorigin", crossoriginType);
   }
@@ -729,13 +726,27 @@ export function insertScriptToIframe(
     "if(window.__WUJIE.execQueue && window.__WUJIE.execQueue.length){ window.__WUJIE.execQueue.shift()()}";
 
   const container = rawDocumentQuerySelector.call(iframeWindow.document, "head");
+  const execNextScript = () => !async && container.appendChild(nextScriptElement);
+  const afterExecScript = () => {
+    onload?.();
+    execNextScript();
+  };
 
+  // 错误情况处理
   if (/^<!DOCTYPE html/i.test(code)) {
     error(WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, scriptResult);
-    return !async && container.appendChild(nextScriptElement);
+    return execNextScript();
   }
+
+  // 打标记
   if (rawElement) {
     setTagToScript(scriptElement, getTagFromScript(rawElement));
+  }
+  // 外联脚本执行后的处理
+  const isOutlineScript = !content && src;
+  if (isOutlineScript) {
+    scriptElement.onload = afterExecScript;
+    scriptElement.onerror = afterExecScript;
   }
   container.appendChild(scriptElement);
 
@@ -743,11 +754,8 @@ export function insertScriptToIframe(
   callback?.(iframeWindow);
   // 执行 hooks
   execHooks(plugins, "appendOrInsertElementHook", scriptElement, iframeWindow, rawElement);
-  // 外联转内联调用手动触发onload
-  content && onload?.();
-
-  // async脚本不在执行队列，无需next操作
-  !async && container.appendChild(nextScriptElement);
+  // 内联脚本执行后的处理
+  !isOutlineScript && afterExecScript();
 }
 
 /**
