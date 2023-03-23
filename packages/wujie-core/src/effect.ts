@@ -27,7 +27,13 @@ import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
-import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT } from "./constant";
+import {
+  WUJIE_APP_ID,
+  WUJIE_SCRIPT_ID,
+  WUJIE_DATA_FLAG,
+  WUJIE_TIPS_REPEAT_RENDER,
+  WUJIE_TIPS_NO_SCRIPT,
+} from "./constant";
 import { ScriptObject } from "./template";
 
 function patchCustomEvent(
@@ -313,7 +319,7 @@ function rewriteAppendOrInsertChild(opts: {
           const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
           try {
             // 降级的dom-iframe无需处理
-            if (!element.getAttribute(WUJIE_DATA_ID)) {
+            if (!element.getAttribute(WUJIE_APP_ID)) {
               const patchScript = (element as HTMLIFrameElement).contentDocument.createElement("script");
               patchScript.type = "text/javascript";
               patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
@@ -335,9 +341,11 @@ function findScriptElementFromIframe(rawElement: HTMLScriptElement, wujieId: str
   const wujieTag = getTagFromScript(rawElement);
   const sandbox = getWujieById(wujieId);
   const { iframe } = sandbox;
-  const targetScript = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(`script[wujie='${wujieTag}']`);
+  const targetScript = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(
+    `script[${WUJIE_SCRIPT_ID}='${wujieTag}']`
+  );
   if (targetScript === null) {
-    warn(WUJIE_TIPS_NO_SCRIPT, `<script wujie='${wujieTag}'/>`);
+    warn(WUJIE_TIPS_NO_SCRIPT, `<script ${WUJIE_SCRIPT_ID}='${wujieTag}'/>`);
   }
   return { targetScript, iframe };
 }
