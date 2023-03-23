@@ -186,6 +186,8 @@ export function getExternalScripts(
     } else {
       contentPromise = fetchAssets(src, scriptCache, fetch, false, loadError);
     }
+    // refer https://html.spec.whatwg.org/multipage/scripting.html#attr-script-defer
+    if (module && !async) script.defer = true;
     return { ...script, contentPromise };
   });
 }
