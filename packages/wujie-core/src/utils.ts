@@ -286,6 +286,24 @@ export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Arr
   }
 }
 
+export function isScriptElement(element: HTMLElement): boolean {
+  return element.tagName?.toUpperCase() === "SCRIPT";
+}
+
+export function setTagToScript(element: HTMLScriptElement, tag?: string): void {
+  if (isScriptElement(element)) {
+    const scriptTag = tag || `${new Date().valueOf()}`;
+    element.setAttribute("wujie", scriptTag);
+  }
+}
+
+export function getTagFromScript(element: HTMLScriptElement): string | null {
+  if (isScriptElement(element)) {
+    return element.getAttribute("wujie");
+  }
+  return null;
+}
+
 // 合并缓存
 export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) {
   return {

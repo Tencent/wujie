@@ -2,18 +2,32 @@ import { getExternalStyleSheets, getExternalScripts } from "./entry";
 import {
   getWujieById,
   rawAppendChild,
+  rawElementContains,
+  rawElementRemoveChild,
   rawHeadInsertBefore,
   rawBodyInsertBefore,
   rawDocumentQuerySelector,
   rawAddEventListener,
   rawRemoveEventListener,
 } from "./common";
-import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl, execHooks } from "./utils";
+import {
+  isFunction,
+  isHijackingTag,
+  requestIdleCallback,
+  error,
+  warn,
+  nextTick,
+  getCurUrl,
+  execHooks,
+  isScriptElement,
+  setTagToScript,
+  getTagFromScript,
+} from "./utils";
 import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
-import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
+import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT } from "./constant";
 import { ScriptObject } from "./template";
 
 function patchCustomEvent(
@@ -234,6 +248,7 @@ function rewriteAppendOrInsertChild(opts: {
           return res;
         }
         case "SCRIPT": {
+          setTagToScript(element);
           const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
           if (src && !isMatchUrl(src, getEffectLoaders("jsExcludes", plugins))) {
@@ -316,6 +331,44 @@ function rewriteAppendOrInsertChild(opts: {
   };
 }
 
+function findScriptElementFromIframe(rawElement: HTMLScriptElement, wujieId: string) {
+  const wujieTag = getTagFromScript(rawElement);
+  const sandbox = getWujieById(wujieId);
+  const { iframe } = sandbox;
+  const targetScript = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(`script[wujie='${wujieTag}']`);
+  if (targetScript === null) {
+    warn(WUJIE_TIPS_NO_SCRIPT, `<script wujie='${wujieTag}'/>`);
+  }
+  return { targetScript, iframe };
+}
+
+function rewriteContains(opts: { rawElementContains: (other: Node | null) => boolean; wujieId: string }) {
+  return function contains(other: Node | null) {
+    const element = other as HTMLElement;
+    const { rawElementContains, wujieId } = opts;
+    if (element && isScriptElement(element)) {
+      const { targetScript } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
+      return targetScript !== null;
+    }
+    return rawElementContains(element);
+  };
+}
+
+function rewriteRemoveChild(opts: { rawElementRemoveChild: <T extends Node>(child: T) => T; wujieId: string }) {
+  return function removeChild(child: Node) {
+    const element = child as HTMLElement;
+    const { rawElementRemoveChild, wujieId } = opts;
+    if (element && isScriptElement(element)) {
+      const { targetScript, iframe } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
+      if (targetScript !== null) {
+        return iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.removeChild(targetScript);
+      }
+      return null;
+    }
+    return rawElementRemoveChild(element);
+  };
+}
+
 /**
  * 记录head和body的事件，等重新渲染复用head和body时需要清空事件
  */
@@ -376,6 +429,18 @@ export function patchRenderEffect(render: ShadowRoot | Document, id: string, deg
     rawDOMAppendOrInsertBefore: rawHeadInsertBefore as any,
     wujieId: id,
   }) as typeof rawHeadInsertBefore;
+  render.head.removeChild = rewriteRemoveChild({
+    rawElementRemoveChild: rawElementRemoveChild.bind(render.head),
+    wujieId: id,
+  }) as typeof rawElementRemoveChild;
+  render.head.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render.head),
+    wujieId: id,
+  }) as typeof rawElementContains;
+  render.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render),
+    wujieId: id,
+  }) as typeof rawElementContains;
   render.body.appendChild = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawAppendChild,
     wujieId: id,

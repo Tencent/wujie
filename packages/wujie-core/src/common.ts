@@ -191,6 +191,7 @@ export const windowRegWhiteList = [
 // 子应用的Document.prototype已经被改写了
 export const rawElementAppendChild = HTMLElement.prototype.appendChild;
 export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
+export const rawElementContains = HTMLElement.prototype.contains;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
 export const rawBodyInsertBefore = HTMLBodyElement.prototype.insertBefore;
 export const rawAddEventListener = Node.prototype.addEventListener;
