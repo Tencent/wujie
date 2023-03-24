@@ -21,7 +21,11 @@ const LINK_IGNORE_REGEX = /<link(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const STYLE_IGNORE_REGEX = /<style(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const SCRIPT_IGNORE_REGEX = /<script(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const CROSS_ORIGIN_REGEX = /.*\scrossorigin=?('|")?(use-credentials|anonymous)?('|")?/i;
+const SCRIPT_ATTRS_REGEX = /\s+(\w+)(?:\s*=\s*(?:(?:"([^"]*)")|(?:'([^']*)')|([^>\s]+)))?/g;
 
+export type ScriptAttributes = {
+  [key: string]: string | boolean; // 所有属性都可以是字符串或布尔值类型
+};
 /** 脚本对象 */
 export interface ScriptBaseObject {
   /** 脚本地址，内联为空 */
@@ -36,6 +40,8 @@ export interface ScriptBaseObject {
   crossorigin?: boolean;
   /** 脚本crossorigin的类型 */
   crossoriginType?: "anonymous" | "use-credentials" | "";
+  /** 脚本正则匹配属性 */
+  attrs?: ScriptAttributes;
 }
 export type ScriptObject = ScriptBaseObject & {
   /** 内联script的代码 */
@@ -80,6 +86,17 @@ function isValidJavaScriptType(type) {
     "application/ecmascript",
   ];
   return !type || handleTypes.indexOf(type) !== -1;
+}
+
+export function getScriptAttrs(attrsHtml) {
+  const attributes = {};
+  let attrMatch;
+  while ((attrMatch = SCRIPT_ATTRS_REGEX.exec(attrsHtml))) {
+    const attrName = attrMatch[1];
+    const attrValue = attrMatch[2] || attrMatch[3] || attrMatch[4] || true;
+    attributes[attrName] = attrValue;
+  }
+  return attributes;
 }
 
 function isModuleScriptSupported() {
@@ -219,12 +236,14 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
                   module: isModuleScript,
                   crossorigin: !!isCrossOriginScript,
                   crossoriginType: crossOriginType,
+                  attrs: getScriptAttrs(match),
                 }
               : {
                   src: matchedScriptSrc,
                   module: isModuleScript,
                   crossorigin: !!isCrossOriginScript,
                   crossoriginType: crossOriginType,
+                  attrs: getScriptAttrs(match),
                 }
           );
           return genScriptReplaceSymbol(
@@ -256,6 +275,7 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
             module: isModuleScript,
             crossorigin: !!isCrossOriginScript,
             crossoriginType: crossOriginType,
+            attrs: getScriptAttrs(match),
           });
         }
 

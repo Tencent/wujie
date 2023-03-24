@@ -34,7 +34,7 @@ import {
   WUJIE_TIPS_REPEAT_RENDER,
   WUJIE_TIPS_NO_SCRIPT,
 } from "./constant";
-import { ScriptObject } from "./template";
+import { ScriptObject, getScriptAttrs } from "./template";
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -274,6 +274,7 @@ function rewriteAppendOrInsertChild(opts: {
               crossorigin: crossOrigin !== null,
               crossoriginType: crossOrigin || "",
               ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
+              attrs: getScriptAttrs(element.outerHTML),
             } as ScriptObject;
             getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) => {
               dynamicScriptExecStack = dynamicScriptExecStack.then(() =>
@@ -303,9 +304,17 @@ function rewriteAppendOrInsertChild(opts: {
             sandbox.execQueue.push(() =>
               fiber
                 ? requestIdleCallback(() => {
-                    insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow, element);
+                    insertScriptToIframe(
+                      { src: null, content: text, attrs: getScriptAttrs(element.outerHTML) },
+                      sandbox.iframe.contentWindow,
+                      element
+                    );
                   })
-                : insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow, element)
+                : insertScriptToIframe(
+                    { src: null, content: text, attrs: getScriptAttrs(element.outerHTML) },
+                    sandbox.iframe.contentWindow,
+                    element
+                  )
             );
             if (!execQueueLength) sandbox.execQueue.shift()();
           }
