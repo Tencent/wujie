@@ -126,17 +126,28 @@ export function proxyGenerator(
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
-              return target.call(shadowRoot, `[id="${args[0]}"]`);
+              return (
+                target.call(shadowRoot, `[id="${args[0]}"]`) ||
+                iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__(`#${args[0]}`)
+              );
             },
           });
         }
         if (propKey === "querySelector" || propKey === "querySelectorAll") {
+          const rawPropMap = {
+            querySelector: "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__",
+            querySelectorAll: "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__",
+          };
           return new Proxy(shadowRoot[propKey], {
             apply(target, ctx, args) {
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
-              return target.apply(shadowRoot, args);
+              // 二选一，优先shadowDom，除非采用array合并，排除base，防止对router造成影响
+              return (
+                target.apply(shadowRoot, args) ||
+                (args[0] === "base" ? null : iframe.contentWindow[rawPropMap[propKey]](args[0]))
+              );
             },
           });
         }

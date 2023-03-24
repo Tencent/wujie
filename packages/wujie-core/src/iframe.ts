@@ -145,10 +145,6 @@ function patchIframeVariable(iframeWindow: Window, wujie: WuJie, appHostPath: st
   iframeWindow.__WUJIE_PUBLIC_PATH__ = appHostPath + "/";
   iframeWindow.$wujie = wujie.provide;
   iframeWindow.__WUJIE_RAW_WINDOW__ = iframeWindow;
-  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__ = iframeWindow.Document.prototype.querySelector;
-  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__ = iframeWindow.Document.prototype.querySelectorAll;
-  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__ = iframeWindow.Document.prototype.createElement;
-  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__ = iframeWindow.Document.prototype.createTextNode;
 }
 
 /**
@@ -610,6 +606,18 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
     ? iframeDocument.replaceChild(newDocumentElement, iframeDocument.documentElement)
     : iframeDocument.appendChild(newDocumentElement);
   iframeWindow.__WUJIE_RAW_DOCUMENT_HEAD__ = iframeDocument.head;
+  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__ = iframeWindow.Document.prototype.querySelector.bind(
+    iframeWindow.document
+  );
+  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__ = iframeWindow.Document.prototype.querySelectorAll.bind(
+    iframeWindow.document
+  );
+  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__ = iframeWindow.Document.prototype.createElement.bind(
+    iframeWindow.document
+  );
+  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__ = iframeWindow.Document.prototype.createTextNode.bind(
+    iframeWindow.document
+  );
   initBase(iframeWindow, wujie.url);
   patchIframeHistory(iframeWindow, appHostPath, mainHostPath);
   patchIframeEvents(iframeWindow);
@@ -693,13 +701,18 @@ export function insertScriptToIframe(
   iframeWindow: Window,
   rawElement?: HTMLScriptElement
 ) {
-  const { src, module, content, crossorigin, crossoriginType, async, callback, onload } =
+  const { src, module, content, crossorigin, crossoriginType, async, attrs, callback, onload } =
     scriptResult as ScriptObjectLoader;
   const scriptElement = iframeWindow.document.createElement("script");
   const nextScriptElement = iframeWindow.document.createElement("script");
   const { replace, plugins, proxyLocation } = iframeWindow.__WUJIE;
   const jsLoader = getJsLoader({ plugins, replace });
   let code = jsLoader(content, src, getCurUrl(proxyLocation));
+  // 添加属性
+  attrs &&
+    Object.keys(attrs)
+      .filter((key) => !Object.keys(scriptResult).includes(key))
+      .forEach((key) => scriptElement.setAttribute(key, String(attrs[key])));
 
   // 内联脚本
   if (content) {

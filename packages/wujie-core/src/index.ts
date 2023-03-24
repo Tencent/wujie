@@ -1,5 +1,5 @@
 import importHTML, { processCssLoader } from "./entry";
-import { StyleObject } from "./template";
+import { StyleObject, ScriptAttributes } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent, addLoading } from "./shadow";
 import { processAppForHrefJump } from "./sync";
@@ -22,6 +22,8 @@ export interface ScriptObjectLoader {
   crossorigin?: boolean;
   /** 脚本crossorigin的类型 */
   crossoriginType?: "anonymous" | "use-credentials" | "";
+  /** 脚本原始属性 */
+  attrs?: ScriptAttributes;
   /** 内联script的代码 */
   content?: string;
   /** 执行回调钩子 */
