@@ -290,9 +290,10 @@ export function isScriptElement(element: HTMLElement): boolean {
   return element.tagName?.toUpperCase() === "SCRIPT";
 }
 
+let count = 1;
 export function setTagToScript(element: HTMLScriptElement, tag?: string): void {
   if (isScriptElement(element)) {
-    const scriptTag = tag || `${new Date().valueOf()}`;
+    const scriptTag = tag || String(count++);
     element.setAttribute(WUJIE_SCRIPT_ID, scriptTag);
   }
 }
