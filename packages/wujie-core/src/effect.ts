@@ -161,6 +161,7 @@ function patchStylesheetElement(
   });
 }
 
+let dynamicScriptExecStack = Promise.resolve();
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
   wujieId: string;
@@ -274,27 +275,29 @@ function rewriteAppendOrInsertChild(opts: {
               crossoriginType: crossOrigin || "",
               ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
             } as ScriptObject;
-            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) =>
-              scriptResult.contentPromise.then(
-                (content) => {
-                  if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
-                  const execQueueLength = sandbox.execQueue?.length;
-                  sandbox.execQueue.push(() =>
-                    fiber
-                      ? requestIdleCallback(() => {
-                          execScript({ ...scriptResult, content });
-                        })
-                      : execScript({ ...scriptResult, content })
-                  );
-                  // 同步脚本如果都执行完了，需要手动触发执行
-                  if (!execQueueLength) sandbox.execQueue.shift()();
-                },
-                () => {
-                  manualInvokeElementEvent(element, "error");
-                  element = null;
-                }
-              )
-            );
+            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) => {
+              dynamicScriptExecStack = dynamicScriptExecStack.then(() =>
+                scriptResult.contentPromise.then(
+                  (content) => {
+                    if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
+                    const execQueueLength = sandbox.execQueue?.length;
+                    sandbox.execQueue.push(() =>
+                      fiber
+                        ? requestIdleCallback(() => {
+                            execScript({ ...scriptResult, content });
+                          })
+                        : execScript({ ...scriptResult, content })
+                    );
+                    // 同步脚本如果都执行完了，需要手动触发执行
+                    if (!execQueueLength) sandbox.execQueue.shift()();
+                  },
+                  () => {
+                    manualInvokeElementEvent(element, "error");
+                    element = null;
+                  }
+                )
+              );
+            });
           } else {
             const execQueueLength = sandbox.execQueue?.length;
             sandbox.execQueue.push(() =>
