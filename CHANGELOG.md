@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.11](https://github.com/Tencent/wujie/compare/v1.0.10...v1.0.11) (2023-03-24)
+
+### Bug Fixes
+
+* 修复appendChild执行顺序的问题 ([#470](https://github.com/Tencent/wujie/issues/470)) ([af054da](https://github.com/Tencent/wujie/commit/af054da4e2431dc9f010db49593ff2b584299419)), closes [#465](https://github.com/Tencent/wujie/issues/465)
+* 修复script脚本属性丢失的问题 ([#472](https://github.com/Tencent/wujie/issues/472)) ([300f4a7](https://github.com/Tencent/wujie/commit/300f4a7317a483364b8a82366243bfd48fdd7754)), closes [#374](https://github.com/Tencent/wujie/issues/374)
+
 ## [1.0.10](https://github.com/Tencent/wujie/compare/v1.0.9...v1.0.10) (2023-03-23)
 
 ### Bug Fixes
