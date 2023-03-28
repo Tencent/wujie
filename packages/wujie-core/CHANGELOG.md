@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.12](https://github.com/Tencent/wujie/compare/v1.0.11...v1.0.12) (2023-03-28)
+
+### Bug Fixes
+
+* 修复属性获取问题导致代码运行报错 ([09419fd](https://github.com/Tencent/wujie/commit/09419fde6f431114c51e61a5d80484162f9a8cb2))
+
 ## [1.0.11](https://github.com/Tencent/wujie/compare/v1.0.10...v1.0.11) (2023-03-24)
 
 ### Bug Fixes
