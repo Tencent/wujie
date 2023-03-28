@@ -329,17 +329,6 @@ function rewriteAppendOrInsertChild(opts: {
             return rawAppendChild.call(rawDocumentQuerySelector.call(this.ownerDocument, "html"), element);
           }
           const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
-          try {
-            // 降级的dom-iframe无需处理
-            if (!element.getAttribute(WUJIE_APP_ID)) {
-              const patchScript = (element as HTMLIFrameElement).contentDocument.createElement("script");
-              patchScript.type = "text/javascript";
-              patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
-              element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);
-            }
-          } catch (e) {
-            error(e);
-          }
           execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
           return res;
         }
