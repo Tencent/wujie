@@ -14,7 +14,6 @@ import {
   isFunction,
   isHijackingTag,
   requestIdleCallback,
-  error,
   warn,
   nextTick,
   getCurUrl,
@@ -27,13 +26,7 @@ import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
-import {
-  WUJIE_APP_ID,
-  WUJIE_SCRIPT_ID,
-  WUJIE_DATA_FLAG,
-  WUJIE_TIPS_REPEAT_RENDER,
-  WUJIE_TIPS_NO_SCRIPT,
-} from "./constant";
+import { WUJIE_SCRIPT_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT } from "./constant";
 import { ScriptObject, parseScriptAttributes } from "./template";
 
 function patchCustomEvent(
