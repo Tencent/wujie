@@ -21,7 +21,6 @@ const LINK_IGNORE_REGEX = /<link(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const STYLE_IGNORE_REGEX = /<style(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const SCRIPT_IGNORE_REGEX = /<script(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const CROSS_ORIGIN_REGEX = /.*\scrossorigin=?('|")?(use-credentials|anonymous)?('|")?/i;
-const SCRIPT_ATTRS_REGEX = /\s+(\w+)(?:\s*=\s*(?:(?:"([^"]*)")|(?:'([^']*)')|([^>\s]+)))?/g;
 
 export type ScriptAttributes = {
   [key: string]: string | boolean; // 所有属性都可以是字符串或布尔值类型
@@ -88,15 +87,31 @@ function isValidJavaScriptType(type) {
   return !type || handleTypes.indexOf(type) !== -1;
 }
 
-export function getScriptAttrs(attrsHtml) {
-  const attributes = {};
-  let attrMatch;
-  while ((attrMatch = SCRIPT_ATTRS_REGEX.exec(attrsHtml))) {
-    const attrName = attrMatch[1];
-    const attrValue = attrMatch[2] || attrMatch[3] || attrMatch[4] || true;
-    attributes[attrName] = attrValue;
+/**
+ * 解析 script 标签的属性
+ * @param scriptOuterHTML script 标签的 outerHTML
+ * @returns 返回一个对象，包含 script 标签的所有属性
+ */
+export function parseScriptAttributes(scriptOuterHTML) {
+  const pattern = /<script\s+([^>]*)>/i;
+  const matches = pattern.exec(scriptOuterHTML);
+
+  if (!matches) {
+    return {};
   }
-  return attributes;
+
+  const attributesString = matches[1];
+  const attributesPattern = /(\w+)\s*=\s*(['"])(.*?)\2/g;
+  const attributesObject = {};
+
+  let attributeMatches;
+  while ((attributeMatches = attributesPattern.exec(attributesString)) !== null) {
+    const attributeName = attributeMatches[1];
+    const attributeValue = attributeMatches[3];
+    attributesObject[attributeName] = attributeValue;
+  }
+
+  return attributesObject;
 }
 
 function isModuleScriptSupported() {
@@ -236,14 +251,14 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
                   module: isModuleScript,
                   crossorigin: !!isCrossOriginScript,
                   crossoriginType: crossOriginType,
-                  attrs: getScriptAttrs(match),
+                  attrs: parseScriptAttributes(match),
                 }
               : {
                   src: matchedScriptSrc,
                   module: isModuleScript,
                   crossorigin: !!isCrossOriginScript,
                   crossoriginType: crossOriginType,
-                  attrs: getScriptAttrs(match),
+                  attrs: parseScriptAttributes(match),
                 }
           );
           return genScriptReplaceSymbol(
@@ -275,7 +290,7 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
             module: isModuleScript,
             crossorigin: !!isCrossOriginScript,
             crossoriginType: crossOriginType,
-            attrs: getScriptAttrs(match),
+            attrs: parseScriptAttributes(match),
           });
         }
 
