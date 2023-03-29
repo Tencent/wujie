@@ -1,4 +1,10 @@
-import { WUJIE_SCRIPT_ID, WUJIE_TIPS_NO_URL, WUJIE_APP_ID } from "./constant";
+import {
+  WUJIE_SCRIPT_ID,
+  WUJIE_TIPS_NO_URL,
+  WUJIE_APP_ID,
+  WUJIE_TIPS_STOP_APP,
+  WUJIE_TIPS_STOP_APP_DETAIL,
+} from "./constant";
 import { plugin, cacheOptions } from "./index";
 
 export function toArray<T>(array: T | T[]): T[] {
@@ -352,4 +358,9 @@ export function eventTrigger(el: HTMLElement | Window | Document, eventName: str
     event.initCustomEvent(eventName, true, false, detail);
   }
   el.dispatchEvent(event);
+}
+
+export function stopMainAppRun() {
+  warn(WUJIE_TIPS_STOP_APP_DETAIL);
+  throw new Error(WUJIE_TIPS_STOP_APP);
 }

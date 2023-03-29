@@ -34,6 +34,7 @@ export const WUJIE_LOADING_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width=
 export const WUJIE_TIPS_NO_URL = "url参数为空";
 export const WUJIE_TIPS_RELOAD_DISABLED = "子应用调用reload无法生效";
 export const WUJIE_TIPS_STOP_APP = "此报错可以忽略，iframe主动中断主应用代码在子应用运行";
+export const WUJIE_TIPS_STOP_APP_DETAIL = WUJIE_TIPS_STOP_APP + "，详见：https://github.com/Tencent/wujie/issues/54";
 export const WUJIE_TIPS_NO_SUBJECT = "事件订阅数量为空";
 export const WUJIE_TIPS_NO_FETCH = "window上不存在fetch属性，需要自行polyfill";
 export const WUJIE_TIPS_NOT_SUPPORTED = "当前浏览器不支持无界，子应用将采用iframe方式渲染";
