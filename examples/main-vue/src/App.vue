@@ -191,7 +191,6 @@ h3 {
   height: 100vh;
   overflow: hidden scroll;
   width: 1px;
-  z-index: 2;
 }
 
 #nav a {
