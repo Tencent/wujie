@@ -243,14 +243,15 @@ export function localGenerator(
   // 代理 document
   const proxyDocument = {};
   const sandbox = iframe.contentWindow.__WUJIE;
-  const rawCreateElement = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__;
-  const rawCreateTextNode = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__;
   // 特殊处理
   Object.defineProperties(proxyDocument, {
     createElement: {
       get: () => {
         return function (...args) {
-          const element = rawCreateElement.apply(iframe.contentDocument, args);
+          const element = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__.apply(
+            iframe.contentDocument,
+            args
+          );
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -259,7 +260,10 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = rawCreateTextNode.apply(iframe.contentDocument, args);
+          const element = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__.apply(
+            iframe.contentDocument,
+            args
+          );
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
