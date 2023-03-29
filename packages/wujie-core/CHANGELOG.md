@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.13](https://github.com/Tencent/wujie/compare/v1.0.12...v1.0.13) (2023-03-29)
+
+### Bug Fixes
+
+* 修复降级后页面无法渲染的问题 ([1883f59](https://github.com/Tencent/wujie/commit/1883f59a48e666d0533df852b60454fc0c2a476e))
+* 运行主应用代码主动报错 ([#482](https://github.com/Tencent/wujie/issues/482)) ([8981b7b](https://github.com/Tencent/wujie/commit/8981b7b0168208afd316bc7956f0b79ab54dcd20))
+
 ## [1.0.12](https://github.com/Tencent/wujie/compare/v1.0.11...v1.0.12) (2023-03-28)
 
 ### Bug Fixes
