@@ -40,5 +40,6 @@ export const WUJIE_TIPS_NO_FETCH = "window上不存在fetch属性，需要自行
 export const WUJIE_TIPS_NOT_SUPPORTED = "当前浏览器不支持无界，子应用将采用iframe方式渲染";
 export const WUJIE_TIPS_SCRIPT_ERROR_REQUESTED = "脚本请求出现错误";
 export const WUJIE_TIPS_CSS_ERROR_REQUESTED = "样式请求出现错误";
+export const WUJIE_TIPS_HTML_ERROR_REQUESTED = "html请求出现错误";
 export const WUJIE_TIPS_REPEAT_RENDER = "无界组件短时间重复渲染了两次，可能存在性能问题请检查代码";
 export const WUJIE_TIPS_NO_SCRIPT = "目标Script尚未准备好或已经被移除";
