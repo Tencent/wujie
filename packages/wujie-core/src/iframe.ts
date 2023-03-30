@@ -390,7 +390,7 @@ function patchDocumentEffect(iframeWindow: Window): void {
     let callback = handlerCallbackMap.get(handler);
     const typeList = handlerTypeMap.get(handler);
     // 设置 handlerCallbackMap
-    if (!callback) {
+    if (!callback && handler) {
       callback = typeof handler === "function" ? handler.bind(this) : handler;
       handlerCallbackMap.set(handler, callback);
     }
