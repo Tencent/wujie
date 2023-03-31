@@ -606,18 +606,10 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
     ? iframeDocument.replaceChild(newDocumentElement, iframeDocument.documentElement)
     : iframeDocument.appendChild(newDocumentElement);
   iframeWindow.__WUJIE_RAW_DOCUMENT_HEAD__ = iframeDocument.head;
-  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__ = iframeWindow.Document.prototype.querySelector.bind(
-    iframeWindow.document
-  );
-  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__ = iframeWindow.Document.prototype.querySelectorAll.bind(
-    iframeWindow.document
-  );
-  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__ = iframeWindow.Document.prototype.createElement.bind(
-    iframeWindow.document
-  );
-  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__ = iframeWindow.Document.prototype.createTextNode.bind(
-    iframeWindow.document
-  );
+  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__ = iframeDocument.querySelector;
+  iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__ = iframeDocument.querySelectorAll;
+  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__ = iframeDocument.createElement;
+  iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__ = iframeDocument.createTextNode;
   initBase(iframeWindow, wujie.url);
   patchIframeHistory(iframeWindow, appHostPath, mainHostPath);
   patchIframeEvents(iframeWindow);
