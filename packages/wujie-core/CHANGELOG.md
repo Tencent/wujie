@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.14](https://github.com/Tencent/wujie/compare/v1.0.13...v1.0.14) (2023-03-31)
+
+### Bug Fixes
+
+* 修复获取html入口文件时，因为接口异常不能正常触发loadError生命周期 ([#481](https://github.com/Tencent/wujie/issues/481)) ([1b45d30](https://github.com/Tencent/wujie/commit/1b45d3066ef5acbcdd7aa1dcb00d01298ff3a3b8))
+* 修复子应用嵌套页面空白问题 ([#492](https://github.com/Tencent/wujie/issues/492)) ([ff9714f](https://github.com/Tencent/wujie/commit/ff9714fab57b059746765f540a9f37d0db573ab5)), closes [#487](https://github.com/Tencent/wujie/issues/487) [#485](https://github.com/Tencent/wujie/issues/485)
+* **iframe:** 修复 handler 为 undefined 时添加到 handlerCallbackMap 报错 ([#483](https://github.com/Tencent/wujie/issues/483)) ([9b5a7fb](https://github.com/Tencent/wujie/commit/9b5a7fb397bc8d6bc49d4d8ee5b5a4a9c8dbac00))
+* **iframe:** 修复多层嵌套找不到渲染节点问题 ([#491](https://github.com/Tencent/wujie/issues/491)) ([6f54797](https://github.com/Tencent/wujie/commit/6f54797a95920aa21673b66c247e7a2ca672ebb2))
+
 ## [1.0.13](https://github.com/Tencent/wujie/compare/v1.0.12...v1.0.13) (2023-03-29)
 
 ### Bug Fixes
