@@ -88,20 +88,20 @@ function isValidJavaScriptType(type) {
 }
 
 /**
- * 解析 script 标签的属性
+ * 解析标签的属性
  * @param scriptOuterHTML script 标签的 outerHTML
  * @returns 返回一个对象，包含 script 标签的所有属性
  */
-export function parseScriptAttributes(scriptOuterHTML) {
-  const pattern = /<script\s+([^>]*)>/i;
-  const matches = pattern.exec(scriptOuterHTML);
+export function parseTagAttributes(TagOuterHTML) {
+  const pattern = /<[-\w]+\s+([^>]*)>/i;
+  const matches = pattern.exec(TagOuterHTML);
 
   if (!matches) {
     return {};
   }
 
   const attributesString = matches[1];
-  const attributesPattern = /(\w+)\s*=\s*(['"])(.*?)\2/g;
+  const attributesPattern = /([^\s=]+)\s*=\s*(['"])(.*?)\2/g;
   const attributesObject = {};
 
   let attributeMatches;
@@ -251,14 +251,14 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
                   module: isModuleScript,
                   crossorigin: !!isCrossOriginScript,
                   crossoriginType: crossOriginType,
-                  attrs: parseScriptAttributes(match),
+                  attrs: parseTagAttributes(match),
                 }
               : {
                   src: matchedScriptSrc,
                   module: isModuleScript,
                   crossorigin: !!isCrossOriginScript,
                   crossoriginType: crossOriginType,
-                  attrs: parseScriptAttributes(match),
+                  attrs: parseTagAttributes(match),
                 }
           );
           return genScriptReplaceSymbol(
@@ -290,7 +290,7 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
             module: isModuleScript,
             crossorigin: !!isCrossOriginScript,
             crossoriginType: crossOriginType,
-            attrs: parseScriptAttributes(match),
+            attrs: parseTagAttributes(match),
           });
         }
 

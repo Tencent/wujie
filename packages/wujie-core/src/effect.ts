@@ -21,13 +21,14 @@ import {
   isScriptElement,
   setTagToScript,
   getTagFromScript,
+  setAttrsToElement,
 } from "./utils";
 import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
 import { WUJIE_SCRIPT_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT } from "./constant";
-import { ScriptObject, parseScriptAttributes } from "./template";
+import { ScriptObject, parseTagAttributes } from "./template";
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -202,11 +203,16 @@ function rewriteAppendOrInsertChild(opts: {
               contentPromise.then(
                 (content) => {
                   // 处理 ignore 样式
+                  const rawAttrs = parseTagAttributes(element.outerHTML);
                   if (ignore && src) {
                     const stylesheetElement = iframeDocument.createElement("link");
-                    stylesheetElement.setAttribute("type", "text/css");
-                    stylesheetElement.setAttribute("rel", "stylesheet");
-                    stylesheetElement.setAttribute("href", src);
+                    const attrs = {
+                      ...rawAttrs,
+                      type: "text/css",
+                      rel: "stylesheet",
+                      href: src,
+                    };
+                    setAttrsToElement(stylesheetElement, attrs);
                     rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                     manualInvokeElementEvent(element, "load");
                   } else {
@@ -216,6 +222,7 @@ function rewriteAppendOrInsertChild(opts: {
                     const cssLoader = getCssLoader({ plugins, replace });
                     stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
                     styleSheetElements.push(stylesheetElement);
+                    setAttrsToElement(stylesheetElement, rawAttrs);
                     rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                     // 处理样式补丁
                     handleStylesheetElementPatch(stylesheetElement, sandbox);
@@ -267,7 +274,7 @@ function rewriteAppendOrInsertChild(opts: {
               crossorigin: crossOrigin !== null,
               crossoriginType: crossOrigin || "",
               ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
-              attrs: parseScriptAttributes(element.outerHTML),
+              attrs: parseTagAttributes(element.outerHTML),
             } as ScriptObject;
             getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) => {
               dynamicScriptExecStack = dynamicScriptExecStack.then(() =>
@@ -298,13 +305,13 @@ function rewriteAppendOrInsertChild(opts: {
               fiber
                 ? requestIdleCallback(() => {
                     insertScriptToIframe(
-                      { src: null, content: text, attrs: parseScriptAttributes(element.outerHTML) },
+                      { src: null, content: text, attrs: parseTagAttributes(element.outerHTML) },
                       sandbox.iframe.contentWindow,
                       element
                     );
                   })
                 : insertScriptToIframe(
-                    { src: null, content: text, attrs: parseScriptAttributes(element.outerHTML) },
+                    { src: null, content: text, attrs: parseTagAttributes(element.outerHTML) },
                     sandbox.iframe.contentWindow,
                     element
                   )
