@@ -38,12 +38,6 @@ const Home = () => (
 );
 
 export default function App() {
-  // 在 react16-sub 路由下主动告知主应用路由跳转，主应用也跳到相应路由高亮菜单栏
-  const location = useLocation()
-  useEffect(() => {
-    window.$wujie?.bus.$emit('sub-route-change', "react16", location.pathname)
-  }, [location])
-
   return (
     <div>
       <nav>

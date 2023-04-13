@@ -32,16 +32,6 @@ function Nav() {
   const [viteFlag, setViteFlag] = useState(location.pathname.includes("vite-sub"));
   const degrade = window.Proxy
 
-  // 在 xxx-sub 路由下子应用将激活路由同步给主应用，主应用跳转对应路由高亮菜单栏
-  bus.$on("sub-route-change", (name, path) => {
-    const mainName = `${name}-sub`;
-    const mainPath = `/${name}-sub${path}`;
-    const currentPath = window.location.hash.replace("#", "")
-    if(currentPath.includes(mainName) && currentPath !== mainPath) {
-      navigation(mainPath);
-    }
-  });
-
 
   const handleFlag = (name) => {
     switch (name) {
