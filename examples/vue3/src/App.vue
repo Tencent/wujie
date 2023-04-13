@@ -9,10 +9,7 @@
 
 <script>
 export default {
-  watch: {
-  },
   mounted() {
-    // 防止
     window.$wujie?.bus.$on("vue3-router-change", (path) => this.$router.replace(path));
   },
 };
