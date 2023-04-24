@@ -382,7 +382,7 @@ export default class Wujie {
   }
 
   /** 销毁子应用 */
-  public destroy(clearConfig?: boolean) {
+  public destroy(disClear?: boolean) {
     this.bus.$clear();
     this.shadowRoot = null;
     this.proxy = null;
@@ -417,7 +417,7 @@ export default class Wujie {
     if (this.iframe) {
       this.iframe.parentNode?.removeChild(this.iframe);
     }
-    if (clearConfig) {
+    if (!disClear) {
       deleteWujieById(this.id);
     }
   }
