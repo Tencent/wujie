@@ -250,7 +250,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
       return sandbox.destroy;
     } else {
       // 没有渲染函数
-      sandbox.destroy();
+      sandbox.destroy(false);
     }
   }
 
