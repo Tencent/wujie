@@ -5,11 +5,11 @@
 `create-wujie` 用来帮助快速启动示例项目，方便开发者快速上手。
 
 - 支持选择一个或多个子应用来创建一个新的项目，便于针对特定框架进行开发测试。
-- 支持主,子应用路由模式(hash, history)选择。
+- 支持主,子应用路由模式(`hash`, `history`)选择。
 
-后续会支持更多功能以及其他框架，版本的支持, 便于快速上手微前端。
+后续会支持更多功能以及其他框架，版本的支持, 便于快速上手 `wujie`。
 
-如在使用过程中遇到任何问题, 请在[issues](https://github.com/wujie-micro/create-wujie/issues)进行说明。
+如在使用过程中遇到任何问题, 请在 [issues](https://github.com/wujie-micro/create-wujie/issues) 进行说明。
 
 ### 快速开始
 
