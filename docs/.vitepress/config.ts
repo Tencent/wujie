@@ -85,13 +85,13 @@ export default defineConfig({
               link: "/guide/",
             },
             {
+              text: "创建项目",
+              link: "/guide/install"
+            },
+            {
               text: "快速上手",
               link: "/guide/start",
-            },
-            // {
-            //   text: "定制Demo",
-            //   link: "/guide/demo",
-            // },
+            }
           ],
         },
         {
