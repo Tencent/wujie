@@ -20,12 +20,6 @@ hero:
       link: /guide/start.html
     - theme: alt
       text: npx create-wujie@latest
-    # - theme: alt
-    #   text: Vue示例
-    #   link: https://wujie-micro.github.io/demo-main-vue/home
-    # - theme: alt
-    #   text: React示例
-    #   link: https://wujie-micro.github.io/demo-main-react/
     - theme: brand
       text: 在线体验
       link: /wujie/
