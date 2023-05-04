@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.15](https://github.com/Tencent/wujie/compare/v1.0.14...v1.0.15) (2023-05-04)
+
+**Note:** Version bump only for package main-react
+
 ## [1.0.14](https://github.com/Tencent/wujie/compare/v1.0.13...v1.0.14) (2023-03-31)
 
 **Note:** Version bump only for package main-react

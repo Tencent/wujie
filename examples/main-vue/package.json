@@ -1,6 +1,6 @@
 {
   "name": "main-vue",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve",
@@ -15,7 +15,7 @@
     "vue-router": "^3.2.0",
     "whatwg-fetch": "^3.6.2",
     "wujie": "workspace:^1.0.14",
-    "wujie-vue2": "workspace:^1.0.14"
+    "wujie-vue2": "workspace:^1.0.15"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.15](https://github.com/Tencent/wujie/compare/v1.0.14...v1.0.15) (2023-05-04)
+
+### Features
+
+* **docs:** add create-wujie md ([#537](https://github.com/Tencent/wujie/issues/537)) ([99c191a](https://github.com/Tencent/wujie/commit/99c191a9f0326b6f9ca7b106ed37ce264e892d2c))
+
 ## [1.0.14](https://github.com/Tencent/wujie/compare/v1.0.13...v1.0.14) (2023-03-31)
 
 **Note:** Version bump only for package wujie-docs

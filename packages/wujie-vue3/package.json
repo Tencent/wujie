@@ -1,6 +1,6 @@
 {
   "name": "wujie-vue3",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "无界微前端Vue3组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
