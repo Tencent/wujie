@@ -118,7 +118,19 @@ export function proxyGenerator(
               }
               if (propKey === "getElementsByClassName") arg = "." + arg;
               if (propKey === "getElementsByName") arg = `[name="${arg}"]`;
-              return querySelectorAll.call(shadowRoot, arg);
+
+              // FIXME: This string must be a valid CSS selector string; if it's not, a SyntaxError exception is thrown;
+              // so we should ensure that the program can execute normally in case of exceptions.
+              // reference: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
+
+              let res: NodeList[] | [];
+              try {
+                res = querySelectorAll.call(shadowRoot, arg);
+              } catch (error) {
+                res = [];
+              }
+
+              return res;
             },
           });
         }
