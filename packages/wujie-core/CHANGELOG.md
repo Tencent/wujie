@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.16](https://github.com/Tencent/wujie/compare/v1.0.15...v1.0.16) (2023-05-17)
+
+### Bug Fixes
+
+* **proxy:** protect the program when querySelectorAll throws an exception ([#547](https://github.com/Tencent/wujie/issues/547)) ([a7f83fc](https://github.com/Tencent/wujie/commit/a7f83fc909cf7ac70cba59590f340e201639fe4e))
+
 ## [1.0.14](https://github.com/Tencent/wujie/compare/v1.0.13...v1.0.14) (2023-03-31)
 
 ### Bug Fixes
