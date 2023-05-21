@@ -85,12 +85,26 @@ export default {
       degrade: window.Proxy,
     };
   },
+  mounted() {
+    window.addEventListener("message", this.handleMessage);
+  },
+  beforeDestroy() {
+    window.removeEventListener("message", this.handleMessage);
+  },
   methods: {
     close() {
       if (this.active) this.active = false;
     },
     handleFlag(name) {
       this[name + "Flag"] = !this[name + "Flag"];
+    },
+    handleMessage(event) {
+      if (event.origin === location.origin && event.source !== window) {
+        console.log("父应用接收到消息：", event.data);
+        alert("父应用接收到消息：" + event.data);
+        // 将消息发送给子应用
+        event.source.postMessage("Hello 子应用，我是父应用!", event.origin);
+      }
     },
   },
 };
@@ -105,6 +119,7 @@ body {
   height: 100vh;
   --theme: rgb(241, 107, 95);
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -165,6 +180,7 @@ body {
     transform: translate(0, 0);
     box-shadow: 3px 0px 9px 2px #e6e6e6;
   }
+
   #nav .menu-icon {
     position: absolute;
     left: 100%;
