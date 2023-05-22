@@ -214,8 +214,7 @@ export function proxyGenerator(
           return location[propKey].replace(mainHostPath, appHostPath);
         }
         if (propKey === "reload") {
-          warn(WUJIE_TIPS_RELOAD_DISABLED);
-          return () => null;
+          window.location.reload();
         }
         if (propKey === "replace") {
           return new Proxy(location[propKey], {
