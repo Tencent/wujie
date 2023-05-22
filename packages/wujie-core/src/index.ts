@@ -1,13 +1,21 @@
 import importHTML, { processCssLoader } from "./entry";
-import { StyleObject } from "./template";
+import { StyleObject, ScriptAttributes } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent, addLoading } from "./shadow";
 import { processAppForHrefJump } from "./sync";
 import { getPlugins } from "./plugin";
-import { wujieSupport, mergeOptions, isFunction, requestIdleCallback, isMatchSyncQueryById, warn } from "./utils";
+import {
+  wujieSupport,
+  mergeOptions,
+  isFunction,
+  requestIdleCallback,
+  isMatchSyncQueryById,
+  warn,
+  stopMainAppRun,
+} from "./utils";
 import { getWujieById, getOptionsById, addSandboxCacheWithOptions } from "./common";
 import { EventBus } from "./event";
-import { WUJIE_TIPS_STOP_APP, WUJIE_TIPS_NOT_SUPPORTED } from "./constant";
+import { WUJIE_TIPS_NOT_SUPPORTED } from "./constant";
 
 export const bus = new EventBus(Date.now().toString());
 
@@ -22,6 +30,8 @@ export interface ScriptObjectLoader {
   crossorigin?: boolean;
   /** 脚本crossorigin的类型 */
   crossoriginType?: "anonymous" | "use-credentials" | "";
+  /** 脚本原始属性 */
+  attrs?: ScriptAttributes;
   /** 内联script的代码 */
   content?: string;
   /** 执行回调钩子 */
@@ -150,8 +160,7 @@ export type cacheOptions = Omit<preOptions & startOptions, optionProperty> &
  * 上述条件同时成立说明主应用代码在iframe的loading阶段混入进来了，必须中断执行
  */
 if (window.__WUJIE && !window.__POWERED_BY_WUJIE__) {
-  warn(WUJIE_TIPS_STOP_APP);
-  throw new Error(WUJIE_TIPS_STOP_APP);
+  stopMainAppRun();
 }
 
 // 处理子应用链接跳转

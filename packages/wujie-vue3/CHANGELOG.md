@@ -3,6 +3,61 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.16](https://github.com/Tencent/wujie/compare/v1.0.15...v1.0.16) (2023-05-17)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.15](https://github.com/Tencent/wujie/compare/v1.0.14...v1.0.15) (2023-05-04)
+
+### Features
+
+* 修改umd暴露模块 ([0c4e434](https://github.com/Tencent/wujie/commit/0c4e4341bb2db904532d387ac7080c396e4df001))
+
+## [1.0.14](https://github.com/Tencent/wujie/compare/v1.0.13...v1.0.14) (2023-03-31)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.13](https://github.com/Tencent/wujie/compare/v1.0.12...v1.0.13) (2023-03-29)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.12](https://github.com/Tencent/wujie/compare/v1.0.11...v1.0.12) (2023-03-28)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.11](https://github.com/Tencent/wujie/compare/v1.0.10...v1.0.11) (2023-03-24)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.10](https://github.com/Tencent/wujie/compare/v1.0.9...v1.0.10) (2023-03-23)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.9](https://github.com/Tencent/wujie/compare/v1.0.8...v1.0.9) (2023-03-23)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.8](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.8) (2023-03-14)
+
+### Bug Fixes
+
+* 回退style属性 ([87540da](https://github.com/Tencent/wujie/commit/87540da4ed76510a1150398d7314c03a7d3e2912))
+* 修复 vue3 组件注册时类型错误 ([#393](https://github.com/Tencent/wujie/issues/393)) ([#394](https://github.com/Tencent/wujie/issues/394)) ([6487308](https://github.com/Tencent/wujie/commit/6487308236c50e1a99d714728bc6c7118581034a))
+
+### Features
+
+* wujie dom support style props ([#375](https://github.com/Tencent/wujie/issues/375)) ([3e72e68](https://github.com/Tencent/wujie/commit/3e72e68352dde07046e1dbe7bc5ad9d0ebd87d84))
+
+## [1.0.7](https://github.com/Tencent/wujie/compare/v1.0.6...v1.0.7) (2023-03-14)
+
+### Bug Fixes
+
+* 修复 vue3 组件注册时类型错误 ([#393](https://github.com/Tencent/wujie/issues/393)) ([#394](https://github.com/Tencent/wujie/issues/394)) ([6487308](https://github.com/Tencent/wujie/commit/6487308236c50e1a99d714728bc6c7118581034a))
+
+### Features
+
+* wujie dom support style props ([#375](https://github.com/Tencent/wujie/issues/375)) ([3e72e68](https://github.com/Tencent/wujie/commit/3e72e68352dde07046e1dbe7bc5ad9d0ebd87d84))
+
 ## [1.0.6](https://github.com/Tencent/wujie/compare/v1.0.5...v1.0.6) (2023-02-08)
 
 **Note:** Version bump only for package wujie-vue3

@@ -36,7 +36,6 @@ export default class WujieReact extends React.PureComponent {
 
   render() {
     this.execStartApp();
-
     const { width, height } = this.props;
     const { myRef: ref } = this.state;
     return <div style={{ width, height }} ref={ref} />;

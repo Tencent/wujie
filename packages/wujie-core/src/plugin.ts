@@ -66,6 +66,8 @@ function cssRelativePathResolve(code: string, src: string, base: string) {
 
 const defaultPlugin = {
   cssLoader: cssRelativePathResolve,
+  // fix https://github.com/Tencent/wujie/issues/455
+  cssBeforeLoaders: [{ content: "html {view-transition-name: none;}" }],
 };
 
 export function getPlugins(plugins: Array<plugin>): Array<plugin> {

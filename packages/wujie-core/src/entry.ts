@@ -6,7 +6,12 @@ import processTpl, {
   StyleObject,
 } from "./template";
 import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from "./utils";
-import { WUJIE_TIPS_NO_FETCH, WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_TIPS_CSS_ERROR_REQUESTED } from "./constant";
+import {
+  WUJIE_TIPS_NO_FETCH,
+  WUJIE_TIPS_SCRIPT_ERROR_REQUESTED,
+  WUJIE_TIPS_CSS_ERROR_REQUESTED,
+  WUJIE_TIPS_HTML_ERROR_REQUESTED,
+} from "./constant";
 import { getEffectLoaders, isMatchUrl } from "./plugin";
 import Wujie from "./sandbox";
 import { plugin, loadErrorHandler } from "./index";
@@ -186,6 +191,8 @@ export function getExternalScripts(
     } else {
       contentPromise = fetchAssets(src, scriptCache, fetch, false, loadError);
     }
+    // refer https://html.spec.whatwg.org/multipage/scripting.html#attr-script-defer
+    if (module && !async) script.defer = true;
     return { ...script, contentPromise };
   });
 }
@@ -209,14 +216,20 @@ export default function importHTML(params: {
   const getHtmlParseResult = (url, html, htmlLoader) =>
     (html
       ? Promise.resolve(html)
-      : fetch(url).then(
-          (response) => response.text(),
-          (e) => {
+      : fetch(url)
+          .then((response) => {
+            if (response.status >= 400) {
+              error(WUJIE_TIPS_HTML_ERROR_REQUESTED, { url, response });
+              loadError?.(url, new Error(WUJIE_TIPS_HTML_ERROR_REQUESTED));
+              return "";
+            }
+            return response.text();
+          })
+          .catch((e) => {
             embedHTMLCache[url] = null;
             loadError?.(url, e);
             return Promise.reject(e);
-          }
-        )
+          })
     ).then((html) => {
       const assetPublicPath = getPublicPath(url);
       const { template, scripts, styles } = processTpl(htmlLoader(html), assetPublicPath);

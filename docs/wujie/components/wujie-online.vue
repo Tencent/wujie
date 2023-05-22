@@ -16,8 +16,8 @@ const wujieUrl = ref<string>("https://wujicode.cn/xy/app/prod/official/index");
 
 watch(
   () => props.flag,
-  (newValue) => {
-    wujieUrl.value = props.url;
+  () => {
+    wujieUrl.value = props.url!;
   }
 );
 

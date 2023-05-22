@@ -1,5 +1,6 @@
 // 私有元素属性
-export const WUJIE_DATA_ID = "data-wujie-id";
+export const WUJIE_APP_ID = "data-wujie-id";
+export const WUJIE_SCRIPT_ID = "data-wujie-script-id";
 export const WUJIE_DATA_FLAG = "data-wujie-Flag";
 export const CONTAINER_POSITION_DATA_FLAG = "data-container-position-flag";
 export const CONTAINER_OVERFLOW_DATA_FLAG = "data-container-overflow-flag";
@@ -33,9 +34,12 @@ export const WUJIE_LOADING_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width=
 export const WUJIE_TIPS_NO_URL = "url参数为空";
 export const WUJIE_TIPS_RELOAD_DISABLED = "子应用调用reload无法生效";
 export const WUJIE_TIPS_STOP_APP = "此报错可以忽略，iframe主动中断主应用代码在子应用运行";
+export const WUJIE_TIPS_STOP_APP_DETAIL = WUJIE_TIPS_STOP_APP + "，详见：https://github.com/Tencent/wujie/issues/54";
 export const WUJIE_TIPS_NO_SUBJECT = "事件订阅数量为空";
 export const WUJIE_TIPS_NO_FETCH = "window上不存在fetch属性，需要自行polyfill";
 export const WUJIE_TIPS_NOT_SUPPORTED = "当前浏览器不支持无界，子应用将采用iframe方式渲染";
 export const WUJIE_TIPS_SCRIPT_ERROR_REQUESTED = "脚本请求出现错误";
 export const WUJIE_TIPS_CSS_ERROR_REQUESTED = "样式请求出现错误";
+export const WUJIE_TIPS_HTML_ERROR_REQUESTED = "html请求出现错误";
 export const WUJIE_TIPS_REPEAT_RENDER = "无界组件短时间重复渲染了两次，可能存在性能问题请检查代码";
+export const WUJIE_TIPS_NO_SCRIPT = "目标Script尚未准备好或已经被移除";

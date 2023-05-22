@@ -1,5 +1,5 @@
 import {
-  WUJIE_DATA_ID,
+  WUJIE_APP_ID,
   WUJIE_IFRAME_CLASS,
   WUJIE_SHADE_STYLE,
   CONTAINER_POSITION_DATA_FLAG,
@@ -43,13 +43,13 @@ export function defineWujieWebComponent() {
       connectedCallback(): void {
         if (this.shadowRoot) return;
         const shadowRoot = this.attachShadow({ mode: "open" });
-        const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
+        const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
         patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
         sandbox.shadowRoot = shadowRoot;
       }
 
       disconnectedCallback(): void {
-        const sandbox = getWujieById(this.getAttribute(WUJIE_DATA_ID));
+        const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
         sandbox?.unmount();
       }
     }
@@ -59,7 +59,7 @@ export function defineWujieWebComponent() {
 
 export function createWujieWebComponent(id: string): HTMLElement {
   const contentElement = window.document.createElement("wujie-app");
-  contentElement.setAttribute(WUJIE_DATA_ID, id);
+  contentElement.setAttribute(WUJIE_APP_ID, id);
   contentElement.classList.add(WUJIE_IFRAME_CLASS);
   return contentElement;
 }
@@ -241,7 +241,7 @@ export function createIframeContainer(id: string, degradeAttrs: { [key: string]:
   setAttrsToElement(iframe, {
     ...degradeAttrs,
     style: [defaultStyle, degradeAttrs.style].join(";"),
-    [WUJIE_DATA_ID]: id,
+    [WUJIE_APP_ID]: id,
   });
   return iframe;
 }

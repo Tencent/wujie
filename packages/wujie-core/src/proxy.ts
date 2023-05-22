@@ -10,6 +10,7 @@ import {
   isCallable,
   checkProxyFunction,
   warn,
+  stopMainAppRun,
 } from "./utils";
 
 /**
@@ -53,7 +54,7 @@ export function proxyGenerator(
         return target.__WUJIE.proxyLocation;
       }
       // 判断自身
-      if (p === "self" || p === "window") {
+      if (p === "self" || (p === "window" && Object.getOwnPropertyDescriptor(window, "window").get)) {
         return target.__WUJIE.proxy;
       }
       // 不要绑定this
@@ -80,6 +81,8 @@ export function proxyGenerator(
       get: function (_fakeDocument, propKey) {
         const document = window.document;
         const { shadowRoot, proxyLocation } = iframe.contentWindow.__WUJIE;
+        // iframe初始化完成后，webcomponent还未挂在上去，此时运行了主应用代码，必须中止
+        if (!shadowRoot) stopMainAppRun();
         const rawCreateElement = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__;
         const rawCreateTextNode = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__;
         // need fix
@@ -115,7 +118,19 @@ export function proxyGenerator(
               }
               if (propKey === "getElementsByClassName") arg = "." + arg;
               if (propKey === "getElementsByName") arg = `[name="${arg}"]`;
-              return querySelectorAll.call(shadowRoot, arg);
+
+              // FIXME: This string must be a valid CSS selector string; if it's not, a SyntaxError exception is thrown;
+              // so we should ensure that the program can execute normally in case of exceptions.
+              // reference: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
+
+              let res: NodeList[] | [];
+              try {
+                res = querySelectorAll.call(shadowRoot, arg);
+              } catch (error) {
+                res = [];
+              }
+
+              return res;
             },
           });
         }
@@ -126,17 +141,33 @@ export function proxyGenerator(
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
-              return target.call(shadowRoot, `[id="${args[0]}"]`);
+              return (
+                target.call(shadowRoot, `[id="${args[0]}"]`) ||
+                iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
+                  iframe.contentWindow.document,
+                  `#${args[0]}`
+                )
+              );
             },
           });
         }
         if (propKey === "querySelector" || propKey === "querySelectorAll") {
+          const rawPropMap = {
+            querySelector: "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__",
+            querySelectorAll: "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__",
+          };
           return new Proxy(shadowRoot[propKey], {
             apply(target, ctx, args) {
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
-              return target.apply(shadowRoot, args);
+              // 二选一，优先shadowDom，除非采用array合并，排除base，防止对router造成影响
+              return (
+                target.apply(shadowRoot, args) ||
+                (args[0] === "base"
+                  ? null
+                  : iframe.contentWindow[rawPropMap[propKey]].call(iframe.contentWindow.document, args[0]))
+              );
             },
           });
         }
@@ -229,14 +260,15 @@ export function localGenerator(
   // 代理 document
   const proxyDocument = {};
   const sandbox = iframe.contentWindow.__WUJIE;
-  const rawCreateElement = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__;
-  const rawCreateTextNode = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__;
   // 特殊处理
   Object.defineProperties(proxyDocument, {
     createElement: {
       get: () => {
         return function (...args) {
-          const element = rawCreateElement.apply(iframe.contentDocument, args);
+          const element = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__.apply(
+            iframe.contentDocument,
+            args
+          );
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };
@@ -245,7 +277,10 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = rawCreateTextNode.apply(iframe.contentDocument, args);
+          const element = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__.apply(
+            iframe.contentDocument,
+            args
+          );
           patchElementEffect(element, iframe.contentWindow);
           return element;
         };

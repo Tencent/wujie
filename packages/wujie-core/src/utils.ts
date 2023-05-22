@@ -1,4 +1,10 @@
-import { WUJIE_TIPS_NO_URL, WUJIE_DATA_ID } from "./constant";
+import {
+  WUJIE_SCRIPT_ID,
+  WUJIE_TIPS_NO_URL,
+  WUJIE_APP_ID,
+  WUJIE_TIPS_STOP_APP,
+  WUJIE_TIPS_STOP_APP_DETAIL,
+} from "./constant";
 import { plugin, cacheOptions } from "./index";
 
 export function toArray<T>(array: T | T[]): T[] {
@@ -104,7 +110,7 @@ export function getTargetValue(target: any, p: any): any {
 }
 
 export function getDegradeIframe(id: string): HTMLIFrameElement {
-  return window.document.querySelector(`iframe[${WUJIE_DATA_ID}="${id}"]`);
+  return window.document.querySelector(`iframe[${WUJIE_APP_ID}="${id}"]`);
 }
 
 export function setAttrsToElement(element: HTMLElement, attrs: { [key: string]: any }) {
@@ -125,14 +131,14 @@ export function appRouteParse(url: string): {
   const urlElement = anchorElementGenerator(url);
   const appHostPath = urlElement.protocol + "//" + urlElement.host;
   let appRoutePath = urlElement.pathname + urlElement.search + urlElement.hash;
-  if (!appRoutePath.startsWith("/")) appRoutePath = "/" + appRoutePath; // fuck ie
+  if (!appRoutePath.startsWith("/")) appRoutePath = "/" + appRoutePath; // hack ie
   return { urlElement, appHostPath, appRoutePath };
 }
 
 export function anchorElementGenerator(url: string): HTMLAnchorElement {
   const element = window.document.createElement("a");
   element.href = url;
-  element.href = element.href; // fuck ie
+  element.href = element.href; // hack ie
   return element;
 }
 
@@ -165,7 +171,8 @@ export function fixElementCtrSrcOrHref(
     | typeof HTMLAnchorElement
     | typeof HTMLSourceElement
     | typeof HTMLLinkElement
-    | typeof HTMLScriptElement,
+    | typeof HTMLScriptElement
+    | typeof HTMLMediaElement,
   attr
 ): void {
   // patch setAttribute
@@ -274,13 +281,34 @@ export function nextTick(cb: () => any): void {
 //执行钩子函数
 export function execHooks(plugins: Array<plugin>, hookName: string, ...args: Array<any>): void {
   try {
-    plugins
-      .map((plugin) => plugin[hookName])
-      .filter((hook) => isFunction(hook))
-      .forEach((hook) => hook(...args));
+    if (plugins && plugins.length > 0) {
+      plugins
+        .map((plugin) => plugin[hookName])
+        .filter((hook) => isFunction(hook))
+        .forEach((hook) => hook(...args));
+    }
   } catch (e) {
     error(e);
   }
+}
+
+export function isScriptElement(element: HTMLElement): boolean {
+  return element.tagName?.toUpperCase() === "SCRIPT";
+}
+
+let count = 1;
+export function setTagToScript(element: HTMLScriptElement, tag?: string): void {
+  if (isScriptElement(element)) {
+    const scriptTag = tag || String(count++);
+    element.setAttribute(WUJIE_SCRIPT_ID, scriptTag);
+  }
+}
+
+export function getTagFromScript(element: HTMLScriptElement): string | null {
+  if (isScriptElement(element)) {
+    return element.getAttribute(WUJIE_SCRIPT_ID);
+  }
+  return null;
 }
 
 // 合并缓存
@@ -330,4 +358,9 @@ export function eventTrigger(el: HTMLElement | Window | Document, eventName: str
     event.initCustomEvent(eventName, true, false, detail);
   }
   el.dispatchEvent(event);
+}
+
+export function stopMainAppRun() {
+  warn(WUJIE_TIPS_STOP_APP_DETAIL);
+  throw new Error(WUJIE_TIPS_STOP_APP);
 }

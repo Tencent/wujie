@@ -1,6 +1,6 @@
 {
   "name": "wujie-vue3",
-  "version": "1.0.6",
+  "version": "1.0.16",
   "description": "无界微前端Vue3组件封装",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
@@ -29,7 +29,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "wujie": "workspace:1.0.6"
+    "wujie": "workspace:1.0.16"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
@@ -37,6 +37,7 @@
     "@babel/preset-env": "^7.16.0",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
+    "csstype": "^3.1.1",
     "eslint": "^8.2.0",
     "eslint-plugin-vue": "^8.0.3",
     "vue": "^3.0.0",
