@@ -1,0 +1,25 @@
+{
+  "name": "wujie-typings",
+  "version": "1.0.16",
+  "description": "无界微前端类型定义",
+  "files": [
+    "component.d.ts",
+    "global.d.ts",
+    "jsx.d.ts",
+    "vue3.d.ts",
+    "vue26.d.ts",
+    "vue27.d.ts"
+  ],
+  "author": "yiludege",
+  "publishConfig": {
+    "access": "public"
+  },
+  "config": {
+    "unsafe-perm": true,
+    "registry": "https://registry.npmjs.org/"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "wujie": "workspace:1.0.16"
+  }
+}
