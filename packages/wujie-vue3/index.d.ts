@@ -1,3 +1,5 @@
+/// <reference path="typing.d.ts" />
+
 import { bus, preloadApp, destroyApp, setupApp } from "wujie";
 import type { DefineComponent, Plugin } from 'vue';
 

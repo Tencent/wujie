@@ -1,3 +1,6 @@
+/// <reference path="typing.d.ts" />
+
+
 import { VueConstructor } from "vue";
 import { bus, preloadApp, destroyApp, setupApp } from "wujie";
 
