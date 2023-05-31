@@ -7,7 +7,8 @@
   "files": [
     "esm",
     "lib",
-    "index.d.ts"
+    "index.d.ts",
+    "typing.d.ts"
   ],
   "scripts": {
     "lib": "webpack build --mode=production --config webpack.config.js",
