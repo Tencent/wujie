@@ -241,12 +241,13 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
        */
       sandbox.unmount();
       await sandbox.active({ url, sync, prefix, el, props, alive, fetch, replace });
+      // 正常加载的情况，先注入css，最后才mount。重新激活也保持同样的时序
+      sandbox.rebuildStyleSheets();
       // 有渲染函数
       sandbox.lifecycles?.beforeMount?.(sandbox.iframe.contentWindow);
       iframeWindow.__WUJIE_MOUNT();
       sandbox.lifecycles?.afterMount?.(sandbox.iframe.contentWindow);
       sandbox.mountFlag = true;
-      sandbox.rebuildStyleSheets();
       return sandbox.destroy;
     } else {
       // 没有渲染函数

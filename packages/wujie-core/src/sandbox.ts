@@ -427,7 +427,8 @@ export default class Wujie {
         rawElementAppendChild.call(this.degrade ? this.document.head : this.shadowRoot.head, styleSheetElement);
       });
     }
-    this.patchCssRules();
+    // active 里面已经调用过patchCssRules了，这里不用再调
+    // this.patchCssRules();
   }
 
   /**
