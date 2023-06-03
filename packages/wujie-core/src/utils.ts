@@ -94,11 +94,6 @@ export function getTargetValue(target: any, p: any): any {
     return setFnCacheMap.get(value);
   }
   if (isCallable(value) && !isBoundedFunction(value) && !isConstructable(value)) {
-    // https://262.ecma-international.org/8.0/#sec-proxy-object-internal-methods-and-internal-slots-get-p-receiver
-    const descriptor = Object.getOwnPropertyDescriptor(target, p);
-    if (descriptor?.configurable === false && descriptor?.writable === false) {
-      return value;
-    }
     const boundValue = Function.prototype.bind.call(value, target);
     setFnCacheMap.set(value, boundValue);
 

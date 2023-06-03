@@ -61,6 +61,11 @@ export function proxyGenerator(
       if (p === "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__" || p === "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__") {
         return target[p];
       }
+      // https://262.ecma-international.org/8.0/#sec-proxy-object-internal-methods-and-internal-slots-get-p-receiver
+      const descriptor = Object.getOwnPropertyDescriptor(target, p);
+      if (descriptor?.configurable === false && descriptor?.writable === false) {
+        return target[p];
+      }
       // 修正this指针指向
       return getTargetValue(target, p);
     },
