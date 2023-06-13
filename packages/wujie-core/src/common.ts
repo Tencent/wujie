@@ -111,6 +111,7 @@ export const documentProxyProperties = {
   // 需要从主应用document中获取的方法
   documentMethods: [
     "execCommand",
+    "caretPositionFromPoint",
     "createRange",
     "exitFullscreen",
     "exitPictureInPicture",
