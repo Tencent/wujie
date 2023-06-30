@@ -105,7 +105,7 @@ const plugins = [
 
 ::: warning 警告
 - 对于 esm 脚本不会经过 js-loader 插件处理
-- 对于 js-ignores 脚本不会经过 js-loader 插件处理会
+- 对于 js-ignores 脚本不会经过 js-loader 插件处理
 :::
 
 ## js-after-loader
@@ -116,7 +116,7 @@ const plugins = [
 2. 在子应用中运行一个内联的 js 脚本`<script>content</script>`
 3. 执行一个回调函数
 
-那么这些工作可以放置在`js-before-loaders`中进行
+那么这些工作可以放置在`js-after-loaders`中进行
 
 - **示例**
 
@@ -319,7 +319,7 @@ const plugins = [
 ```javascript
 const plugins = [
   {
-    // element 为真正插入的元素，window 为子应用的 window, rawElement为原始插入元素 
+    // element 为真正插入的元素，iframeWindow 为子应用的 window, rawElement为原始插入元素 
     appendOrInsertElementHook(element, iframeWindow, rawElement) {
       console.log(element, iframeWindow, rawElement)
     }
