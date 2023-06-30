@@ -29,13 +29,12 @@ export default class WujieReact extends React.PureComponent {
       console.log(error);
     }
   }
-
-  execStartApp = () => {
-    this.startAppQueue = this.startAppQueue.then(this.startApp);
-  };
+  
+  componentDidMount () {
+    this.startApp();
+  }
 
   render() {
-    this.execStartApp();
     const { width, height } = this.props;
     const { myRef: ref } = this.state;
     return <div style={{ width, height }} ref={ref} />;
