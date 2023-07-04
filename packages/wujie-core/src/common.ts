@@ -166,6 +166,7 @@ export const appWindowAddEventListenerEvents = [
   "beforeunload",
   "unload",
   "message",
+  "error",
 ];
 
 // 子应用window.onXXX需要挂载到iframe沙箱上的事件
