@@ -12,10 +12,6 @@ export const wujieList = [
     url: "https://react.dev/",
   },
   {
-    name: "Vercel",
-    url: "https://vercel.com/",
-  },
-  {
     name: "Webpack",
     url: "https://webpack.js.org/",
   },
