@@ -146,6 +146,8 @@ export function proxyGenerator(
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
+              // 部分组件库会利用 args 为 HtmlElement 时返回null，判断插入位置
+              if (typeof args[0] !== "string") return null;
               return (
                 target.call(shadowRoot, `[id="${args[0]}"]`) ||
                 iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
