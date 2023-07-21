@@ -205,16 +205,18 @@ function rewriteAppendOrInsertChild(opts: {
                   // 处理 ignore 样式
                   const rawAttrs = parseTagAttributes(element.outerHTML);
                   if (ignore && src) {
-                    const stylesheetElement = iframeDocument.createElement("link");
-                    const attrs = {
-                      ...rawAttrs,
-                      type: "text/css",
-                      rel: "stylesheet",
-                      href: src,
-                    };
-                    setAttrsToElement(stylesheetElement, attrs);
-                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
-                    manualInvokeElementEvent(element, "load");
+                    // const stylesheetElement = iframeDocument.createElement("link");
+                    // const attrs = {
+                    //   ...rawAttrs,
+                    //   type: "text/css",
+                    //   rel: "stylesheet",
+                    //   href: src,
+                    // };
+                    // setAttrsToElement(stylesheetElement, attrs);
+                    // rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
+                    // manualInvokeElementEvent(element, "load");
+                    // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
+                    rawDOMAppendOrInsertBefore.call(this, element, refChild);
                   } else {
                     // 记录js插入样式，子应用重新激活时恢复
                     const stylesheetElement = iframeDocument.createElement("style");
