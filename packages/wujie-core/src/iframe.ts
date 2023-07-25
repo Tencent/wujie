@@ -515,16 +515,29 @@ function patchDocumentEffect(iframeWindow: Window): void {
       enumerable: true,
       writable: true,
     };
+    //get里获取属性值，set里直接对iframeWindow.document[propKey]赋值，下一个handler绑在iframeWindow.document[propKey]之前需要对之前的handler解绑
     try {
       Object.defineProperty(iframeWindow.Document.prototype, propKey, {
         enumerable: descriptor.enumerable,
         configurable: true,
         get: () => (sandbox.degrade ? sandbox : window).document[propKey],
+        // 在设置新的handler之前先移除之前的回调
         set:
           descriptor.writable || descriptor.set
             ? (handler) => {
-                (sandbox.degrade ? sandbox : window).document[propKey] =
-                  typeof handler === "function" ? handler.bind(iframeWindow.document) : handler;
+                // (sandbox.degrade ? sandbox : window).document[propKey] =
+                //   typeof handler === "function" ? handler.bind(iframeWindow.document) : handler;
+                (sandbox.degrade ? sandbox : window).document.removeEventListener(
+                  propKey,
+                  handlerCallbackMap.get(handler)
+                );
+                // 绑定新回调函数
+                (sandbox.degrade ? sandbox : window).document.addEventListener(
+                  propKey,
+                  typeof handler === "function" ? handler.bind(iframeWindow.document) : handler
+                );
+                // 更新回调函数的映射
+                handlerCallbackMap.set(handler, handler.bind(iframeWindow.document));
               }
             : undefined,
       });
