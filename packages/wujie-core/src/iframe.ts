@@ -64,7 +64,7 @@ declare global {
     // 子应用mount函数
     __WUJIE_MOUNT: () => void;
     // 子应用unmount函数
-    __WUJIE_UNMOUNT: () => void;
+    __WUJIE_UNMOUNT: () => void | Promise<void>;
     // document type
     Document: typeof Document;
     // img type
