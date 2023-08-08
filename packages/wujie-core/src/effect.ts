@@ -2,19 +2,33 @@ import { getExternalStyleSheets, getExternalScripts } from "./entry";
 import {
   getWujieById,
   rawAppendChild,
+  rawElementContains,
+  rawElementRemoveChild,
   rawHeadInsertBefore,
   rawBodyInsertBefore,
   rawDocumentQuerySelector,
   rawAddEventListener,
   rawRemoveEventListener,
 } from "./common";
-import { isFunction, isHijackingTag, requestIdleCallback, error, warn, nextTick, getCurUrl } from "./utils";
+import {
+  isFunction,
+  isHijackingTag,
+  requestIdleCallback,
+  warn,
+  nextTick,
+  getCurUrl,
+  execHooks,
+  isScriptElement,
+  setTagToScript,
+  getTagFromScript,
+  setAttrsToElement,
+} from "./utils";
 import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
-import { WUJIE_DATA_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER } from "./constant";
-import { ScriptObject } from "./template";
+import { WUJIE_SCRIPT_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT } from "./constant";
+import { ScriptObject, parseTagAttributes } from "./template";
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -84,21 +98,27 @@ function patchStylesheetElement(
   function patchSheetInsertRule() {
     if (!RawInsertRule) return;
     stylesheetElement.sheet.insertRule = (rule: string, index?: number): number => {
-      stylesheetElement.innerHTML += rule;
+      innerHTMLDesc ? (stylesheetElement.innerHTML += rule) : (stylesheetElement.innerText += rule);
       return RawInsertRule.call(stylesheetElement.sheet, rule, index);
     };
   }
   patchSheetInsertRule();
+
+  if (innerHTMLDesc) {
+    Object.defineProperties(stylesheetElement, {
+      innerHTML: {
+        get: function () {
+          return innerHTMLDesc.get.call(stylesheetElement);
+        },
+        set: function (code: string) {
+          innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
+          nextTick(() => handleStylesheetElementPatch(this, sandbox));
+        },
+      },
+    });
+  }
+
   Object.defineProperties(stylesheetElement, {
-    innerHTML: {
-      get: function () {
-        return innerHTMLDesc.get.call(stylesheetElement);
-      },
-      set: function (code: string) {
-        innerHTMLDesc.set.call(stylesheetElement, cssLoader(code, "", curUrl));
-        nextTick(() => handleStylesheetElementPatch(this, sandbox));
-      },
-    },
     innerText: {
       get: function () {
         return innerTextDesc.get.call(stylesheetElement);
@@ -135,6 +155,7 @@ function patchStylesheetElement(
   });
 }
 
+let dynamicScriptExecStack = Promise.resolve();
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
   wujieId: string;
@@ -153,6 +174,7 @@ function rewriteAppendOrInsertChild(opts: {
     if (!isHijackingTag(element.tagName) || !wujieId) {
       const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
       patchElementEffect(element, iframe.contentWindow);
+      execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
       return res;
     }
 
@@ -166,7 +188,11 @@ function rewriteAppendOrInsertChild(opts: {
           const { href, rel, type } = element as HTMLLinkElement;
           const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
           // 非 stylesheet 不做处理
-          if (!styleFlag) return rawDOMAppendOrInsertBefore.call(this, element, refChild);
+          if (!styleFlag) {
+            const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return res;
+          }
           // 排除css
           if (href && !isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
             getExternalStyleSheets(
@@ -177,12 +203,20 @@ function rewriteAppendOrInsertChild(opts: {
               contentPromise.then(
                 (content) => {
                   // 处理 ignore 样式
+                  const rawAttrs = parseTagAttributes(element.outerHTML);
                   if (ignore && src) {
-                    const stylesheetElement = iframeDocument.createElement("link");
-                    stylesheetElement.setAttribute("type", "text/css");
-                    stylesheetElement.setAttribute("ref", "stylesheet");
-                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
-                    manualInvokeElementEvent(element, "load");
+                    // const stylesheetElement = iframeDocument.createElement("link");
+                    // const attrs = {
+                    //   ...rawAttrs,
+                    //   type: "text/css",
+                    //   rel: "stylesheet",
+                    //   href: src,
+                    // };
+                    // setAttrsToElement(stylesheetElement, attrs);
+                    // rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
+                    // manualInvokeElementEvent(element, "load");
+                    // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
+                    rawDOMAppendOrInsertBefore.call(this, element, refChild);
                   } else {
                     // 记录js插入样式，子应用重新激活时恢复
                     const stylesheetElement = iframeDocument.createElement("style");
@@ -190,6 +224,7 @@ function rewriteAppendOrInsertChild(opts: {
                     const cssLoader = getCssLoader({ plugins, replace });
                     stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
                     styleSheetElements.push(stylesheetElement);
+                    setAttrsToElement(stylesheetElement, rawAttrs);
                     rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                     // 处理样式补丁
                     handleStylesheetElementPatch(stylesheetElement, sandbox);
@@ -218,19 +253,22 @@ function rewriteAppendOrInsertChild(opts: {
           // 处理样式补丁
           patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
           handleStylesheetElementPatch(stylesheetElement, sandbox);
+          execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
           return res;
         }
         case "SCRIPT": {
+          setTagToScript(element);
           const { src, text, type, crossOrigin } = element as HTMLScriptElement;
           // 排除js
-          if (!isMatchUrl(src, getEffectLoaders("jsExcludes", plugins))) {
+          if (src && !isMatchUrl(src, getEffectLoaders("jsExcludes", plugins))) {
             const execScript = (scriptResult: ScriptObject) => {
               // 假如子应用被连续渲染两次，两次渲染会导致处理流程的交叉污染
               if (sandbox.iframe === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
-              insertScriptToIframe(scriptResult, sandbox.iframe.contentWindow);
-              // 只有外联转内联才需要手动触发load
-              if (scriptResult.content) manualInvokeElementEvent(element, "load");
-              element = null;
+              const onload = () => {
+                manualInvokeElementEvent(element, "load");
+                element = null;
+              };
+              insertScriptToIframe({ ...scriptResult, onload }, sandbox.iframe.contentWindow, element);
             };
             const scriptOptions = {
               src,
@@ -238,36 +276,47 @@ function rewriteAppendOrInsertChild(opts: {
               crossorigin: crossOrigin !== null,
               crossoriginType: crossOrigin || "",
               ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
+              attrs: parseTagAttributes(element.outerHTML),
             } as ScriptObject;
-            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) =>
-              scriptResult.contentPromise.then(
-                (content) => {
-                  if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
-                  const execQueueLength = sandbox.execQueue?.length;
-                  sandbox.execQueue.push(() =>
-                    fiber
-                      ? requestIdleCallback(() => {
-                          execScript({ ...scriptResult, content });
-                        })
-                      : execScript({ ...scriptResult, content })
-                  );
-                  // 同步脚本如果都执行完了，需要手动触发执行
-                  if (!execQueueLength) sandbox.execQueue.shift()();
-                },
-                () => {
-                  manualInvokeElementEvent(element, "error");
-                  element = null;
-                }
-              )
-            );
+            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) => {
+              dynamicScriptExecStack = dynamicScriptExecStack.then(() =>
+                scriptResult.contentPromise.then(
+                  (content) => {
+                    if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
+                    const execQueueLength = sandbox.execQueue?.length;
+                    sandbox.execQueue.push(() =>
+                      fiber
+                        ? requestIdleCallback(() => {
+                            execScript({ ...scriptResult, content });
+                          })
+                        : execScript({ ...scriptResult, content })
+                    );
+                    // 同步脚本如果都执行完了，需要手动触发执行
+                    if (!execQueueLength) sandbox.execQueue.shift()();
+                  },
+                  () => {
+                    manualInvokeElementEvent(element, "error");
+                    element = null;
+                  }
+                )
+              );
+            });
           } else {
             const execQueueLength = sandbox.execQueue?.length;
             sandbox.execQueue.push(() =>
               fiber
                 ? requestIdleCallback(() => {
-                    insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow);
+                    insertScriptToIframe(
+                      { src: null, content: text, attrs: parseTagAttributes(element.outerHTML) },
+                      sandbox.iframe.contentWindow,
+                      element
+                    );
                   })
-                : insertScriptToIframe({ src: null, content: text }, sandbox.iframe.contentWindow)
+                : insertScriptToIframe(
+                    { src: null, content: text, attrs: parseTagAttributes(element.outerHTML) },
+                    sandbox.iframe.contentWindow,
+                    element
+                  )
             );
             if (!execQueueLength) sandbox.execQueue.shift()();
           }
@@ -282,22 +331,52 @@ function rewriteAppendOrInsertChild(opts: {
             return rawAppendChild.call(rawDocumentQuerySelector.call(this.ownerDocument, "html"), element);
           }
           const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
-          try {
-            // 降级的dom-iframe无需处理
-            if (!element.getAttribute(WUJIE_DATA_ID)) {
-              const patchScript = (element as HTMLIFrameElement).contentWindow.document.createElement("script");
-              patchScript.type = "text/javascript";
-              patchScript.innerHTML = `Array.prototype.slice.call(window.parent.frames).some(function(iframe){if(iframe.name === '${wujieId}'){window.parent = iframe;return true};return false})`;
-              element.contentDocument.head.insertBefore(patchScript, element.contentDocument.head.firstChild);
-            }
-          } catch (e) {
-            error(e);
-          }
+          execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
           return res;
         }
         default:
       }
     }
+  };
+}
+
+function findScriptElementFromIframe(rawElement: HTMLScriptElement, wujieId: string) {
+  const wujieTag = getTagFromScript(rawElement);
+  const sandbox = getWujieById(wujieId);
+  const { iframe } = sandbox;
+  const targetScript = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(
+    `script[${WUJIE_SCRIPT_ID}='${wujieTag}']`
+  );
+  if (targetScript === null) {
+    warn(WUJIE_TIPS_NO_SCRIPT, `<script ${WUJIE_SCRIPT_ID}='${wujieTag}'/>`);
+  }
+  return { targetScript, iframe };
+}
+
+function rewriteContains(opts: { rawElementContains: (other: Node | null) => boolean; wujieId: string }) {
+  return function contains(other: Node | null) {
+    const element = other as HTMLElement;
+    const { rawElementContains, wujieId } = opts;
+    if (element && isScriptElement(element)) {
+      const { targetScript } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
+      return targetScript !== null;
+    }
+    return rawElementContains(element);
+  };
+}
+
+function rewriteRemoveChild(opts: { rawElementRemoveChild: <T extends Node>(child: T) => T; wujieId: string }) {
+  return function removeChild(child: Node) {
+    const element = child as HTMLElement;
+    const { rawElementRemoveChild, wujieId } = opts;
+    if (element && isScriptElement(element)) {
+      const { targetScript, iframe } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
+      if (targetScript !== null) {
+        return iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.removeChild(targetScript);
+      }
+      return null;
+    }
+    return rawElementRemoveChild(element);
   };
 }
 
@@ -361,6 +440,18 @@ export function patchRenderEffect(render: ShadowRoot | Document, id: string, deg
     rawDOMAppendOrInsertBefore: rawHeadInsertBefore as any,
     wujieId: id,
   }) as typeof rawHeadInsertBefore;
+  render.head.removeChild = rewriteRemoveChild({
+    rawElementRemoveChild: rawElementRemoveChild.bind(render.head),
+    wujieId: id,
+  }) as typeof rawElementRemoveChild;
+  render.head.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render.head),
+    wujieId: id,
+  }) as typeof rawElementContains;
+  render.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render),
+    wujieId: id,
+  }) as typeof rawElementContains;
   render.body.appendChild = rewriteAppendOrInsertChild({
     rawDOMAppendOrInsertBefore: rawAppendChild,
     wujieId: id,

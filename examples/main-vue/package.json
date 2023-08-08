@@ -1,6 +1,6 @@
 {
   "name": "main-vue",
-  "version": "1.0.0-rc.20",
+  "version": "1.0.18",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve",
@@ -10,10 +10,12 @@
   "dependencies": {
     "ant-design-vue": "^1.7.8",
     "core-js": "^3.6.5",
+    "custom-event-polyfill": "^1.0.7",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
-    "wujie": "workspace:^1.0.0-rc.20",
-    "wujie-vue2": "workspace:^1.0.0-rc.20"
+    "whatwg-fetch": "^3.6.2",
+    "wujie": "workspace:^1.0.18",
+    "wujie-vue2": "workspace:^1.0.18"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

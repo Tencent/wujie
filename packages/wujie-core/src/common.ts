@@ -5,6 +5,8 @@ export interface SandboxCache {
   options?: cacheOptions;
 }
 
+export type appAddEventListenerOptions = AddEventListenerOptions & { targetWindow?: Window };
+
 // 全部无界实例和配置存储map
 export const idToSandboxCacheMap = window.__POWERED_BY_WUJIE__
   ? window.__WUJIE.inject.idToSandboxMap
@@ -109,6 +111,7 @@ export const documentProxyProperties = {
   // 需要从主应用document中获取的方法
   documentMethods: [
     "execCommand",
+    "caretPositionFromPoint",
     "createRange",
     "exitFullscreen",
     "exitPictureInPicture",
@@ -147,6 +150,9 @@ export const mainDocumentAddEventListenerEvents = [
   "selectionchange",
   "visibilitychange",
   "wheel",
+  "keydown",
+  "keypress",
+  "keyup",
 ];
 
 // 需要同时挂载到主应用document和shadow上的事件（互斥）
@@ -160,6 +166,9 @@ export const appWindowAddEventListenerEvents = [
   "load",
   "beforeunload",
   "unload",
+  "message",
+  "error",
+  "unhandledrejection",
 ];
 
 // 子应用window.onXXX需要挂载到iframe沙箱上的事件
@@ -185,12 +194,16 @@ export const windowRegWhiteList = [
 ];
 
 // 保存原型方法
+// 子应用的Document.prototype已经被改写了
 export const rawElementAppendChild = HTMLElement.prototype.appendChild;
 export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
+export const rawElementContains = HTMLElement.prototype.contains;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
 export const rawBodyInsertBefore = HTMLBodyElement.prototype.insertBefore;
-export const rawAddEventListener = EventTarget.prototype.addEventListener;
-export const rawRemoveEventListener = EventTarget.prototype.removeEventListener;
+export const rawAddEventListener = Node.prototype.addEventListener;
+export const rawRemoveEventListener = Node.prototype.removeEventListener;
+export const rawWindowAddEventListener = window.addEventListener;
+export const rawWindowRemoveEventListener = window.removeEventListener;
 export const rawAppendChild = Node.prototype.appendChild;
 export const rawDocumentQuerySelector = window.__POWERED_BY_WUJIE__
   ? window.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__

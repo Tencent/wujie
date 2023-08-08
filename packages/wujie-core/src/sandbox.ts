@@ -12,8 +12,8 @@ import {
   getPatchStyleElements,
   renderElementToContainer,
   renderTemplateToShadowRoot,
-  createIframeContainer,
   renderTemplateToIframe,
+  initRenderIframeAndContainer,
   removeLoading,
 } from "./shadow";
 import { proxyGenerator, localGenerator } from "./proxy";
@@ -81,10 +81,14 @@ export default class Wujie {
   public iframeReady: Promise<void>;
   /** 子应用预加载态 */
   public preload: Promise<void>;
+  /** 降级时渲染iframe的属性 */
+  public degradeAttrs: { [key: string]: any };
   /** 子应用js执行队列 */
   public execQueue: Array<Function>;
-  /** 子应用执行标志 */
+  /** 子应用执行过标志 */
   public execFlag: boolean;
+  /** 子应用激活标志 */
+  public activeFlag: boolean;
   /** 子应用mount标志 */
   public mountFlag: boolean;
   /** 路由同步标志 */
@@ -114,8 +118,8 @@ export default class Wujie {
   /** $wujie对象，提供给子应用的接口 */
   public provide: {
     bus: EventBus;
-    shadowRoot?: ShadowRoot | undefined;
-    props?: { [key: string]: any } | undefined;
+    shadowRoot?: ShadowRoot;
+    props?: { [key: string]: any };
     location?: Object;
   };
 
@@ -151,6 +155,7 @@ export default class Wujie {
     this.prefix = prefix ?? this.prefix;
     this.replace = replace ?? this.replace;
     this.provide.props = props ?? this.provide.props;
+    this.activeFlag = true;
     // wait iframe init
     await this.iframeReady;
 
@@ -181,10 +186,9 @@ export default class Wujie {
 
     /* 降级处理 */
     if (this.degrade) {
-      const iframe = createIframeContainer(this.id);
       const iframeBody = rawDocumentQuerySelector.call(iframeWindow.document, "body") as HTMLElement;
-      this.el = renderElementToContainer(iframe, el ?? iframeBody);
-      clearChild(iframe.contentDocument);
+      const { iframe, container } = initRenderIframeAndContainer(this.id, el ?? iframeBody, this.degradeAttrs);
+      this.el = container;
       // 销毁js运行iframe容器内部dom
       if (el) clearChild(iframeBody);
       // 修复vue的event.timeStamp问题
@@ -195,17 +199,13 @@ export default class Wujie {
       };
       if (this.document) {
         if (this.alive) {
-          iframe.contentDocument.appendChild(this.document.firstElementChild);
+          iframe.contentDocument.replaceChild(this.document.documentElement, iframe.contentDocument.documentElement);
           // 保活场景需要事件全部恢复
-          recoverEventListeners(iframe.contentDocument.firstElementChild, iframeWindow);
+          recoverEventListeners(iframe.contentDocument.documentElement, iframeWindow);
         } else {
           await renderTemplateToIframe(iframe.contentDocument, this.iframe.contentWindow, this.template);
           // 非保活场景需要恢复根节点的事件，防止react16监听事件丢失
-          recoverDocumentListeners(
-            this.document.firstElementChild,
-            iframe.contentDocument.firstElementChild,
-            iframeWindow
-          );
+          recoverDocumentListeners(this.document.documentElement, iframe.contentDocument.documentElement, iframeWindow);
         }
       } else {
         await renderTemplateToIframe(iframe.contentDocument, this.iframe.contentWindow, this.template);
@@ -357,8 +357,9 @@ export default class Wujie {
 
   /** 保活模式和使用proxyLocation.href跳转链接都不应该销毁shadow */
   public unmount(): void {
-    // 清理子应用过期的同步参数，降级时调用需要等iframe完全销毁再clear
-    this.degrade ? setTimeout(() => clearInactiveAppUrl()) : clearInactiveAppUrl();
+    this.activeFlag = false;
+    // 清理子应用过期的同步参数
+    clearInactiveAppUrl();
     if (this.alive) {
       this.lifecycles?.deactivated?.(this.iframe.contentWindow);
     }
@@ -389,6 +390,7 @@ export default class Wujie {
     this.proxyLocation = null;
     this.execQueue = null;
     this.provide = null;
+    this.degradeAttrs = null;
     this.styleSheetElements = null;
     this.bus = null;
     this.replace = null;
@@ -460,6 +462,7 @@ export default class Wujie {
     name: string;
     url: string;
     attrs: { [key: string]: any };
+    degradeAttrs: { [key: string]: any };
     fiber: boolean;
     degrade;
     plugins: Array<plugin>;
@@ -474,12 +477,13 @@ export default class Wujie {
         mainHostPath: window.location.protocol + "//" + window.location.host,
       };
     }
-    const { name, url, attrs, fiber, degrade, lifecycles, plugins } = options;
+    const { name, url, attrs, fiber, degradeAttrs, degrade, lifecycles, plugins } = options;
     this.id = name;
     this.fiber = fiber;
     this.degrade = degrade || !wujieSupport;
     this.bus = new EventBus(this.id);
     this.url = url;
+    this.degradeAttrs = degradeAttrs;
     this.provide = { bus: this.bus };
     this.styleSheetElements = [];
     this.execQueue = [];
@@ -490,16 +494,15 @@ export default class Wujie {
     const { urlElement, appHostPath, appRoutePath } = appRouteParse(url);
     const { mainHostPath } = this.inject;
     // 创建iframe
-    const iframe = iframeGenerator(this, attrs, mainHostPath, appHostPath, appRoutePath);
-    this.iframe = iframe;
+    this.iframe = iframeGenerator(this, attrs, mainHostPath, appHostPath, appRoutePath);
 
     if (this.degrade) {
-      const { proxyDocument, proxyLocation } = localGenerator(iframe, urlElement, mainHostPath, appHostPath);
+      const { proxyDocument, proxyLocation } = localGenerator(this.iframe, urlElement, mainHostPath, appHostPath);
       this.proxyDocument = proxyDocument;
       this.proxyLocation = proxyLocation;
     } else {
       const { proxyWindow, proxyDocument, proxyLocation } = proxyGenerator(
-        iframe,
+        this.iframe,
         urlElement,
         mainHostPath,
         appHostPath

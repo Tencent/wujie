@@ -194,7 +194,7 @@ export default {
   font-size: 20px;
 }
 .home .ant-switch-checked {
-  background-color: var(--theme);
+  background-color: rgb(241, 107, 95);
 }
 span.switch {
   margin-left: 0;

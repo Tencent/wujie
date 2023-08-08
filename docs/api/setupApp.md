@@ -15,14 +15,18 @@ type baseOptions = {
   name: string;
   /** 需要渲染的url */
   url: string;
+  /** 需要渲染的html, 如果用户已有则无需从url请求 */
+  html?: string;
   /** 代码替换钩子 */
   replace?: (code: string) => string;
   /** 自定义fetch */
   fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
   /** 注入给子应用的属性 */
   props?: { [key: string]: any };
-  /** 自定义iframe属性 */
+  /** 自定义运行iframe的属性 */
   attrs?: { [key: string]: any };
+  /** 自定义降级渲染iframe的属性 */
+  degradeAttrs?: { [key: string]: any };
   /** 子应用采用fiber模式执行 */
   fiber?: boolean;
   /** 子应用保活，state不会丢失 */

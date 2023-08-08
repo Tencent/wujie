@@ -13,8 +13,11 @@ export default {
     };
   },
   watch: {
-    $route() {
-      wujieVue.bus.$emit("react17-router-change", `/${this.$route.params.path}`);
+    "$route.params.path": {
+      handler: function () {
+        wujieVue.bus.$emit("react17-router-change", `/${this.$route.params.path}`);
+      },
+      immediate: true,
     },
   },
 };

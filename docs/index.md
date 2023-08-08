@@ -19,14 +19,7 @@ hero:
       text: 快速开始
       link: /guide/start.html
     - theme: alt
-      text: Vue示例
-      link: https://wujie-micro.github.io/demo-main-vue/home
-    - theme: alt
-      text: React示例
-      link: https://wujie-micro.github.io/demo-main-react/
-    - theme: alt
-      text: Angular示例
-      link: https://wujie-micro.github.io/demo-main-angular/
+      text: npx create-wujie@latest
     - theme: brand
       text: 在线体验
       link: /wujie/

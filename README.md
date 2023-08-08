@@ -78,9 +78,10 @@ npm i wujie-vue3 -S
 ```javascript
 // vue2
 import WujieVue from "wujie-vue2";
+Vue.use(WujieVue);
 // vue3
 import WujieVue from "wujie-vue3";
-Vue.use(WujieVue);
+app.use(WujieVue);
 ```
 
 - 使用
@@ -191,3 +192,6 @@ export class AppModule {}
 pnpm i                  // 安装包依赖，务必使用pnpm
 npm run start           // 启动所有应用
 ```
+## One more thing
+
+无界微前端解决方案来源于团队的无极低代码平台，通过无界微前端，存量页面和低代码页面可以丝滑的互相内嵌，欢迎体验[【腾讯无极低代码】](https://wujicode.cn)。

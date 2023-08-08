@@ -1,3 +1,5 @@
+import "core-js/modules/es.array.find";
+
 import Vue from "vue";
 import App from "./App.vue";
 import routes from "./router";

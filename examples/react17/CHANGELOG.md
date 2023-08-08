@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.17](https://github.com/Tencent/wujie/compare/v1.0.16...v1.0.17) (2023-05-30)
+
+### Bug Fixes
+
+* 子应用window事件监听增加message事件，增加事件监听target可选参数 ([#555](https://github.com/Tencent/wujie/issues/555)) ([2255301](https://github.com/Tencent/wujie/commit/22553016a782149f259d4385be44eafc21d48fa1)), closes [#549](https://github.com/Tencent/wujie/issues/549)
+
+# [1.0.0](https://github.com/Tencent/wujie/compare/v1.0.0-rc.25...v1.0.0) (2022-11-10)
+
+### Features
+
+* ie11 compatibility ([#248](https://github.com/Tencent/wujie/issues/248)) ([f6fd307](https://github.com/Tencent/wujie/commit/f6fd307c3365801a300ea22050aca1447f81b197)), closes [#185](https://github.com/Tencent/wujie/issues/185) [#185](https://github.com/Tencent/wujie/issues/185)
+
 # [1.0.0-rc.20](https://github.com/Tencent/wujie/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2022-09-30)
 
 **Note:** Version bump only for package react17

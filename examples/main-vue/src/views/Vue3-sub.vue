@@ -13,8 +13,11 @@ export default {
     };
   },
   watch: {
-    $route() {
-      wujieVue.bus.$emit("vue3-router-change", `/${this.$route.params.path}`);
+    "$route.params.path": {
+      handler: function () {
+        wujieVue.bus.$emit("vue3-router-change", `/${this.$route.params.path}`);
+      },
+      immediate: true,
     },
   },
 };

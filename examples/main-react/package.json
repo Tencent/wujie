@@ -1,6 +1,6 @@
 {
   "name": "main-react",
-  "version": "1.0.0-rc.20",
+  "version": "1.0.18",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
@@ -59,7 +59,7 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "wujie-react": "workspace:^1.0.0-rc.20"
+    "wujie-react": "workspace:^1.0.18"
   },
   "scripts": {
     "start": "node scripts/start.js",
@@ -86,14 +86,14 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      ">1%",
+      "last 2 versions",
+      "ie >= 11"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      ">1%",
+      "last 2 versions",
+      "ie >= 11"
     ]
   },
   "jest": {

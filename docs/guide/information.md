@@ -107,12 +107,10 @@ export default class Wujie {
   /** $wujie对象，提供给子应用的接口 */
   provide: {
     bus: EventBus;
-    shadowRoot?: ShadowRoot | undefined;
-    props?:
-      | {
-          [key: string]: any;
-        }
-      | undefined;
+    shadowRoot?: ShadowRoot;
+    props?: {
+      [key: string]: any;
+    };
     location?: Object;
   };
   /** 激活子应用

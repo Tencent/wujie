@@ -21,7 +21,7 @@ import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
 非必须，由于`preloadApp`和`startApp`参数重复，为了避免重复输入，可以通过`setupApp`来设置默认参数。
 
 ```javascript
-setupApp({{ name: "唯一id", url: "子应用地址", exec: true, el: "容器", sync: true }})
+setupApp({ name: "唯一id", url: "子应用地址", exec: true, el: "容器", sync: true })
 ```
 
 ### 预加载

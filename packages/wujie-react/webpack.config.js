@@ -8,6 +8,7 @@ module.exports = {
     path: path.resolve(__dirname, "./lib"),
     filename: "index.js",
     library: "WujieReact",
+    libraryExport: 'default',
     libraryTarget: "umd",
     globalObject: "self",
     umdNamedDefine: true,

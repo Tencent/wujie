@@ -6,10 +6,10 @@
 
   ```typescript
   {
-    bus: EventBus,
-    shadowRoot?: ShadowRoot | undefined,
-    props?: { [key: string]: any } | undefined,
-    location?: Object
+    bus: EventBus;
+    shadowRoot?: ShadowRoot;
+    props?: { [key: string]: any };
+    location?: Object;
   }
   ```
 
