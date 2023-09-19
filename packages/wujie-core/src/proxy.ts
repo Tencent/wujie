@@ -2,7 +2,7 @@ import { patchElementEffect, renderIframeReplaceApp } from "./iframe";
 import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
 import { documentProxyProperties, rawDocumentQuerySelector } from "./common";
-import { WUJIE_TIPS_RELOAD_DISABLED } from "./constant";
+import { WUJIE_TIPS_RELOAD_DISABLED, WUJIE_TIPS_GET_ELEMENT_BY_ID } from "./constant";
 import {
   getTargetValue,
   anchorElementGenerator,
@@ -155,6 +155,7 @@ export function proxyGenerator(
                   )
                 );
               } catch (error) {
+                warn(WUJIE_TIPS_GET_ELEMENT_BY_ID);
                 return null;
               }
             },
