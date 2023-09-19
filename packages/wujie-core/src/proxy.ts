@@ -146,13 +146,17 @@ export function proxyGenerator(
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
-              return (
-                target.call(shadowRoot, `[id="${args[0]}"]`) ||
-                iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
-                  iframe.contentWindow.document,
-                  `#${args[0]}`
-                )
-              );
+              try {
+                return (
+                  target.call(shadowRoot, `[id="${args[0]}"]`) ||
+                  iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
+                    iframe.contentWindow.document,
+                    `#${args[0]}`
+                  )
+                );
+              } catch (error) {
+                return null;
+              }
             },
           });
         }
