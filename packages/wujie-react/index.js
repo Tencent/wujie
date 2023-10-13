@@ -34,6 +34,12 @@ export default class WujieReact extends React.PureComponent {
     this.startApp();
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.name !== prevProps.name || this.props.url !== prevProps.url) {
+      this.startApp();
+    }
+  }
+
   render() {
     const { width, height } = this.props;
     const { myRef: ref } = this.state;
