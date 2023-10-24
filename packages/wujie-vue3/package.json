@@ -2,46 +2,43 @@
   "name": "wujie-vue3",
   "version": "1.0.18",
   "description": "无界微前端Vue3组件封装",
-  "main": "./lib/index.js",
-  "module": "./esm/index.js",
+  "main": "./dist/index.global.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
-    "esm",
-    "lib",
-    "index.d.ts"
+    "dist"
   ],
   "scripts": {
-    "lib": "webpack build --mode=production --config webpack.config.js",
-    "esm": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps",
+    "build": "tsup",
     "prepack": "bash build.sh",
-    "start": "cross-env BABEL_ENV=esm babel index.js --out-dir ./esm --source-maps inline --watch",
+    "start": "tsup --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yiludege",
   "publishConfig": {
     "access": "public"
   },
-  "peerDependencies": {
-    "vue": "^3.0.0"
-  },
   "config": {
     "unsafe-perm": true,
     "registry": "https://registry.npmjs.org/"
   },
   "license": "MIT",
-  "dependencies": {
-    "wujie": "workspace:1.0.18"
-  },
   "devDependencies": {
-    "@babel/cli": "^7.18.6",
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
-    "babel-loader": "^8.2.3",
+    "@typescript-eslint/parser": "^6.7.5",
     "cross-env": "^7.0.3",
     "csstype": "^3.1.1",
-    "eslint": "^8.2.0",
-    "eslint-plugin-vue": "^8.0.3",
-    "vue": "^3.0.0",
-    "webpack": "^5.61.0",
-    "webpack-cli": "^4.9.1"
+    "eslint": "^8.51.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-define-config": "^1.24.1",
+    "eslint-plugin-vue": "^9.17.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2",
+    "vue": "^3.0.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "dependencies": {
+    "wujie": "workspace:^"
   }
 }
