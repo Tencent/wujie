@@ -38,7 +38,7 @@
 此时子应用不同路径将转换如下：
 
 ```
-/example/prod/name  => {prod}/hello
+/example/prod/hello  => {prod}/hello
 
 /example/test/name => {test}/name
 
