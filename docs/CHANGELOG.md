@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+**Note:** Version bump only for package wujie-docs
+
 ## [1.0.18](https://github.com/Tencent/wujie/compare/v1.0.17...v1.0.18) (2023-07-11)
 
 **Note:** Version bump only for package wujie-docs
