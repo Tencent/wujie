@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.21](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.21) (2023-11-08)
+
+### Bug Fixes
+
+* 修复在safari下scriptElement的src下不可写的问题 ([84b2378](https://github.com/Tencent/wujie/commit/84b2378d952814b3112ba2b16b91db940807e2d5))
+
 ## [1.0.20](https://github.com/Tencent/wujie/compare/v1.0.18...v1.0.20) (2023-11-08)
 
 ### Bug Fixes
