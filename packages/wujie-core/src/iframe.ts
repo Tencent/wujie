@@ -726,8 +726,8 @@ export function insertScriptToIframe(
 );`;
     }
     const descriptor = Object.getOwnPropertyDescriptor(scriptElement, "src");
-    // 部分浏览器 src 不可配置
-    if (!descriptor?.configurable) {
+    // 部分浏览器 src 不可配置 取不到descriptor表示无该属性，可写
+    if (descriptor?.configurable || !descriptor) {
       // 解决 webpack publicPath 为 auto 无法加载资源的问题
       Object.defineProperty(scriptElement, "src", { get: () => src || "" });
     }
