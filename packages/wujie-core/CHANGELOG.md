@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.20](https://github.com/Tencent/wujie/compare/v1.0.18...v1.0.20) (2023-11-08)
+
+### Bug Fixes
+
+* 兼容部分浏览器script src不可配置 ([3eab5cf](https://github.com/Tencent/wujie/commit/3eab5cf9f5db01bbc3ac8b06699853edadb422db)), closes [#648](https://github.com/Tencent/wujie/issues/648)
+* appendChildOrInsertBefore effect ignore css error ([#643](https://github.com/Tencent/wujie/issues/643)) ([17179fb](https://github.com/Tencent/wujie/commit/17179fbca76b23ee9b05eeec88818b65cc1e7daa))
+* **proxy:** protect the program when getElementById throws an exception error ([#693](https://github.com/Tencent/wujie/issues/693)) ([37dc95b](https://github.com/Tencent/wujie/commit/37dc95bd45b68b1dee56f60b5cb2b7bebeb99de2))
+
 **Note:** Version bump only for package wujie
 
 ## [1.0.18](https://github.com/Tencent/wujie/compare/v1.0.17...v1.0.18) (2023-07-11)

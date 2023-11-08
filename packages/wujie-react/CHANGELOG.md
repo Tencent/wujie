@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.20](https://github.com/Tencent/wujie/compare/v1.0.18...v1.0.20) (2023-11-08)
+
+### Bug Fixes
+
+* wujie-react watch props change, restart app ([#689](https://github.com/Tencent/wujie/issues/689)) ([1b39612](https://github.com/Tencent/wujie/commit/1b39612cab45906aa130817c940f556c48ed4f12))
+
 **Note:** Version bump only for package wujie-react
 
 ## [1.0.18](https://github.com/Tencent/wujie/compare/v1.0.17...v1.0.18) (2023-07-11)
