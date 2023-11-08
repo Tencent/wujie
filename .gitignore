@@ -10,6 +10,7 @@ yarn.lock
 package-lock.json
 coverage
 .history
+.npmrc
 
 # Log files
 .pnpm-debug.log*
