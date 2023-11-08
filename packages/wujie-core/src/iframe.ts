@@ -725,8 +725,12 @@ export function insertScriptToIframe(
   window.__WUJIE.proxyLocation,
 );`;
     }
-    // 解决 webpack publicPath 为 auto 无法加载资源的问题
-    Object.defineProperty(scriptElement, "src", { get: () => src || "" });
+    const descriptor = Object.getOwnPropertyDescriptor(scriptElement, "src");
+    // 部分浏览器 src 不可配置
+    if (!descriptor?.configurable) {
+      // 解决 webpack publicPath 为 auto 无法加载资源的问题
+      Object.defineProperty(scriptElement, "src", { get: () => src || "" });
+    }
   } else {
     src && scriptElement.setAttribute("src", src);
     crossorigin && scriptElement.setAttribute("crossorigin", crossoriginType);
