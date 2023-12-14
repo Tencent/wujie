@@ -13,7 +13,6 @@ import {
 import {
   isFunction,
   isHijackingTag,
-  requestIdleCallback,
   warn,
   nextTick,
   getCurUrl,
