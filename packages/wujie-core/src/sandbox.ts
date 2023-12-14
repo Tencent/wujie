@@ -391,6 +391,7 @@ export default class Wujie {
 
   /** 销毁子应用 */
   public destroy() {
+    this.unmount();
     this.bus.$clear();
     this.shadowRoot = null;
     this.proxy = null;
