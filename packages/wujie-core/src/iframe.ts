@@ -61,6 +61,8 @@ declare global {
     __WUJIE_RAW_WINDOW__: Window;
     // 子应用沙盒实例
     __WUJIE: WuJie;
+    // 记录注册在主应用中的事件
+    __WUJIE_EVENTLISTENER__: Set<{ listener: EventListenerOrEventListenerObject; type: string; options: any }>;
     // 子应用mount函数
     __WUJIE_MOUNT: () => void;
     // 子应用unmount函数
@@ -111,6 +113,7 @@ declare global {
  * 修改window对象的事件监听，只有路由事件采用iframe的事件
  */
 function patchIframeEvents(iframeWindow: Window) {
+  iframeWindow.__WUJIE_EVENTLISTENER__ = iframeWindow.__WUJIE_EVENTLISTENER__ || new Set();
   iframeWindow.addEventListener = function addEventListener<K extends keyof WindowEventMap>(
     type: K,
     listener: (this: Window, ev: WindowEventMap[K]) => any,
@@ -118,7 +121,8 @@ function patchIframeEvents(iframeWindow: Window) {
   ) {
     // 运行插件钩子函数
     execHooks(iframeWindow.__WUJIE.plugins, "windowAddEventListenerHook", iframeWindow, type, listener, options);
-
+    // 相同参数多次调用 addEventListener 不会导致重复注册，所以用set。
+    iframeWindow.__WUJIE_EVENTLISTENER__.add({ type, listener, options });
     if (appWindowAddEventListenerEvents.includes(type) || (typeof options === "object" && options.targetWindow)) {
       const targetWindow = typeof options === "object" && options.targetWindow ? options?.targetWindow : iframeWindow;
       return rawWindowAddEventListener.call(targetWindow, type, listener, options);
@@ -134,7 +138,12 @@ function patchIframeEvents(iframeWindow: Window) {
   ) {
     // 运行插件钩子函数
     execHooks(iframeWindow.__WUJIE.plugins, "windowRemoveEventListenerHook", iframeWindow, type, listener, options);
-
+    iframeWindow.__WUJIE_EVENTLISTENER__.forEach((o) => {
+      // 这里严格一点，确保子应用销毁的时候都能销毁
+      if (o.listener === listener && o.type === type && options == o.options) {
+        iframeWindow.__WUJIE_EVENTLISTENER__.delete(o);
+      }
+    });
     if (appWindowAddEventListenerEvents.includes(type) || (typeof options === "object" && options.targetWindow)) {
       const targetWindow = typeof options === "object" && options.targetWindow ? options?.targetWindow : iframeWindow;
       return rawWindowRemoveEventListener.call(targetWindow, type, listener, options);

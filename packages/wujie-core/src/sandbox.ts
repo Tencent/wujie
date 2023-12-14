@@ -423,6 +423,12 @@ export default class Wujie {
     }
     // 清除 iframe 沙箱
     if (this.iframe) {
+      const iframeWindow = this.iframe.contentWindow;
+      if (iframeWindow?.__WUJIE_EVENTLISTENER__) {
+        iframeWindow.__WUJIE_EVENTLISTENER__.forEach((o) => {
+          iframeWindow.removeEventListener(o.type, o.listener, o.options);
+        });
+      }
       this.iframe.parentNode?.removeChild(this.iframe);
       this.iframe = null;
     }
