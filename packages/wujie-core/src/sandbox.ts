@@ -238,11 +238,9 @@ export default class Wujie {
 
   // 未销毁，空闲时才回调
   public requestIdleCallback(callback) {
-    requestIdleCallback(() => {
-      if (!this.iframe) {
-        console.log("requestIdleCallback", callback);
-        return;
-      }
+    return requestIdleCallback(() => {
+      // 假如已经被销毁了
+      if (!this.iframe) return;
       callback.apply(this);
     });
   }
