@@ -286,7 +286,7 @@ function rewriteAppendOrInsertChild(opts: {
                     const execQueueLength = sandbox.execQueue?.length;
                     sandbox.execQueue.push(() =>
                       fiber
-                        ? requestIdleCallback(() => {
+                        ? sandbox.requestIdleCallback(() => {
                             execScript({ ...scriptResult, content });
                           })
                         : execScript({ ...scriptResult, content })
@@ -305,7 +305,7 @@ function rewriteAppendOrInsertChild(opts: {
             const execQueueLength = sandbox.execQueue?.length;
             sandbox.execQueue.push(() =>
               fiber
-                ? requestIdleCallback(() => {
+                ? sandbox.requestIdleCallback(() => {
                     insertScriptToIframe(
                       { src: null, content: text, attrs: parseTagAttributes(element.outerHTML) },
                       sandbox.iframe.contentWindow,

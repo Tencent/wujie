@@ -236,6 +236,16 @@ export default class Wujie {
     this.provide.shadowRoot = this.shadowRoot;
   }
 
+  // 未销毁，空闲时才回调
+  public requestIdleCallback(callback) {
+    requestIdleCallback(() => {
+      if (!this.iframe) {
+        console.log("requestIdleCallback", callback);
+        return;
+      }
+      callback.apply(this);
+    });
+  }
   /** 启动子应用
    * 1、运行js
    * 2、处理兼容样式
@@ -269,7 +279,7 @@ export default class Wujie {
     beforeScriptResultList.forEach((beforeScriptResult) => {
       this.execQueue.push(() =>
         this.fiber
-          ? requestIdleCallback(() => insertScriptToIframe(beforeScriptResult, iframeWindow))
+          ? this.requestIdleCallback(() => insertScriptToIframe(beforeScriptResult, iframeWindow))
           : insertScriptToIframe(beforeScriptResult, iframeWindow)
       );
     });
@@ -279,7 +289,7 @@ export default class Wujie {
       this.execQueue.push(() =>
         scriptResult.contentPromise.then((content) =>
           this.fiber
-            ? requestIdleCallback(() => insertScriptToIframe({ ...scriptResult, content }, iframeWindow))
+            ? this.requestIdleCallback(() => insertScriptToIframe({ ...scriptResult, content }, iframeWindow))
             : insertScriptToIframe({ ...scriptResult, content }, iframeWindow)
         )
       );
@@ -289,13 +299,13 @@ export default class Wujie {
     asyncScriptResultList.forEach((scriptResult) => {
       scriptResult.contentPromise.then((content) => {
         this.fiber
-          ? requestIdleCallback(() => insertScriptToIframe({ ...scriptResult, content }, iframeWindow))
+          ? this.requestIdleCallback(() => insertScriptToIframe({ ...scriptResult, content }, iframeWindow))
           : insertScriptToIframe({ ...scriptResult, content }, iframeWindow);
       });
     });
 
     //框架主动调用mount方法
-    this.execQueue.push(this.fiber ? () => requestIdleCallback(() => this.mount()) : () => this.mount());
+    this.execQueue.push(this.fiber ? () => this.requestIdleCallback(() => this.mount()) : () => this.mount());
 
     //触发 DOMContentLoaded 事件
     const domContentLoadedTrigger = () => {
@@ -303,13 +313,13 @@ export default class Wujie {
       eventTrigger(iframeWindow, "DOMContentLoaded");
       this.execQueue.shift()?.();
     };
-    this.execQueue.push(this.fiber ? () => requestIdleCallback(domContentLoadedTrigger) : domContentLoadedTrigger);
+    this.execQueue.push(this.fiber ? () => this.requestIdleCallback(domContentLoadedTrigger) : domContentLoadedTrigger);
 
     // 插入代码后
     afterScriptResultList.forEach((afterScriptResult) => {
       this.execQueue.push(() =>
         this.fiber
-          ? requestIdleCallback(() => insertScriptToIframe(afterScriptResult, iframeWindow))
+          ? this.requestIdleCallback(() => insertScriptToIframe(afterScriptResult, iframeWindow))
           : insertScriptToIframe(afterScriptResult, iframeWindow)
       );
     });
@@ -320,7 +330,7 @@ export default class Wujie {
       eventTrigger(iframeWindow, "load");
       this.execQueue.shift()?.();
     };
-    this.execQueue.push(this.fiber ? () => requestIdleCallback(domLoadedTrigger) : domLoadedTrigger);
+    this.execQueue.push(this.fiber ? () => this.requestIdleCallback(domLoadedTrigger) : domLoadedTrigger);
     // 由于没有办法准确定位是哪个代码做了mount，保活、重建模式提前关闭loading
     if (this.alive || !isFunction(this.iframe.contentWindow.__WUJIE_UNMOUNT)) removeLoading(this.el);
     this.execQueue.shift()();
@@ -416,6 +426,7 @@ export default class Wujie {
     // 清除 iframe 沙箱
     if (this.iframe) {
       this.iframe.parentNode?.removeChild(this.iframe);
+      this.iframe = null;
     }
     deleteWujieById(this.id);
   }
