@@ -189,7 +189,6 @@ function patchIframeHistory(iframeWindow: Window, appHostPath: string, mainHostP
 /**
  * 动态的修改iframe的base地址
  * @param iframeWindow
- * @param url
  * @param appHostPath
  * @param mainHostPath
  */
@@ -390,10 +389,11 @@ function patchDocumentEffect(iframeWindow: Window): void {
     handler: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions
   ): void {
+    if (!handler) return;
     let callback = handlerCallbackMap.get(handler);
     const typeList = handlerTypeMap.get(handler);
     // 设置 handlerCallbackMap
-    if (!callback && handler) {
+    if (!callback) {
       callback = typeof handler === "function" ? handler.bind(this) : handler;
       handlerCallbackMap.set(handler, callback);
     }
@@ -600,6 +600,9 @@ export function initBase(iframeWindow: Window, url: string): void {
 /**
  * 初始化iframe的dom结构
  * @param iframeWindow
+ * @param wujie
+ * @param mainHostPath
+ * @param appHostPath
  */
 function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string, appHostPath: string): void {
   const iframeDocument = iframeWindow.document;
@@ -634,7 +637,7 @@ function stopIframeLoading(iframeWindow: Window) {
   return new Promise<void>((resolve) => {
     function loop() {
       setTimeout(() => {
-        let newDoc = null;
+        let newDoc;
         try {
           newDoc = iframeWindow.document;
         } catch (err) {
@@ -722,8 +725,12 @@ export function insertScriptToIframe(
   window.__WUJIE.proxyLocation,
 );`;
     }
-    // 解决 webpack publicPath 为 auto 无法加载资源的问题
-    Object.defineProperty(scriptElement, "src", { get: () => src || "" });
+    const descriptor = Object.getOwnPropertyDescriptor(scriptElement, "src");
+    // 部分浏览器 src 不可配置 取不到descriptor表示无该属性，可写
+    if (descriptor?.configurable || !descriptor) {
+      // 解决 webpack publicPath 为 auto 无法加载资源的问题
+      Object.defineProperty(scriptElement, "src", { get: () => src || "" });
+    }
   } else {
     src && scriptElement.setAttribute("src", src);
     crossorigin && scriptElement.setAttribute("crossorigin", crossoriginType);
@@ -769,7 +776,8 @@ export function insertScriptToIframe(
 /**
  * 加载iframe替换子应用
  * @param src 地址
- * @param shadowRoot
+ * @param element
+ * @param degradeAttrs
  */
 export function renderIframeReplaceApp(
   src: string,

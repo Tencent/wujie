@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.20](https://github.com/Tencent/wujie/compare/v1.0.18...v1.0.20) (2023-11-08)
+
+### Bug Fixes
+
+* wujie-react watch props change, restart app ([#689](https://github.com/Tencent/wujie/issues/689)) ([1b39612](https://github.com/Tencent/wujie/commit/1b39612cab45906aa130817c940f556c48ed4f12))
+
+**Note:** Version bump only for package wujie-react
+
+## [1.0.18](https://github.com/Tencent/wujie/compare/v1.0.17...v1.0.18) (2023-07-11)
+
+### Bug Fixes
+
+* 修复wujie-react偶现无法加载子应用元素 ([#599](https://github.com/Tencent/wujie/issues/599)) ([f927505](https://github.com/Tencent/wujie/commit/f92750529a06615c44c5e765bb6b5ceaac68f4e0))
+
 ## [1.0.17](https://github.com/Tencent/wujie/compare/v1.0.16...v1.0.17) (2023-05-30)
 
 **Note:** Version bump only for package wujie-react

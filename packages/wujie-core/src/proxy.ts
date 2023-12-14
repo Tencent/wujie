@@ -2,7 +2,7 @@ import { patchElementEffect, renderIframeReplaceApp } from "./iframe";
 import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
 import { documentProxyProperties, rawDocumentQuerySelector } from "./common";
-import { WUJIE_TIPS_RELOAD_DISABLED } from "./constant";
+import { WUJIE_TIPS_RELOAD_DISABLED, WUJIE_TIPS_GET_ELEMENT_BY_ID } from "./constant";
 import {
   getTargetValue,
   anchorElementGenerator,
@@ -59,6 +59,11 @@ export function proxyGenerator(
       }
       // 不要绑定this
       if (p === "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__" || p === "__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__") {
+        return target[p];
+      }
+      // https://262.ecma-international.org/8.0/#sec-proxy-object-internal-methods-and-internal-slots-get-p-receiver
+      const descriptor = Object.getOwnPropertyDescriptor(target, p);
+      if (descriptor?.configurable === false && descriptor?.writable === false) {
         return target[p];
       }
       // 修正this指针指向
@@ -141,13 +146,18 @@ export function proxyGenerator(
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
               }
-              return (
-                target.call(shadowRoot, `[id="${args[0]}"]`) ||
-                iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
-                  iframe.contentWindow.document,
-                  `#${args[0]}`
-                )
-              );
+              try {
+                return (
+                  target.call(shadowRoot, `[id="${args[0]}"]`) ||
+                  iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
+                    iframe.contentWindow.document,
+                    `#${args[0]}`
+                  )
+                );
+              } catch (error) {
+                warn(WUJIE_TIPS_GET_ELEMENT_BY_ID);
+                return null;
+              }
             },
           });
         }
