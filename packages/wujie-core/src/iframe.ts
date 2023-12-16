@@ -284,7 +284,7 @@ function recordEventListeners(iframeWindow: Window) {
     // 添加事件缓存
     const elementListenerList = sandbox.elementEventCacheMap.get(this);
     if (elementListenerList) {
-      if (!elementListenerList.find((listener) => listener.handler === handler)) {
+      if (!elementListenerList.find((listener) => listener.type === type && listener.handler === handler))  {
         elementListenerList.push({ type, handler, options });
       }
     } else sandbox.elementEventCacheMap.set(this, [{ type, handler, options }]);
@@ -299,7 +299,7 @@ function recordEventListeners(iframeWindow: Window) {
     // 清除缓存
     const elementListenerList = sandbox.elementEventCacheMap.get(this);
     if (elementListenerList) {
-      const index = elementListenerList?.findIndex((ele) => ele.handler === handler);
+      const index = elementListenerList?.findIndex((ele) => ele.type === type && ele.handler === handler);
       elementListenerList.splice(index, 1);
     }
     if (!elementListenerList?.length) {
