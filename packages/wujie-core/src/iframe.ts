@@ -293,7 +293,7 @@ function recordEventListeners(iframeWindow: Window) {
     // 添加事件缓存
     const elementListenerList = sandbox.elementEventCacheMap.get(this);
     if (elementListenerList) {
-      if (!elementListenerList.find((listener) => listener.type === type && listener.handler === handler))  {
+      if (!elementListenerList.find((listener) => listener.type === type && listener.handler === handler)) {
         elementListenerList.push({ type, handler, options });
       }
     } else sandbox.elementEventCacheMap.set(this, [{ type, handler, options }]);

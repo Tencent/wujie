@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.21](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.21) (2023-12-18)
+
+### Bug Fixes
+
+* 解决子应用销毁时,主应用监听事件内存未被释放 [#752](https://github.com/Tencent/wujie/issues/752) ([#753](https://github.com/Tencent/wujie/issues/753)) ([5fa87a8](https://github.com/Tencent/wujie/commit/5fa87a8b4440658c947f71126cd432c337dd8a26)), closes [#568](https://github.com/Tencent/wujie/issues/568)
+* 修复降级模式会丢失事件监听器 ([#758](https://github.com/Tencent/wujie/issues/758)) ([534e865](https://github.com/Tencent/wujie/commit/534e8653c266df0373cbe3a924a79f92f4f604b8))
+* 修复在safari下scriptElement的src下不可写的问题 ([84b2378](https://github.com/Tencent/wujie/commit/84b2378d952814b3112ba2b16b91db940807e2d5))
+* 修复重复Object.defineProperties导致的报错 ([94bbfa6](https://github.com/Tencent/wujie/commit/94bbfa6eb879b156eeef68cd4aa68ac32d772fe3))
+
 ## [1.0.20](https://github.com/Tencent/wujie/compare/v1.0.18...v1.0.20) (2023-11-08)
 
 ### Bug Fixes
