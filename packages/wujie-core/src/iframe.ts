@@ -671,18 +671,22 @@ export function patchElementEffect(
 ): void {
   const proxyLocation = iframeWindow.__WUJIE.proxyLocation as Location;
   if (element._hasPatch) return;
-  Object.defineProperties(element, {
-    baseURI: {
-      configurable: true,
-      get: () => proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname,
-      set: undefined,
-    },
-    ownerDocument: {
-      configurable: true,
-      get: () => iframeWindow.document,
-    },
-    _hasPatch: { get: () => true },
-  });
+  try {
+    Object.defineProperties(element, {
+      baseURI: {
+        configurable: true,
+        get: () => proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname,
+        set: undefined,
+      },
+      ownerDocument: {
+        configurable: true,
+        get: () => iframeWindow.document,
+      },
+      _hasPatch: { get: () => true },
+    });
+  } catch (error) {
+    console.warn(error);
+  }
   execHooks(iframeWindow.__WUJIE.plugins, "patchElementHook", element, iframeWindow);
 }
 
@@ -738,7 +742,11 @@ export function insertScriptToIframe(
     // 部分浏览器 src 不可配置 取不到descriptor表示无该属性，可写
     if (descriptor?.configurable || !descriptor) {
       // 解决 webpack publicPath 为 auto 无法加载资源的问题
-      Object.defineProperty(scriptElement, "src", { get: () => src || "" });
+      try {
+        Object.defineProperty(scriptElement, "src", { get: () => src || "" });
+      } catch (error) {
+        console.warn(error);
+      }
     }
   } else {
     src && scriptElement.setAttribute("src", src);
