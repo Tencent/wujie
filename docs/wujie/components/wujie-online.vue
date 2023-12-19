@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { watch, ref, computed } from "vue";
-import { wujieList } from "./data";
+import { watch, ref } from "vue";
 
 const emit = defineEmits<{
   (e: "update:url", value: string): void;
@@ -12,7 +11,7 @@ const props = withDefaults(
   }>(),
   {}
 );
-const wujieUrl = ref<string>("https://wujicode.cn/xy/app/prod/official/index");
+const wujieUrl = ref<string>("https://ant.design/components/drawer-cn/");
 
 watch(
   () => props.flag,
@@ -38,11 +37,6 @@ loading.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24px" height
 </svg>`;
 
 const attrs = process.env.NODE_ENV === "production" ? { src: "//wujie-micro.github.io/doc" } : {};
-
-function changeWujieUrl(item) {
-  wujieUrl.value = item.url;
-  emit("update:url", item.url);
-}
 </script>
 
 <template>
@@ -58,10 +52,6 @@ function changeWujieUrl(item) {
         :url="wujieUrl"
         :loading="loading"
       ></WujieVue>
-    </div>
-    <div class="wujieList">
-      <h1>快速前往</h1>
-      <div v-for="item in wujieList" class="wujieItem" @click="changeWujieUrl(item)">{{ item.name }}</div>
     </div>
   </div>
 </template>
@@ -85,24 +75,11 @@ function changeWujieUrl(item) {
   width: 100%;
   min-height: 500px;
 }
-.wujieItem {
-  color: var(--vt-c-text-2);
-  cursor: pointer;
-  opacity: 0.7;
-}
+
 .wujieItem:hover {
   opacity: 1;
 }
-.wujieList {
-  padding: 15px 25px;
-  max-width: 10vw;
-  height: 100%;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  flex-direction: column;
-}
+
 .content {
   max-width: 100vw;
 }

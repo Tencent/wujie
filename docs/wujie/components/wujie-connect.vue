@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { wujieList } from "./data";
+
 const emit = defineEmits(["changeUrl"]);
-const url = ref("https://wujicode.cn/xy/app/prod/official/index");
+const url = ref("https://ant.design/components/drawer-cn/");
 const flag = ref(false);
+const currentIndex = ref(0);
 function preventDefault(event) {
   event.preventDefault;
   const reg = /(https):\/\/([\w.]+\/?)\S*/;
@@ -20,6 +23,12 @@ watch(
     url.value = newValue!;
   }
 );
+
+function changeWujieUrl(item: { url: String }, index: number) {
+  flag.value = !flag.value;
+  currentIndex.value = index;
+  emit("changeUrl", [item.url, flag.value]);
+}
 </script>
 <template>
   <section id="newsletter" class="NewsLetter">
@@ -44,16 +53,61 @@ watch(
         您可以输入一个允许跨域访问的 <span class="link">https</span> 协议网站来在线体验 <span class="link">无界</span>
       </p>
     </div>
+    <div class="wujieList">
+      <span>快速前往:</span>
+      <div
+        v-for="(item, index) in wujieList"
+        :class="['wujieItem', { chooseItem: index === currentIndex }]"
+        @click="changeWujieUrl(item, index)"
+      >
+        {{ item.name }}
+      </div>
+    </div>
   </section>
 </template>
 
 <style scoped>
+.wujieList {
+  padding: 15px 25px 0 25px;
+  font-size: 14px;
+  height: 100%;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.wujieItem {
+  color: var(--vt-c-text-2);
+  cursor: pointer;
+  opacity: 0.7;
+  border: 1px solid #eee;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-weight: 500;
+  color: var(--vp-c-text);
+  &:hover {
+    border: 1px solid var(--vp-c-brand-dark);
+    color: var(--vp-c-text-dark-1);
+    background-color: var(--vp-c-brand-dark);
+    transition: background-color 0.25s;
+    cursor: pointer;
+  }
+}
+.chooseItem {
+  border: 1px solid var(--vp-c-brand-dark);
+  color: var(--vp-c-text-dark-1);
+  background-color: var(--vp-c-brand-dark);
+}
+
 .NewsLetter {
   border-top: 1px solid transparent;
   border-bottom: 1px solid var(--vp-c-divider-light);
   padding: 32px 24px;
   background: var(--vp-c-bg-soft);
   transition: border-color 0.5s, background-color 0.5s;
+  display: flex;
+  flex-direction: column;
 }
 .dark .NewsLetter {
   border-top-color: var(--vp-c-divider-light);
