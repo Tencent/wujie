@@ -190,6 +190,7 @@ export const windowRegWhiteList = [
   /resizeObserver$|mutationObserver$|intersectionObserver$/i,
   /height$|width$|left$/i,
   /^screen/i,
+  /CSSStyleSheet$/i,
   /X$|Y$/,
 ];
 
