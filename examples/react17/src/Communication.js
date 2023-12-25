@@ -2,6 +2,8 @@ import React from "react";
 import Button from "antd/es/button";
 
 export default class Communication extends React.Component {
+  state = { childrenMessage: "" };
+
   jump = () => {
     window.$wujie && window.$wujie.props.jump("vue3");
   };
@@ -15,27 +17,37 @@ export default class Communication extends React.Component {
   };
 
   printfMessage = (e) => {
-    console.log('父级发过来的消息：',e.data)
-    alert('父级发过来的消息：' + e.data)
-  }
+    console.log("父级发过来的消息：", e.data);
+    if (e.data.type === "react16") {
+      this.setState({ childrenMessage: e.data.msg });
+    }
+  };
 
   sendPostMessage = () => {
     // 向父级窗口发送消息
-    window.parent.postMessage('Hello 父应用，我是子应用!', '*');
+    window.parent.postMessage(
+      {
+        type: "react17",
+        msg: "react17  向父级窗口发送消息L: " + new Date().getTime(),
+      },
+      "*"
+    );
   };
 
   componentDidMount() {
-    window.addEventListener("message", (e)=>this.printfMessage(e), { targetWindow: window.__WUJIE_RAW_WINDOW__ });
+    // window.addEventListener("message", (e) => this.printfMessage(e), { targetWindow: window.__WUJIE_RAW_WINDOW__ });
+    window.addEventListener("message", (e) => this.printfMessage(e));
   }
 
   componentWillUnmount() {
-    window.removeEventListener("message", (e)=>this.printfMessage(e), { targetWindow: window.__WUJIE_RAW_WINDOW__ });
+    // window.removeEventListener("message", (e) => this.printfMessage(e), { targetWindow: window.__WUJIE_RAW_WINDOW__ });
+    window.addEventListener("message", (e) => this.printfMessage(e));
   }
 
   render() {
     return (
       <div>
-        <h2>通信处理</h2>
+        <h2>通信处理--</h2>
         <div className="content">
           <p>应用可以有三种方式进行通信</p>
           <h3>1、主应用通过 props 属性注入的方法</h3>
@@ -64,6 +76,10 @@ export default class Communication extends React.Component {
             <Button onClick={this.sendPostMessage}>postMessage发送消息</Button>
           </p>
         </div>
+
+        {this.state.childrenMessage && <p>接收到iframe消息: {this.state.childrenMessage}</p>}
+
+        <iframe src="http://localhost:7600/iframe" title="react16" width="100%" height="500px"></iframe>
       </div>
     );
   }

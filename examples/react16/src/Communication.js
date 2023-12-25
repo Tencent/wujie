@@ -15,6 +15,17 @@ export default class Communication extends React.Component {
   handleEmit = () => {
     window.$wujie && window.$wujie.bus.$emit("click", "react16");
   };
+
+  sendPostMessage = () => {
+    window.parent.postMessage(
+      {
+        type: "react16",
+        msg: "react16  向父级窗口发送消息L: " + new Date().getTime(),
+      },
+      "*"
+    );
+  };
+
   render() {
     return (
       <div>
@@ -36,6 +47,11 @@ export default class Communication extends React.Component {
           <p>子应用点击按钮 $wujie.bus.$emit('click', 'react16') 发送 click 事件</p>
           <p>
             <Button onClick={this.handleEmit}>显示alert</Button>
+          </p>
+
+          <h3>3、向上一级父页面发送消息: 父页面可能是 子应用调用，也可能父应用 </h3>
+          <p>
+            <Button onClick={this.sendPostMessage}>react 16 发送消息给上一级应用</Button>
           </p>
         </div>
       </div>
