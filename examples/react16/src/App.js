@@ -5,6 +5,7 @@ import Location from "./Location";
 import Communication from "./Communication";
 import React17 from "./nest";
 import Font from "./Font";
+import Iframe from "./Iframe";
 import logo from "./logo.svg";
 import Tag from "antd/es/tag";
 import Button from "antd/es/button";
@@ -39,10 +40,10 @@ const Home = () => (
 
 export default function App() {
   // 在 react16-sub 路由下主动告知主应用路由跳转，主应用也跳到相应路由高亮菜单栏
-  const location = useLocation()
+  const location = useLocation();
   useEffect(() => {
-    window.$wujie?.bus.$emit('sub-route-change', "react16", location.pathname)
-  }, [location])
+    window.$wujie?.bus.$emit("sub-route-change", "react16", location.pathname);
+  }, [location]);
 
   return (
     <div>
@@ -75,6 +76,11 @@ export default function App() {
         <Route path="/font">
           <Font />
         </Route>
+
+        <Route path="/iframe">
+          <Iframe />
+        </Route>
+
         <Route exact path="/">
           <Redirect to="/home" />
         </Route>

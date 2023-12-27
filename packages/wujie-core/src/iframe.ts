@@ -123,8 +123,14 @@ function patchIframeEvents(iframeWindow: Window) {
     execHooks(iframeWindow.__WUJIE.plugins, "windowAddEventListenerHook", iframeWindow, type, listener, options);
     // 相同参数多次调用 addEventListener 不会导致重复注册，所以用set。
     iframeWindow.__WUJIE_EVENTLISTENER__.add({ type, listener, options });
-    if (appWindowAddEventListenerEvents.includes(type) || (typeof options === "object" && options.targetWindow)) {
-      const targetWindow = typeof options === "object" && options.targetWindow ? options?.targetWindow : iframeWindow;
+    const isConfigTargetWindow = typeof options === "object" && options.targetWindow;
+
+    // 处理子应用循环嵌套iframe场景的 window 指向问题
+    if (appWindowAddEventListenerEvents.includes(type) || isConfigTargetWindow) {
+      const targetWindow =
+        typeof options === "object" && options.targetWindow
+          ? options?.targetWindow
+          : window.__WUJIE_RAW_WINDOW__ || window;
       return rawWindowAddEventListener.call(targetWindow, type, listener, options);
     }
     // 在子应用嵌套场景使用window.window获取真实window
@@ -144,8 +150,9 @@ function patchIframeEvents(iframeWindow: Window) {
         iframeWindow.__WUJIE_EVENTLISTENER__.delete(o);
       }
     });
-    if (appWindowAddEventListenerEvents.includes(type) || (typeof options === "object" && options.targetWindow)) {
-      const targetWindow = typeof options === "object" && options.targetWindow ? options?.targetWindow : iframeWindow;
+    const isConfigTargetWindow = typeof options === "object" && options.targetWindow;
+    if (appWindowAddEventListenerEvents.includes(type) || isConfigTargetWindow) {
+      const targetWindow = isConfigTargetWindow ? options?.targetWindow : window.__WUJIE_RAW_WINDOW__ || window;
       return rawWindowRemoveEventListener.call(targetWindow, type, listener, options);
     }
     rawWindowRemoveEventListener.call(window.__WUJIE_RAW_WINDOW__ || window, type, listener, options);
