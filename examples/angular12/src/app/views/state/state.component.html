@@ -1,0 +1,12 @@
+<app-hello-world>通信处理</app-hello-world>
+
+<div class="content">
+  <p>设置保活模式，切换应用时，子应用的路由和state都可以得到保留</p>
+  <h3>1、改动实例的状态，切换到react，点击按钮再回来看看</h3>
+  <p class="number-content">
+    <button nz-button (click)="count = count - 1">-</button>
+    <span class="number">{{ count }}</span>
+    <button nz-button (click)="count = count + 1">+</button>
+    <button nz-button style="margin-left: 20px" (click)="handleClick()">跳转react17</button>
+  </p>
+</div>

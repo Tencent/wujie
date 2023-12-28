@@ -7,7 +7,9 @@ const map = {
   "//localhost:7600/": "//wujie-micro.github.io/demo-react16/",
   "//localhost:7700/": "//wujie-micro.github.io/demo-main-react/",
   "//localhost:8000/": "//wujie-micro.github.io/demo-main-vue/",
+  "//localhost:8200/": "//wujie-micro.github.io/demo-main-angular/",
 };
+
 
 export default function hostMap(host) {
   if (process.env.NODE_ENV === "production") return map[host];

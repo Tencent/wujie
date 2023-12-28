@@ -62,6 +62,16 @@ export default class Home extends React.Component {
                 vue主应用
               </a>
             </Tooltip>
+            <Tooltip title="主应用为hash模式">
+              <a
+                  href="https://wujie-micro.github.io/demo-main-angular/"
+                  target="_blank"
+                  className="docs button-gap"
+                  rel="noreferrer"
+              >
+                angular主应用
+              </a>
+            </Tooltip>
             <a href="https://github.com/Tencent/wujie" target="_blank" className="docs button-gap" rel="noreferrer">
               仓库
             </a>

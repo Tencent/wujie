@@ -69,6 +69,10 @@ export default defineConfig({
             text: "React主应用",
             link: "https://wujie-micro.github.io/demo-main-react/",
           },
+          {
+            text: "Angular主应用",
+            link: "https://wujie-micro.github.io/demo-main-angular/",
+          },
         ],
       },
       { text: "在线体验无界", link: "/wujie/", activeMatch: "/wujie/" },
@@ -220,6 +224,10 @@ export default defineConfig({
             {
               text: "React组件封装",
               link: "/pack/react",
+            },
+            {
+              text: "Angular组件封装",
+              link: "/pack/angular",
             },
           ],
         },
