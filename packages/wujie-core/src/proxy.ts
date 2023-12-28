@@ -13,23 +13,37 @@ import {
   stopMainAppRun,
 } from "./utils";
 
+function generateUrl(url: string, appHostPath: string) {
+  let newUrl = url;
+  if (!/^http/.test(url)) {
+    let hrefElement = anchorElementGenerator(url);
+    newUrl = appHostPath + hrefElement.pathname + hrefElement.search + hrefElement.hash;
+    hrefElement = null;
+  }
+  return newUrl;
+}
+
+function renderInIframe(iframe: HTMLIFrameElement, url: string) {
+  const { shadowRoot, id, degrade, degradeAttrs } = iframe.contentWindow.__WUJIE;
+  if (degrade) {
+    renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement, degradeAttrs);
+    return;
+  }
+  renderIframeReplaceApp(url, shadowRoot.host.parentElement, degradeAttrs);
+}
+
 /**
  * location href 的set劫持操作
  */
 function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: string): boolean {
-  const { shadowRoot, id, degrade, document, degradeAttrs } = iframe.contentWindow.__WUJIE;
-  let url = value;
-  if (!/^http/.test(url)) {
-    let hrefElement = anchorElementGenerator(url);
-    url = appHostPath + hrefElement.pathname + hrefElement.search + hrefElement.hash;
-    hrefElement = null;
-  }
+  const { id, degrade, document } = iframe.contentWindow.__WUJIE;
   iframe.contentWindow.__WUJIE.hrefFlag = true;
   if (degrade) {
     const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
     renderElementToContainer(document.documentElement, iframeBody);
-    renderIframeReplaceApp(window.decodeURIComponent(url), getDegradeIframe(id).parentElement, degradeAttrs);
-  } else renderIframeReplaceApp(url, shadowRoot.host.parentElement, degradeAttrs);
+  }
+  const url = generateUrl(value, appHostPath);
+  renderInIframe(iframe, url);
   pushUrlToWindow(id, url);
   return true;
 }
@@ -230,7 +244,11 @@ export function proxyGenerator(
         if (propKey === "replace") {
           return new Proxy(location[propKey], {
             apply(replace, _ctx, args) {
-              return replace.call(location, args[0]?.replace(appHostPath, mainHostPath));
+              if (args[0]?.includes?.(appHostPath)) {
+                return replace.call(location, args[0]?.replace(appHostPath, mainHostPath));
+              }
+              const url = generateUrl(args[0], appHostPath);
+              return renderInIframe(iframe, url);
             },
           });
         }
