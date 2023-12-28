@@ -56,12 +56,32 @@ export function isMatchUrl(url: string, effectLoaders: plugin[effectLoadersType]
  */
 function cssRelativePathResolve(code: string, src: string, base: string) {
   const baseUrl = src ? getAbsolutePath(src, base) : base;
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/url
-  const urlReg = /(url\((?!['"]?(?:data):)['"]?)([^'")]*)(['"]?\))/g;
+  /**
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/url
+   *
+   * 旧: const urlReg = /(url\((?!['"]?(?:data):)['"]?)([^'")]*)(['"]?\))/g;
+   *
+   * 这里修改一下正则匹配，先匹配url(xxx)内的xxx，需要兼容一下嵌套括号，
+   * 再判断是否为base64，不再预先忽略data:前缀，防止base64的svg内仍有url被匹配
+   * 
+   * eg:
+   * background: url(data:image/svg+xml;charset=utf-8,<svg><path fill=url(#a)></path></svg>)
+   * 以上样式会匹配出#a并进行修改，svg填充的路径就出问题了。
+   *
+   *  */
+  const urlReg = /url\((['"]?)((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)(\1)\)/g;
+
   return code.replace(urlReg, (_m, pre, url, post) => {
-    const absoluteUrl = getAbsolutePath(url, baseUrl);
-    return pre + absoluteUrl + post;
-  });
+    const base64Regx = /^data:/;
+    const isBase64 = base64Regx.test(url);
+
+    /** 如果匹配到data:前缀，则认为是base64文件，直接不进行路径替换吧 */
+    if (isBase64) {
+      return _m;
+    }
+
+    return `url(${pre}${getAbsolutePath(url, baseUrl)}${post})`
+  })
 }
 
 const defaultPlugin = {
