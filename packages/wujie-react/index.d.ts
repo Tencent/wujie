@@ -1,35 +1,39 @@
 import { bus, preloadApp, destroyApp, setupApp } from "wujie";
-import PropTypes from "prop-types";
-import React from "react";
+import React,{ReactElement} from 'react';
 
-export default class WujieReact extends React.PureComponent {
-  static propTypes: {
-    height: typeof PropTypes.string;
-    width: typeof PropTypes.string;
-    name: typeof PropTypes.string;
-    loading: typeof PropTypes.element;
-    url: typeof PropTypes.string;
-    alive: typeof PropTypes.bool;
-    fetch: typeof PropTypes.func;
-    props: typeof PropTypes.object;
-    attrs: typeof PropTypes.object;
-    replace: typeof PropTypes.func;
-    sync: typeof PropTypes.bool;
-    prefix: typeof PropTypes.object;
-    fiber: typeof PropTypes.bool;
-    degrade: typeof PropTypes.bool;
-    plugins: typeof PropTypes.array;
-    beforeLoad: typeof PropTypes.func;
-    beforeMount: typeof PropTypes.func;
-    afterMount: typeof PropTypes.func;
-    beforeUnmount: typeof PropTypes.func;
-    afterUnmount: typeof PropTypes.func;
-    activated: typeof PropTypes.func;
-    deactivated: typeof PropTypes.func;
-    loadError: typeof PropTypes.func;
-  };
-  static bus: typeof bus;
-  static setupApp: typeof setupApp;
-  static preloadApp: typeof preloadApp;
-  static destroyApp: typeof destroyApp;
+interface WujieReactProps {
+  height?: string
+  width?: string
+  name: string
+  loading?: ReactElement
+  url: string
+  alive?: boolean
+  fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  props?: object
+  attrs?: object
+  replace?: (codeText: string) => string
+  sync?: boolean
+  prefix?: object
+  fiber?: boolean
+  degrade?: boolean
+  plugins?: any[]
+  beforeLoad?: (appWindow: Window)=>void
+  beforeMount?: (appWindow: Window)=>void
+  afterMount?: (appWindow: Window)=>void
+  beforeUnmount?: (appWindow: Window)=>void
+  afterUnmount?: (appWindow: Window)=>void
+  activated?: ()=>void
+  deactivated?: ()=>void
+  loadError?: (url: string, e: Error)=>void
 }
+
+interface IWujieReact extends React.FC<WujieReactProps> {
+  bus: typeof bus;
+  setupApp: typeof setupApp;
+  preloadApp: typeof preloadApp;
+  destroyApp: typeof destroyApp;
+}
+
+declare const WujieReact: IWujieReact;
+
+export default WujieReact;
