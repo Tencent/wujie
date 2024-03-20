@@ -42,7 +42,8 @@ startApp({ name: "唯一id" });
 
 ### 前提
 
-子应用的资源和接口的请求都在主域名发起，所以会有跨域问题，子应用必须做[cors 设置](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS)
+子应用的资源和接口的请求都在主域名发起，所以会有跨域问题，子应用必须做[cors 设置](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS)。  
+假设子应用使用 `node.js`进行部署，那么部署的后端服务器一个简单跨域设置如下：
 
 ```javascript
 app.use((req, res, next) => {
@@ -57,6 +58,10 @@ app.use((req, res, next) => {
   // 其他操作
 });
 ```
+::: warning 注意
+
+这只是一个简单示例，用户需要根据业务场景进行灵活配置
+:::
 
 ### 运行模式
 
