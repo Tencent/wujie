@@ -283,13 +283,23 @@ function rewriteAppendOrInsertChild(opts: {
                   (content) => {
                     if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
                     const execQueueLength = sandbox.execQueue?.length;
-                    sandbox.execQueue.push(() =>
+                    /**
+                     * 插入脚本有可能是因为初始化子系统时的动态脚本请求形成的
+                     * 所以execQueue序列需要根据execFlag，决定push到头部，或者是push到尾部
+                     */
+                    const fn = () =>
                       fiber
                         ? sandbox.requestIdleCallback(() => {
                             execScript({ ...scriptResult, content });
                           })
-                        : execScript({ ...scriptResult, content })
-                    );
+                        : execScript({ ...scriptResult, content });
+                    if (!sandbox.execFlag) {
+                      sandbox.execQueue.unshift(fn);
+                      sandbox.execQueue.shift()();
+                    } else {
+                      sandbox.execQueue.push(fn);
+                    }
+
                     // 同步脚本如果都执行完了，需要手动触发执行
                     if (!execQueueLength) sandbox.execQueue.shift()();
                   },

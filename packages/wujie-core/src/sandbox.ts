@@ -249,7 +249,6 @@ export default class Wujie {
    * 2、处理兼容样式
    */
   public async start(getExternalScripts: () => ScriptResultList): Promise<void> {
-    this.execFlag = true;
     // 执行脚本
     const scriptResultList = await getExternalScripts();
     // 假如已经被销毁了
@@ -338,6 +337,7 @@ export default class Wujie {
       this.execQueue.push(() => {
         resolve();
         this.execQueue.shift()?.();
+        this.execFlag = true;
       });
     });
   }
