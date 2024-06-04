@@ -313,6 +313,14 @@ export function localGenerator(
         };
       },
     },
+    getElementById: {
+      get() {
+        return function (...args) {
+          const id = args[0];
+          return (sandbox.document.getElementById(id) as any) || iframe.contentDocument.getElementById(id);
+        };
+      },
+    },
   });
   // 普通处理
   const {
