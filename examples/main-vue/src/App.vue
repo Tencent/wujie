@@ -63,6 +63,7 @@
       </div>
       <router-link to="/angular12">angular12</router-link>
       <router-link to="/all">all</router-link>
+      <router-link to="/postmessage">postmessage</router-link>
       <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click.stop="active = !active" />
     </div>
     <div class="content" @click="active = false">
@@ -97,14 +98,6 @@ export default {
     },
     handleFlag(name) {
       this[name + "Flag"] = !this[name + "Flag"];
-    },
-    handleMessage(event) {
-      if (event.origin === location.origin && event.source !== window) {
-        console.log("父应用接收到消息：", event.data);
-        alert("父应用接收到消息：" + event.data);
-        // 将消息发送给子应用
-        event.source.postMessage("Hello 子应用，我是父应用!", event.origin);
-      }
     },
   },
 };

@@ -13,6 +13,10 @@
       <p>主应用 bus.$on("click", (msg) => window.alert(msg)) 监听子应用的 click 事件</p>
       <p>子应用点击按钮 $wujie.bus.$emit('click', 'vue2') 发送 click 事件</p>
       <p><el-button @click="handleEmit">点击emit</el-button></p>
+      <h3>4、通过 postmessage 方法发送消息</h3>
+      <p>主应用 bus.$on("click", (msg) => window.alert(msg)) 监听子应用的 click 事件</p>
+      <p>子应用点击按钮 $wujie.bus.$emit('click', 'vue2') 发送 click 事件</p>
+      <p><el-button @click="handleEmit">点击emit</el-button></p>
     </div>
   </div>
 </template>
