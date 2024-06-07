@@ -75,6 +75,7 @@ export default {
 }
 .sub-content {
   margin: 40px;
+  height: 500px;
   border: 1px dashed #ccc;
 }
 </style>
