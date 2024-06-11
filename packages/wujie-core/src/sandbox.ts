@@ -377,7 +377,7 @@ export default class Wujie {
       this.iframe.contentWindow.__WUJIE_UNMOUNT();
       this.lifecycles?.afterUnmount?.(this.iframe.contentWindow);
       this.mountFlag = false;
-      this.bus.$clear();
+      this.bus?.$clear();
       if (!this.degrade) {
         clearChild(this.shadowRoot);
         // head body需要复用，每次都要清空事件
