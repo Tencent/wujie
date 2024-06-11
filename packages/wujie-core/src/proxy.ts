@@ -172,12 +172,13 @@ export function proxyGenerator(
                 return ctx[propKey]?.apply(ctx, args);
               }
               // 二选一，优先shadowDom，除非采用array合并，排除base，防止对router造成影响
-              return (
-                target.apply(shadowRoot, args) ||
-                (args[0] === "base"
-                  ? null
-                  : iframe.contentWindow[rawPropMap[propKey]].call(iframe.contentWindow.document, args[0]))
-              );
+              const res = target.apply(shadowRoot, args);
+              if (res && (propKey === "querySelector" || res.length > 0)) {
+                return res;
+              }
+              return args[0] === "base"
+                ? null
+                : iframe.contentWindow[rawPropMap[propKey]].call(iframe.contentWindow.document, args[0]);
             },
           });
         }
