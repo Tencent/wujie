@@ -28,15 +28,19 @@ export default class WujieReact extends React.PureComponent {
     } catch (error) {
       console.log(error);
     }
-  }
-  
-  componentDidMount () {
-    this.startApp();
+  };
+
+  execStartApp = () => {
+    this.startAppQueue = this.startAppQueue.then(this.startApp);
+  };
+
+  componentDidMount() {
+    this.execStartApp();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.name !== prevProps.name || this.props.url !== prevProps.url) {
-      this.startApp();
+      this.execStartApp();
     }
   }
 
@@ -48,27 +52,27 @@ export default class WujieReact extends React.PureComponent {
 }
 
 const propTypes = {
-    height: PropTypes.string,
-    width: PropTypes.string,
-    name: PropTypes.string,
-    loading: PropTypes.element,
-    url: PropTypes.string,
-    alive: PropTypes.bool,
-    fetch: PropTypes.func,
-    props: PropTypes.object,
-    attrs: PropTypes.object,
-    replace: PropTypes.func,
-    sync: PropTypes.bool,
-    prefix: PropTypes.object,
-    fiber: PropTypes.bool,
-    degrade: PropTypes.bool,
-    plugins: PropTypes.array,
-    beforeLoad: PropTypes.func,
-    beforeMount: PropTypes.func,
-    afterMount: PropTypes.func,
-    beforeUnmount: PropTypes.func,
-    afterUnmount: PropTypes.func,
-    activated: PropTypes.func,
-    deactivated: PropTypes.func,
-    loadError: PropTypes.func,
-  }
+  height: PropTypes.string,
+  width: PropTypes.string,
+  name: PropTypes.string,
+  loading: PropTypes.element,
+  url: PropTypes.string,
+  alive: PropTypes.bool,
+  fetch: PropTypes.func,
+  props: PropTypes.object,
+  attrs: PropTypes.object,
+  replace: PropTypes.func,
+  sync: PropTypes.bool,
+  prefix: PropTypes.object,
+  fiber: PropTypes.bool,
+  degrade: PropTypes.bool,
+  plugins: PropTypes.array,
+  beforeLoad: PropTypes.func,
+  beforeMount: PropTypes.func,
+  afterMount: PropTypes.func,
+  beforeUnmount: PropTypes.func,
+  afterUnmount: PropTypes.func,
+  activated: PropTypes.func,
+  deactivated: PropTypes.func,
+  loadError: PropTypes.func,
+};
