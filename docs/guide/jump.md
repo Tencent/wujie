@@ -111,7 +111,7 @@ export default {
 
 ```javascript
 function handleJump() {
-  window.$wujie?.props.jump({ path: "/pathB" } , `?B=${window.encodeURIComponent("/test")}`});
+  window.$wujie?.props.jump({ path: "/pathB" } , `?B=${window.encodeURIComponent("/test")}`);
 }
 ```
 
