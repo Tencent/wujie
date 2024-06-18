@@ -146,8 +146,13 @@ export function getAnchorElementQueryMap(anchorElement: HTMLAnchorElement): { [k
   const queryList = anchorElement.search.replace("?", "").split("&");
   const queryMap = {};
   queryList.forEach((query) => {
-    const [key, value] = query.split("=");
-    if (key && value) queryMap[key] = value;
+    const index = query.indexOf("=");
+    // 等于0的时候,key没有值,后面的逻辑也不会走
+    if (index > 0) {
+      const key = query.substring(0, index);
+      const value = query.substring(index + 1);
+      if (key && value) queryMap[key] = value;
+    }
   });
   return queryMap;
 }
