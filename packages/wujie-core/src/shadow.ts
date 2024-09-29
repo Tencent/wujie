@@ -177,8 +177,11 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
   const sandbox = iframeWindow.__WUJIE;
   const { head, body, alive, execFlag } = sandbox;
   const document = iframeWindow.document;
-  let html = document.createElement("html");
-  html.innerHTML = template;
+  const parser = new DOMParser();
+  const parsedDocument = parser.parseFromString(template, "text/html");
+
+  // 无论 template 是否包含html，documentElement 必然是 HTMLHtmlElement
+  let html = parsedDocument.documentElement as HTMLHtmlElement;
   // 组件多次渲染，head和body必须一直使用同一个来应对被缓存的场景
   if (!alive && execFlag) {
     html = replaceHeadAndBody(html, head, body);
