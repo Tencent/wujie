@@ -641,12 +641,12 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
  * 防止运行主应用的js代码，给子应用带来很多副作用
  */
 // TODO 更加准确抓取停止时机
-function stopIframeLoading(iframeWindow: Window) {
+function stopIframeLoading(iframeWindow: Window, useObjectURL: boolean) {
   const oldDoc = iframeWindow.document;
   return new Promise<void>((resolve) => {
     function loop() {
       setTimeout(() => {
-        let newDoc;
+        let newDoc: Document;
         try {
           newDoc = iframeWindow.document;
         } catch (err) {
@@ -655,10 +655,28 @@ function stopIframeLoading(iframeWindow: Window) {
         // wait for document ready
         if (!newDoc || newDoc == oldDoc) {
           loop();
-        } else {
-          iframeWindow.stop ? iframeWindow.stop() : iframeWindow.document.execCommand("Stop");
-          resolve();
+          return;
         }
+
+        // document ready, if is using ObjectURL, remove its "blob:" prefix
+        if (useObjectURL) {
+          const href = iframeWindow.location.href;
+          newDoc.open();
+          newDoc.write("");
+          newDoc.close();
+
+          const loop2 = function () {
+            if (iframeWindow.location.href === href) setTimeout(loop2, 1);
+            else resolve();
+          };
+          loop2();
+
+          return;
+        }
+
+        // document ready
+        iframeWindow.stop ? iframeWindow.stop() : newDoc.execCommand("Stop");
+        resolve();
       }, 1);
     }
     loop();
@@ -807,6 +825,19 @@ export function renderIframeReplaceApp(
   renderElementToContainer(iframe, element);
 }
 
+const getSandboxEmptyPageURL = (() => {
+  if (typeof URL === "undefined" || typeof URL.createObjectURL !== "function") return () => "";
+
+  let prevURL = "";
+  return () => {
+    if (prevURL) return prevURL;
+
+    const blob = new Blob(["<!DOCTYPE html><html><head></head><body></body></html>"], { type: "text/html" });
+    prevURL = URL.createObjectURL(blob);
+    return prevURL;
+  };
+})();
+
 /**
  * js沙箱
  * 创建和主应用同源的iframe，路径携带了子路由的路由信息
@@ -819,15 +850,29 @@ export function iframeGenerator(
   appHostPath: string,
   appRoutePath: string
 ): HTMLIFrameElement {
+  let src = attrs.src;
+  let useObjectURL = false;
+  if (!src) {
+    src = getSandboxEmptyPageURL();
+    useObjectURL = !!src;
+    if (!src) src = mainHostPath; // fallback to mainHostPath
+  }
+
   const iframe = window.document.createElement("iframe");
-  const attrsMerge = { src: mainHostPath, style: "display: none", ...attrs, name: sandbox.id, [WUJIE_DATA_FLAG]: "" };
+  const attrsMerge = {
+    style: "display: none",
+    ...attrs,
+    src,
+    name: sandbox.id,
+    [WUJIE_DATA_FLAG]: "",
+  };
   setAttrsToElement(iframe, attrsMerge);
   window.document.body.appendChild(iframe);
 
   const iframeWindow = iframe.contentWindow;
   // 变量需要提前注入，在入口函数通过变量防止死循环
   patchIframeVariable(iframeWindow, sandbox, appHostPath);
-  sandbox.iframeReady = stopIframeLoading(iframeWindow).then(() => {
+  sandbox.iframeReady = stopIframeLoading(iframeWindow, useObjectURL).then(() => {
     if (!iframeWindow.__WUJIE) {
       patchIframeVariable(iframeWindow, sandbox, appHostPath);
     }
