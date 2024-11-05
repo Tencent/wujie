@@ -641,7 +641,8 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
  * 防止运行主应用的js代码，给子应用带来很多副作用
  */
 // TODO 更加准确抓取停止时机
-function stopIframeLoading(iframeWindow: Window, useObjectURL: boolean) {
+function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPath: string } | false) {
+  const iframeWindow = iframe.contentWindow;
   const oldDoc = iframeWindow.document;
   return new Promise<void>((resolve) => {
     function loop() {
@@ -662,10 +663,19 @@ function stopIframeLoading(iframeWindow: Window, useObjectURL: boolean) {
         if (useObjectURL) {
           const href = iframeWindow.location.href;
           newDoc.open();
-          newDoc.write("");
           newDoc.close();
 
+          const deadline = Date.now() + 1e3;
           const loop2 = function () {
+            if (Date.now() > deadline) {
+              // 一秒后 URL 没有变化
+              // 可能浏览器已经不支持使用这种奇技淫巧了，标记不再支持，并且回退到旧的方式加载
+              disableSandboxEmptyPageURL();
+              iframe.src = useObjectURL.mainHostPath;
+              stopIframeLoading(iframe, false).then(resolve);
+              return;
+            }
+
             if (iframeWindow.location.href === href) setTimeout(loop2, 1);
             else resolve();
           };
@@ -825,17 +835,37 @@ export function renderIframeReplaceApp(
   renderElementToContainer(iframe, element);
 }
 
-const getSandboxEmptyPageURL = (() => {
-  if (typeof URL === "undefined" || typeof URL.createObjectURL !== "function") return () => "";
+const [getSandboxEmptyPageURL, disableSandboxEmptyPageURL] = (() => {
+  const disabledMarkKey = "wujie:disableSandboxEmptyPageURL";
+  let disabled = false;
+  try {
+    disabled = localStorage.getItem(disabledMarkKey) === "true";
+  } catch (e) {
+    // pass
+  }
+
+  if (disabled || typeof URL === "undefined" || typeof URL.createObjectURL !== "function")
+    return [() => "", () => void 0] as const;
 
   let prevURL = "";
-  return () => {
+  const getSandboxEmptyPageURL = () => {
+    if (disabled) return "";
     if (prevURL) return prevURL;
 
     const blob = new Blob(["<!DOCTYPE html><html><head></head><body></body></html>"], { type: "text/html" });
     prevURL = URL.createObjectURL(blob);
     return prevURL;
   };
+
+  const disableSandboxEmptyPageURL = () => {
+    disabled = true;
+    try {
+      // TODO: 看能不能做上报，收集一下浏览器版本的情况
+      localStorage.setItem(disabledMarkKey, "true");
+    } catch (e) {}
+  };
+
+  return [getSandboxEmptyPageURL, disableSandboxEmptyPageURL];
 })();
 
 /**
@@ -850,7 +880,7 @@ export function iframeGenerator(
   appHostPath: string,
   appRoutePath: string
 ): HTMLIFrameElement {
-  let src = attrs.src;
+  let src = attrs && attrs.src;
   let useObjectURL = false;
   if (!src) {
     src = getSandboxEmptyPageURL();
@@ -872,7 +902,7 @@ export function iframeGenerator(
   const iframeWindow = iframe.contentWindow;
   // 变量需要提前注入，在入口函数通过变量防止死循环
   patchIframeVariable(iframeWindow, sandbox, appHostPath);
-  sandbox.iframeReady = stopIframeLoading(iframeWindow, useObjectURL).then(() => {
+  sandbox.iframeReady = stopIframeLoading(iframe, useObjectURL && { mainHostPath }).then(() => {
     if (!iframeWindow.__WUJIE) {
       patchIframeVariable(iframeWindow, sandbox, appHostPath);
     }
