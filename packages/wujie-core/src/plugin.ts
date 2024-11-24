@@ -63,7 +63,7 @@ function cssRelativePathResolve(code: string, src: string, base: string) {
    *
    * 这里修改一下正则匹配，先匹配url(xxx)内的xxx，需要兼容一下嵌套括号，
    * 再判断是否为base64，不再预先忽略data:前缀，防止base64的svg内仍有url被匹配
-   * 
+   *
    * eg:
    * background: url(data:image/svg+xml;charset=utf-8,<svg><path fill=url(#a)></path></svg>)
    * 以上样式会匹配出#a并进行修改，svg填充的路径就出问题了。
@@ -80,8 +80,8 @@ function cssRelativePathResolve(code: string, src: string, base: string) {
       return _m;
     }
 
-    return `url(${pre}${getAbsolutePath(url, baseUrl)}${post})`
-  })
+    return `url(${pre}${getAbsolutePath(url, baseUrl)}${post})`;
+  });
 }
 
 const defaultPlugin = {

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+### Features
+
+* add AI search ([#760](https://github.com/Tencent/wujie/issues/760)) ([4296ed2](https://github.com/Tencent/wujie/commit/4296ed2ee23e1092df5ba8691e1fd296a1587cf1))
+* unmount hook support promise ([#645](https://github.com/Tencent/wujie/issues/645)) ([18be78b](https://github.com/Tencent/wujie/commit/18be78b336c2ab90fb0e85096c4281be3a1d49cb))
+
 ## [1.0.22](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.22) (2023-12-18)
 
 **Note:** Version bump only for package wujie-docs

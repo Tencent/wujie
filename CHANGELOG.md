@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+### Bug Fixes
+
+* appWindowOnEvent 增加 onerror and onunhandledrejection 事件 ([#865](https://github.com/Tencent/wujie/issues/865)) ([76ee1b2](https://github.com/Tencent/wujie/commit/76ee1b2fdd95c1f80b67cdc8468a677d1726c766))
+* 修复 子应用 html 上的属性会被丢失的问题([#908](https://github.com/Tencent/wujie/issues/908)) ([#909](https://github.com/Tencent/wujie/issues/909)) ([e2cf327](https://github.com/Tencent/wujie/commit/e2cf327709cfe991b47245572abc80681d864e17))
+* 修复css中图片url解析错误 ([#681](https://github.com/Tencent/wujie/issues/681)) ([94c3b6e](https://github.com/Tencent/wujie/commit/94c3b6eaf5ed3c3fd28762240d724f4b83a3025e))
+* 修复wujie-react重复渲染时保活模式输出undefined ([#840](https://github.com/Tencent/wujie/issues/840)) ([6c4659d](https://github.com/Tencent/wujie/commit/6c4659df08ddd901a89b5f8bfbf29b9b8f5eabee))
+* 修复在降级情况下无法加载vite使用vite-legacy-plugin打包出的js文件 ([#861](https://github.com/Tencent/wujie/issues/861)) ([a22b545](https://github.com/Tencent/wujie/commit/a22b545588fe74e2981a39a5b9bdc1a8083ad53c))
+* 修复多个子应用启动，拿到的全局对象缓存都是第一个子应用全局对象的bug ([#792](https://github.com/Tencent/wujie/issues/792)) ([41a5309](https://github.com/Tencent/wujie/commit/41a5309de9e39539d6684a424302bff2b7965db2))
+* 修复子应用无法使用 WebComponent 组件库，提示 adoptedstylesheets 问题 ([#771](https://github.com/Tencent/wujie/issues/771)) ([fa5fb03](https://github.com/Tencent/wujie/commit/fa5fb030f88acfe0d6d59692d66bbb0763997379))
+* 修复子应用无法使用 WebComponent 组件库，提示 adoptedstylesheets 问题 ([#771](https://github.com/Tencent/wujie/issues/771)) ([#853](https://github.com/Tencent/wujie/issues/853)) ([f0c12e7](https://github.com/Tencent/wujie/commit/f0c12e703e2f6bec17a08527b018b77bd5706dc0))
+* 修复通过appendChild添加的外部脚本中使用document.body.removeChild移除脚本报错阻塞代码执行的问题 ([#839](https://github.com/Tencent/wujie/issues/839)) ([2e2a23c](https://github.com/Tencent/wujie/commit/2e2a23c939781d7ed8fab1d06b3208b7d082c0d4))
+* 在afterUnmount的回调函数中，使用 destroyApp 方法时，bus 属性为null ，调用$clear()会报错 ([#742](https://github.com/Tencent/wujie/issues/742)) ([d6ea8d6](https://github.com/Tencent/wujie/commit/d6ea8d69d611df07fef9af1d88242786257813c3))
+
+### Features
+
+* add AI search ([#760](https://github.com/Tencent/wujie/issues/760)) ([4296ed2](https://github.com/Tencent/wujie/commit/4296ed2ee23e1092df5ba8691e1fd296a1587cf1))
+* unmount hook support promise ([#645](https://github.com/Tencent/wujie/issues/645)) ([18be78b](https://github.com/Tencent/wujie/commit/18be78b336c2ab90fb0e85096c4281be3a1d49cb))
+* 优化处理document专属事件中可能造成内存泄露部分 ([#644](https://github.com/Tencent/wujie/issues/644)) ([78e6983](https://github.com/Tencent/wujie/commit/78e698398e5b70b3c2727dd80b60a7d9ae826d4c))
+* 添加postmessage通信示例 ([da2c99f](https://github.com/Tencent/wujie/commit/da2c99f38afae8fbe0c1ab8e2eb3ff7cb2eaece2))
+
 ## [1.0.22](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.22) (2023-12-18)
 
 ### Bug Fixes

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+### Bug Fixes
+
+* 修复wujie-react重复渲染时保活模式输出undefined ([#840](https://github.com/Tencent/wujie/issues/840)) ([6c4659d](https://github.com/Tencent/wujie/commit/6c4659df08ddd901a89b5f8bfbf29b9b8f5eabee))
+
 ## [1.0.22](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.22) (2023-12-18)
 
 **Note:** Version bump only for package wujie-react

@@ -1,6 +1,6 @@
 {
   "name": "wujie-docs",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "",
   "main": "index.js",
   "private": true,
@@ -13,8 +13,8 @@
   "author": "yiludege,erkelost",
   "license": "ISC",
   "devDependencies": {
-    "vite": "3.0.9",
     "@documate/vue": "^0.2.3",
+    "vite": "3.0.9",
     "vitepress": "1.0.0-alpha.60"
   },
   "dependencies": {
