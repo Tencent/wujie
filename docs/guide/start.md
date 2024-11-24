@@ -127,7 +127,7 @@ declare global {
     // 子应用mount函数
     __WUJIE_MOUNT: () => void;
     // 子应用unmount函数
-    __WUJIE_UNMOUNT: () => void;
+    __WUJIE_UNMOUNT: () => void | Promise<void>;
     // 子应用无界实例
     __WUJIE: { mount: () => void };
   }
@@ -194,7 +194,7 @@ declare global {
     // 子应用mount函数
     __WUJIE_MOUNT: () => void;
     // 子应用unmount函数
-    __WUJIE_UNMOUNT: () => void;
+    __WUJIE_UNMOUNT: () => void | Promise<void>;
   }
 }
 
