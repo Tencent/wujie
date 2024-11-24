@@ -179,7 +179,7 @@ export const appWindowAddEventListenerEvents = [
 ];
 
 // 子应用window.onXXX需要挂载到iframe沙箱上的事件
-export const appWindowOnEvent = ["onload", "onbeforeunload", "onunload"];
+export const appWindowOnEvent = ["onload", "onbeforeunload", "onunload", "onerror", "onunhandledrejection"];
 
 // 相对路径问题元素的tag和attr的map
 export const relativeElementTagAttrMap = {
