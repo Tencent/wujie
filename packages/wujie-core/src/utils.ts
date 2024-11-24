@@ -143,13 +143,11 @@ export function anchorElementGenerator(url: string): HTMLAnchorElement {
 }
 
 export function getAnchorElementQueryMap(anchorElement: HTMLAnchorElement): { [key: string]: string } {
-  const queryList = anchorElement.search.replace("?", "").split("&");
-  const queryMap = {};
-  queryList.forEach((query) => {
-    const [key, value] = query.split(/=(.*)/s); // 对字符串第一个=进行数组分割，用于解决query中包含多个=号切割出多个值的情况
-    if (key && value) queryMap[key] = value;
-  });
-  return queryMap;
+  const queryString = anchorElement.search || "";
+  return [...new URLSearchParams(queryString).entries()].reduce((p, c) => {
+    p[c[0]] = c[1];
+    return p;
+  }, {} as Record<string, string>);
 }
 
 /**
