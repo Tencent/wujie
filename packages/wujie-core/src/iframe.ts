@@ -7,6 +7,7 @@ import {
   isConstructable,
   anchorElementGenerator,
   isMatchSyncQueryById,
+  isFunction,
   warn,
   error,
   execHooks,
@@ -577,6 +578,7 @@ function patchNodeEffect(iframeWindow: Window): void {
   const rawGetRootNode = iframeWindow.Node.prototype.getRootNode;
   const rawAppendChild = iframeWindow.Node.prototype.appendChild;
   const rawInsertRule = iframeWindow.Node.prototype.insertBefore;
+  const rawRemoveChild = iframeWindow.Node.prototype.removeChild;
   iframeWindow.Node.prototype.getRootNode = function (options?: GetRootNodeOptions): Node {
     const rootNode = rawGetRootNode.call(this, options);
     if (rootNode === iframeWindow.__WUJIE.shadowRoot) return iframeWindow.document;
@@ -589,6 +591,21 @@ function patchNodeEffect(iframeWindow: Window): void {
   };
   iframeWindow.Node.prototype.insertBefore = function <T extends Node>(node: T, child: Node | null): T {
     const res = rawInsertRule.call(this, node, child);
+    patchElementEffect(node, iframeWindow);
+    return res;
+  };
+  iframeWindow.Node.prototype.removeChild = function <T extends Node>(node: T): T {
+    let res;
+    try {
+      res = rawRemoveChild.call(this, node);
+    } catch (e) {
+      console.warn(
+        `Failed to removeChild: ${node.nodeName.toLowerCase()} is not a child of ${this.nodeName.toLowerCase()}, try again with parentNode attribute. `
+      );
+      if (node.isConnected && isFunction(node.parentNode?.removeChild)) {
+        node.parentNode.removeChild(node);
+      }
+    }
     patchElementEffect(node, iframeWindow);
     return res;
   };
