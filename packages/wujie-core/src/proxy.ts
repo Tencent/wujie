@@ -71,7 +71,7 @@ export function proxyGenerator(
     },
 
     set: (target: Window, p: PropertyKey, value: any) => {
-      checkProxyFunction(value);
+      checkProxyFunction(target, value);
       target[p] = value;
       return true;
     },
