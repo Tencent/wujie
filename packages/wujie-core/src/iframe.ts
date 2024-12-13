@@ -567,6 +567,24 @@ function patchDocumentEffect(iframeWindow: Window): void {
   // 运行插件钩子函数
   execHooks(iframeWindow.__WUJIE.plugins, "documentPropertyOverride", iframeWindow);
 }
+/**
+ * 代理子应用cloneNode方法
+ */
+function proxyNodeClone(node: Node, iframeWindow: Window): Node {
+  if (iframeWindow.document !== node?.ownerDocument) {
+    Object.defineProperty(node, "ownerDocument", {
+      get() {
+        return iframeWindow.document
+      }
+    })
+  }
+  if (node instanceof Element) {
+    for (const subNode of node.children as any) {
+      proxyNodeClone(subNode, iframeWindow);
+    }
+  }
+  return node;
+}
 
 /**
  * patch Node effect
@@ -579,6 +597,7 @@ function patchNodeEffect(iframeWindow: Window): void {
   const rawAppendChild = iframeWindow.Node.prototype.appendChild;
   const rawInsertRule = iframeWindow.Node.prototype.insertBefore;
   const rawRemoveChild = iframeWindow.Node.prototype.removeChild;
+  const rawCloneNode = iframeWindow.Node.prototype.cloneNode;
   iframeWindow.Node.prototype.getRootNode = function (options?: GetRootNodeOptions): Node {
     const rootNode = rawGetRootNode.call(this, options);
     if (rootNode === iframeWindow.__WUJIE.shadowRoot) return iframeWindow.document;
@@ -609,6 +628,10 @@ function patchNodeEffect(iframeWindow: Window): void {
     patchElementEffect(node, iframeWindow);
     return res;
   };
+  iframeWindow.Node.prototype.cloneNode = function (deep) {
+    const node = rawCloneNode.call(this, deep)
+    return proxyNodeClone(node, iframeWindow)
+  }
 }
 
 /**
