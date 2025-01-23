@@ -1,5 +1,6 @@
 import Wujie from "./sandbox";
 import { cacheOptions } from "./index";
+import { createWujieApp } from "./shadow";
 export interface SandboxCache {
   wujie?: Wujie;
   options?: cacheOptions;
@@ -7,10 +8,20 @@ export interface SandboxCache {
 
 export type appAddEventListenerOptions = AddEventListenerOptions & { targetWindow?: Window };
 
+let getIdToSandboxCacheMap: () => Map<String, SandboxCache> = () => {
+  let registeredWujie = window.customElements.get("wujie-app") as unknown as ReturnType<typeof createWujieApp>;
+  if (registeredWujie) {
+    return registeredWujie.idToSandboxCacheMap;
+  }
+  if (window.__POWERED_BY_WUJIE__) {
+    return window.__WUJIE.inject.idToSandboxMap;
+  } else {
+    return new Map<String, SandboxCache>();
+  }
+};
+
 // 全部无界实例和配置存储map
-export const idToSandboxCacheMap = window.__POWERED_BY_WUJIE__
-  ? window.__WUJIE.inject.idToSandboxMap
-  : new Map<String, SandboxCache>();
+export const idToSandboxCacheMap = getIdToSandboxCacheMap();
 
 export function getWujieById(id: String): Wujie | null {
   return idToSandboxCacheMap.get(id)?.wujie || null;

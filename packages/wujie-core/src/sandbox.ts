@@ -48,6 +48,7 @@ type lifecycles = {
  * 基于 Proxy和iframe 实现的沙箱
  */
 export default class Wujie {
+  static idToSandboxCacheMap = idToSandboxCacheMap;
   public id: string;
   /** 激活时路由地址 */
   public url: string;
