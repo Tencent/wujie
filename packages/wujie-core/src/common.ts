@@ -12,8 +12,7 @@ let getIdToSandboxCacheMap: () => Map<String, SandboxCache> = () => {
   let registeredWujie = window.customElements.get("wujie-app") as unknown as ReturnType<typeof createWujieApp>;
   if (registeredWujie) {
     return registeredWujie.idToSandboxCacheMap;
-  }
-  if (window.__POWERED_BY_WUJIE__) {
+  } else if (window.__POWERED_BY_WUJIE__) {
     return window.__WUJIE.inject.idToSandboxMap;
   } else {
     return new Map<String, SandboxCache>();
