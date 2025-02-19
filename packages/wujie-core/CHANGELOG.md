@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.25](https://github.com/Tencent/wujie/compare/v1.0.24...v1.0.25) (2025-02-19)
+
+### Bug Fixes
+
+* 修复在 sandbox.document.getElementById 无法查询到时, 使用 iframe 调用回到 proxy 导致死循环 ([#946](https://github.com/Tencent/wujie/issues/946)) ([0dfad42](https://github.com/Tencent/wujie/commit/0dfad427c5a039a59374b2c7fa6fa2fbadf35140))
+* 绑定沙箱的destroy函数的this指针([#958](https://github.com/Tencent/wujie/issues/958)) ([1b516de](https://github.com/Tencent/wujie/commit/1b516deb54ad55f66951945585ee41a3efb945de)), closes [#954](https://github.com/Tencent/wujie/issues/954)
+
 ## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
 
 ### Bug Fixes
