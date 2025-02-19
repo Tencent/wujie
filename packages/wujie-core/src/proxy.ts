@@ -317,7 +317,7 @@ export function localGenerator(
       get() {
         return function (...args) {
           const id = args[0];
-          return (sandbox.document.getElementById(id) as any) || iframe.contentDocument.getElementById(id);
+          return (sandbox.document.getElementById(id) as any);
         };
       },
     },
