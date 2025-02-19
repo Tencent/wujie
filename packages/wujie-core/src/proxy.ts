@@ -317,7 +317,10 @@ export function localGenerator(
       get() {
         return function (...args) {
           const id = args[0];
-          return (sandbox.document.getElementById(id) as any);
+          return (
+            (sandbox.document.getElementById(id) as any) ||
+            iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(`#${id}`)
+          );
         };
       },
     },
