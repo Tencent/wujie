@@ -125,9 +125,10 @@ type baseOptions = {
   loadError?: loadErrorHandler;
 };
 
-export type preOptions = baseOptions & {
+export type preOptions = Omit<baseOptions, 'url'> & {
   /** 预执行 */
   exec?: boolean;
+  url?: string;
 };
 
 export type startOptions = baseOptions & {
