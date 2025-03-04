@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createElement } from "react";
 import PropTypes from "prop-types";
 import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
 
@@ -47,7 +47,13 @@ export default class WujieReact extends React.PureComponent {
   render() {
     const { width, height } = this.props;
     const { myRef: ref } = this.state;
-    return <div style={{ width, height }} ref={ref} />;
+    return createElement("div", {
+      style: {
+        width,
+        height,
+      },
+      ref,
+    });
   }
 }
 
