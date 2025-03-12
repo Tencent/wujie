@@ -10,6 +10,7 @@ import {
 } from "./constant";
 import {
   getWujieById,
+  idToSandboxCacheMap,
   rawAppendChild,
   rawElementAppendChild,
   rawElementRemoveChild,
@@ -32,6 +33,23 @@ declare global {
     body: HTMLBodyElement;
   }
 }
+export let createWujieApp = () => {
+  return class WujieApp extends HTMLElement {
+    static idToSandboxCacheMap = idToSandboxCacheMap;
+    connectedCallback(): void {
+      if (this.shadowRoot) return;
+      const shadowRoot = this.attachShadow({ mode: "open" });
+      const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
+      patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
+      sandbox.shadowRoot = shadowRoot;
+    }
+
+    disconnectedCallback(): void {
+      const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
+      sandbox?.unmount();
+    }
+  };
+};
 
 /**
  * 定义 wujie webComponent，将shadow包裹并获得dom装载和卸载的生命周期
@@ -39,21 +57,7 @@ declare global {
 export function defineWujieWebComponent() {
   const customElements = window.customElements;
   if (customElements && !customElements?.get("wujie-app")) {
-    class WujieApp extends HTMLElement {
-      connectedCallback(): void {
-        if (this.shadowRoot) return;
-        const shadowRoot = this.attachShadow({ mode: "open" });
-        const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
-        patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
-        sandbox.shadowRoot = shadowRoot;
-      }
-
-      disconnectedCallback(): void {
-        const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
-        sandbox?.unmount();
-      }
-    }
-    customElements?.define("wujie-app", WujieApp);
+    customElements?.define("wujie-app", createWujieApp());
   }
 }
 
