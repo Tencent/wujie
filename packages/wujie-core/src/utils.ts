@@ -232,7 +232,7 @@ export function getSyncUrl(id: string, prefix: { [key: string]: string }): strin
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
   winUrlElement = null;
-  const syncUrl = window.decodeURIComponent(queryMap[id] || "");
+  const syncUrl = queryMap[id] || "";
   const validShortPath = syncUrl.match(/^{([^}]*)}/)?.[1];
   if (prefix && validShortPath) {
     return syncUrl.replace(`{${validShortPath}}`, prefix[validShortPath]);
