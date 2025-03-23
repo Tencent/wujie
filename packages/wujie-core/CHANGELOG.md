@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.26](https://github.com/Tencent/wujie/compare/v1.0.25...v1.0.26) (2025-03-23)
+
+### Bug Fixes
+
+* 修复应用子应用嵌套路由查询参数丢失 ([73ba0c6](https://github.com/Tencent/wujie/commit/73ba0c61ae749fdd24061475a328147e83cd0788))
+* 修复重复引用wujie导致上下文丢失的问题([#955](https://github.com/Tencent/wujie/issues/955)) ([86bd166](https://github.com/Tencent/wujie/commit/86bd166ea4529785ff9a26af2344e66f17f412ea))
+
+### Features
+
+* script 脚本支持importmap([#970](https://github.com/Tencent/wujie/issues/970)) ([3880c06](https://github.com/Tencent/wujie/commit/3880c06e302c17d1a508d71fab17359fb440ab14))
+
 ## [1.0.25](https://github.com/Tencent/wujie/compare/v1.0.24...v1.0.25) (2025-02-19)
 
 ### Bug Fixes
