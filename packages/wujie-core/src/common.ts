@@ -8,9 +8,17 @@ export interface SandboxCache {
 export type appAddEventListenerOptions = AddEventListenerOptions & { targetWindow?: Window };
 
 // 全部无界实例和配置存储map
-export const idToSandboxCacheMap = window.__POWERED_BY_WUJIE__
-  ? window.__WUJIE.inject.idToSandboxMap
-  : new Map<String, SandboxCache>();
+// 除了挂载到WuJie实例上，还挂载到全局__WUJIE_INJECT变量上，防止重复创建
+export const idToSandboxCacheMap = (() => {
+  if (window.__WUJIE_INJECT?.idToSandboxMap) return window.__WUJIE_INJECT.idToSandboxMap;
+  else {
+    const cacheMap = window.__POWERED_BY_WUJIE__
+      ? window.__WUJIE.inject.idToSandboxMap
+      : new Map<String, SandboxCache>();
+    window.__WUJIE_INJECT = { ...window.__WUJIE_INJECT, idToSandboxMap: cacheMap };
+    return cacheMap;
+  }
+})();
 
 export function getWujieById(id: String): Wujie | null {
   return idToSandboxCacheMap.get(id)?.wujie || null;

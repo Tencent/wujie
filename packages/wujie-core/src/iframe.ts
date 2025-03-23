@@ -62,6 +62,8 @@ declare global {
     __WUJIE_RAW_WINDOW__: Window;
     // 子应用沙盒实例
     __WUJIE: WuJie;
+    // 子应用共享上下文
+    __WUJIE_INJECT: WuJie["inject"];
     // 记录注册在主应用中的事件
     __WUJIE_EVENTLISTENER__: Set<{ listener: EventListenerOrEventListenerObject; type: string; options: any }>;
     // 子应用mount函数
