@@ -788,7 +788,7 @@ export function insertScriptToIframe(
   // 内联脚本
   if (content) {
     // patch location
-    if (!iframeWindow.__WUJIE.degrade && !module) {
+    if (!iframeWindow.__WUJIE.degrade && !module && attrs?.type !== "importmap") {
       code = `(function(window, self, global, location) {
       ${code}
 }).bind(window.__WUJIE.proxy)(

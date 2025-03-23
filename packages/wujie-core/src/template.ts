@@ -83,6 +83,7 @@ function isValidJavaScriptType(type) {
     "application/javascript",
     "text/ecmascript",
     "application/ecmascript",
+    "importmap",
   ];
   return !type || handleTypes.indexOf(type) !== -1;
 }
