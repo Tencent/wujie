@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.27](https://github.com/Tencent/wujie/compare/v1.0.26...v1.0.27) (2025-04-08)
+
+### Bug Fixes
+
+* 修复子应用快速切换可能导致渲染undefined ([#976](https://github.com/Tencent/wujie/issues/976)) ([59bdf1c](https://github.com/Tencent/wujie/commit/59bdf1c39d7124eb175a9eb674395bc877bc7732))
+* 修复unmount异步后导致的问题([#823](https://github.com/Tencent/wujie/issues/823)) ([cab2a21](https://github.com/Tencent/wujie/commit/cab2a21592311470c73f1d223bafaf214ff81b73))
+* iframe循环等待添加deadline([#975](https://github.com/Tencent/wujie/issues/975)) ([2c713de](https://github.com/Tencent/wujie/commit/2c713de133b292a238c0960718c9f69e812ddde1))
+
 ## [1.0.26](https://github.com/Tencent/wujie/compare/v1.0.25...v1.0.26) (2025-03-23)
 
 ### Bug Fixes
