@@ -6,6 +6,7 @@ import {
   rawElementRemoveChild,
   rawHeadInsertBefore,
   rawBodyInsertBefore,
+  rawInsertAdjacentElement,
   rawDocumentQuerySelector,
   rawAddEventListener,
   rawRemoveEventListener,
@@ -148,6 +149,16 @@ function patchStylesheetElement(
           patchSheetInsertRule();
           return res;
         } else return rawAppendChild(node);
+      },
+    },
+    insertAdjacentElement: {
+      value: function (this: HTMLStyleElement, position: InsertPosition, element: Element) {
+        if (element.nodeName === "STYLE") {
+          nextTick(() => handleStylesheetElementPatch(element as HTMLStyleElement, sandbox));
+          const res = rawInsertAdjacentElement.call(this, position, element);
+          sandbox.styleSheetElements.push(element as HTMLStyleElement);
+          return res;
+        } else return rawInsertAdjacentElement.call(this, position, element);
       },
     },
     _hasPatchStyle: { get: () => true },

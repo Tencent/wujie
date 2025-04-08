@@ -216,6 +216,7 @@ export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
 export const rawElementContains = HTMLElement.prototype.contains;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
 export const rawBodyInsertBefore = HTMLBodyElement.prototype.insertBefore;
+export const rawInsertAdjacentElement = HTMLStyleElement.prototype.insertAdjacentElement;
 export const rawAddEventListener = Node.prototype.addEventListener;
 export const rawRemoveEventListener = Node.prototype.removeEventListener;
 export const rawWindowAddEventListener = window.addEventListener;
