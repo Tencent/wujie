@@ -676,6 +676,7 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
 function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPath: string } | false) {
   const iframeWindow = iframe.contentWindow;
   const oldDoc = iframeWindow.document;
+  const loopDeadline = Date.now() + 5e3;
   return new Promise<void>((resolve) => {
     function loop() {
       setTimeout(() => {
@@ -686,7 +687,7 @@ function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPa
           newDoc = null;
         }
         // wait for document ready
-        if (!newDoc || newDoc == oldDoc) {
+        if ((!newDoc || newDoc == oldDoc) && Date.now() < loopDeadline) {
           loop();
           return;
         }
