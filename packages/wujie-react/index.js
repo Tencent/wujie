@@ -32,9 +32,23 @@ export default class WujieReact extends React.PureComponent {
 
   execStartApp = () => {
     this.startAppQueue = this.startAppQueue.then(this.startApp);
+    window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
   };
 
   componentDidMount() {
+    if (this.props.name) {
+      if (window.__WUJIE_QUEUE) {
+        if (window.__WUJIE_QUEUE[this.props.name]) {
+          this.startAppQueue = window.__WUJIE_QUEUE[this.props.name];
+        } else {
+          window.__WUJIE_QUEUE[this.props.name] = this.startAppQueue;
+        }
+      } else {
+        window.__WUJIE_QUEUE = {
+          [this.props.name]: this.startAppQueue,
+        };
+      }
+    }
     this.execStartApp();
   }
 

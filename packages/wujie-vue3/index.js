@@ -34,6 +34,19 @@ const wujieVueOptions = {
     };
   },
   mounted() {
+    if (this.name) {
+      if (window.__WUJIE_QUEUE) {
+        if (window.__WUJIE_QUEUE[this.name]) {
+          this.startAppQueue = window.__WUJIE_QUEUE[this.name];
+        } else {
+          window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
+        }
+      } else {
+        window.__WUJIE_QUEUE = {
+          [this.name]: this.startAppQueue,
+        };
+      }
+    }
     bus.$onAll(this.handleEmit);
     this.execStartApp();
     this.$watch(
@@ -77,6 +90,7 @@ const wujieVueOptions = {
     },
     execStartApp() {
       this.startAppQueue = this.startAppQueue.then(this.startApp);
+      window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
     },
     destroy() {
       destroyApp(this.name);
