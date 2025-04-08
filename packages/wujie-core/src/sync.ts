@@ -83,7 +83,7 @@ export function clearInactiveAppUrl(): void {
   const newQuery =
     "?" +
     Object.keys(queryMap)
-      .map((key) => key + "=" + queryMap[key])
+      .map((key) => key + "=" + window.decodeURIComponent(queryMap[key]))
       .join("&");
   winUrlElement.search = newQuery;
   if (winUrlElement.href !== window.location.href) {
