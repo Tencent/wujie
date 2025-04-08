@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.28](https://github.com/Tencent/wujie/compare/v1.0.27...v1.0.28) (2025-04-08)
+
+### Features
+
+* react，vue组件支持设置包围的div组件style ([#971](https://github.com/Tencent/wujie/issues/971)) ([c26dd41](https://github.com/Tencent/wujie/commit/c26dd414e87145459914ed85c1919addd7688d75))
+
 ## [1.0.27](https://github.com/Tencent/wujie/compare/v1.0.26...v1.0.27) (2025-04-08)
 
 ### Bug Fixes

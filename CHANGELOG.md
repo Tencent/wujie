@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.28](https://github.com/Tencent/wujie/compare/v1.0.27...v1.0.28) (2025-04-08)
+
+### Bug Fixes
+
+* 修复style元素的insertAdjacentElement新style没有做patch的问题([#434](https://github.com/Tencent/wujie/issues/434)) ([aea54b9](https://github.com/Tencent/wujie/commit/aea54b973fbcc0478fd24d28fbebfd5f9b6b923e))
+* 修复url解码导致的问题([#975](https://github.com/Tencent/wujie/issues/975)) ([89e4eb3](https://github.com/Tencent/wujie/commit/89e4eb3e1304301ab2b241dec5525150a8b4f274))
+
+### Features
+
+* react，vue组件支持设置包围的div组件style ([#971](https://github.com/Tencent/wujie/issues/971)) ([c26dd41](https://github.com/Tencent/wujie/commit/c26dd414e87145459914ed85c1919addd7688d75))
+
 ## [1.0.27](https://github.com/Tencent/wujie/compare/v1.0.26...v1.0.27) (2025-04-08)
 
 ### Bug Fixes
