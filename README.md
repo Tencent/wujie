@@ -148,9 +148,11 @@ import WujieReact from "wujie-react";
 运行以下脚本，可以本地开发无界微前端框架，支持实时编译调试开发。
 
 ```bash
+nvm use v14.20.0         // 切换node版本到14版本，因为有些demo的node版本比较低
 pnpm i                  // 安装包依赖，务必使用pnpm
 npm run start           // 启动所有应用
 ```
+
 ## One more thing
 
 无界微前端解决方案来源于团队的无极低代码平台，通过无界微前端，存量页面和低代码页面可以丝滑的互相内嵌，欢迎体验[【腾讯无极低代码】](https://wujicode.cn)。
