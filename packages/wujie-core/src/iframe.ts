@@ -676,6 +676,7 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
 function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPath: string } | false) {
   const iframeWindow = iframe.contentWindow;
   const oldDoc = iframeWindow.document;
+  const lastModified = oldDoc.lastModified
   const loopDeadline = Date.now() + 5e3;
   return new Promise<void>((resolve) => {
     function loop() {
@@ -687,7 +688,8 @@ function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPa
           newDoc = null;
         }
         // wait for document ready
-        if ((!newDoc || newDoc == oldDoc) && Date.now() < loopDeadline) {
+        // 通过lastModified判断iframe是否已加载。在部分终端上iframeWindow.document可能是引用类型，比如微信小程序中的webview，newDoc===oldDoc一直是true
+        if ((!newDoc || newDoc.lastModified === lastModified) && Date.now() < loopDeadline) {
           loop();
           return;
         }
