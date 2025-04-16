@@ -2,7 +2,7 @@
  * Colors
  * -------------------------------------------------------------------------- */
 
-:root {
+ :root {
   --vp-c-brand: #f16b5f;
   --vp-c-brand-light: #ec857c;
   --vp-c-brand-lighter: #e99f98;
@@ -11,7 +11,7 @@
   --vp-c-brand-darker: #ce5d52;
   --vp-c-brand-dimm: #c9433710;
   --vp-z-index-nav: 999 !important;
-  --vp-z-index-footer: -10;
+  --vp-z-index-footer: 0;
 }
 
 /**

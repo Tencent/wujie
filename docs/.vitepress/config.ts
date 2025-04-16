@@ -37,7 +37,13 @@ export default defineConfig({
     },
 
     footer: {
-      message: "Released the MIT License.",
+      message: `<div style="display: inline-flex;align-items: center;">
+          <span style="display:inline-block;margin-right: 10px;">源自</span>
+          <a href="https://wujicode.cn?ref=wujie" target="_blank">
+            <img src="https://wfiles.gtimg.cn/wuji_material/kate_test_0312/07phb8sy5iyl.png" style="max-height: 20px;"/>
+          </a>
+        </div>
+        <div style="margin-top: 10px;">Released the MIT License.<div>`,
     },
 
     nav: [

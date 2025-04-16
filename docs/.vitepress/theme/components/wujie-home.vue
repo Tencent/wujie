@@ -1,6 +1,8 @@
 <script setup>
 import Theme from "vitepress/theme";
 import { useData } from "vitepress";
+import Documate from "@documate/vue";
+import "@documate/vue/dist/style.css";
 import WujieContent from "./wujie-content.vue";
 const { frontmatter } = useData();
 const { Layout } = Theme;
@@ -8,30 +10,25 @@ const { Layout } = Theme;
 
 <template>
   <Layout>
-    <template #home-hero-before></template>
+    <template #nav-bar-content-before>
+      <Documate endpoint="https://6gxr8z72bh.us.aircode.run/ask" />
+    </template>
     <template #aside-ads-before>
-      <div class="ad-card">
+      <a class="ad-card" href="https://wujicode.cn" target="_blank">
         <div>
-          <a href="https://wujicode.cn" target="_blank">
             <img
-              src="https://files.wujicode.cn/wupload/xy/demo/YT4YfmUV.png"
+              src="https://wfiles.gtimg.cn/wuji_material/starter/xza5fd60ot.png"
               border="0"
-              height="100"
-              width="130"
-              style="max-width: 130px;margin-bottom: 12px;border-radius:5px"
+              width="60px"
+              style="margin-bottom: 12px;border-radius:5px"
             />
-          </a>
         </div>
         <div class="ad-text">
           <span>腾讯无极低代码平台</span>
         </div>
-      </div>
+      </a>
+      
     </template>
-    <template #home-hero-after></template>
-    <template #home-features-before>
-      <WujieContent :introduction="frontmatter.hero.Introduction" />
-    </template>
-    <template #home-features-after></template>
   </Layout>
 </template>
 
@@ -53,7 +50,7 @@ const { Layout } = Theme;
   min-height: 220px;
   text-align: center;
   line-height: 18px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   background-color: var(--vp-c-bg-soft);
   transition: color 0.5s, background-color 0.5s;
