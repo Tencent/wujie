@@ -103,6 +103,7 @@ const { Layout } = Theme;
   display: inline-block;
   width: 170px;
   height: 20px;
+  opacity: 0.7;
   background: url("https://wfiles.gtimg.cn/wuji_material/starter/l13y3vdcyg.png") no-repeat center / cover;
 }
 .dark{
