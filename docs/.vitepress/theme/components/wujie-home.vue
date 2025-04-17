@@ -10,18 +10,18 @@ const { Layout } = Theme;
 
 <template>
   <Layout>
-    <template #nav-bar-content-before>
+    <!-- <template #nav-bar-content-before>
       <Documate endpoint="https://6gxr8z72bh.us.aircode.run/ask" />
-    </template>
+    </template> -->
     <template #aside-ads-before>
       <a class="ad-card" href="https://wujicode.cn" title="腾讯无极低代码" target="_blank">
         <div>
-            <img
-              src="https://wfiles.gtimg.cn/wuji_material/starter/xza5fd60ot.png"
-              border="0"
-              width="60px"
-              style="margin-bottom: 12px;border-radius:5px"
-            />
+          <img
+            src="https://wfiles.gtimg.cn/wuji_material/starter/xza5fd60ot.png"
+            border="0"
+            width="60px"
+            style="margin-bottom: 12px; border-radius: 5px"
+          />
         </div>
         <div class="ad-text">
           <span>腾讯无极低代码</span>
@@ -29,16 +29,15 @@ const { Layout } = Theme;
       </a>
     </template>
     <template #layout-bottom>
-      <footer
-        v-if="frontmatter.layout === 'home'" class="footer">
-          <div class="footer-container">
-            <div class="wuji-link-container">
-              <span>源自</span>
-              <a title="腾讯无极低代码" href="https://wujicode.cn?ref=wujie" target="_blank" class="wuji-link" />
-            </div>
-            <div>Released the MIT License.</div>
+      <footer v-if="frontmatter.layout === 'home'" class="footer">
+        <div class="footer-container">
+          <div class="wuji-link-container">
+            <span>源自</span>
+            <a title="腾讯无极低代码" href="https://wujicode.cn?ref=wujie" target="_blank" class="wuji-link" />
           </div>
-        </footer>
+          <div>Released the MIT License.</div>
+        </div>
+      </footer>
     </template>
   </Layout>
 </template>
@@ -73,7 +72,7 @@ const { Layout } = Theme;
   color: var(--vp-c-text-1);
   transition: color 0.25s;
 }
-.footer{
+.footer {
   padding: 32px;
   position: relative;
   z-index: var(--vp-z-index-footer);
@@ -93,9 +92,9 @@ const { Layout } = Theme;
   display: inline-flex;
   align-items: center;
   margin-bottom: 10px;
-  
+
   span {
-    display:inline-block;
+    display: inline-block;
     margin-right: 10px;
   }
 }
@@ -106,7 +105,7 @@ const { Layout } = Theme;
   opacity: 0.7;
   background: url("https://wfiles.gtimg.cn/wuji_material/starter/l13y3vdcyg.png") no-repeat center / cover;
 }
-.dark{
+.dark {
   .wuji-link {
     background-image: url("https://wfiles.gtimg.cn/wuji_material/starter/q9nr6045wn.png");
   }
