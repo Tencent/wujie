@@ -312,7 +312,7 @@ function recordEventListeners(iframeWindow: Window) {
     const elementListenerList = sandbox.elementEventCacheMap.get(this);
     if (elementListenerList) {
       const index = elementListenerList?.findIndex((ele) => ele.type === type && ele.handler === handler);
-      elementListenerList.splice(index, 1);
+      index !== -1 && elementListenerList.splice(index, 1);
     }
     if (!elementListenerList?.length) {
       sandbox.elementEventCacheMap.delete(this);
