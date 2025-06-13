@@ -6,7 +6,7 @@
 
 ### 子应用 A 要打开子应用 B
 
-以 vue 主应用为例，子应用 A 的 name 为 A， 主应用 A 页面的路径为`/pathA`，子应用 B 的 name 为 B，主应用 B 页面的路径为`/pathB`
+以 vue 主应用为例，子应用 A 的 name 为 A， 子应用 A 页面的路径为`/pathA`，子应用 B 的 name 为 B，子应用 B 页面的路径为`/pathB`
 
 主应用 A 页面：
 
