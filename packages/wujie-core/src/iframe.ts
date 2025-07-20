@@ -126,7 +126,10 @@ function patchIframeEvents(iframeWindow: Window) {
     execHooks(iframeWindow.__WUJIE.plugins, "windowAddEventListenerHook", iframeWindow, type, listener, options);
     // 相同参数多次调用 addEventListener 不会导致重复注册，所以用set。
     iframeWindow.__WUJIE_EVENTLISTENER__.add({ type, listener, options });
-    if (appWindowAddEventListenerEvents.includes(type) || (typeof options === "object" && options.targetWindow)) {
+    if (
+      appWindowAddEventListenerEvents.concat(iframeWindow.__WUJIE.iframeAddEventListeners).includes(type) ||
+      (typeof options === "object" && options.targetWindow)
+    ) {
       const targetWindow = typeof options === "object" && options.targetWindow ? options?.targetWindow : iframeWindow;
       return rawWindowAddEventListener.call(targetWindow, type, listener, options);
     }
@@ -147,7 +150,10 @@ function patchIframeEvents(iframeWindow: Window) {
         iframeWindow.__WUJIE_EVENTLISTENER__.delete(o);
       }
     });
-    if (appWindowAddEventListenerEvents.includes(type) || (typeof options === "object" && options.targetWindow)) {
+    if (
+      appWindowAddEventListenerEvents.concat(iframeWindow.__WUJIE.iframeAddEventListeners).includes(type) ||
+      (typeof options === "object" && options.targetWindow)
+    ) {
       const targetWindow = typeof options === "object" && options.targetWindow ? options?.targetWindow : iframeWindow;
       return rawWindowRemoveEventListener.call(targetWindow, type, listener, options);
     }
@@ -255,7 +261,7 @@ function patchWindowEffect(iframeWindow: Window): void {
   // onEvent set
   const windowOnEvents = Object.getOwnPropertyNames(window)
     .filter((p) => /^on/.test(p))
-    .filter((e) => !appWindowOnEvent.includes(e));
+    .filter((e) => !appWindowOnEvent.concat(iframeWindow.__WUJIE.iframeOnEvents).includes(e));
 
   // 走主应用window
   windowOnEvents.forEach((e) => {

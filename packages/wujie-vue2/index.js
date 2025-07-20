@@ -28,6 +28,8 @@ const wujieVueOptions = {
     deactivated: { type: Function, default: null },
     loadError: { type: Function, default: null },
     style: { type: Object, default: undefined },
+    iframeAddEventListeners: { type: Array, default: null },
+    iframeOnEvents: { type: Array, default: null },
   },
   data() {
     return {
@@ -85,6 +87,8 @@ const wujieVueOptions = {
           activated: this.activated,
           deactivated: this.deactivated,
           loadError: this.loadError,
+          iframeAddEventListeners: this.iframeAddEventListeners,
+          iframeOnEvents: this.iframeOnEvents,
         });
       } catch (error) {
         console.log(error);

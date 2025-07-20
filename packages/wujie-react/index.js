@@ -90,4 +90,6 @@ const propTypes = {
   deactivated: PropTypes.func,
   loadError: PropTypes.func,
   style: PropTypes.object,
+  iframeAddEventListeners: PropTypes.arrayOf(PropTypes.string),
+  iframeOnEvents: PropTypes.arrayOf(PropTypes.string),
 };

@@ -343,6 +343,8 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,
     degrade: options.degrade !== undefined ? options.degrade : cacheOptions?.degrade,
     plugins: options.plugins || cacheOptions?.plugins,
+    iframeAddEventListeners: options.iframeAddEventListeners || cacheOptions?.iframeAddEventListeners || [],
+    iframeOnEvents: options.iframeOnEvents || cacheOptions?.iframeOnEvents || [],
     lifecycles: {
       beforeLoad: options.beforeLoad || cacheOptions?.beforeLoad,
       beforeMount: options.beforeMount || cacheOptions?.beforeMount,
