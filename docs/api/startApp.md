@@ -41,6 +41,10 @@ type startOption  {
   replace?: (codeText: string) => string;
   /** 自定义fetch，资源和接口 */
   fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+  /** 子应用window监听事件 */
+  iframeAddEventListeners?: Array<string>;
+  /** 子应用iframe on事件 */
+  iframeOnEvents?: Array<string>;
   /** 子应插件 */
   plugins: Array<plugin>;
   /** 子应用生命周期 */
@@ -90,7 +94,7 @@ type startOption  {
 
 - **类型：** `String`
 
-- **详情：** 子应用的html，设置后子应用将直接读取该值，没有设置则子应用通过`url`请求获取
+- **详情：** 子应用的 html，设置后子应用将直接读取该值，没有设置则子应用通过`url`请求获取
 
 ## el
 
@@ -204,6 +208,18 @@ type startOption  {
   ::: tip 技巧
   对于需要携带 cookie 的请求，可以采用自定义 `fetch` 方式实现：`(url, options) => window.fetch(url, { ...options, credentials: "include" })`
   :::
+
+## iframeAddEventListeners
+
+- **类型：** `Array<string>`
+
+- **详情：** 需要子应用 window 监听的事件
+
+## iframeOnEvents
+
+- **类型：** `Array<string>`
+
+- **详情：** 需要子应用 window 监听的 on 的事件
 
 ## plugins
 

@@ -2,7 +2,8 @@
 sidebarDepth: 2
 collapsable: false
 ---
-# Vue组件封装
+
+# Vue 组件封装
 
 无界基于`vue2`和`vue3`框架的组件封装，，查看 [demo](https://wujie-micro.github.io/demo-main-vue/)，查看 [demo github](https://github.com/Tencent/wujie/tree/master/examples/main-vue/)
 
@@ -18,7 +19,7 @@ npm i wujie-vue3 -S
 
 ## 引入
 
-``` javascript
+```javascript
 // vue2
 import WujieVue from "wujie-vue2";
 // vue3
@@ -98,7 +99,9 @@ const wujieVueOptions = {
     afterUnmount: { type: Function, default: null },
     activated: { type: Function, default: null },
     deactivated: { type: Function, default: null },
-    loadError: {type: Function, default: null}
+    loadError: { type: Function, default: null },
+    iframeAddEventListeners: { type: Array, default: null },
+    iframeOnEvents: { type: Array, default: null },
   },
   data() {
     return {
@@ -142,7 +145,9 @@ const wujieVueOptions = {
             afterUnmount: this.afterUnmount,
             activated: this.activated,
             deactivated: this.deactivated,
-            loadError: this.loadError
+            loadError: this.loadError,
+            iframeAddEventListeners: this.iframeAddEventListeners,
+            iframeOnEvents: this.iframeOnEvents,
           });
         } catch (error) {
           console.log(error);
@@ -176,5 +181,4 @@ WujieVue.install = function (Vue) {
 };
 
 export default WujieVue;
-
 ```

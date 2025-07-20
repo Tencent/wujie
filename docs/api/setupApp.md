@@ -35,6 +35,10 @@ type baseOptions = {
   degrade?: boolean;
   /** 子应用插件 */
   plugins?: Array<plugin>;
+  /** 子应用window监听事件 */
+  iframeAddEventListeners?: Array<string>;
+  /** 子应用iframe on事件 */
+  iframeOnEvents?: Array<string>;
   /** 子应用生命周期 */
   beforeLoad?: lifecycle;
   beforeMount?: lifecycle;
@@ -71,10 +75,7 @@ type optionProperty = "url" | "el";
 /**
  * 合并 preOptions 和 startOptions，并且将 url 和 el 变成可选
  */
-type cacheOptions = Omit<preOptions & startOptions, optionProperty> &
-  Partial<Pick<startOptions, optionProperty>>;
-
+type cacheOptions = Omit<preOptions & startOptions, optionProperty> & Partial<Pick<startOptions, optionProperty>>;
 ```
 
 - **详情：** `setupApp`设置子应用默认属性，非必须。[startApp](/api/startApp.html)、[preloadApp](/api/preloadApp.html) 会从这里获取子应用默认属性，如果有相同的属性则会直接覆盖
-

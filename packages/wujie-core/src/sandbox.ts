@@ -114,9 +114,9 @@ export default class Wujie {
     Node,
     Array<{ type: string; handler: EventListenerOrEventListenerObject; options: any }>
   > = new WeakMap();
-  /** 子应用window自定义监听事件 */
+  /** 子应用window监听事件 */
   public iframeAddEventListeners?: Array<string>;
-  /** 子应用iframe自定义on事件 */
+  /** 子应用iframe on事件 */
   public iframeOnEvents?: Array<string>;
 
   /** $wujie对象，提供给子应用的接口 */

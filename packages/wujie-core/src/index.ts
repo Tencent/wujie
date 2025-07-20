@@ -114,9 +114,9 @@ type baseOptions = {
   degrade?: boolean;
   /** 子应用插件 */
   plugins?: Array<plugin>;
-  /** 子应用window自定义监听事件 */
+  /** 子应用window监听事件 */
   iframeAddEventListeners?: Array<string>;
-  /** 子应用iframe自定义on事件 */
+  /** 子应用iframe on事件 */
   iframeOnEvents?: Array<string>;
   /** 子应用生命周期 */
   beforeLoad?: lifecycle;
