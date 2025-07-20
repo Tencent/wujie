@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.29](https://github.com/Tencent/wujie/compare/v1.0.28...v1.0.29) (2025-07-20)
+
+### Features
+
+* 子应用提供自定义事件配置 ([4f4f974](https://github.com/Tencent/wujie/commit/4f4f97437336aa12076cddd27191fe3de45a8824))
+
 ## [1.0.28](https://github.com/Tencent/wujie/compare/v1.0.27...v1.0.28) (2025-04-08)
 
 ### Bug Fixes
