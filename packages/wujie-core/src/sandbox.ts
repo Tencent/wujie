@@ -134,6 +134,12 @@ export default class Wujie {
     mainHostPath: string;
   };
 
+  /** 是否开启超时取消请求 */
+  public cancelRequest: boolean;
+
+  /** 超时时间 */
+  public timeout: number;
+
   /** 激活子应用
    * 1、同步路由
    * 2、动态修改iframe的fetch
@@ -423,6 +429,8 @@ export default class Wujie {
     this.prefix = null;
     this.iframeAddEventListeners = null;
     this.iframeOnEvents = null;
+    this.cancelRequest = null;
+    this.timeout = null;
     // 清除 dom
     if (this.el) {
       clearChild(this.el);
@@ -491,6 +499,8 @@ export default class Wujie {
     lifecycles: lifecycles;
     iframeAddEventListeners?: Array<string>;
     iframeOnEvents?: Array<string>;
+    cancelRequest?: boolean;
+    timeout?: number;
   }) {
     // 传递inject给嵌套子应用
     if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject;
@@ -515,7 +525,8 @@ export default class Wujie {
     this.plugins = getPlugins(plugins);
     this.iframeAddEventListeners = options.iframeAddEventListeners;
     this.iframeOnEvents = options.iframeOnEvents;
-
+    this.cancelRequest = options.cancelRequest;
+    this.timeout = options.timeout;
     // 创建目标地址的解析
     const { urlElement, appHostPath, appRoutePath } = appRouteParse(url);
     const { mainHostPath } = this.inject;

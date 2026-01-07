@@ -376,3 +376,16 @@ export function stopMainAppRun() {
   warn(WUJIE_TIPS_STOP_APP_DETAIL);
   throw new Error(WUJIE_TIPS_STOP_APP);
 }
+
+export function fetchWithTimeOut(
+  url: string,
+  fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>,
+  timeout: number = 8000
+) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  return fetch(url, {
+    signal: controller.signal,
+  }).finally(() => clearTimeout(id));
+}
