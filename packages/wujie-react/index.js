@@ -92,4 +92,6 @@ const propTypes = {
   style: PropTypes.object,
   iframeAddEventListeners: PropTypes.arrayOf(PropTypes.string),
   iframeOnEvents: PropTypes.arrayOf(PropTypes.string),
+  cancelRequest: PropTypes.bool,
+  timeout: PropTypes.number,
 };

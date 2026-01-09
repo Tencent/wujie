@@ -179,7 +179,18 @@ function rewriteAppendOrInsertChild(opts: {
     const { rawDOMAppendOrInsertBefore, wujieId } = opts;
     const sandbox = getWujieById(wujieId);
 
-    const { styleSheetElements, replace, fetch, plugins, iframe, lifecycles, proxyLocation, fiber } = sandbox;
+    const {
+      styleSheetElements,
+      replace,
+      fetch,
+      plugins,
+      iframe,
+      lifecycles,
+      proxyLocation,
+      fiber,
+      cancelRequest,
+      timeout,
+    } = sandbox;
 
     if (!isHijackingTag(element.tagName) || !wujieId) {
       const res = rawDOMAppendOrInsertBefore.call(this, element, refChild) as T;
@@ -288,29 +299,32 @@ function rewriteAppendOrInsertChild(opts: {
               ignore: isMatchUrl(src, getEffectLoaders("jsIgnores", plugins)),
               attrs: parseTagAttributes(element.outerHTML),
             } as ScriptObject;
-            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber).forEach((scriptResult) => {
-              dynamicScriptExecStack = dynamicScriptExecStack.then(() =>
-                scriptResult.contentPromise.then(
-                  (content) => {
-                    if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
-                    const execQueueLength = sandbox.execQueue?.length;
-                    sandbox.execQueue.push(() =>
-                      fiber
-                        ? sandbox.requestIdleCallback(() => {
-                            execScript({ ...scriptResult, content });
-                          })
-                        : execScript({ ...scriptResult, content })
-                    );
-                    // 同步脚本如果都执行完了，需要手动触发执行
-                    if (!execQueueLength) sandbox.execQueue.shift()();
-                  },
-                  () => {
-                    manualInvokeElementEvent(element, "error");
-                    element = null;
-                  }
-                )
-              );
-            });
+            getExternalScripts([scriptOptions], fetch, lifecycles.loadError, fiber, cancelRequest, timeout).forEach(
+              (scriptResult) => {
+                dynamicScriptExecStack = dynamicScriptExecStack.then(() =>
+                  // fetch请求超时会影响后续其它任务通过then链式调用的方式推入execQueue当中
+                  scriptResult.contentPromise.then(
+                    (content) => {
+                      if (sandbox.execQueue === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
+                      const execQueueLength = sandbox.execQueue?.length;
+                      sandbox.execQueue.push(() =>
+                        fiber
+                          ? sandbox.requestIdleCallback(() => {
+                              execScript({ ...scriptResult, content });
+                            })
+                          : execScript({ ...scriptResult, content })
+                      );
+                      // 同步脚本如果都执行完了，需要手动触发执行
+                      if (!execQueueLength) sandbox.execQueue.shift()();
+                    },
+                    () => {
+                      manualInvokeElementEvent(element, "error");
+                      element = null;
+                    }
+                  )
+                );
+              }
+            );
           } else {
             const execQueueLength = sandbox.execQueue?.length;
             sandbox.execQueue.push(() =>

@@ -134,7 +134,7 @@ export default class Wujie {
     mainHostPath: string;
   };
 
-  /** 是否开启超时取消请求 */
+  /** 是否取消超时请求 */
   public cancelRequest: boolean;
 
   /** 超时时间 */

@@ -355,6 +355,8 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
       deactivated: options.deactivated || cacheOptions?.deactivated,
       loadError: options.loadError || cacheOptions?.loadError,
     },
+    cancelRequest: options.cancelRequest || cacheOptions?.cancelRequest,
+    timeout: options.timeout || cacheOptions?.timeout,
   };
 }
 
@@ -380,12 +382,16 @@ export function stopMainAppRun() {
 export function fetchWithTimeOut(
   url: string,
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>,
-  timeout: number = 8000
+  cancelRequest?: boolean,
+  timeout: number = 5000
 ) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
-  return fetch(url, {
-    signal: controller.signal,
-  }).finally(() => clearTimeout(id));
+  if (cancelRequest) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    return fetch(url, {
+      signal: controller.signal,
+    }).finally(() => clearTimeout(id));
+  } else {
+    return fetch(url);
+  }
 }
