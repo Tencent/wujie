@@ -51,6 +51,10 @@ type preOptions  {
   deactivated?: lifecycle;
   /** 子应用资源加载失败后调用 */
   loadError?: loadErrorHandler
+  /** 超时取消开关 */
+  cancelRequest?: boolean;
+  /** 超时等待时间 */
+  timeout?: number;
 };
 
 ```
