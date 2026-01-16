@@ -155,6 +155,8 @@ function patchStylesheetElement(
       value: function (this: HTMLStyleElement, position: InsertPosition, element: Element) {
         if (element.nodeName === "STYLE") {
           nextTick(() => handleStylesheetElementPatch(element as HTMLStyleElement, sandbox));
+          element.insertAdjacentElement = this.insertAdjacentElement;
+          element.textContent = cssLoader(element.textContent, "", curUrl);
           const res = rawInsertAdjacentElement.call(this, position, element);
           sandbox.styleSheetElements.push(element as HTMLStyleElement);
           return res;
