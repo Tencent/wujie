@@ -13,9 +13,9 @@ const plugins = [
   {
     // 对子应用的template进行的aaa替换成bbb
     htmlLoader: (code) => {
-      return code.replace('aaa', 'bbb');
+      return code.replace("aaa", "bbb");
     },
-  }
+  },
 ];
 ```
 
@@ -104,9 +104,10 @@ const plugins = [
 ```
 
 ::: warning 警告
+
 - 对于 esm 脚本不会经过 js-loader 插件处理
 - 对于 js-ignores 脚本不会经过 js-loader 插件处理
-:::
+  :::
 
 ## js-after-loader
 
@@ -310,6 +311,26 @@ const plugins = [
   },
 ];
 ```
+
+## patchInlineCodeHook
+
+处理内联脚本code
+
+- **示例**
+
+```javascript
+const plugins = [
+  {
+    // targetInfo为内联脚本code和patch标记，iframeWindow 为子应用的 window
+    patchInlineCodeHook(targetInfo, iframeWindow) {
+      console.log(code, iframeWindow);
+      targetInfo.code = ""; // 处理后的字符
+      targetInfo.patch = true; // 标记为已经处理的状态
+    },
+  },
+];
+```
+
 ## appendOrInsertElementHook
 
 子应用往`body`、`head`插入元素后执行的回调函数
@@ -319,10 +340,10 @@ const plugins = [
 ```javascript
 const plugins = [
   {
-    // element 为真正插入的元素，iframeWindow 为子应用的 window, rawElement为原始插入元素 
+    // element 为真正插入的元素，iframeWindow 为子应用的 window, rawElement为原始插入元素
     appendOrInsertElementHook(element, iframeWindow, rawElement) {
-      console.log(element, iframeWindow, rawElement)
-    }
+      console.log(element, iframeWindow, rawElement);
+    },
   },
 ];
 ```
@@ -336,9 +357,9 @@ const plugins = [
 ```javascript
 const plugins = [
   {
-    patchElementHook(element, iframeWindow ) {
-      console.log(element, iframeWindow )
-    }
+    patchElementHook(element, iframeWindow) {
+      console.log(element, iframeWindow);
+    },
   },
 ];
 ```

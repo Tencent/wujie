@@ -58,7 +58,6 @@ type preOptions  {
 - **详情：** 预加载可以极大的提升子应用首次打开速度
 
   ::: warning 警告
-
   - 资源的预加载会占用主应用的网络线程池
   - 资源的预执行会阻塞主应用的渲染线程
   - `name`、`replace`、`fetch`、`alive`、`degrade`这五个参数在`preloadApp`和`startApp`中须保持严格一致，否则子应用的渲染可能出现异常
@@ -160,7 +159,6 @@ type preOptions  {
   js 的执行模式，由于子应用的执行会阻塞主应用的渲染线程，当设置为`true`时`js`采取类似`react fiber`的模式方式间断执行，每个 js 文件的执行都包裹在`requestidlecallback`中，每执行一个`js`可以返回响应外部的输入，但是这个颗粒度是`js`文件，如果子应用单个`js`文件过大，可以通过拆包的方式降低达到`fiber`模式效益最大化
 
   ::: tip 技巧
-
   - 打开主应用就需要加载的子应用可以将`fiber`设置为`false`来加快加载速度
 
   - 其他场景建议采用默认值
@@ -248,6 +246,8 @@ interface plugin {
   documentAddEventListenerHook?: eventListenerHook;
   /** 子应用 document removeEventListener 钩子回调 */
   documentRemoveEventListenerHook?: eventListenerHook;
+  /** 子应用 内联脚本处理 */
+  patchInlineCodeHook? <T extends Object>(targetInfo: T, iframeWindow: Window) => string;
   /** 子应用 向body、head插入元素后执行的钩子回调 */
   appendOrInsertElementHook?: <T extends Node>(element: T, iframeWindow: Window) => void;
   /** 子应用劫持元素的钩子回调 */

@@ -796,8 +796,14 @@ export function insertScriptToIframe(
   if (content) {
     // patch location
     if (!iframeWindow.__WUJIE.degrade && !module && attrs?.type !== "importmap") {
+      const targetInfo = {
+        code,
+        patch: false,
+      };
+      execHooks(plugins, "patchInlineCodeHook", targetInfo, iframeWindow);
       code = `(function(window, self, global, location) {
-      ${code}
+      ${code};
+      ${targetInfo.patch ? targetInfo.code : ""}
 }).bind(window.__WUJIE.proxy)(
   window.__WUJIE.proxy,
   window.__WUJIE.proxy,
