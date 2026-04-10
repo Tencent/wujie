@@ -68,3 +68,20 @@
     background-position: 0 0;
   }
 }
+
+@media (min-width: 768px) and (max-width: 1099px) {
+  .DocSearch-Button {
+    justify-content: center;
+    padding: 0;
+    width: 40px;
+  }
+
+  .DocSearch-Button-Container {
+    margin: 0;
+  }
+
+  .DocSearch-Button-Placeholder,
+  .DocSearch-Button-Keys {
+    display: none;
+  }
+}
