@@ -677,13 +677,53 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
 
 /**
  * 防止运行主应用的js代码，给子应用带来很多副作用
+ *
+ * options.fallbackSrc 表示 iframe 是用 srcdoc 启动的（不发请求加载主应用 host）
+ * 此时需要通过 document.open()/close() 在主应用上下文里把 iframe 的 URL
+ * 由 about:srcdoc 改写成主应用 URL，否则 location.origin 不是主应用同源，
+ * 子应用的 router/fetch 等都会出问题。
+ *
+ * 关键时序：srcdoc 是异步 navigation，appendChild 之后 iframe.contentWindow.document
+ * 还是初始 about:blank，立刻 open() 会被随后到来的 srcdoc 文档替换掉。
+ * 因此 srcdoc 分支必须等 iframe 的 load 事件触发（srcdoc 文档已就位）再做 trick。
+ *
+ * 如果 trick 在当前浏览器上失败（极少见），会兜底到 fallbackSrc 真实加载，
+ * 此时由于不再走 srcdoc，需要切换到 stopIframeLoading 的"立即 stop"分支。
  */
-// TODO 更加准确抓取停止时机
-function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPath: string } | false) {
+function stopIframeLoading(iframe: HTMLIFrameElement, options: { fallbackSrc: string } | false) {
   const iframeWindow = iframe.contentWindow;
-  const oldDoc = iframeWindow.document;
-  const loopDeadline = Date.now() + 5e3;
   return new Promise<void>((resolve) => {
+    // srcdoc 路径：等 srcdoc 文档就位（load 事件），然后做一次 document.open() trick
+    if (options) {
+      let done = false;
+      const runTrick = () => {
+        if (done) return;
+        done = true;
+        const newDoc = iframeWindow.document;
+        const previousHref = iframeWindow.location.href;
+        newDoc.open();
+        newDoc.close();
+        // 按 HTML spec，document.open() 同步改写当前 document 的 URL，无需轮询
+        if (iframeWindow.location.href !== previousHref) {
+          resolve();
+          return;
+        }
+        // 极少数浏览器未按 spec 同步改 URL，兜底走 fallbackSrc 真实加载
+        warn(`wujie: srcdoc + document.open() trick failed, fallback to load ${options.fallbackSrc} this time.`);
+        // HTML spec 规定 srcdoc 优先级高于 src，必须先移除 srcdoc 才能让 src 生效
+        iframe.removeAttribute("srcdoc");
+        iframe.src = options.fallbackSrc;
+        stopIframeLoading(iframe, false).then(resolve);
+      };
+      iframe.addEventListener("load", runTrick, { once: true });
+      // 5s 安全网：load 理论上必定触发，加一层保险避免诡异挂死
+      setTimeout(runTrick, 5e3);
+      return;
+    }
+
+    // fallback 真实加载路径：仍需轮询，赶在页面真正加载完成前 stop()
+    const oldDoc = iframeWindow.document;
+    const loopDeadline = Date.now() + 5e3;
     function loop() {
       setTimeout(() => {
         let newDoc: Document;
@@ -692,38 +732,10 @@ function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPa
         } catch (err) {
           newDoc = null;
         }
-        // wait for document ready
         if ((!newDoc || newDoc == oldDoc) && Date.now() < loopDeadline) {
           loop();
           return;
         }
-
-        // document ready, if is using ObjectURL, remove its "blob:" prefix
-        if (useObjectURL) {
-          const href = iframeWindow.location.href;
-          newDoc.open();
-          newDoc.close();
-
-          const deadline = Date.now() + 1e3;
-          const loop2 = function () {
-            if (Date.now() > deadline) {
-              // 一秒后 URL 没有变化
-              // 可能浏览器已经不支持使用这种奇技淫巧了，标记不再支持，并且回退到旧的方式加载
-              disableSandboxEmptyPageURL();
-              iframe.src = useObjectURL.mainHostPath;
-              stopIframeLoading(iframe, false).then(resolve);
-              return;
-            }
-
-            if (iframeWindow.location.href === href) setTimeout(loop2, 1);
-            else resolve();
-          };
-          loop2();
-
-          return;
-        }
-
-        // document ready
         iframeWindow.stop ? iframeWindow.stop() : newDoc.execCommand("Stop");
         resolve();
       }, 1);
@@ -874,43 +886,25 @@ export function renderIframeReplaceApp(
   renderElementToContainer(iframe, element);
 }
 
-const [getSandboxEmptyPageURL, disableSandboxEmptyPageURL] = (() => {
-  const disabledMarkKey = "wujie:disableSandboxEmptyPageURL";
-  let disabled = false;
-  try {
-    disabled = localStorage.getItem(disabledMarkKey) === "true";
-  } catch (e) {
-    // pass
-  }
-
-  if (disabled || typeof URL === "undefined" || typeof URL.createObjectURL !== "function")
-    return [() => "", () => void 0] as const;
-
-  let prevURL = "";
-  const getSandboxEmptyPageURL = () => {
-    if (disabled) return "";
-    if (prevURL) return prevURL;
-
-    const blob = new Blob(["<!DOCTYPE html><html><head></head><body></body></html>"], { type: "text/html" });
-    prevURL = URL.createObjectURL(blob);
-    return prevURL;
-  };
-
-  const disableSandboxEmptyPageURL = () => {
-    disabled = true;
-    try {
-      // TODO: 看能不能做上报，收集一下浏览器版本的情况
-      localStorage.setItem(disabledMarkKey, "true");
-    } catch (e) {}
-  };
-
-  return [getSandboxEmptyPageURL, disableSandboxEmptyPageURL];
-})();
+// 沙箱 iframe 启动时的空白文档内容
+// srcdoc 文档的 origin 由 spec 保证继承自 embedder（即主应用），
+// 这样既不发网络请求，也保证主应用能访问 contentDocument。
+const SANDBOX_EMPTY_SRCDOC = "<!DOCTYPE html><html><head></head><body></body></html>";
 
 /**
  * js沙箱
  * 创建和主应用同源的iframe，路径携带了子路由的路由信息
  * iframe必须禁止加载html，防止进入主应用的路由逻辑
+ *
+ * 统一使用 srcdoc 加载空白文档：
+ *   - 不发任何请求加载主应用 host 资源（解决 issue #54）
+ *   - origin 继承自 embedder，主应用可以正常 patch contentDocument
+ *   - 之后通过 document.open() 把 iframe 的 location 改写到主应用 URL，
+ *     使 location.origin、history、router 等行为与主应用同源一致
+ *
+ * attrs.src 不再作为 iframe 的初始 src（HTML spec 规定 srcdoc 优先级高于 src，
+ * 即便保留 src 浏览器也会忽略它）。它被重新解释为「srcdoc trick 失败时的兜底空白页 URL」，
+ * 用户可指向自己提供的 `/empty` 静态文件或 Service Worker 端点；不传则兜底 mainHostPath。
  */
 export function iframeGenerator(
   sandbox: WuJie,
@@ -919,21 +913,17 @@ export function iframeGenerator(
   appHostPath: string,
   appRoutePath: string
 ): HTMLIFrameElement {
-  let src = attrs && attrs.src;
-  let useObjectURL = false;
-  if (!src) {
-    src = getSandboxEmptyPageURL();
-    useObjectURL = !!src;
-    if (!src) src = mainHostPath; // fallback to mainHostPath
-  }
+  // 把用户传入的 src 拆出来作为 fallback 用，不再作为 iframe 的初始 src 直接挂载
+  const { src: userFallbackSrc, ...restAttrs } = attrs || {};
+  const fallbackSrc = userFallbackSrc || mainHostPath;
 
   const iframe = window.document.createElement("iframe");
   const attrsMerge = {
     style: "display: none",
-    ...attrs,
-    src,
+    ...restAttrs,
     name: sandbox.id,
     [WUJIE_DATA_FLAG]: "",
+    srcdoc: SANDBOX_EMPTY_SRCDOC,
   };
   setAttrsToElement(iframe, attrsMerge);
   window.document.body.appendChild(iframe);
@@ -941,7 +931,7 @@ export function iframeGenerator(
   const iframeWindow = iframe.contentWindow;
   // 变量需要提前注入，在入口函数通过变量防止死循环
   patchIframeVariable(iframeWindow, sandbox, appHostPath);
-  sandbox.iframeReady = stopIframeLoading(iframe, useObjectURL && { mainHostPath }).then(() => {
+  sandbox.iframeReady = stopIframeLoading(iframe, { fallbackSrc }).then(() => {
     if (!iframeWindow.__WUJIE) {
       patchIframeVariable(iframeWindow, sandbox, appHostPath);
     }
