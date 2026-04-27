@@ -26,9 +26,8 @@ export function syncUrlToWindow(iframeWindow: Window): void {
   }
   // 同步
   if (sync) {
-    queryMap[id] = window.encodeURIComponent(
-      validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl
-    );
+    // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
+    queryMap[id] = validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl;
     // 清理
   } else {
     delete queryMap[id];
@@ -36,7 +35,7 @@ export function syncUrlToWindow(iframeWindow: Window): void {
   const newQuery =
     "?" +
     Object.keys(queryMap)
-      .map((key) => key + "=" + queryMap[key])
+      .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
       .join("&");
   winUrlElement.search = newQuery;
   if (winUrlElement.href !== window.location.href) {
@@ -83,7 +82,7 @@ export function clearInactiveAppUrl(): void {
   const newQuery =
     "?" +
     Object.keys(queryMap)
-      .map((key) => key + "=" + window.decodeURIComponent(queryMap[key]))
+      .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
       .join("&");
   winUrlElement.search = newQuery;
   if (winUrlElement.href !== window.location.href) {
@@ -98,11 +97,12 @@ export function clearInactiveAppUrl(): void {
 export function pushUrlToWindow(id: string, url: string): void {
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
-  queryMap[id] = window.encodeURIComponent(url);
+  // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
+  queryMap[id] = url;
   const newQuery =
     "?" +
     Object.keys(queryMap)
-      .map((key) => key + "=" + queryMap[key])
+      .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
       .join("&");
   winUrlElement.search = newQuery;
   window.history.pushState(null, "", winUrlElement.href);
