@@ -396,7 +396,9 @@ export default class Wujie {
   /** 销毁子应用 */
   public async destroy() {
     await this.unmount();
-    this.bus.$clear();
+    // 先 $destroy 再置 null：清空事件并从全局 appEventObjMap 中移除当前 id 的 entry，
+    // 防止 setupApp 后反复 destroyApp 累积 map 条目（修复 notes/memory-leak-investigation.md §5）
+    this.bus.$destroy();
     this.shadowRoot = null;
     this.proxy = null;
     this.proxyDocument = null;

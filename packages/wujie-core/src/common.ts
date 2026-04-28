@@ -36,8 +36,13 @@ export function addSandboxCacheWithWujie(id: string, sandbox: Wujie): void {
 
 export function deleteWujieById(id: string) {
   const wujieCache = idToSandboxCacheMap.get(id);
-  if (wujieCache?.options) idToSandboxCacheMap.set(id, { options: wujieCache.options });
-  idToSandboxCacheMap.delete(id);
+  // 有 setupApp 缓存时只移除 wujie 实例，保留 options 供下次快速启动
+  // 无 setupApp 缓存时整体删除 entry，避免泄漏
+  if (wujieCache?.options) {
+    idToSandboxCacheMap.set(id, { options: wujieCache.options });
+  } else {
+    idToSandboxCacheMap.delete(id);
+  }
 }
 
 export function addSandboxCacheWithOptions(id: string, options: cacheOptions): void {
