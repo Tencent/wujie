@@ -106,6 +106,13 @@ export default class Wujie {
   public document: Document;
   /** 子应用styleSheet元素 */
   public styleSheetElements: Array<HTMLLinkElement | HTMLStyleElement>;
+  /**
+   * 子应用通过 document.head.appendChild(<script>) 触发的动态脚本节点。
+   * effect.ts → insertScriptToIframe（携带 rawElement）时登记，unmount 时统一回收，
+   * 防止反复 mount/unmount 在 iframe head 累积大量带 textContent 的 script 节点
+   * （修复 notes/memory-leak-investigation.md §1.3）。
+   */
+  public dynamicScriptElements: Array<HTMLScriptElement> = [];
   /** 子应用head元素 */
   public head: HTMLHeadElement;
   /** 子应用body元素 */
@@ -393,6 +400,10 @@ export default class Wujie {
       }
       clearChild(this.head);
       clearChild(this.body);
+      // 修复 §1.2 / §1.3：清空动态 styleSheetElements 与 dynamicScriptElements，
+      // 避免非保活子应用反复 mount/unmount 在 iframe 中累积资源节点
+      this.clearStyleSheetsForUnmount();
+      this.clearDynamicScriptsForUnmount();
     }
   }
 
@@ -447,6 +458,48 @@ export default class Wujie {
     // 反向清理被转发到主应用 window/document 上的副作用（修复 §2 §3）
     this.eventCleanupTracker.cleanupAll();
     deleteWujieById(this.id);
+  }
+
+  /**
+   * 子应用 unmount 时，根据 alive 决定是否清空 styleSheetElements。
+   *
+   * 修复 notes/memory-leak-investigation.md §1.2：
+   *   非保活子应用反复进出页面时，每次 mount 都会通过 effect.ts 把动态 STYLE/LINK
+   *   push 进 styleSheetElements，但 unmount 只清 head/body 子节点，数组本身不清，
+   *   导致：
+   *     1) 数组持有大量已脱离 DOM 的废弃 style 节点 → 阻碍 GC；
+   *     2) 下一次 startApp 走 rebuildStyleSheets 时会把这些旧引用一起重附加，
+   *        引发"动态样式重复 N 倍"问题。
+   *
+   * 设计：
+   *   - 非保活：清空数组内容（保留引用，避免外部任何缓存 stale 引用）；
+   *   - 保活：保留，下一次 active 走 rebuildStyleSheets 复用。
+   */
+  public clearStyleSheetsForUnmount(): void {
+    if (this.alive) return;
+    if (Array.isArray(this.styleSheetElements)) {
+      this.styleSheetElements.length = 0;
+    }
+  }
+
+  /**
+   * 非保活子应用 unmount 时，把所有动态插入到 iframe head 的 <script> 节点移除。
+   *
+   * 修复 notes/memory-leak-investigation.md §1.3：动态脚本节点会持有完整的 textContent
+   * 字符串（通常每个数 KB ~ 几十 KB），反复访问会持续累积。这些节点的副作用（注册的
+   * 全局变量/函数）已经写入 iframe runtime，移除节点本身不影响副作用，仅释放节点占用。
+   */
+  public clearDynamicScriptsForUnmount(): void {
+    if (this.alive) return;
+    if (!Array.isArray(this.dynamicScriptElements)) return;
+    this.dynamicScriptElements.forEach((script) => {
+      try {
+        script.parentNode?.removeChild(script);
+      } catch (_) {
+        /* noop: destroy 阶段任何异常不应中断后续清理 */
+      }
+    });
+    this.dynamicScriptElements.length = 0;
   }
 
   /** 当子应用再次激活后，只运行mount函数，样式需要重新恢复 */

@@ -36,9 +36,32 @@ type ImportEntryOpts = {
   loadError?: loadErrorHandler;
 };
 
-const styleCache = {};
-const scriptCache = {};
-const embedHTMLCache = {};
+// 模块级缓存：导出供 clearAssetsCache 使用，外部代码勿直接 mutate（修复 §4）
+export const styleCache: Record<string, any> = {};
+export const scriptCache: Record<string, any> = {};
+export const embedHTMLCache: Record<string, any> = {};
+
+/**
+ * 清空资源缓存：不传 host 时全清；传单个/数组 host 时按 url 前缀清。
+ * 修复 notes/memory-leak-investigation.md §4：缓存永驻，热更新或多 host 切换累积。
+ */
+export function clearAssetsCache(host?: string | string[]): void {
+  const matchers = host == null ? null : Array.isArray(host) ? host : [host];
+  const matchAndDelete = (cache: Record<string, any>) => {
+    if (!matchers) {
+      Object.keys(cache).forEach((key) => delete cache[key]);
+      return;
+    }
+    Object.keys(cache).forEach((key) => {
+      if (matchers.some((prefix) => key.startsWith(prefix))) {
+        delete cache[key];
+      }
+    });
+  };
+  matchAndDelete(styleCache);
+  matchAndDelete(scriptCache);
+  matchAndDelete(embedHTMLCache);
+}
 
 if (!window.fetch) {
   error(WUJIE_TIPS_NO_FETCH);

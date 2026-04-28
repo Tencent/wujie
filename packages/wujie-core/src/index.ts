@@ -1,4 +1,6 @@
 import importHTML, { processCssLoader } from "./entry";
+
+export { clearAssetsCache } from "./entry";
 import { StyleObject, ScriptAttributes } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent, addLoading } from "./shadow";

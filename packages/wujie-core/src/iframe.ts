@@ -851,6 +851,12 @@ export function insertScriptToIframe(
   // 打标记
   if (rawElement) {
     setTagToScript(scriptElement, getTagFromScript(rawElement));
+    // 修复 §1.3：rawElement 表示这是 effect.ts 转发的动态 script，
+    // 登记到 sandbox.dynamicScriptElements 供 unmount 时回收，避免在 iframe head 累积。
+    const sandboxForCleanup = iframeWindow.__WUJIE;
+    if (sandboxForCleanup && Array.isArray(sandboxForCleanup.dynamicScriptElements)) {
+      sandboxForCleanup.dynamicScriptElements.push(scriptElement);
+    }
   }
   // 外联脚本执行后的处理
   const isOutlineScript = !content && src;

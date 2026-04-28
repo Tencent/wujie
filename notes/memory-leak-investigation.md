@@ -389,3 +389,13 @@ public async unmount(): Promise<void> {
 
 测试结果：6 suites / 37 tests，全部 GREEN。
 
+### ✅ 批 C · 资源缓存与动态资源清理
+
+| 项 | 测试 | 修复点 | 修复前 | 修复后 |
+|---|---|---|---|---|
+| §4 模块级缓存永驻 | `__test__/unit/asset-cache.test.ts` (4 cases) | `src/entry.ts` 暴露 `clearAssetsCache(host?)` 并从 `src/index.ts` re-export | `styleCache / scriptCache / embedHTMLCache` 是 module-private 普通对象，destroyApp 不会清；多 host 子应用切换或热更新场景持续累积 | 公共 API：`clearAssetsCache()` 全清 / `clearAssetsCache(host)` 按 url 前缀清 / 支持数组批量。`src/entry.ts` 同时把三个 cache 改为 `export`，便于上层做 telemetry |
+| §1.2 styleSheetElements 单调增长 | `__test__/unit/stylesheet-leak.test.ts` (4 cases) | `src/sandbox.ts` 新增 `clearStyleSheetsForUnmount()` + `unmount()` 调用 | unmount 只 clearChild(head/body)，`styleSheetElements` 数组不清；非保活子应用反复进出，rebuildStyleSheets 时旧引用一并 reattach，DOM 中 style 节点 N 倍累积，废弃 style 节点也无法被 GC | 非保活时 `styleSheetElements.length = 0`（保留数组引用），保活时保持原值用于 rebuildStyleSheets。next mount 由子应用 `__WUJIE_MOUNT` 自然重建 |
+| §1.3 iframe head 动态 script 累积 | `__test__/unit/script-leak.test.ts` (5 cases) | `src/sandbox.ts` 新增 `dynamicScriptElements` 字段 + `clearDynamicScriptsForUnmount()`，`src/iframe.ts insertScriptToIframe` 在带 rawElement 时登记 | 子应用 `document.head.appendChild(<script>)` 触发的脚本，每个保留完整 textContent（数 KB ~ 几十 KB）；非保活反复 mount/unmount 在同一 iframe 上累积，体积持续上涨 | 仅登记 effect.ts 转发的动态脚本（带 rawElement），unmount（非保活）时从 iframe head 安全 removeChild 并清空数组；初始 sandbox.start 的脚本不登记，避免误删 |
+
+测试结果：9 suites / 50 tests，全部 GREEN。
+
