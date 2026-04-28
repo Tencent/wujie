@@ -345,6 +345,8 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     plugins: options.plugins || cacheOptions?.plugins,
     iframeAddEventListeners: options.iframeAddEventListeners || cacheOptions?.iframeAddEventListeners || [],
     iframeOnEvents: options.iframeOnEvents || cacheOptions?.iframeOnEvents || [],
+    destroyOnUnmount:
+      options.destroyOnUnmount !== undefined ? options.destroyOnUnmount : cacheOptions?.destroyOnUnmount,
     lifecycles: {
       beforeLoad: options.beforeLoad || cacheOptions?.beforeLoad,
       beforeMount: options.beforeMount || cacheOptions?.beforeMount,

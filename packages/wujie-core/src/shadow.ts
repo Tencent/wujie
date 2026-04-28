@@ -34,6 +34,25 @@ declare global {
 }
 
 /**
+ * 处理 wujie-app webComponent disconnect 时的销毁策略。
+ *
+ * 修复 notes/memory-leak-investigation.md §1.1：
+ *   默认情况下 disconnect 仅调 unmount，sandbox 与 iframe 都保留下来；
+ *   对于「路由切换 = 一次性使用」的场景，业务可在 setupApp/startApp 中传
+ *   `destroyOnUnmount: true`，让 disconnect 时直接整体 destroy，避免 sandbox
+ *   级别的累积（iframe / styleSheetElements / dynamicScriptElements / event tracker
+ *   / appEventObjMap entry / setupApp options 等）。
+ */
+export function handleWujieAppDisconnect(sandbox: Wujie | null | undefined): void {
+  if (!sandbox) return;
+  if (sandbox.destroyOnUnmount) {
+    sandbox.destroy();
+  } else {
+    sandbox.unmount();
+  }
+}
+
+/**
  * 定义 wujie webComponent，将shadow包裹并获得dom装载和卸载的生命周期
  */
 export function defineWujieWebComponent() {
@@ -50,7 +69,7 @@ export function defineWujieWebComponent() {
 
       disconnectedCallback(): void {
         const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
-        sandbox?.unmount();
+        handleWujieAppDisconnect(sandbox);
       }
     }
     customElements?.define("wujie-app", WujieApp);

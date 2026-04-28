@@ -399,3 +399,25 @@ public async unmount(): Promise<void> {
 
 测试结果：9 suites / 50 tests，全部 GREEN。
 
+### ✅ 批 D · 根治路由切换型场景：destroyOnUnmount
+
+| 项 | 测试 | 修复点 | 修复前 | 修复后 |
+|---|---|---|---|---|
+| §1.1 disconnect 仅 unmount 累积 sandbox | `__test__/unit/destroyOnUnmount.test.ts` (5 cases) | `src/sandbox.ts`、`src/shadow.ts`、`src/index.ts`、`src/utils.ts`、`packages/wujie-vue2,3/index.js`、`packages/wujie-react/index.js,.d.ts` | wujie-app webcomponent 默认仅 `unmount`，sandbox / iframe / iframeWindow 全保留；用户对「路由切换 = 一次性使用」的场景没有任何关闭机关，#890 累积 | 1) `Wujie` 增加 `destroyOnUnmount: boolean` 字段；2) shadow.ts 抽出 `handleWujieAppDisconnect()` helper（独立可测），按字段决定 `destroy()` vs `unmount()`；3) `WujieApp.disconnectedCallback` 调用上述 helper；4) `setupApp/startApp/preloadApp` + `mergeOptions` 透传 `destroyOnUnmount`；5) `WujieVue/WujieVue3/WujieReact` props 透传，类型声明同步 |
+
+测试结果：10 suites / 55 tests，全部 GREEN。
+
+---
+
+## 总览（批 A → 批 D）
+
+| 维度 | 批 A | 批 B | 批 C | 批 D | 累计 |
+|---|---|---|---|---|---|
+| 修复 src 文件数 | 3 | 4 | 4 | 6 | 10 (去重) |
+| 新增 unit 测试文件 | 2 | 2 | 3 | 1 | 8 |
+| 新增 unit 用例数 | +6 | +9 | +13 | +5 | +33 |
+| 总用例数（22 → 55） | 28 | 37 | 50 | 55 | 55/55 GREEN |
+| 关联 issue | #732 #881 | #715 #890 | #732 #715 #890 | #890 | — |
+
+> 后续：在 puppeteer 集成测试里加一份 `memory.benchmark.ts`，循环 `startApp/destroyApp` N 轮，量化对比 `Page.evaluate(() => performance.memory)` + `document.querySelectorAll("*").length`，得到一份「修复前/修复后」对照表。该步骤需要重新构建 esm 并启动 8 个 example dev server，建议放在最终验收时单独跑一次。
+

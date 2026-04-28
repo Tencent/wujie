@@ -128,6 +128,12 @@ export default class Wujie {
   public iframeOnEvents?: Array<string>;
   /** 销毁链路清理跟踪器：记录被转发到主应用 window/document 上的副作用，destroy 时统一回收 */
   public eventCleanupTracker: EventCleanupTracker = new EventCleanupTracker();
+  /**
+   * 在 wujie-app webcomponent disconnect 时是否直接 destroy（而不是仅 unmount）。
+   * 默认 false，业务在「路由切换 = 一次性使用」场景下可设为 true 根治 #890 类累积。
+   * 修复 notes/memory-leak-investigation.md §1.1。
+   */
+  public destroyOnUnmount: boolean = false;
 
   /** $wujie对象，提供给子应用的接口 */
   public provide: {
@@ -551,6 +557,8 @@ export default class Wujie {
     lifecycles: lifecycles;
     iframeAddEventListeners?: Array<string>;
     iframeOnEvents?: Array<string>;
+    /** disconnect 时是否直接 destroy（修复 §1.1） */
+    destroyOnUnmount?: boolean;
   }) {
     // 传递inject给嵌套子应用
     if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject;
@@ -575,6 +583,7 @@ export default class Wujie {
     this.plugins = getPlugins(plugins);
     this.iframeAddEventListeners = options.iframeAddEventListeners;
     this.iframeOnEvents = options.iframeOnEvents;
+    this.destroyOnUnmount = options.destroyOnUnmount === true;
 
     // 创建目标地址的解析
     const { urlElement, appHostPath, appRoutePath } = appRouteParse(url);
