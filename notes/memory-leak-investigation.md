@@ -376,3 +376,16 @@ public async unmount(): Promise<void> {
 
 测试结果：单元测试由 22 → 28 通过（+6 项新增，全部 GREEN）。
 
+### ✅ 批 B · 销毁链路补全
+
+| 项 | 测试 | 修复点 | 修复前 | 修复后 |
+|---|---|---|---|---|
+| §2 `window.document` listener 残留 | `__test__/unit/destroy-cleanup.test.ts` (3 cases) + `destroy-cleanup-e2e.test.ts` (2 cases) | 新增 `src/effect-cleanup.ts`, 改 `src/iframe.ts` `patchDocumentEffect` + `src/sandbox.ts` `destroy()` | `patchDocumentEffect` 把 `mainDocument` 类事件转发到主 `window.document`，destroy 时仅清 iframe 自身 listener，主 document 上的转发 listener 永驻 → 闭包持有 iframeWindow，sandbox GC 失败 | sandbox 实例持有 `EventCleanupTracker`，每次转发同步登记，`destroy()` 末尾 `cleanupAll()` 反向 `removeEventListener`；`removeEventListener` 同步从 tracker 解除，避免 destroy 时重复解绑 |
+| §3 `window.onXXX` 污染未还原 | `__test__/unit/destroy-cleanup.test.ts` (3 cases) + `destroy-cleanup-e2e.test.ts` (1 case) | `src/iframe.ts` `patchWindowEffect` + `src/effect-cleanup.ts` | `patchWindowEffect` 内部 `window[e] = handler.bind(iframeWindow)`，destroy 不还原；每销毁一个子应用就在主 window 上留一个 dangling handler | 在 setter 内首次记录主 `window[e]` 原值与 `hadOwnProperty`，`destroy()` 时通过 setter 写回原值（accessor 不能用 defineProperty descriptor 还原），原本无 own property 的 key 还会 delete，确保无残留 |
+
+附带：
+- `src/iframe.ts`：将 `patchDocumentEffect` / `patchWindowEffect` 由 module-private 改为 `export`，便于"准集成"测试与外部 plugin 复用。
+- `src/sandbox.ts`：`destroy()` 末尾调用 `this.eventCleanupTracker.cleanupAll()`。
+
+测试结果：6 suites / 37 tests，全部 GREEN。
+

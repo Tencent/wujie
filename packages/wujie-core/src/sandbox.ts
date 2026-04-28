@@ -29,6 +29,7 @@ import {
   rawDocumentQuerySelector,
 } from "./common";
 import { EventBus, appEventObjMap, EventObj } from "./event";
+import { EventCleanupTracker } from "./effect-cleanup";
 import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getAbsolutePath, eventTrigger } from "./utils";
 import { WUJIE_DATA_ATTACH_CSS_FLAG } from "./constant";
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
@@ -118,6 +119,8 @@ export default class Wujie {
   public iframeAddEventListeners?: Array<string>;
   /** 子应用iframe on事件 */
   public iframeOnEvents?: Array<string>;
+  /** 销毁链路清理跟踪器：记录被转发到主应用 window/document 上的副作用，destroy 时统一回收 */
+  public eventCleanupTracker: EventCleanupTracker = new EventCleanupTracker();
 
   /** $wujie对象，提供给子应用的接口 */
   public provide: {
@@ -441,6 +444,8 @@ export default class Wujie {
       this.iframe.parentNode?.removeChild(this.iframe);
       this.iframe = null;
     }
+    // 反向清理被转发到主应用 window/document 上的副作用（修复 §2 §3）
+    this.eventCleanupTracker.cleanupAll();
     deleteWujieById(this.id);
   }
 

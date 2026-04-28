@@ -221,7 +221,7 @@ function updateBase(iframeWindow: Window, appHostPath: string, mainHostPath: str
  * @param iframeWindow
  */
 // TODO 继续改进
-function patchWindowEffect(iframeWindow: Window): void {
+export function patchWindowEffect(iframeWindow: Window): void {
   // 属性处理函数
   function processWindowProperty(key: string): boolean {
     const value = iframeWindow[key];
@@ -277,6 +277,11 @@ function patchWindowEffect(iframeWindow: Window): void {
         set:
           descriptor.writable || descriptor.set
             ? (handler) => {
+                // 修复 §3：每次 set 时首次记录主应用 window 上 onXXX 的原始值，
+                // destroy 时通过 setter 还原原值（accessor 不能用 defineProperty descriptor 还原），
+                // 防止主应用 window 被 dangling handler 长期污染。
+                const tracker = iframeWindow.__WUJIE?.eventCleanupTracker;
+                tracker?.trackWindowOnEvent(e, window[e], Object.prototype.hasOwnProperty.call(window, e));
                 window[e] = typeof handler === "function" ? handler.bind(iframeWindow) : handler;
               }
             : undefined,
@@ -390,7 +395,7 @@ export function patchEventTimeStamp(targetWindow: Window, iframeWindow: Window) 
  * @param iframeWindow
  */
 // TODO 继续改进
-function patchDocumentEffect(iframeWindow: Window): void {
+export function patchDocumentEffect(iframeWindow: Window): void {
   const sandbox = iframeWindow.__WUJIE;
 
   /**
@@ -429,9 +434,13 @@ function patchDocumentEffect(iframeWindow: Window): void {
     }
     // 降级统一走 sandbox.document
     if (sandbox.degrade) return sandbox.document.addEventListener(type, callback, options);
-    if (mainDocumentAddEventListenerEvents.includes(type))
+    if (mainDocumentAddEventListenerEvents.includes(type)) {
+      // 记录到清理跟踪器，destroy 时反向解绑（修复 §2）
+      sandbox.eventCleanupTracker?.trackMainDocumentListener({ type, callback, options });
       return window.document.addEventListener(type, callback, options);
+    }
     if (mainAndAppAddEventListenerEvents.includes(type)) {
+      sandbox.eventCleanupTracker?.trackMainDocumentListener({ type, callback, options });
       window.document.addEventListener(type, callback, options);
       sandbox.shadowRoot.addEventListener(type, callback, options);
       return;
@@ -461,9 +470,11 @@ function patchDocumentEffect(iframeWindow: Window): void {
       }
       if (sandbox.degrade) return sandbox.document.removeEventListener(type, callback, options);
       if (mainDocumentAddEventListenerEvents.includes(type)) {
+        sandbox.eventCleanupTracker?.untrackMainDocumentListener({ type, callback, options });
         return window.document.removeEventListener(type, callback, options);
       }
       if (mainAndAppAddEventListenerEvents.includes(type)) {
+        sandbox.eventCleanupTracker?.untrackMainDocumentListener({ type, callback, options });
         window.document.removeEventListener(type, callback, options);
         sandbox.shadowRoot.removeEventListener(type, callback, options);
         return;
