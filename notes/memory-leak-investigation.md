@@ -407,17 +407,29 @@ public async unmount(): Promise<void> {
 
 测试结果：10 suites / 55 tests，全部 GREEN。
 
+### ✅ 批 E · `Object.defineProperty` 隐患（§9 §10）
+
+| 项 | 测试 | 修复点 | 修复前 | 修复后 |
+|---|---|---|---|---|
+| §9 `documentEvents` setter 多重 bug | `__test__/unit/document-events-leak.test.ts` (4 cases) | `src/iframe.ts patchDocumentEffect` | 1) `addEventListener` 与 `handlerCallbackMap.set` 各自独立 `handler.bind()` → 两个不同 bound，下次 set 永远 remove 不掉真正注册的；2) 直接调原生 `document.addEventListener`，绕开批 B 的 `eventCleanupTracker`，destroy 不解绑；3) `handler = null` 进入 `.bind()` 直接抛 `TypeError`；4) bound 闭包持有 `iframeWindow.document`，永久挂在主 document 上 → iframeWindow GC 不掉 | 维护 `propKeyToActiveListener: Map<propKey, bound>`，每次 set 时先按 propKey 取出旧 bound 解绑、untrack，再生成新 bound 并接入 `eventCleanupTracker.trackMainDocumentListener`；handler 为 null/非函数时只解绑不重绑（与原生 onXXX = null 语义一致）；事件名由 `propKey.slice(2)` 推导避免再次绕过劫持 |
+| §10 `patchElementEffect` 跨边界闭包持有 sandbox | `__test__/unit/element-patch-leak.test.ts` (3 cases) | `src/iframe.ts patchElementEffect`, `src/sandbox.ts destroy()` | 1) `proxyLocation` 在函数开头从 `iframeWindow.__WUJIE.proxyLocation` 抽取为闭包变量 → element 永久强持 proxyLocation 对象；2) `ownerDocument` getter 直接闭包持有 `iframeWindow`，element 一旦被 portal/弹窗/拖拽搬到主应用 DOM 下，destroy 之后仍把 iframeWindow 钉死；3) destroy 流程不解链 `iframeWindow.__WUJIE`，残留 element 通过 getter 仍可拿到 sandbox | 1) 用 `WeakRef<Window>` 间接持有 iframeWindow，闭包不再有强引用；2) baseURI / ownerDocument getter 通过 `weakRef.deref()?.__WUJIE?.proxyLocation` 动态访问，拿不到时降级到主 `document.baseURI` / 主 `document`；3) `sandbox.destroy()` 在 removeChild iframe 之前主动 `iframeWindow.__WUJIE = null`，让残留 getter 立即降级；同时旧环境无 `WeakRef` 时降级为强引用，保持兼容 |
+
+附带：
+- `src/sandbox.ts:575`：`window.__WUJIE.inject` 加显式 `as Wujie["inject"]` 类型断言，绕开 TS incremental 把 `__WUJIE_INJECT` spread 字面量推断错误传染到 `__WUJIE.inject` 的预先存在编译错（与本批改动无直接因果，但触发 cache 重新编译时暴露，顺手修掉）。
+
+测试结果：12 suites / 62 tests，全部 GREEN。
+
 ---
 
-## 总览（批 A → 批 D）
+## 总览（批 A → 批 E）
 
-| 维度 | 批 A | 批 B | 批 C | 批 D | 累计 |
-|---|---|---|---|---|---|
-| 修复 src 文件数 | 3 | 4 | 4 | 6 | 10 (去重) |
-| 新增 unit 测试文件 | 2 | 2 | 3 | 1 | 8 |
-| 新增 unit 用例数 | +6 | +9 | +13 | +5 | +33 |
-| 总用例数（22 → 55） | 28 | 37 | 50 | 55 | 55/55 GREEN |
-| 关联 issue | #732 #881 | #715 #890 | #732 #715 #890 | #890 | — |
+| 维度 | 批 A | 批 B | 批 C | 批 D | 批 E | 累计 |
+|---|---|---|---|---|---|---|
+| 修复 src 文件数 | 3 | 4 | 4 | 6 | 2 | 11 (去重) |
+| 新增 unit 测试文件 | 2 | 2 | 3 | 1 | 2 | 10 |
+| 新增 unit 用例数 | +6 | +9 | +13 | +5 | +7 | +40 |
+| 总用例数（22 → 62） | 28 | 37 | 50 | 55 | 62 | 62/62 GREEN |
+| 关联 issue | #732 #881 | #715 #890 | #732 #715 #890 | #890 | — | — |
 
 > 后续：在 puppeteer 集成测试里加一份 `memory.benchmark.ts`，循环 `startApp/destroyApp` N 轮，量化对比 `Page.evaluate(() => performance.memory)` + `document.querySelectorAll("*").length`，得到一份「修复前/修复后」对照表。该步骤需要重新构建 esm 并启动 8 个 example dev server，建议放在最终验收时单独跑一次。
 

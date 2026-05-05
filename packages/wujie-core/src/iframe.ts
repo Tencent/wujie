@@ -537,38 +537,49 @@ export function patchDocumentEffect(iframeWindow: Window): void {
       warn(e.message);
     }
   });
-  // 处理document专属事件
-  // TODO 内存泄露
+  // 处理document专属事件（修复 §9 多重 bug，详见 notes/memory-leak-investigation.md）
+  //
+  // 历史 bug：
+  //  1) addEventListener 与 handlerCallbackMap.set 各自独立调 handler.bind() 得到两个不同的
+  //     bound 函数，下次 set 时按 map 里的那个去 remove 永远命中不到真正注册的；
+  //  2) 直接调原生 document.addEventListener，绕开了 §2 引入的 eventCleanupTracker 跟踪，
+  //     destroy 时无法反向解绑；
+  //  3) handler = null（清除写法）会进入 .bind() 抛 TypeError；
+  //  4) bound 闭包持有 iframeWindow.document，永久挂在主 document 上 → iframeWindow GC 不掉。
+  //
+  // 修复策略：每个 propKey 仅允许 1 个 active listener；setter 内部只用同一份 bound 引用
+  // 做 add / remove / track；接入 sandbox.eventCleanupTracker.trackMainDocumentListener，
+  // destroy 时 cleanupAll() 反向解绑，让 iframeWindow.document 闭包可被 GC。
+  const documentEventActiveListeners: Map<string, EventListenerOrEventListenerObject> = new Map();
   documentEvents.forEach((propKey) => {
     const descriptor = Object.getOwnPropertyDescriptor(iframeWindow.Document.prototype, propKey) || {
       enumerable: true,
       writable: true,
     };
-    //get里获取属性值，set里直接对iframeWindow.document[propKey]赋值，下一个handler绑在iframeWindow.document[propKey]之前需要对之前的handler解绑
+    if (!(descriptor.writable || descriptor.set)) return;
+    // documentEvents 形如 "onfullscreenchange"，对应事件名去掉前缀 "on"
+    const eventType = propKey.slice(2);
     try {
       Object.defineProperty(iframeWindow.Document.prototype, propKey, {
         enumerable: descriptor.enumerable,
         configurable: true,
         get: () => (sandbox.degrade ? sandbox : window).document[propKey],
-        // 在设置新的handler之前先移除之前的回调
-        set:
-          descriptor.writable || descriptor.set
-            ? (handler) => {
-                // (sandbox.degrade ? sandbox : window).document[propKey] =
-                //   typeof handler === "function" ? handler.bind(iframeWindow.document) : handler;
-                (sandbox.degrade ? sandbox : window).document.removeEventListener(
-                  propKey,
-                  handlerCallbackMap.get(handler)
-                );
-                // 绑定新回调函数
-                (sandbox.degrade ? sandbox : window).document.addEventListener(
-                  propKey,
-                  typeof handler === "function" ? handler.bind(iframeWindow.document) : handler
-                );
-                // 更新回调函数的映射
-                handlerCallbackMap.set(handler, handler.bind(iframeWindow.document));
-              }
-            : undefined,
+        set: (handler) => {
+          const targetDoc = (sandbox.degrade ? sandbox : window).document;
+          const previous = documentEventActiveListeners.get(propKey);
+          if (previous) {
+            targetDoc.removeEventListener(eventType, previous);
+            sandbox.eventCleanupTracker?.untrackMainDocumentListener({ type: eventType, callback: previous });
+            documentEventActiveListeners.delete(propKey);
+          }
+          if (typeof handler === "function") {
+            const bound = handler.bind(iframeWindow.document);
+            documentEventActiveListeners.set(propKey, bound);
+            targetDoc.addEventListener(eventType, bound);
+            sandbox.eventCleanupTracker?.trackMainDocumentListener({ type: eventType, callback: bound });
+          }
+          // handler 为 null/undefined/非函数：只解绑不重绑（与原生 onXXX = null 语义一致）
+        },
       });
     } catch (e) {
       warn(e.message);
@@ -743,22 +754,54 @@ function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPa
   });
 }
 
+/**
+ * 修复 §10 patchElementEffect 跨边界闭包泄漏：
+ *
+ * 原实现把 proxyLocation 抽出来作强变量，并让 ownerDocument getter 直接闭包持有
+ * iframeWindow。一旦业务把子应用 element 移到主应用 DOM 下（portal / 弹窗 / 拖拽），
+ * 即使 sandbox.destroy() 已经把 iframe 移出 DOM，element 上残留的 getter 闭包仍然
+ * 强持 proxyLocation 与 iframeWindow，整条 sandbox 上下文都 GC 不掉。
+ *
+ * 修复：
+ *  1) 用 WeakRef<Window> 间接持有 iframeWindow，闭包内不再有强引用。
+ *  2) proxyLocation / plugins 通过 iframeWindow.__WUJIE 动态访问，destroy 时（见
+ *     sandbox.ts 修改）把 iframeWindow.__WUJIE = null，让 getter 安全降级。
+ *  3) 任意一步拿不到时 baseURI 返回主 document.baseURI，ownerDocument 返回主 document，
+ *     避免破坏 element 上残留的 DOM API。
+ *
+ * WeakRef 是 ES2021 标准，Chrome 84+ / Node 14.6+ 已具备；wujie 已强依赖 Proxy +
+ * CustomElementRegistry，运行环境自然满足。
+ */
 export function patchElementEffect(
   element: (HTMLElement | Node | ShadowRoot) & { _hasPatch?: boolean },
   iframeWindow: Window
 ): void {
-  const proxyLocation = iframeWindow.__WUJIE.proxyLocation as Location;
   if (element._hasPatch) return;
+  const HasWeakRef = typeof (globalThis as any).WeakRef === "function";
+  const iframeWindowRef: { deref(): Window | undefined } = HasWeakRef
+    ? new (globalThis as any).WeakRef(iframeWindow)
+    : { deref: () => iframeWindow };
   try {
     Object.defineProperties(element, {
       baseURI: {
         configurable: true,
-        get: () => proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname,
+        get: () => {
+          const win = iframeWindowRef.deref();
+          const proxyLocation = win?.__WUJIE?.proxyLocation as Location | undefined;
+          if (!proxyLocation) return window.document.baseURI;
+          return proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname;
+        },
         set: undefined,
       },
       ownerDocument: {
         configurable: true,
-        get: () => iframeWindow.document,
+        get: () => {
+          const win = iframeWindowRef.deref();
+          // win.__WUJIE 被置 null（destroy 后）或 win 本身已 GC 时降级到主 document，
+          // 防止 element 永久把 iframeWindow 钉在内存中。
+          if (!win || !win.__WUJIE) return window.document;
+          return win.document;
+        },
       },
       _hasPatch: { get: () => true },
     });

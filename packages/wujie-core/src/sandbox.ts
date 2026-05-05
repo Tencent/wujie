@@ -458,6 +458,17 @@ export default class Wujie {
           iframeWindow.removeEventListener(o.type, o.listener, o.options);
         });
       }
+      // 修复 §10：patchElementEffect 给散落到主应用 DOM 上的 element 留了
+      // baseURI / ownerDocument getter，会通过 iframeWindow.__WUJIE 动态读取
+      // proxyLocation / document。这里主动断链，让那些残留 getter 立即降级，
+      // 不再让 element 把 sandbox 钉死。
+      if (iframeWindow) {
+        try {
+          iframeWindow.__WUJIE = null;
+        } catch (_) {
+          /* noop: iframe 已 detach 时赋值可能抛错 */
+        }
+      }
       this.iframe.parentNode?.removeChild(this.iframe);
       this.iframe = null;
     }
@@ -561,7 +572,8 @@ export default class Wujie {
     destroyOnUnmount?: boolean;
   }) {
     // 传递inject给嵌套子应用
-    if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject;
+    // 显式 as 修复 TS 在 incremental build 下把 inject narrow 到 event.ts spread 字面量类型的问题
+    if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject as Wujie["inject"];
     else {
       this.inject = {
         idToSandboxMap: idToSandboxCacheMap,
