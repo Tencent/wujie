@@ -1,0 +1,101 @@
+name: PR Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "notes/**"
+
+# 同一 PR 连续推送时自动取消上一次未完成的运行，节省 runner 时间
+concurrency:
+  group: pr-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit tests (jsdom)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 7.9.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm i --filter "wujie-project" --filter "./packages/**" --frozen-lockfile
+
+      - name: Run unit tests
+        working-directory: packages/wujie-core
+        run: pnpm run test:unit
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Unit tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ job.status }}" = "success" ]; then
+            echo ":white_check_mark: All unit tests passed." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo ":x: Unit tests failed - see job logs above." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  integration:
+    name: Integration tests (puppeteer)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 7.9.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          cache: "pnpm"
+
+      # 提高 inotify watcher 上限，避免 8 个 webpack/vue/vite dev server 并行启动
+      # 时触发 ENOSPC（GitHub runner 默认上限对多 dev-server 场景偏紧）
+      - name: Raise inotify limits
+        run: |
+          sudo sysctl -w fs.inotify.max_user_watches=524288
+          sudo sysctl -w fs.inotify.max_user_instances=512
+
+      - name: Install dependencies
+        run: pnpm i --filter "wujie-project" --filter "./packages/**" --frozen-lockfile
+
+      - name: Run integration tests
+        working-directory: packages/wujie-core
+        env:
+          # 兼容 webpack 4 + Node 17+ 的 OpenSSL provider 限制
+          NODE_OPTIONS: --openssl-legacy-provider
+          # puppeteer 在 CI 容器里需要禁用 sandbox
+          PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
+        run: pnpm run test:integration
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Integration tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ job.status }}" = "success" ]; then
+            echo ":white_check_mark: All integration tests passed." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo ":x: Integration tests failed - see job logs above." >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -1,11 +1,16 @@
 const { resolve } = require("path");
 const LERNA_EXEC = resolve(__dirname, "../../node_modules/.bin/lerna");
 
+// CI 环境（如 GitHub Actions）需要 --no-sandbox，由 PUPPETEER_LAUNCH_ARGS 注入；
+// 本地开发不设置该变量时保持默认行为
+const launchArgs = (process.env.PUPPETEER_LAUNCH_ARGS || "").split(/\s+/).filter(Boolean);
+
 module.exports = {
   launch: {
     headless: true,
     devtools: false,
     product: "chrome",
+    ...(launchArgs.length ? { args: launchArgs } : {}),
   },
   server: [
     {
