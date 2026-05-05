@@ -82,8 +82,9 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement & { _p
 
 /**
  * 劫持处理样式元素的属性
+ * @internal 仅出于可测性导出，外部不应直接调用
  */
-function patchStylesheetElement(
+export function patchStylesheetElement(
   stylesheetElement: HTMLStyleElement & { _hasPatchStyle?: boolean },
   cssLoader: (code: string, url: string, base: string) => string,
   sandbox: Wujie,
@@ -154,9 +155,25 @@ function patchStylesheetElement(
     insertAdjacentElement: {
       value: function (this: HTMLStyleElement, position: InsertPosition, element: Element) {
         if (element.nodeName === "STYLE") {
-          nextTick(() => handleStylesheetElementPatch(element as HTMLStyleElement, sandbox));
+          // 关联 issue: https://github.com/Tencent/wujie/issues/1059
+          //
+          // vite dev server 第一个 css 通过 head.appendChild 插入，后续每个 css 都走
+          // lastInsertedStyle.insertAdjacentElement("afterend", style)，hot update 时
+          // 直接 style.textContent = newContent。被 insertAdjacentElement 插入的 style
+          // 必须获得与"第一个 style"完全一致的劫持能力，否则：
+          //   1) 当前内容里的资源相对路径不会被 cssLoader 改写（@font-face 失效）；
+          //   2) 后续 textContent / innerHTML / appendChild / sheet.insertRule
+          //      绕过 wujie，hot update 全部脱管；
+          //   3) 链式 insertAdjacentElement 创建的下游 style 直接走原生实现。
+          // 因此这里必须复用与 case "STYLE" 完全一致的处理流程：先用 cssLoader 改写
+          // 当前内容，再 patchStylesheetElement 把劫持递归装到新 style 上。
+          const stylesheetElement = element as HTMLStyleElement;
+          const content = stylesheetElement.innerHTML;
+          if (content) stylesheetElement.innerHTML = cssLoader(content, "", curUrl);
           const res = rawInsertAdjacentElement.call(this, position, element);
-          sandbox.styleSheetElements.push(element as HTMLStyleElement);
+          sandbox.styleSheetElements.push(stylesheetElement);
+          patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
+          handleStylesheetElementPatch(stylesheetElement, sandbox);
           return res;
         } else return rawInsertAdjacentElement.call(this, position, element);
       },
