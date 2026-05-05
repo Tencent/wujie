@@ -19,6 +19,7 @@ import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
+import { rewriteInlineEventOnElement, installInlineEventDispatcher } from "./inline-event";
 import { getCssLoader, getPresetLoaders } from "./plugin";
 import { getAbsolutePath, getContainer, getCurUrl, setAttrsToElement } from "./utils";
 
@@ -199,6 +200,10 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
   let nextElement = ElementIterator.currentNode as HTMLElement;
   while (nextElement) {
     patchElementEffect(nextElement, iframeWindow);
+    // 改写元素上的 inline event 属性（onclick / onchange / ...）
+    // 让其指向主 window 上的 dispatcher，dispatcher 内部在 sandbox.proxy
+    // 作用域里执行原代码，解决 inline handler 自由变量始终落到主 window 的问题
+    rewriteInlineEventOnElement(nextElement, sandbox.id);
     const relativeAttr = relativeElementTagAttrMap[nextElement.tagName];
     const url = nextElement[relativeAttr];
     if (relativeAttr) nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
@@ -223,6 +228,9 @@ export async function renderTemplateToShadowRoot(
   iframeWindow: Window,
   template: string
 ): Promise<void> {
+  // dispatcher 必须在子应用模板真正注入到 shadowRoot 之前挂到主 window 上，
+  // 否则浏览器编译 inline handler 字符串成函数后，触发时会找不到 dispatcher
+  installInlineEventDispatcher(window);
   const html = renderTemplateToHtml(iframeWindow, template);
   // 处理 css-before-loader 和 css-after-loader
   const processedHtml = await processCssLoaderForTemplate(iframeWindow.__WUJIE, html);
