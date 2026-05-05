@@ -77,8 +77,11 @@ jobs:
           sudo sysctl -w fs.inotify.max_user_watches=524288
           sudo sysctl -w fs.inotify.max_user_instances=512
 
+      # 集成测试需要在 8 个 examples/* 下启动各自的 dev server
+      # （react-dev-utils/@vue/cli-service/@angular/cli/vite 等依赖都在 example 里），
+      # 所以安装范围必须覆盖 examples/**，不能沿用 publish 流水线只装 packages/** 的做法
       - name: Install dependencies
-        run: pnpm i --filter "wujie-project" --filter "./packages/**" --frozen-lockfile
+        run: pnpm i --filter "wujie-project" --filter "./packages/**" --filter "./examples/**" --frozen-lockfile
 
       - name: Run integration tests
         working-directory: packages/wujie-core
