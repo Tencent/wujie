@@ -83,12 +83,18 @@ jobs:
       - name: Install dependencies
         run: pnpm i --filter "wujie-project" --filter "./packages/**" --filter "./examples/**" --frozen-lockfile
 
+      # examples 通过 main/module 字段引用 wujie / wujie-react / wujie-vue2 / wujie-vue3
+      # 的 lib/esm 产物，这些目录由 prepack（build.sh）生成。CI 全新仓库没有产物，
+      # 直接启动 dev server 会让主应用拿到空模块 → 页面空白 → 后续 selector 全找不到
+      - name: Build framework packages
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+        run: ./node_modules/.bin/lerna run prepack
+
       - name: Run integration tests
         working-directory: packages/wujie-core
         env:
-          # 兼容 webpack 4 + Node 17+ 的 OpenSSL provider 限制
           NODE_OPTIONS: --openssl-legacy-provider
-          # puppeteer 在 CI 容器里需要禁用 sandbox
           PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
         run: pnpm run test:integration
 
