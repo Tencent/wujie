@@ -1,13 +1,12 @@
 /**
  * 销毁链路清理跟踪器。
  *
- * 背景（详见 notes/memory-leak-investigation.md §2 §3）：
- *  - patchDocumentEffect 会把子应用 document.addEventListener 转发到主应用 window.document，
- *    若不在 destroy 时反向解绑，handler 闭包会持有 iframeWindow，整个子应用上下文 GC 不掉。
- *  - patchWindowEffect 会把子应用 window.onXXX 改写到主应用 window，
- *    destroy 时不还原会让主 window 上长期残留 dangling handler。
+ * 子应用通过 patchDocumentEffect 注册的部分事件会被转发到主应用 window.document，
+ * patchWindowEffect 改写的 window.onXXX 也会写到主应用 window 上。两者若不在
+ * sandbox.destroy() 时反向清理，handler 闭包会持有 iframeWindow，整个子应用
+ * 上下文都无法被 GC，且主 window 上会留下 dangling handler。
  *
- * 该跟踪器的实例挂在每个 Wujie 沙箱实例上，在 sandbox.destroy() 末尾统一调用 cleanupAll()。
+ * 跟踪器实例挂在每个 Wujie 沙箱上，在 sandbox.destroy() 末尾统一 cleanupAll()。
  */
 
 export type DocumentListenerEntry = {
@@ -18,9 +17,9 @@ export type DocumentListenerEntry = {
 
 export type WindowOnEventOriginal = {
   key: string;
-  /** 修复前主应用 window 上该 key 的值（可能是原 handler / null / undefined） */
+  /** 主应用 window 上该 key 的原始值（可能是原 handler / null / undefined） */
   originalValue: any;
-  /** 修复前该 key 在主应用 window 上是否是 own property（用于 cleanup 决定是否要 delete） */
+  /** 该 key 原本是否是主应用 window 的 own property（用于 cleanup 决定是否要 delete） */
   hadOwnProperty: boolean;
 };
 

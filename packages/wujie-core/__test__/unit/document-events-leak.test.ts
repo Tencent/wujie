@@ -1,21 +1,12 @@
 /**
- * 准集成测试：patchDocumentEffect 中 documentEvents 分支（fullscreenchange / pointerlockchange 等）
- * 的多重内存泄露 bug。
+ * 准集成测试：patchDocumentEffect 中 documentEvents 分支
+ * （onfullscreenchange / onpointerlockchange 等）的语义契约。
  *
- * 主要面向：
- * - notes/memory-leak-investigation.md §9（原作者已在源码里标 // TODO 内存泄露）
- *   1) addEventListener 与 handlerCallbackMap.set 各自调用一次 handler.bind()，得到两个不同的
- *      bound 函数引用；下一次 set 时 removeEventListener 用 map 里的 bound（B），但实际
- *      注册在 main document 上的是另一个 bound（A），永远删不掉，反复重赋值会累加 listener。
- *   2) addEventListener 直接调原生 `window.document.addEventListener`，绕开了批 B 加的
- *      `Document.prototype.addEventListener` 劫持，因此没经过 eventCleanupTracker 登记，
- *      destroy 时不会被反向解绑。
- *   3) handler.bind(iframeWindow.document) 闭包持有 iframeWindow.document，
- *      listener 永久挂在主 document 上 → iframeWindow GC 不掉。
- *   4) `handler = null` 这个常见的清除写法没有特殊处理。
- *
- * 修复目标：每个 propKey 只允许一个 active listener；setter 内部用同一份 bound 引用做
- * add / remove / track；接入 sandbox.eventCleanupTracker，destroy 时反向解绑。
+ * 关键约束：
+ *  - 每个 propKey 只允许一个 active listener，反复赋值不应在主 document 累加；
+ *  - handler = null 应能解除已注册的 listener，且不抛 TypeError；
+ *  - sandbox.destroy() 时应能通过 eventCleanupTracker 反向解绑，避免 bound 闭包
+ *    把 iframeWindow.document 永久钉在主 document 上。
  */
 
 export {};
@@ -51,7 +42,7 @@ function countListenersByDispatch(type: string, dispatchTimes = 1): number {
   return count - dispatchTimes;
 }
 
-describe("§9 documentEvents setter 多重 bug", () => {
+describe("patchDocumentEffect documentEvents setter 语义", () => {
   let iframe: HTMLIFrameElement;
   let iframeWindow: any;
   let sandbox: any;

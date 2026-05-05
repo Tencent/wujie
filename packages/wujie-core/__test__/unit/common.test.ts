@@ -1,10 +1,8 @@
 /**
- * 单元测试：覆盖 wujie-core/src/common.ts 中的 idToSandboxCacheMap 增删逻辑。
+ * 单元测试：idToSandboxCacheMap 增删逻辑。
  *
- * 主要面向：
- * - notes/memory-leak-investigation.md §6
- *   `deleteWujieById` 实现 bug：本意是 destroy 后保留 `setupApp` 缓存的 options，
- *   实际上第二行 set 之后第三行又 delete，options 一并被删，导致 #732 链路。
+ * deleteWujieById 必须区分两种场景：有 setupApp 缓存 options 时只移除 sandbox 实例引用、
+ * 保留 options 供下次快速启动；无 options 时整体删除 entry。
  */
 
 export {};

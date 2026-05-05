@@ -1,18 +1,14 @@
 /**
- * 单元测试：新增 destroyOnUnmount 配置，根治 #890 路由切换型场景的内存泄露。
+ * 单元测试：destroyOnUnmount 配置。
  *
- * 主要面向：
- * - notes/memory-leak-investigation.md §1.1
- *   wujie-app webcomponent 的 disconnectedCallback 默认只 sandbox.unmount()，
- *   sandbox 与 iframe 都保留下来。但很多用户的场景是「路由切换 = 一次性使用」
- *   （比如离线页 / 一次性表单），希望切走时直接把整个沙箱 destroy 掉。
+ * wujie-app webcomponent 的 disconnectedCallback 默认仅 sandbox.unmount()，
+ * 保留 sandbox / iframe 以便复用。「路由切换 = 一次性使用」的场景（离线页、
+ * 一次性表单等）通过 destroyOnUnmount: true 让 disconnect 直接整体 destroy。
  *
- * 修复目标：
- *   - Wujie 类增加 `destroyOnUnmount?: boolean` 字段，默认 false（保持向后兼容）
- *   - 构造器接受 `destroyOnUnmount` 选项
- *   - 暴露独立可测的 `handleWujieAppDisconnect(sandbox)`：
- *     destroyOnUnmount=true 时调用 destroy()，否则调用 unmount()
- *   - WujieApp.disconnectedCallback 调用上述 helper
+ * 验证点：
+ *   - Wujie 实例支持 destroyOnUnmount 字段（默认 false）；
+ *   - shadow 模块导出独立可测的 handleWujieAppDisconnect(sandbox)：
+ *     destroyOnUnmount=true → destroy()，否则 unmount()。
  */
 
 export {};
@@ -20,7 +16,7 @@ export {};
 const Sandbox = require("../../src/sandbox").default;
 const shadow = require("../../src/shadow");
 
-describe("§1.1 destroyOnUnmount 配置", () => {
+describe("destroyOnUnmount 配置", () => {
   test("Wujie 实例应包含 destroyOnUnmount 字段，默认 false", () => {
     const sandbox = Object.create(Sandbox.prototype);
     sandbox.destroyOnUnmount = false;

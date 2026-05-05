@@ -36,14 +36,14 @@ type ImportEntryOpts = {
   loadError?: loadErrorHandler;
 };
 
-// 模块级缓存：导出供 clearAssetsCache 使用，外部代码勿直接 mutate（修复 §4）
+// 模块级资源缓存：导出仅供 clearAssetsCache 内部使用，外部代码勿直接 mutate
 export const styleCache: Record<string, any> = {};
 export const scriptCache: Record<string, any> = {};
 export const embedHTMLCache: Record<string, any> = {};
 
 /**
  * 清空资源缓存：不传 host 时全清；传单个/数组 host 时按 url 前缀清。
- * 修复 notes/memory-leak-investigation.md §4：缓存永驻，热更新或多 host 切换累积。
+ * 用于热更新或多 host 子应用切换时主动失效，避免缓存命中已变更资源。
  */
 export function clearAssetsCache(host?: string | string[]): void {
   const matchers = host == null ? null : Array.isArray(host) ? host : [host];

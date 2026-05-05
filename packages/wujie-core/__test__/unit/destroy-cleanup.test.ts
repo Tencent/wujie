@@ -1,18 +1,10 @@
 /**
- * 单元测试：destroy 链路对主应用 window / window.document 的反向解绑。
+ * 单元测试：EventCleanupTracker 两类副作用的反向解绑与还原。
  *
- * 主要面向：
- * - notes/memory-leak-investigation.md §2
- *   `patchDocumentEffect` 把子应用 `document.addEventListener` 转发到主应用 window.document，
- *   但 `destroy()` 只清了 iframe 自身的 listener，没清主 window.document 上的，
- *   导致 iframeWindow 被 listener 闭包持有，永远 GC 不掉。
- * - notes/memory-leak-investigation.md §3
- *   `patchWindowEffect` 把子应用 `window.onXXX = handler` 改写成「直接写到主应用 window 上」，
- *   `destroy()` 没有还原，每销毁一个子应用就在主应用 window 上留一个 dangling handler。
- *
- * 修复目标：
- *   - 新增 EventCleanupTracker（src/effect-cleanup.ts）跟踪两类副作用
- *   - sandbox.destroy() 时 cleanupAll() 反向解绑 / 还原
+ * patchDocumentEffect 会把子应用 document.addEventListener 中部分事件转发到主
+ * window.document；patchWindowEffect 会把 window.onXXX 改写到主 window 上。
+ * sandbox.destroy() 必须通过 tracker.cleanupAll() 反向解绑 listener 并还原
+ * onXXX 原值，否则 iframeWindow 会被闭包钉住、主 window 残留 dangling handler。
  */
 
 export {};
@@ -25,7 +17,7 @@ jest.mock("../../src/utils", () => {
 
 const { EventCleanupTracker } = require("../../src/effect-cleanup");
 
-describe("EventCleanupTracker: §2 主应用 window.document 上的 listener 反向解绑", () => {
+describe("EventCleanupTracker 主应用 window.document 上的 listener 反向解绑", () => {
   test("trackMainDocumentListener + cleanupAll 应能反向解绑主 document 上的 listener", () => {
     const tracker = new EventCleanupTracker();
     const handler = jest.fn();
@@ -81,7 +73,7 @@ describe("EventCleanupTracker: §2 主应用 window.document 上的 listener 反
   });
 });
 
-describe("EventCleanupTracker: §3 主应用 window.onXXX 污染还原", () => {
+describe("EventCleanupTracker 主应用 window.onXXX 污染还原", () => {
   let originalOnTestEvent: any;
   beforeEach(() => {
     originalOnTestEvent = (window as any).__leakProbeOnEvent;

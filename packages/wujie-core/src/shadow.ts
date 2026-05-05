@@ -36,12 +36,9 @@ declare global {
 /**
  * 处理 wujie-app webComponent disconnect 时的销毁策略。
  *
- * 修复 notes/memory-leak-investigation.md §1.1：
- *   默认情况下 disconnect 仅调 unmount，sandbox 与 iframe 都保留下来；
- *   对于「路由切换 = 一次性使用」的场景，业务可在 setupApp/startApp 中传
- *   `destroyOnUnmount: true`，让 disconnect 时直接整体 destroy，避免 sandbox
- *   级别的累积（iframe / styleSheetElements / dynamicScriptElements / event tracker
- *   / appEventObjMap entry / setupApp options 等）。
+ * 默认 disconnect 仅调 unmount，sandbox 与 iframe 都保留以便快速复用。
+ * 业务在 setupApp / startApp 中传 `destroyOnUnmount: true` 时，disconnect 直接
+ * 整体 destroy，适用于「路由切换 = 一次性使用」、不希望 sandbox 长期驻留的场景。
  */
 export function handleWujieAppDisconnect(sandbox: Wujie | null | undefined): void {
   if (!sandbox) return;

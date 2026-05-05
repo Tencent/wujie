@@ -1,15 +1,9 @@
 /**
- * 单元测试：模块级资源缓存（styleCache/scriptCache/embedHTMLCache）的清理 API。
+ * 单元测试：clearAssetsCache(host?) 公共 API。
  *
- * 主要面向：
- * - notes/memory-leak-investigation.md §4
- *   `entry.ts` 顶层 `styleCache / scriptCache / embedHTMLCache` 始终持有
- *   每个 url 的 fetch 内容/Promise，destroyApp 不会清，热更新场景或
- *   多 host 子应用切换会持续累积，长时间运行后内存上涨。
- *
- * 修复目标：
- *   - 暴露 `clearAssetsCache(host?: string | string[])` 公共 API
- *   - 不传参时清全部；传 host 时按 url 前缀清 styleCache + scriptCache + embedHTMLCache
+ * entry.ts 顶层的 styleCache / scriptCache / embedHTMLCache 是 fetch 结果缓存，
+ * 不传 host 时清全部；传 host 或数组时按 url 前缀清，用于热更新或多 host 切换
+ * 场景的主动失效。
  */
 
 export {};
@@ -17,7 +11,7 @@ export {};
 const { styleCache, scriptCache, embedHTMLCache } = require("../../src/entry");
 const wujie = require("../../src/index");
 
-describe("clearAssetsCache: §4 资源缓存清理 API", () => {
+describe("clearAssetsCache 资源缓存清理 API", () => {
   beforeEach(() => {
     Object.keys(styleCache).forEach((k) => delete styleCache[k]);
     Object.keys(scriptCache).forEach((k) => delete scriptCache[k]);

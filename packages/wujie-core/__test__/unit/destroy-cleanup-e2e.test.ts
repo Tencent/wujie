@@ -1,9 +1,9 @@
 /**
  * 准集成测试：用 jsdom 真 iframe 走 patchDocumentEffect / patchWindowEffect 全链路，
- * 验证修复 §2 §3 后销毁能彻底反向解绑主应用 window/document 上的副作用。
+ * 验证 sandbox 销毁能彻底反向解绑主应用 window / document 上的副作用。
  *
- * 选择 jsdom iframe 而非 puppeteer 是因为 patchDocumentEffect/patchWindowEffect 的逻辑
- * 完全是 DOM 标准 API，jsdom 已经能复现，跑得更快。puppeteer 端到端基准放在最终批次。
+ * 选择 jsdom 而非 puppeteer：这两个 patch 的逻辑均为 DOM 标准 API，jsdom 已能复现，
+ * 跑得更快；puppeteer 端到端基准另行覆盖。
  */
 
 export {};
@@ -29,7 +29,7 @@ function createSandboxStub(id: string) {
   };
 }
 
-describe("E2E: §2 patchDocumentEffect 端到端反向解绑", () => {
+describe("E2E: patchDocumentEffect 端到端反向解绑", () => {
   let iframe: HTMLIFrameElement;
   let iframeWindow: any;
   let sandbox: any;
@@ -78,7 +78,7 @@ describe("E2E: §2 patchDocumentEffect 端到端反向解绑", () => {
   });
 });
 
-describe("E2E: §3 patchWindowEffect 端到端 onXXX 还原", () => {
+describe("E2E: patchWindowEffect 端到端 onXXX 还原", () => {
   let iframe: HTMLIFrameElement;
   let iframeWindow: any;
   let sandbox: any;

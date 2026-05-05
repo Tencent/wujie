@@ -1,13 +1,9 @@
 /**
- * 单元测试：覆盖 wujie-core/src/event.ts 中的 EventBus 实例及其全局 appEventObjMap 的清理。
+ * 单元测试：EventBus.$destroy 与全局 appEventObjMap 的清理契约。
  *
- * 主要面向：
- * - notes/memory-leak-investigation.md §5
- *   `appEventObjMap` 的 entry 永不删除：
- *   destroy 后没有 `appEventObjMapForLeakTest.delete(id)`，几十个子应用 setupApp 后会逐渐累积。
- *
- * EventBus 应该提供一个销毁入口，让 sandbox.destroy() 能调用，
- * 完成 `$clear()` 后还要从全局 appEventObjMap 中 delete entry。
+ * 每个子应用对应 appEventObjMap 中一个 entry。sandbox.destroy() 应调用
+ * EventBus.$destroy() 完成 $clear() 并从 map 中 delete entry，
+ * 防止反复 setupApp/destroyApp 后 map 条目持续累积。
  */
 
 export {};
@@ -21,7 +17,7 @@ jest.mock("../../src/utils", () => {
 const wujieEventLeakModule = require("../../src/event");
 const { EventBus: EventBusForLeakTest, appEventObjMap: appEventObjMapForLeakTest } = wujieEventLeakModule;
 
-describe("event bus: 销毁后应从全局 appEventObjMap 中移除 entry（修复 §5 内存泄露）", () => {
+describe("EventBus.$destroy 应从全局 appEventObjMap 中移除 entry", () => {
   test("EventBus 实例提供 $destroy 用于销毁，调用后全局 map 中应不再保留 id", () => {
     const id = "test-destroy-cleanup";
     const bus = new EventBusForLeakTest(id);

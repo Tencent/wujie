@@ -108,9 +108,8 @@ export default class Wujie {
   public styleSheetElements: Array<HTMLLinkElement | HTMLStyleElement>;
   /**
    * 子应用通过 document.head.appendChild(<script>) 触发的动态脚本节点。
-   * effect.ts → insertScriptToIframe（携带 rawElement）时登记，unmount 时统一回收，
-   * 防止反复 mount/unmount 在 iframe head 累积大量带 textContent 的 script 节点
-   * （修复 notes/memory-leak-investigation.md §1.3）。
+   * 由 insertScriptToIframe 在收到 rawElement（即 effect.ts 转发的动态 script）
+   * 时登记，sandbox.destroy() 时统一从 iframe head detach 并清空。
    */
   public dynamicScriptElements: Array<HTMLScriptElement> = [];
   /** 子应用head元素 */
@@ -129,9 +128,8 @@ export default class Wujie {
   /** 销毁链路清理跟踪器：记录被转发到主应用 window/document 上的副作用，destroy 时统一回收 */
   public eventCleanupTracker: EventCleanupTracker = new EventCleanupTracker();
   /**
-   * 在 wujie-app webcomponent disconnect 时是否直接 destroy（而不是仅 unmount）。
-   * 默认 false，业务在「路由切换 = 一次性使用」场景下可设为 true 根治 #890 类累积。
-   * 修复 notes/memory-leak-investigation.md §1.1。
+   * wujie-app webcomponent disconnect 时是否直接 destroy（而非仅 unmount）。
+   * 默认 false。「路由切换 = 一次性使用」场景下设为 true，避免 sandbox / iframe 长期驻留。
    */
   public destroyOnUnmount: boolean = false;
 
@@ -406,18 +404,21 @@ export default class Wujie {
       }
       clearChild(this.head);
       clearChild(this.body);
-      // 修复 §1.2 / §1.3：清空动态 styleSheetElements 与 dynamicScriptElements，
-      // 避免非保活子应用反复 mount/unmount 在 iframe 中累积资源节点
-      this.clearStyleSheetsForUnmount();
-      this.clearDynamicScriptsForUnmount();
+      // styleSheetElements / dynamicScriptElements 不能在 unmount 中清空：
+      // 子应用的 JS 模块只在 sandbox.start() 阶段执行一次，unmount → active 后
+      // 模块代码不会重跑，再次 mount 依赖 rebuildStyleSheets() 把数组里登记的
+      // 样式节点重新挂回 shadowRoot.head。两数组的彻底清理放在 destroy() 中。
     }
   }
 
   /** 销毁子应用 */
   public async destroy() {
     await this.unmount();
+    // 释放动态样式 / 脚本节点（unmount 阶段保留以便 rebuildStyleSheets 复用，destroy 阶段才彻底清）
+    this.clearStyleSheets();
+    this.clearDynamicScripts();
     // 先 $destroy 再置 null：清空事件并从全局 appEventObjMap 中移除当前 id 的 entry，
-    // 防止 setupApp 后反复 destroyApp 累积 map 条目（修复 notes/memory-leak-investigation.md §5）
+    // 避免 setupApp → destroyApp 反复后 map 条目持续累积。
     this.bus.$destroy();
     this.shadowRoot = null;
     this.proxy = null;
@@ -427,6 +428,7 @@ export default class Wujie {
     this.provide = null;
     this.degradeAttrs = null;
     this.styleSheetElements = null;
+    this.dynamicScriptElements = null;
     this.bus = null;
     this.replace = null;
     this.fetch = null;
@@ -458,10 +460,9 @@ export default class Wujie {
           iframeWindow.removeEventListener(o.type, o.listener, o.options);
         });
       }
-      // 修复 §10：patchElementEffect 给散落到主应用 DOM 上的 element 留了
-      // baseURI / ownerDocument getter，会通过 iframeWindow.__WUJIE 动态读取
-      // proxyLocation / document。这里主动断链，让那些残留 getter 立即降级，
-      // 不再让 element 把 sandbox 钉死。
+      // patchElementEffect 给散落到主应用 DOM 上的 element 留了 baseURI / ownerDocument
+      // getter，它们通过 iframeWindow.__WUJIE 动态读取。这里主动断链让残留 getter 立即
+      // 降级到主 document，避免 element 把 sandbox 钉在内存中。
       if (iframeWindow) {
         try {
           iframeWindow.__WUJIE = null;
@@ -472,48 +473,40 @@ export default class Wujie {
       this.iframe.parentNode?.removeChild(this.iframe);
       this.iframe = null;
     }
-    // 反向清理被转发到主应用 window/document 上的副作用（修复 §2 §3）
+    // 反向解绑 patchDocumentEffect / patchWindowEffect 在主 window / document 上挂的副作用
     this.eventCleanupTracker.cleanupAll();
     deleteWujieById(this.id);
   }
 
   /**
-   * 子应用 unmount 时，根据 alive 决定是否清空 styleSheetElements。
+   * destroy 阶段清空 styleSheetElements，同时把节点从父节点 detach。
    *
-   * 修复 notes/memory-leak-investigation.md §1.2：
-   *   非保活子应用反复进出页面时，每次 mount 都会通过 effect.ts 把动态 STYLE/LINK
-   *   push 进 styleSheetElements，但 unmount 只清 head/body 子节点，数组本身不清，
-   *   导致：
-   *     1) 数组持有大量已脱离 DOM 的废弃 style 节点 → 阻碍 GC；
-   *     2) 下一次 startApp 走 rebuildStyleSheets 时会把这些旧引用一起重附加，
-   *        引发"动态样式重复 N 倍"问题。
-   *
-   * 设计：
-   *   - 非保活：清空数组内容（保留引用，避免外部任何缓存 stale 引用）；
-   *   - 保活：保留，下一次 active 走 rebuildStyleSheets 复用。
+   * 仅供 destroy 调用：unmount 阶段需要保留数组以便 rebuildStyleSheets 复用样式节点
+   * （子应用 JS 模块只 init 一次，模块代码不会再次生成动态样式）。
    */
-  public clearStyleSheetsForUnmount(): void {
-    if (this.alive) return;
-    if (Array.isArray(this.styleSheetElements)) {
-      this.styleSheetElements.length = 0;
-    }
+  public clearStyleSheets(): void {
+    if (!Array.isArray(this.styleSheetElements)) return;
+    this.styleSheetElements.forEach((el) => {
+      try {
+        el.parentNode?.removeChild(el);
+      } catch (_) {
+        /* noop: destroy 阶段任何异常不应中断后续清理 */
+      }
+    });
+    this.styleSheetElements.length = 0;
   }
 
   /**
-   * 非保活子应用 unmount 时，把所有动态插入到 iframe head 的 <script> 节点移除。
-   *
-   * 修复 notes/memory-leak-investigation.md §1.3：动态脚本节点会持有完整的 textContent
-   * 字符串（通常每个数 KB ~ 几十 KB），反复访问会持续累积。这些节点的副作用（注册的
-   * 全局变量/函数）已经写入 iframe runtime，移除节点本身不影响副作用，仅释放节点占用。
+   * destroy 阶段清空 dynamicScriptElements，同时把残留的 <script> 节点从父节点 detach。
+   * 仅供 destroy 调用，理由同 clearStyleSheets。
    */
-  public clearDynamicScriptsForUnmount(): void {
-    if (this.alive) return;
+  public clearDynamicScripts(): void {
     if (!Array.isArray(this.dynamicScriptElements)) return;
     this.dynamicScriptElements.forEach((script) => {
       try {
         script.parentNode?.removeChild(script);
       } catch (_) {
-        /* noop: destroy 阶段任何异常不应中断后续清理 */
+        /* noop */
       }
     });
     this.dynamicScriptElements.length = 0;
@@ -568,11 +561,10 @@ export default class Wujie {
     lifecycles: lifecycles;
     iframeAddEventListeners?: Array<string>;
     iframeOnEvents?: Array<string>;
-    /** disconnect 时是否直接 destroy（修复 §1.1） */
+    /** disconnect 时是否直接 destroy（默认 false 仅 unmount） */
     destroyOnUnmount?: boolean;
   }) {
-    // 传递inject给嵌套子应用
-    // 显式 as 修复 TS 在 incremental build 下把 inject narrow 到 event.ts spread 字面量类型的问题
+    // 传递inject给嵌套子应用（显式 as：__WUJIE_INJECT 全局类型是 Partial，需断言回完整结构）
     if (window.__POWERED_BY_WUJIE__) this.inject = window.__WUJIE.inject as Wujie["inject"];
     else {
       this.inject = {

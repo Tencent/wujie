@@ -277,8 +277,8 @@ export function patchWindowEffect(iframeWindow: Window): void {
         set:
           descriptor.writable || descriptor.set
             ? (handler) => {
-                // 修复 §3：每次 set 时首次记录主应用 window 上 onXXX 的原始值，
-                // destroy 时通过 setter 还原原值（accessor 不能用 defineProperty descriptor 还原），
+                // 首次写入时记录主 window 上 onXXX 的原始值；destroy 时通过 setter
+                // 还原（accessor 不能用 defineProperty descriptor 直接还原内部 handler），
                 // 防止主应用 window 被 dangling handler 长期污染。
                 const tracker = iframeWindow.__WUJIE?.eventCleanupTracker;
                 tracker?.trackWindowOnEvent(e, window[e], Object.prototype.hasOwnProperty.call(window, e));
@@ -435,7 +435,7 @@ export function patchDocumentEffect(iframeWindow: Window): void {
     // 降级统一走 sandbox.document
     if (sandbox.degrade) return sandbox.document.addEventListener(type, callback, options);
     if (mainDocumentAddEventListenerEvents.includes(type)) {
-      // 记录到清理跟踪器，destroy 时反向解绑（修复 §2）
+      // 登记到清理跟踪器，destroy 时反向解绑，避免 handler 闭包永久钉住 iframeWindow
       sandbox.eventCleanupTracker?.trackMainDocumentListener({ type, callback, options });
       return window.document.addEventListener(type, callback, options);
     }
@@ -537,19 +537,17 @@ export function patchDocumentEffect(iframeWindow: Window): void {
       warn(e.message);
     }
   });
-  // 处理document专属事件（修复 §9 多重 bug，详见 notes/memory-leak-investigation.md）
+  // 处理 document 专属事件（onfullscreenchange / onpointerlockchange 等）。
   //
-  // 历史 bug：
-  //  1) addEventListener 与 handlerCallbackMap.set 各自独立调 handler.bind() 得到两个不同的
-  //     bound 函数，下次 set 时按 map 里的那个去 remove 永远命中不到真正注册的；
-  //  2) 直接调原生 document.addEventListener，绕开了 §2 引入的 eventCleanupTracker 跟踪，
-  //     destroy 时无法反向解绑；
-  //  3) handler = null（清除写法）会进入 .bind() 抛 TypeError；
-  //  4) bound 闭包持有 iframeWindow.document，永久挂在主 document 上 → iframeWindow GC 不掉。
-  //
-  // 修复策略：每个 propKey 仅允许 1 个 active listener；setter 内部只用同一份 bound 引用
-  // 做 add / remove / track；接入 sandbox.eventCleanupTracker.trackMainDocumentListener，
-  // destroy 时 cleanupAll() 反向解绑，让 iframeWindow.document 闭包可被 GC。
+  // 这类事件浏览器只 dispatch 到主 document 上，子应用形如
+  // `document.onfullscreenchange = handler` 的写法需要被转发到主 window.document。
+  // 实现要点：
+  //   1) 每个 propKey 只允许一个 active listener；setter 内部用同一份 bound 引用
+  //      做 add / remove / track，避免出现 "存进 map 的 bound 与实际注册的 bound
+  //      不是同一个" 而无法 remove；
+  //   2) 接入 eventCleanupTracker，sandbox.destroy() 时反向解绑，否则 bound 闭包
+  //      会持有 iframeWindow.document 永远挂在主 document 上；
+  //   3) handler = null/非函数：仅解绑不重绑，与原生 onXXX = null 语义一致。
   const documentEventActiveListeners: Map<string, EventListenerOrEventListenerObject> = new Map();
   documentEvents.forEach((propKey) => {
     const descriptor = Object.getOwnPropertyDescriptor(iframeWindow.Document.prototype, propKey) || {
@@ -755,22 +753,16 @@ function stopIframeLoading(iframe: HTMLIFrameElement, useObjectURL: { mainHostPa
 }
 
 /**
- * 修复 §10 patchElementEffect 跨边界闭包泄漏：
+ * 给子应用元素打上 baseURI / ownerDocument 补丁，让它在主应用 DOM 中也保留子应用
+ * 的 location / document 语义。
  *
- * 原实现把 proxyLocation 抽出来作强变量，并让 ownerDocument getter 直接闭包持有
- * iframeWindow。一旦业务把子应用 element 移到主应用 DOM 下（portal / 弹窗 / 拖拽），
- * 即使 sandbox.destroy() 已经把 iframe 移出 DOM，element 上残留的 getter 闭包仍然
- * 强持 proxyLocation 与 iframeWindow，整条 sandbox 上下文都 GC 不掉。
+ * 闭包持有策略：用 WeakRef<Window> 间接持有 iframeWindow，proxyLocation / plugins
+ * 都通过 `iframeWindow.__WUJIE` 动态访问。这样一来，当子应用 element 被业务移到
+ * 主应用 DOM 下（portal / 弹窗 / 拖拽等），sandbox.destroy() 把
+ * `iframeWindow.__WUJIE = null` 后，getter 会自动降级到主 document，element 不会
+ * 把整个子应用上下文钉在内存中。
  *
- * 修复：
- *  1) 用 WeakRef<Window> 间接持有 iframeWindow，闭包内不再有强引用。
- *  2) proxyLocation / plugins 通过 iframeWindow.__WUJIE 动态访问，destroy 时（见
- *     sandbox.ts 修改）把 iframeWindow.__WUJIE = null，让 getter 安全降级。
- *  3) 任意一步拿不到时 baseURI 返回主 document.baseURI，ownerDocument 返回主 document，
- *     避免破坏 element 上残留的 DOM API。
- *
- * WeakRef 是 ES2021 标准，Chrome 84+ / Node 14.6+ 已具备；wujie 已强依赖 Proxy +
- * CustomElementRegistry，运行环境自然满足。
+ * WeakRef 是 ES2021 标准（Chrome 84+ / Node 14.6+）；旧环境降级为强引用以保兼容。
  */
 export function patchElementEffect(
   element: (HTMLElement | Node | ShadowRoot) & { _hasPatch?: boolean },
@@ -894,8 +886,8 @@ export function insertScriptToIframe(
   // 打标记
   if (rawElement) {
     setTagToScript(scriptElement, getTagFromScript(rawElement));
-    // 修复 §1.3：rawElement 表示这是 effect.ts 转发的动态 script，
-    // 登记到 sandbox.dynamicScriptElements 供 unmount 时回收，避免在 iframe head 累积。
+    // rawElement 不为空表示这是 effect.ts 转发的动态 <script>（webpack 异步 chunk 等）。
+    // 登记到 sandbox.dynamicScriptElements，由 destroy() 统一清理，避免 iframe 残留 detach。
     const sandboxForCleanup = iframeWindow.__WUJIE;
     if (sandboxForCleanup && Array.isArray(sandboxForCleanup.dynamicScriptElements)) {
       sandboxForCleanup.dynamicScriptElements.push(scriptElement);

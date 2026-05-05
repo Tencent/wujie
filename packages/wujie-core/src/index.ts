@@ -122,8 +122,7 @@ type baseOptions = {
   iframeOnEvents?: Array<string>;
   /**
    * wujie-app webcomponent disconnect 时直接 destroy 沙箱（默认 false 仅 unmount）。
-   * 用于「路由切换 = 一次性使用」的场景，根治反复 mount/unmount 在 iframe 累积资源
-   * 的问题（修复 notes/memory-leak-investigation.md §1.1）。
+   * 用于「路由切换 = 一次性使用」的场景，避免 sandbox / iframe 长期驻留。
    */
   destroyOnUnmount?: boolean;
   /** 子应用生命周期 */
