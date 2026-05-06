@@ -215,6 +215,20 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
   return html;
 }
 
+function adaptedShadowRootHtml(shadowRoot: ShadowRoot, iframeWindow: Window) {
+  Object.defineProperty(shadowRoot.firstChild, "parentNode", {
+    enumerable: true,
+    configurable: true,
+    get: () => iframeWindow.document,
+  });
+  // https://www.w3.org/TR/2016/WD-cssom-view-1-20160317/#dom-element-clientheight
+  Object.defineProperty(shadowRoot.firstChild, "clientHeight", {
+    enumerable: true,
+    configurable: true,
+    get: () => iframeWindow.parent?.document.documentElement.clientHeight,
+  });
+}
+
 /**
  * 将template渲染到shadowRoot
  */
@@ -233,14 +247,7 @@ export async function renderTemplateToShadowRoot(
   processedHtml.insertBefore(shade, processedHtml.firstChild);
   shadowRoot.head = shadowRoot.querySelector("head");
   shadowRoot.body = shadowRoot.querySelector("body");
-
-  // 修复 html parentNode
-  Object.defineProperty(shadowRoot.firstChild, "parentNode", {
-    enumerable: true,
-    configurable: true,
-    get: () => iframeWindow.document,
-  });
-
+  adaptedShadowRootHtml(shadowRoot, iframeWindow);
   patchRenderEffect(shadowRoot, iframeWindow.__WUJIE.id, false);
 }
 
