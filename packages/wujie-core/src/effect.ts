@@ -47,6 +47,21 @@ function patchCustomEvent(
 }
 
 /**
+ * 为动态创建的元素设置模拟的 parentNode
+ * 用于兼容第三方库（如高德地图）在 onload 回调中调用 parentNode.removeChild 的情况
+ */
+function patchParentNode(element: HTMLElement): void {
+  if (element.parentNode === null) {
+    Object.defineProperty(element, "parentNode", {
+      configurable: true,
+      get: () => ({
+        removeChild: (child: Node) => child,
+      }),
+    });
+  }
+}
+
+/**
  * 手动触发事件回调
  */
 function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, event: string): void {
@@ -255,11 +270,15 @@ function rewriteAppendOrInsertChild(opts: {
                     rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                     // 处理样式补丁
                     handleStylesheetElementPatch(stylesheetElement, sandbox);
+                    // 兼容第三方库在 onload 中调用 parentNode.removeChild 的情况
+                    patchParentNode(element);
                     manualInvokeElementEvent(element, "load");
                   }
                   element = null;
                 },
                 () => {
+                  // 兼容第三方库在 onerror 中调用 parentNode.removeChild 的情况
+                  patchParentNode(element);
                   manualInvokeElementEvent(element, "error");
                   element = null;
                 }
@@ -292,6 +311,8 @@ function rewriteAppendOrInsertChild(opts: {
               // 假如子应用被连续渲染两次，两次渲染会导致处理流程的交叉污染
               if (sandbox.iframe === null) return warn(WUJIE_TIPS_REPEAT_RENDER);
               const onload = () => {
+                // 兼容第三方库在 onload 中调用 parentNode.removeChild 的情况
+                patchParentNode(element);
                 manualInvokeElementEvent(element, "load");
                 element = null;
               };
@@ -322,6 +343,8 @@ function rewriteAppendOrInsertChild(opts: {
                     if (!execQueueLength) sandbox.execQueue.shift()();
                   },
                   () => {
+                    // 兼容第三方库在 onerror 中调用 parentNode.removeChild 的情况
+                    patchParentNode(element);
                     manualInvokeElementEvent(element, "error");
                     element = null;
                   }
@@ -487,4 +510,12 @@ export function patchRenderEffect(render: ShadowRoot | Document, id: string, deg
     rawDOMAppendOrInsertBefore: rawBodyInsertBefore as any,
     wujieId: id,
   }) as typeof rawBodyInsertBefore;
+  render.body.removeChild = rewriteRemoveChild({
+    rawElementRemoveChild: rawElementRemoveChild.bind(render.body),
+    wujieId: id,
+  }) as typeof rawElementRemoveChild;
+  render.body.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render.body),
+    wujieId: id,
+  }) as typeof rawElementContains;
 }
