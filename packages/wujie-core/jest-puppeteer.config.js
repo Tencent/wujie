@@ -5,10 +5,12 @@ const LERNA_EXEC = resolve(__dirname, "../../node_modules/.bin/lerna");
 // 本地开发不设置该变量时保持默认行为
 const launchArgs = (process.env.PUPPETEER_LAUNCH_ARGS || "").split(/\s+/).filter(Boolean);
 
+const isDebug = false;
+
 module.exports = {
   launch: {
-    headless: true,
-    devtools: false,
+    headless: !isDebug,
+    devtools: isDebug,
     product: "chrome",
     ...(launchArgs.length ? { args: launchArgs } : {}),
   },

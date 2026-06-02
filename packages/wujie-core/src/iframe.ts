@@ -38,6 +38,33 @@ import { getJsLoader } from "./plugin";
 import { WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
 import { ScriptObjectLoader } from "./index";
 
+const extraInstanceofConstructorNames = new Set([
+  "CSSStyleDeclaration",
+  "DOMImplementation",
+  "DOMMatrix",
+  "DOMMatrixReadOnly",
+  "DOMParser",
+  "DOMPoint",
+  "DOMPointReadOnly",
+  "DOMQuad",
+  "DOMRect",
+  "DOMRectList",
+  "DOMRectReadOnly",
+  "DOMStringList",
+  "DOMStringMap",
+  "DOMTokenList",
+  "HTMLCollection",
+  "MediaList",
+  "NamedNodeMap",
+  "Range",
+  "Selection",
+  "StyleSheet",
+  "StyleSheetList",
+  "TextDecoder",
+  "TextEncoder",
+  "TimeRanges",
+]);
+
 declare global {
   interface Window {
     // 是否存在无界
@@ -290,8 +317,60 @@ export function patchWindowEffect(iframeWindow: Window): void {
       warn(e.message);
     }
   });
+  if (!iframeWindow.__WUJIE.degrade) patchInstanceofAcrossRealms(iframeWindow);
   // 运行插件钩子函数
   execHooks(iframeWindow.__WUJIE.plugins, "windowPropertyOverride", iframeWindow);
+}
+
+function isDomConstructor(name: string, ctor: Function, mainWindow: Window): boolean {
+  const prototype = ctor.prototype;
+  if (!prototype) return false;
+  if (ctor === mainWindow.EventTarget || ctor === mainWindow.Event) return true;
+  if (prototype instanceof mainWindow.EventTarget || prototype instanceof mainWindow.Event) return true;
+  if (/^(HTML|SVG|MathML).+Element$/.test(name)) return true;
+  return extraInstanceofConstructorNames.has(name);
+}
+
+/**
+ * 修复非降级模式下，主应用 realm 的 DOM 对象无法通过子应用 realm 构造函数 instanceof 的问题。
+ */
+export function patchInstanceofAcrossRealms(iframeWindow: Window): void {
+  // DOM 构造函数之间存在继承链（HTMLIFrameElement -> HTMLElement -> Element -> Node ...），
+  // 对构造函数的属性读取会沿这条链向上查找。因此 _hasPatch / Symbol.hasInstance 必须用 own
+  // 语义判断，否则会读到已被 patch 的祖先构造函数的值，导致 patch 被跳过或判断串味到祖先 realm。
+  const nativeHasInstance = Function.prototype[Symbol.hasInstance];
+  Object.getOwnPropertyNames(iframeWindow).forEach((name) => {
+    let appConstructor: Function & { _hasPatch?: boolean };
+    let mainConstructor: Function;
+
+    try {
+      appConstructor = iframeWindow[name];
+      mainConstructor = window[name];
+    } catch (error) {
+      return;
+    }
+
+    if (typeof appConstructor !== "function" || typeof mainConstructor !== "function") return;
+    if (appConstructor === mainConstructor || Object.prototype.hasOwnProperty.call(appConstructor, "_hasPatch")) return;
+    if (!isDomConstructor(name, mainConstructor, window)) return;
+
+    try {
+      Object.defineProperties(appConstructor, {
+        [Symbol.hasInstance]: {
+          configurable: true,
+          value(element: unknown) {
+            // 用 this 而非闭包变量，确保命中的始终是当前构造函数自己的判断，
+            // 用原生 hasInstance 避免沿构造函数继承链拿到被 patch 的祖先实现。
+            if (nativeHasInstance.call(this, element)) return true;
+            return element instanceof mainConstructor;
+          },
+        },
+        _hasPatch: { value: true },
+      });
+    } catch (error) {
+      console.warn(error);
+    }
+  });
 }
 
 /**
