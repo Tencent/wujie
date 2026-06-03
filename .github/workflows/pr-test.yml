@@ -83,6 +83,12 @@ jobs:
       - name: Install dependencies
         run: pnpm i --filter "wujie-project" --filter "./packages/**" --filter "./examples/**" --frozen-lockfile
 
+      # pnpm 10 默认不执行依赖 lifecycle script，puppeteer 的 install.js 不会自动下载 Chromium；
+      # 根 package.json 已配置 onlyBuiltDependencies，此处再显式执行一次以兼容 CI 缓存恢复场景
+      - name: Install Puppeteer Chromium
+        working-directory: packages/wujie-core
+        run: pnpm run install-puppeteer-browser
+
       # examples 通过 main/module 字段引用 wujie / wujie-react / wujie-vue2 / wujie-vue3
       # 的 lib/esm 产物，这些目录由 prepack（build.sh）生成。CI 全新仓库没有产物，
       # 直接启动 dev server 会让主应用拿到空模块 → 页面空白 → 后续 selector 全找不到

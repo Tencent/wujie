@@ -18,7 +18,8 @@
     "test": "npm run test:unit && NODE_OPTIONS=--openssl-legacy-provider npm run test:integration",
     "test:unit": "jest -c __test__/unit/jest.config.js",
     "kill-integration-ports": "node scripts/kill-integration-ports.js",
-    "test:integration": "npm run kill-integration-ports && NODE_OPTIONS=--openssl-legacy-provider jest -c __test__/integration/jest.config.js --runInBand"
+    "install-puppeteer-browser": "node ./node_modules/puppeteer/install.js",
+    "test:integration": "npm run install-puppeteer-browser && npm run kill-integration-ports && NODE_OPTIONS=--openssl-legacy-provider jest -c __test__/integration/jest.config.js --runInBand"
   },
   "repository": {
     "type": "git",
