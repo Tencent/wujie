@@ -17,7 +17,7 @@ import {
 } from "./common";
 import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
-import { patchElementEffect } from "./iframe";
+import { initBase, patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
 import { getAbsolutePath, getContainer, getCurUrl, isFunction, setAttrsToElement } from "./utils";
@@ -307,6 +307,13 @@ export async function renderTemplateToIframe(
     configurable: true,
     get: () => iframeWindow.document,
   });
+
+  // 降级渲染 iframe 无 src 补丁，需与 JS iframe 一样注入 base，供 img 等相对路径解析到子应用域名
+  const renderWindow = renderDocument.defaultView;
+  const proxyLocation = iframeWindow.__WUJIE.proxyLocation as Location;
+  if (renderWindow) {
+    initBase(renderWindow, iframeWindow.__WUJIE.url, proxyLocation.pathname);
+  }
 
   patchRenderEffect(renderDocument, iframeWindow.__WUJIE.id, true);
 }

@@ -761,15 +761,18 @@ function patchRelativeUrlEffect(iframeWindow: Window): void {
 }
 
 /**
- * 初始化base标签
+ * 初始化 base 标签，供 document 内相对路径资源解析使用。
+ * @param pathname 可选；降级渲染 iframe 的 location 为 about:blank，需传入 proxyLocation.pathname
  */
-export function initBase(iframeWindow: Window, url: string): void {
+export function initBase(iframeWindow: Window, url: string, pathname?: string): void {
   const iframeDocument = iframeWindow.document;
+  if (!iframeDocument.head || iframeDocument.head.querySelector("base")) return;
   const baseElement = iframeDocument.createElement("base");
   const iframeUrlElement = anchorElementGenerator(iframeWindow.location.href);
   const appUrlElement = anchorElementGenerator(url);
-  baseElement.setAttribute("href", appUrlElement.protocol + "//" + appUrlElement.host + iframeUrlElement.pathname);
-  iframeDocument.head.appendChild(baseElement);
+  const resolvedPathname = pathname ?? iframeUrlElement.pathname;
+  baseElement.setAttribute("href", appUrlElement.protocol + "//" + appUrlElement.host + resolvedPathname);
+  iframeDocument.head.insertBefore(baseElement, iframeDocument.head.firstChild);
 }
 
 /**
