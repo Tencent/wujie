@@ -31,6 +31,11 @@ describe("patchInstanceofAcrossRealms", () => {
     expect(mainElement instanceof iframeWindow.HTMLElement).toBe(true);
     expect(mainMouseEvent instanceof iframeWindow.MouseEvent).toBe(true);
     expect(mainMouseEvent instanceof iframeWindow.Event).toBe(true);
+
+    if (typeof window.DataTransfer === "function") {
+      const mainDataTransfer = new window.DataTransfer();
+      expect(mainDataTransfer instanceof iframeWindow.DataTransfer).toBe(true);
+    }
   });
 
   test("保留子应用 realm 原有 instanceof 判断", () => {
@@ -56,5 +61,25 @@ describe("patchInstanceofAcrossRealms", () => {
 
     expect((iframeWindow.HTMLDivElement as any)._hasPatch).toBe(true);
     expect(iframeWindow.HTMLDivElement[Symbol.hasInstance]).toBe(patchedHasInstance);
+  });
+
+  test("降级模式：渲染 iframe 与执行 iframe 双向 instanceof", () => {
+    const appWindow = createIframeWindow();
+    const renderFrame = document.createElement("iframe");
+    document.body.appendChild(renderFrame);
+    const renderWindow = renderFrame.contentWindow as any;
+
+    const patchDegradeInstanceofAcrossRealms = (iframeModule as any).patchDegradeInstanceofAcrossRealms;
+
+    const appElement = appWindow.document.createElement("div");
+    const renderElement = renderWindow.document.createElement("div");
+
+    expect(appElement instanceof renderWindow.HTMLDivElement).toBe(false);
+    expect(renderElement instanceof appWindow.HTMLDivElement).toBe(false);
+
+    patchDegradeInstanceofAcrossRealms(appWindow, renderWindow);
+
+    expect(appElement instanceof renderWindow.HTMLDivElement).toBe(true);
+    expect(renderElement instanceof appWindow.HTMLDivElement).toBe(true);
   });
 });

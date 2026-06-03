@@ -10,6 +10,11 @@ import Select from "element-ui/lib/select";
 import Option from "element-ui/lib/option";
 import Popover from "element-ui/lib/popover";
 import Dialog from "element-ui/lib/dialog";
+import Tabs from "element-ui/lib/tabs";
+import TabPane from "element-ui/lib/tab-pane";
+import Collapse from "element-ui/lib/collapse";
+import CollapseItem from "element-ui/lib/collapse-item";
+import Alert from "element-ui/lib/alert";
 import AButton from "ant-design-vue/es/button";
 import ASelect from "ant-design-vue/es/select";
 import AModal from "ant-design-vue/es/modal";
@@ -22,6 +27,11 @@ import "element-ui/lib/theme-chalk/select.css";
 import "element-ui/lib/theme-chalk/option.css";
 import "element-ui/lib/theme-chalk/popover.css";
 import "element-ui/lib/theme-chalk/dialog.css";
+import "element-ui/lib/theme-chalk/tabs.css";
+import "element-ui/lib/theme-chalk/tab-pane.css";
+import "element-ui/lib/theme-chalk/collapse.css";
+import "element-ui/lib/theme-chalk/collapse-item.css";
+import "element-ui/lib/theme-chalk/alert.css";
 import "ant-design-vue/es/style/index.css";
 import "ant-design-vue/es/button/style/index.css";
 import "ant-design-vue/es/select/style/index.css";
@@ -31,7 +41,9 @@ import "./index.css";
 
 const base = process.env.NODE_ENV === "production" ? "/demo-vue2/" : "";
 
-[Tag, Button, Select, Option, Popover, Dialog].forEach((element) => Vue.use(element));
+[Tag, Button, Select, Option, Popover, Dialog, Tabs, TabPane, Collapse, CollapseItem, Alert].forEach(
+  (element) => Vue.use(element)
+);
 [AButton, ASelect, AModal, APopover].forEach((element) => Vue.use(element));
 
 Vue.use(VueRouter);

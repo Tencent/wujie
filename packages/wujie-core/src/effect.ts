@@ -17,6 +17,7 @@ import {
   warn,
   nextTick,
   getCurUrl,
+  getAbsolutePath,
   execHooks,
   isScriptElement,
   setTagToScript,
@@ -182,6 +183,79 @@ export function patchStylesheetElement(
   });
 }
 
+// href 延迟赋值的兜底超时（毫秒）：超过该时间仍未拿到 href，则放弃监听并触发 error，
+// 防止「href 永不到达」时 observer 闭包长期钉住子应用上下文。沿用 tinymce maxLoadTime 量级。
+const DEFER_STYLE_HREF_TIMEOUT = 5000;
+
+/**
+ * 处理「先 appendChild(link) 后 setAttribute('href')」的延迟 href 场景。
+ *
+ * 通过 MutationObserver 监听 href 属性赋值，命中后走传入的 loadStyleSheet 完成加载。
+ * 生命周期管理（避免内存泄漏）：
+ *   1. 命中 / 超时 / 子应用已销毁 时立即 disconnect 并从 sandbox 出队；
+ *   2. observer 登记到 sandbox.deferredStyleObservers，destroy 阶段统一兜底 disconnect；
+ *   3. 回调内通过 wujieId 动态获取 sandbox，不捕获 sandbox/iframe，子应用销毁后闭包不再 pin 上下文。
+ */
+export function deferStyleSheetByHref(opts: {
+  element: HTMLLinkElement;
+  wujieId: string;
+  iframeWindow: Window;
+  loadStyleSheet: (href: string, element: HTMLLinkElement) => void;
+}): void {
+  let { element } = opts;
+  const { wujieId, iframeWindow, loadStyleSheet } = opts;
+  // 部分环境（jsdom / 老浏览器）可能不支持 MutationObserver，直接放弃延迟处理
+  const MutationObserverCtor = (iframeWindow as any).MutationObserver;
+  if (typeof MutationObserverCtor !== "function") return;
+
+  let settled = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const observer: MutationObserver = new MutationObserverCtor(() => {
+    if (settled) return;
+    const attrHref = element?.getAttribute("href");
+    if (!attrHref) return;
+    const realHref = element.href || attrHref;
+    const target = element;
+    finalize(() => target && loadStyleSheet(realHref, target));
+  });
+
+  // 统一收尾：disconnect + 出队 + 清理定时器，再执行收尾动作
+  function finalize(action?: () => void) {
+    if (settled) return;
+    settled = true;
+    if (timer !== null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    try {
+      observer.disconnect();
+    } catch (_) {
+      /* noop */
+    }
+    // 动态获取 sandbox，子应用销毁后直接放手，闭包不再钉住上下文
+    const sandbox = getWujieById(wujieId);
+    const observers = sandbox?.deferredStyleObservers;
+    if (Array.isArray(observers)) {
+      const index = observers.indexOf(observer);
+      if (index !== -1) observers.splice(index, 1);
+    }
+    if (sandbox) action?.();
+    element = null;
+  }
+
+  const sandbox = getWujieById(wujieId);
+  // 子应用已不存在则无需监听
+  if (!sandbox || !Array.isArray(sandbox.deferredStyleObservers)) return;
+  sandbox.deferredStyleObservers.push(observer);
+  observer.observe(element, { attributes: true, attributeFilter: ["href"] });
+  // 超时兜底：长时间没等到 href，放弃监听并触发 error，让上游（如 tinymce）的失败回调收尾
+  timer = setTimeout(() => {
+    const target = element;
+    finalize();
+    if (target) manualInvokeElementEvent(target, "error");
+  }, DEFER_STYLE_HREF_TIMEOUT);
+}
+
 let dynamicScriptExecStack = Promise.resolve();
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
@@ -220,30 +294,26 @@ function rewriteAppendOrInsertChild(opts: {
             execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
             return res;
           }
-          // 排除css
-          if (href && !isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
+
+          // 拉取 css 内容并以 <style> 注入子应用、回调 link 的 load/error 事件。
+          // 抽成闭包以便「append 时已有 href」与「append 后才 setAttribute('href')」两条路径复用。
+          const loadStyleSheet = (realHref: string, linkElement: HTMLLinkElement) => {
+            const attrHref = linkElement.getAttribute("href");
+            const styleHref = attrHref ? getAbsolutePath(attrHref, (proxyLocation as Location).href) : realHref;
+            const exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
+            if (!styleHref || exclude) return;
             getExternalStyleSheets(
-              [{ src: href, ignore: isMatchUrl(href, getEffectLoaders("cssIgnores", plugins)) }],
+              [{ src: styleHref, ignore: isMatchUrl(styleHref, getEffectLoaders("cssIgnores", plugins)) }],
               fetch,
               lifecycles.loadError
             ).forEach(({ src, ignore, contentPromise }) =>
               contentPromise.then(
                 (content) => {
                   // 处理 ignore 样式
-                  const rawAttrs = parseTagAttributes(element.outerHTML);
+                  const rawAttrs = parseTagAttributes(linkElement.outerHTML);
                   if (ignore && src) {
-                    // const stylesheetElement = iframeDocument.createElement("link");
-                    // const attrs = {
-                    //   ...rawAttrs,
-                    //   type: "text/css",
-                    //   rel: "stylesheet",
-                    //   href: src,
-                    // };
-                    // setAttrsToElement(stylesheetElement, attrs);
-                    // rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
-                    // manualInvokeElementEvent(element, "load");
                     // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
-                    rawDOMAppendOrInsertBefore.call(this, element, refChild);
+                    rawDOMAppendOrInsertBefore.call(this, linkElement, refChild);
                   } else {
                     // 记录js插入样式，子应用重新激活时恢复
                     const stylesheetElement = iframeDocument.createElement("style");
@@ -255,16 +325,31 @@ function rewriteAppendOrInsertChild(opts: {
                     rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
                     // 处理样式补丁
                     handleStylesheetElementPatch(stylesheetElement, sandbox);
-                    manualInvokeElementEvent(element, "load");
+                    manualInvokeElementEvent(linkElement, "load");
                   }
-                  element = null;
+                  if (element === linkElement) element = null;
                 },
                 () => {
-                  manualInvokeElementEvent(element, "error");
-                  element = null;
+                  manualInvokeElementEvent(linkElement, "error");
+                  if (element === linkElement) element = null;
                 }
               )
             );
+          };
+
+          if (href) {
+            // 排除css
+            if (!isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
+              loadStyleSheet(href, element);
+            }
+          } else {
+            // 关联 issue: https://github.com/Tencent/wujie/issues/224 https://github.com/Tencent/wujie/issues/974
+            //
+            // 部分库（如 tinymce 的 StyleSheetLoader）先 appendChild(link) 再
+            // setAttribute('href', url)。此时 href 为空，若直接丢弃则该样式永远不会被加载，
+            // 后续在游离 link 上设置 href 也不会触发浏览器加载，skin.min.css 等资源缺失。
+            // 这里监听 href 的后续赋值，拿到真实 href 后再走与上面完全一致的加载流程。
+            deferStyleSheetByHref({ element, wujieId, iframeWindow: iframe.contentWindow, loadStyleSheet });
           }
 
           const comment = iframeDocument.createComment(`dynamic link ${href} replaced by wujie`);

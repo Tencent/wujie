@@ -4,6 +4,7 @@ import {
   recoverDocumentListeners,
   insertScriptToIframe,
   patchEventTimeStamp,
+  patchDegradeInstanceofAcrossRealms,
 } from "./iframe";
 import { syncUrlToWindow, syncUrlToIframe, clearInactiveAppUrl } from "./sync";
 import {
@@ -112,6 +113,13 @@ export default class Wujie {
    * 时登记，sandbox.destroy() 时统一从 iframe head detach 并清空。
    */
   public dynamicScriptElements: Array<HTMLScriptElement> = [];
+  /**
+   * 动态 <link rel=stylesheet> 以空 href 插入（先 appendChild 后 setAttribute('href')，
+   * 如 tinymce 的 StyleSheetLoader）时，effect.ts 会注册一个 MutationObserver 监听
+   * href 的后续赋值。这些 observer 必须在 destroy 时统一 disconnect，否则游离 link
+   * 会通过 node → registered observer → callback 闭包链路把已销毁的 sandbox 钉在内存中。
+   */
+  public deferredStyleObservers: Array<MutationObserver> = [];
   /** 子应用head元素 */
   public head: HTMLHeadElement;
   /** 子应用body元素 */
@@ -224,6 +232,10 @@ export default class Wujie {
         await renderTemplateToIframe(iframe.contentDocument, this.iframe.contentWindow, this.template);
       }
       this.document = iframe.contentDocument;
+      const renderWindow = this.document.defaultView;
+      if (renderWindow) {
+        patchDegradeInstanceofAcrossRealms(iframeWindow, renderWindow);
+      }
       return;
     }
 
@@ -378,6 +390,8 @@ export default class Wujie {
 
   /** 保活模式和使用proxyLocation.href跳转链接都不应该销毁shadow */
   public async unmount(): Promise<void> {
+    // 子应用卸载时 disconnect 等待 href 的 MutationObserver，避免闭包在 remount 前仍持有上下文
+    this.clearDeferredStyleObservers();
     this.activeFlag = false;
     // 清理子应用过期的同步参数
     clearInactiveAppUrl();
@@ -412,6 +426,8 @@ export default class Wujie {
     // 释放动态样式 / 脚本节点（unmount 阶段保留以便 rebuildStyleSheets 复用，destroy 阶段才彻底清）
     this.clearStyleSheets();
     this.clearDynamicScripts();
+    // 解绑等待 href 赋值的 MutationObserver，避免闭包钉住已销毁的 sandbox
+    this.clearDeferredStyleObservers();
     // 先 $destroy 再置 null：清空事件并从全局 appEventObjMap 中移除当前 id 的 entry，
     // 避免 setupApp → destroyApp 反复后 map 条目持续累积。
     this.bus.$destroy();
@@ -424,6 +440,7 @@ export default class Wujie {
     this.degradeAttrs = null;
     this.styleSheetElements = null;
     this.dynamicScriptElements = null;
+    this.deferredStyleObservers = null;
     this.bus = null;
     this.replace = null;
     this.fetch = null;
@@ -505,6 +522,23 @@ export default class Wujie {
       }
     });
     this.dynamicScriptElements.length = 0;
+  }
+
+  /**
+   * unmount / destroy 阶段统一 disconnect 等待 href 赋值的 MutationObserver。
+   * observer 在 href 命中或超时兜底时会自行 disconnect 并出队；
+   * 这里兜底处理「子应用先于 href 赋值被卸载/销毁」的场景。
+   */
+  public clearDeferredStyleObservers(): void {
+    if (!Array.isArray(this.deferredStyleObservers)) return;
+    this.deferredStyleObservers.forEach((observer) => {
+      try {
+        observer.disconnect();
+      } catch (_) {
+        /* noop: destroy 阶段任何异常不应中断后续清理 */
+      }
+    });
+    this.deferredStyleObservers.length = 0;
   }
 
   /** 当子应用再次激活后，只运行mount函数，样式需要重新恢复 */

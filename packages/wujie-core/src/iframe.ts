@@ -39,7 +39,9 @@ import { WUJIE_TIPS_SCRIPT_ERROR_REQUESTED, WUJIE_DATA_FLAG } from "./constant";
 import { ScriptObjectLoader } from "./index";
 
 const extraInstanceofConstructorNames = new Set([
+  "ClipboardEvent",
   "CSSStyleDeclaration",
+  "DataTransfer",
   "DOMImplementation",
   "DOMMatrix",
   "DOMMatrixReadOnly",
@@ -268,7 +270,14 @@ export function patchWindowEffect(iframeWindow: Window): void {
     // 特殊处理
     if (key === "getSelection") {
       Object.defineProperty(iframeWindow, key, {
-        get: () => iframeWindow.document[key],
+        get: () => {
+          const sandbox = iframeWindow.__WUJIE;
+          // 降级模式：可见 DOM 在渲染 iframe，getSelection 需读 sandbox.document
+          if (sandbox?.degrade && sandbox.document) {
+            return sandbox.document.getSelection.bind(sandbox.document);
+          }
+          return iframeWindow.document[key];
+        },
       });
       return;
     }
@@ -317,52 +326,58 @@ export function patchWindowEffect(iframeWindow: Window): void {
       warn(e.message);
     }
   });
-  if (!iframeWindow.__WUJIE.degrade) patchInstanceofAcrossRealms(iframeWindow);
-  // 运行插件钩子函数
-  execHooks(iframeWindow.__WUJIE.plugins, "windowPropertyOverride", iframeWindow);
+  // 降级模式 DOM 在渲染 iframe，instanceof 需在 document 就绪后由 patchDegradeInstanceofAcrossRealms 处理
+  if (!iframeWindow.__WUJIE.degrade) {
+    patchInstanceofAcrossRealms(iframeWindow);
+  } else {
+    execHooks(iframeWindow.__WUJIE.plugins, "windowPropertyOverride", iframeWindow);
+  }
 }
 
-function isDomConstructor(name: string, ctor: Function, mainWindow: Window): boolean {
+function isDomConstructor(name: string, ctor: Function, peerWindow: Window): boolean {
   const prototype = ctor.prototype;
   if (!prototype) return false;
-  if (ctor === mainWindow.EventTarget || ctor === mainWindow.Event) return true;
-  if (prototype instanceof mainWindow.EventTarget || prototype instanceof mainWindow.Event) return true;
+  if (ctor === peerWindow.EventTarget || ctor === peerWindow.Event) return true;
+  if (prototype instanceof peerWindow.EventTarget || prototype instanceof peerWindow.Event) return true;
   if (/^(HTML|SVG|MathML).+Element$/.test(name)) return true;
   return extraInstanceofConstructorNames.has(name);
 }
 
 /**
- * 修复非降级模式下，主应用 realm 的 DOM 对象无法通过子应用 realm 构造函数 instanceof 的问题。
+ * 让 targetWindow 上的 DOM 构造函数 instanceof 同时认可 peerWindow realm 的对象。
+ * 非降级：targetWindow=子应用 JS iframe，peerWindow=主应用 window（DOM 在 shadowRoot）。
+ * 降级：在 patchDegradeInstanceofAcrossRealms 中对渲染 iframe 与执行 iframe 双向调用。
  */
-export function patchInstanceofAcrossRealms(iframeWindow: Window): void {
+export function patchInstanceofAcrossRealms(targetWindow: Window, peerWindow: Window = window): void {
   // DOM 构造函数之间存在继承链（HTMLIFrameElement -> HTMLElement -> Element -> Node ...），
   // 对构造函数的属性读取会沿这条链向上查找。因此 _hasPatch / Symbol.hasInstance 必须用 own
   // 语义判断，否则会读到已被 patch 的祖先构造函数的值，导致 patch 被跳过或判断串味到祖先 realm。
   const nativeHasInstance = Function.prototype[Symbol.hasInstance];
-  Object.getOwnPropertyNames(iframeWindow).forEach((name) => {
-    let appConstructor: Function & { _hasPatch?: boolean };
-    let mainConstructor: Function;
+  Object.getOwnPropertyNames(targetWindow).forEach((name) => {
+    let targetConstructor: Function & { _hasPatch?: boolean };
+    let peerConstructor: Function;
 
     try {
-      appConstructor = iframeWindow[name];
-      mainConstructor = window[name];
+      targetConstructor = targetWindow[name];
+      peerConstructor = peerWindow[name];
     } catch (error) {
       return;
     }
 
-    if (typeof appConstructor !== "function" || typeof mainConstructor !== "function") return;
-    if (appConstructor === mainConstructor || Object.prototype.hasOwnProperty.call(appConstructor, "_hasPatch")) return;
-    if (!isDomConstructor(name, mainConstructor, window)) return;
+    if (typeof targetConstructor !== "function" || typeof peerConstructor !== "function") return;
+    if (targetConstructor === peerConstructor || Object.prototype.hasOwnProperty.call(targetConstructor, "_hasPatch"))
+      return;
+    if (!isDomConstructor(name, peerConstructor, peerWindow)) return;
 
     try {
-      Object.defineProperties(appConstructor, {
+      Object.defineProperties(targetConstructor, {
         [Symbol.hasInstance]: {
           configurable: true,
           value(element: unknown) {
-            // 用 this 而非闭包变量，确保命中的始终是当前构造函数自己的判断，
-            // 用原生 hasInstance 避免沿构造函数继承链拿到被 patch 的祖先实现。
+            // 用 this 而非闭包变量，确保命中的始终是当前构造函数自己的判断。
+            // 对端也用原生 hasInstance，避免双向 patch 时 element instanceof peerConstructor 递归栈溢出。
             if (nativeHasInstance.call(this, element)) return true;
-            return element instanceof mainConstructor;
+            return nativeHasInstance.call(peerConstructor, element);
           },
         },
         _hasPatch: { value: true },
@@ -371,6 +386,20 @@ export function patchInstanceofAcrossRealms(iframeWindow: Window): void {
       console.warn(error);
     }
   });
+  const wujie = (targetWindow as Window & { __WUJIE?: WuJie }).__WUJIE;
+  if (wujie) {
+    execHooks(wujie.plugins, "windowPropertyOverride", targetWindow);
+  }
+}
+
+/**
+ * 降级模式：DOM 在渲染 iframe、JS 在执行 iframe，对两侧 window 双向 patch instanceof。
+ * 需在 sandbox.document（渲染 document）就绪后调用，勿在 patchWindowEffect 阶段调用。
+ */
+export function patchDegradeInstanceofAcrossRealms(appWindow: Window, renderWindow: Window): void {
+  if (!renderWindow || appWindow === renderWindow) return;
+  patchInstanceofAcrossRealms(renderWindow, appWindow);
+  patchInstanceofAcrossRealms(appWindow, renderWindow);
 }
 
 /**
@@ -883,6 +912,11 @@ export function patchElementEffect(
           // win.__WUJIE 被置 null（destroy 后）或 win 本身已 GC 时降级到主 document，
           // 防止 element 永久把 iframeWindow 钉在内存中。
           if (!win || !win.__WUJIE) return window.document;
+          // 降级模式：节点已挂到渲染 iframe，ownerDocument 需与可见 DOM 一致，
+          // 否则 wangEditor LO/RO（node.ownerDocument.defaultView instanceof）会失败。
+          if (win.__WUJIE.degrade && win.__WUJIE.document) {
+            return win.__WUJIE.document;
+          }
           return win.document;
         },
       },

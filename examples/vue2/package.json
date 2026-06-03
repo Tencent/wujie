@@ -3,17 +3,22 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
+    "prestart": "node scripts/copy-tinymce.js",
     "start": "vue-cli-service serve --mode:development",
+    "prebuild": "node scripts/copy-tinymce.js",
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@floating-ui/dom": "0.5.4",
     "@popperjs/core": "2.11.8",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^1.0.2",
     "ant-design-vue": "1.7.8",
     "core-js": "^3.6.5",
     "element-ui": "2.15.6",
     "popper.js": "1.16.1",
+    "tinymce": "^6.8.5",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0"
   },

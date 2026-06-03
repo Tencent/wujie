@@ -18,6 +18,7 @@ import "ant-design-vue/es/tooltip/style/index.css";
 import "ant-design-vue/es/icon/style/index.css";
 import lifecycles from "./lifecycle";
 import plugins from "./plugin";
+import { wangEditorPlugin } from "./plugins/wangEditor";
 
 const isProduction = process.env.NODE_ENV === "production";
 const { setupApp, preloadApp, bus } = WujieVue;
@@ -86,6 +87,7 @@ setupApp({
   exec: true,
   props,
   fetch: credentialsFetch,
+  plugins: [wangEditorPlugin],
   degrade,
   ...lifecycles,
 });
