@@ -1,6 +1,18 @@
 import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp } from "wujie";
 import { h, defineComponent } from "vue";
 
+/**
+ * 清理全局 startApp 串行队列，防止组件销毁后 window.__WUJIE_QUEUE 长期持有
+ * 已卸载实例的 Promise 链，造成内存泄漏。
+ * 仅当全局队列仍指向当前实例的链尾时才删除，避免误删被同名新实例接管的队列。
+ */
+function clearStartAppQueue(name, queue) {
+  if (!name || !window.__WUJIE_QUEUE) return;
+  if (window.__WUJIE_QUEUE[name] === queue) {
+    delete window.__WUJIE_QUEUE[name];
+  }
+}
+
 const wujieVueOptions = {
   name: "WujieVue",
   props: {
@@ -95,7 +107,9 @@ const wujieVueOptions = {
     },
     execStartApp() {
       this.startAppQueue = this.startAppQueue.then(this.startApp);
-      window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
+      if (this.name && window.__WUJIE_QUEUE) {
+        window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
+      }
     },
     destroy() {
       destroyApp(this.name);
@@ -103,6 +117,7 @@ const wujieVueOptions = {
   },
   beforeDestroy() {
     bus.$offAll(this.handleEmit);
+    clearStartAppQueue(this.name, this.startAppQueue);
   },
   render() {
     return h("div", {

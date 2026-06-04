@@ -2,6 +2,18 @@ import React from "react";
 import PropTypes from "prop-types";
 import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
 
+/**
+ * 清理全局 startApp 串行队列，防止组件销毁后 window.__WUJIE_QUEUE 长期持有
+ * 已卸载实例的 Promise 链，造成内存泄漏。
+ * 仅当全局队列仍指向当前实例的链尾时才删除，避免误删被同名新实例接管的队列。
+ */
+function clearStartAppQueue(name, queue) {
+  if (!name || !window.__WUJIE_QUEUE) return;
+  if (window.__WUJIE_QUEUE[name] === queue) {
+    delete window.__WUJIE_QUEUE[name];
+  }
+}
+
 export default class WujieReact extends React.PureComponent {
   static propTypes = propTypes;
   static bus = bus;
@@ -32,7 +44,9 @@ export default class WujieReact extends React.PureComponent {
 
   execStartApp = () => {
     this.startAppQueue = this.startAppQueue.then(this.startApp);
-    window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
+    if (this.props.name && window.__WUJIE_QUEUE) {
+      window.__WUJIE_QUEUE[this.props.name] = this.startAppQueue;
+    }
   };
 
   componentDidMount() {
@@ -56,6 +70,10 @@ export default class WujieReact extends React.PureComponent {
     if (this.props.name !== prevProps.name || this.props.url !== prevProps.url) {
       this.execStartApp();
     }
+  }
+
+  componentWillUnmount() {
+    clearStartAppQueue(this.props.name, this.startAppQueue);
   }
 
   render() {
