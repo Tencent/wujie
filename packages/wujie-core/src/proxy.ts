@@ -46,8 +46,9 @@ export function proxyGenerator(
   proxyWindow: Window;
   proxyDocument: Object;
   proxyLocation: Object;
+  proxyRevoke: () => void;
 } {
-  const proxyWindow = new Proxy(iframe.contentWindow, {
+  const { proxy: proxyWindow, revoke: revokeWindow } = Proxy.revocable(iframe.contentWindow, {
     get: (target: Window, p: PropertyKey): any => {
       // location进行劫持
       if (p === "location") {
@@ -80,7 +81,7 @@ export function proxyGenerator(
   });
 
   // proxy document
-  const proxyDocument = new Proxy(
+  const { proxy: proxyDocument, revoke: revokeDocument } = Proxy.revocable(
     {},
     {
       get: function (_fakeDocument, propKey) {
@@ -206,7 +207,7 @@ export function proxyGenerator(
   );
 
   // proxy location
-  const proxyLocation = new Proxy(
+  const { proxy: proxyLocation, revoke: revokeLocation } = Proxy.revocable(
     {},
     {
       get: function (_fakeLocation, propKey) {
@@ -252,7 +253,14 @@ export function proxyGenerator(
       },
     }
   );
-  return { proxyWindow, proxyDocument, proxyLocation };
+  // revoke 后引擎清空代理的 [[ProxyTarget]] / [[ProxyHandler]]，使捕获了 iframe / urlElement
+  // 的 handler 闭包不可达，从而释放对 iframe 的强引用
+  const proxyRevoke = () => {
+    revokeWindow();
+    revokeDocument();
+    revokeLocation();
+  };
+  return { proxyWindow, proxyDocument, proxyLocation, proxyRevoke };
 }
 
 /**
@@ -266,20 +274,26 @@ export function localGenerator(
 ): {
   proxyDocument: Object;
   proxyLocation: Object;
+  proxyRevoke: () => void;
 } {
+  // 降级模式无法使用 Proxy.revocable，改用可清空的引用：getter 闭包统一通过 iframeRef /
+  // sandboxRef / locationRef 这三个 let 绑定访问 DOM，proxyRevoke 时置 null，闭包即丢失
+  // 对 iframe 的强引用，斩断「主应用 → 代理闭包 → iframe」的引用链。
+  let iframeRef: HTMLIFrameElement | null = iframe;
+  let sandboxRef = iframe.contentWindow.__WUJIE;
+  let locationRef: Location | null = iframe.contentWindow.location;
   // 代理 document
   const proxyDocument = {};
-  const sandbox = iframe.contentWindow.__WUJIE;
   // 特殊处理
   Object.defineProperties(proxyDocument, {
     createElement: {
       get: () => {
         return function (...args) {
-          const element = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__.apply(
-            iframe.contentDocument,
+          const element = iframeRef.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__.apply(
+            iframeRef.contentDocument,
             args
           );
-          patchElementEffect(element, iframe.contentWindow);
+          patchElementEffect(element, iframeRef.contentWindow);
           return element;
         };
       },
@@ -287,29 +301,29 @@ export function localGenerator(
     createTextNode: {
       get: () => {
         return function (...args) {
-          const element = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__.apply(
-            iframe.contentDocument,
+          const element = iframeRef.contentWindow.__WUJIE_RAW_DOCUMENT_CREATE_TEXT_NODE__.apply(
+            iframeRef.contentDocument,
             args
           );
-          patchElementEffect(element, iframe.contentWindow);
+          patchElementEffect(element, iframeRef.contentWindow);
           return element;
         };
       },
     },
     documentURI: {
-      get: () => (sandbox.proxyLocation as Location).href,
+      get: () => (sandboxRef?.proxyLocation as Location)?.href,
     },
     URL: {
-      get: () => (sandbox.proxyLocation as Location).href,
+      get: () => (sandboxRef?.proxyLocation as Location)?.href,
     },
     getElementsByTagName: {
       get() {
         return function (...args) {
           const tagName = args[0];
           if (tagName === "script") {
-            return iframe.contentDocument.scripts as any;
+            return iframeRef.contentDocument.scripts as any;
           }
-          return sandbox.document.getElementsByTagName(tagName) as any;
+          return sandboxRef.document.getElementsByTagName(tagName) as any;
         };
       },
     },
@@ -318,8 +332,8 @@ export function localGenerator(
         return function (...args) {
           const id = args[0];
           return (
-            (sandbox.document.getElementById(id) as any) ||
-            iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(`#${id}`)
+            (sandboxRef.document.getElementById(id) as any) ||
+            iframeRef.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.querySelector(`#${id}`)
           );
         };
       },
@@ -341,25 +355,24 @@ export function localGenerator(
     .forEach((key) => {
       Object.defineProperty(proxyDocument, key, {
         get: () => {
-          const value = sandbox.document?.[key];
-          return isCallable(value) ? value.bind(sandbox.document) : value;
+          const value = sandboxRef?.document?.[key];
+          return isCallable(value) ? value.bind(sandboxRef.document) : value;
         },
       });
     });
 
   // 代理 location
   const proxyLocation = {};
-  const location = iframe.contentWindow.location;
-  const locationKeys = Object.keys(location);
+  const locationKeys = Object.keys(locationRef);
   const constantKey = ["host", "hostname", "port", "protocol", "port"];
   constantKey.forEach((key) => {
     proxyLocation[key] = urlElement[key];
   });
   Object.defineProperties(proxyLocation, {
     href: {
-      get: () => location.href.replace(mainHostPath, appHostPath),
+      get: () => locationRef?.href.replace(mainHostPath, appHostPath),
       set: (value) => {
-        locationHrefSet(iframe, value, appHostPath);
+        locationHrefSet(iframeRef, value, appHostPath);
       },
     },
     reload: {
@@ -373,8 +386,14 @@ export function localGenerator(
     .filter((key) => !constantKey.concat(["href", "reload"]).includes(key))
     .forEach((key) => {
       Object.defineProperty(proxyLocation, key, {
-        get: () => (isCallable(location[key]) ? location[key].bind(location) : location[key]),
+        get: () => (isCallable(locationRef?.[key]) ? locationRef[key].bind(locationRef) : locationRef?.[key]),
       });
     });
-  return { proxyDocument, proxyLocation };
+  // 置空捕获的 DOM 引用，斩断 getter 闭包对 iframe / location / sandbox 的强引用
+  const proxyRevoke = () => {
+    iframeRef = null;
+    sandboxRef = null;
+    locationRef = null;
+  };
+  return { proxyDocument, proxyLocation, proxyRevoke };
 }

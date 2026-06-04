@@ -61,6 +61,12 @@ export default class Wujie {
   public proxyDocument: Object;
   /** location代理 */
   public proxyLocation: Object;
+  /**
+   * 释放 window / document / location 代理。
+   * 代理的 handler 闭包捕获了 iframe / urlElement 等 DOM 引用，destroy 时调用此函数
+   * 解除代理与 handler 的关联，斩断「主应用 → 代理闭包 → iframe」的引用链。
+   */
+  public proxyRevoke: () => void;
   /** 事件中心 */
   public bus: EventBus;
   /** 容器 */
@@ -475,9 +481,11 @@ export default class Wujie {
       // patchElementEffect 给散落到主应用 DOM 上的 element 留了 baseURI / ownerDocument
       // getter，它们通过 iframeWindow.__WUJIE 动态读取。这里主动断链让残留 getter 立即
       // 降级到主 document，避免 element 把 sandbox 钉在内存中。
+      // __WUJIE / $wujie 均挂在 iframeWindow 上，destroy 时须一并置 null。
       if (iframeWindow) {
         try {
           iframeWindow.__WUJIE = null;
+          iframeWindow.$wujie = null;
         } catch (_) {
           /* noop: iframe 已 detach 时赋值可能抛错 */
         }
@@ -485,6 +493,14 @@ export default class Wujie {
       this.iframe.parentNode?.removeChild(this.iframe);
       this.iframe = null;
     }
+    // 释放 window / document / location 代理：解除代理与 handler 的关联，使捕获了 iframe /
+    // urlElement 的 handler 闭包不可达，斩断「主应用 → 代理闭包 → iframe」的引用链。
+    try {
+      this.proxyRevoke?.();
+    } catch (_) {
+      /* noop: 代理已释放时重复调用可能抛错 */
+    }
+    this.proxyRevoke = null;
     // 反向解绑 patchDocumentEffect / patchWindowEffect 在主 window / document 上挂的副作用
     this.eventCleanupTracker.cleanupAll();
     deleteWujieById(this.id);
@@ -622,11 +638,17 @@ export default class Wujie {
     this.iframe = iframeGenerator(this, attrs, mainHostPath, appHostPath, appRoutePath);
 
     if (this.degrade) {
-      const { proxyDocument, proxyLocation } = localGenerator(this.iframe, urlElement, mainHostPath, appHostPath);
+      const { proxyDocument, proxyLocation, proxyRevoke } = localGenerator(
+        this.iframe,
+        urlElement,
+        mainHostPath,
+        appHostPath
+      );
       this.proxyDocument = proxyDocument;
       this.proxyLocation = proxyLocation;
+      this.proxyRevoke = proxyRevoke;
     } else {
-      const { proxyWindow, proxyDocument, proxyLocation } = proxyGenerator(
+      const { proxyWindow, proxyDocument, proxyLocation, proxyRevoke } = proxyGenerator(
         this.iframe,
         urlElement,
         mainHostPath,
@@ -635,6 +657,7 @@ export default class Wujie {
       this.proxy = proxyWindow;
       this.proxyDocument = proxyDocument;
       this.proxyLocation = proxyLocation;
+      this.proxyRevoke = proxyRevoke;
     }
     this.provide.location = this.proxyLocation;
 
