@@ -931,6 +931,8 @@ export function patchElementEffect(
     console.warn(error);
   }
   execHooks(iframeWindow.__WUJIE.plugins, "patchElementHook", element, iframeWindow);
+  // 编译内联事件处理器
+  compileInlineEvents(element);
 }
 
 /**
@@ -1114,4 +1116,33 @@ export function iframeGenerator(
     }
   });
   return iframe;
+}
+
+/**
+ * 编译元素的内联事件处理器
+ * 将 onclick="..." 编译为 onclick="with(__getWujieWindow__(this)){ ... }"
+ */
+function compileInlineEvents(element: Element): void {
+  // 只处理元素节点
+  if (element.nodeType !== Node.ELEMENT_NODE) return;
+  
+  // 遍历所有属性，查找内联事件
+  const attributes = Array.from(element.attributes);
+  attributes.forEach((attr) => {
+    if (attr.name.startsWith('on')) {
+      const eventName = attr.name;
+      const handler = attr.value;
+      
+      // 编译内联事件
+      const compiledHandler = `with(window.__getWujieWindow__(this)){ ${handler} }`;
+      element.setAttribute(eventName, compiledHandler);
+    }
+  });
+  
+  // 递归处理子元素
+  if (element.children && element.children.length > 0) {
+    Array.from(element.children).forEach((child) => {
+      compileInlineEvents(child);
+    });
+  }
 }
