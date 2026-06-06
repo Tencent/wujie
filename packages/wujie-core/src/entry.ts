@@ -314,17 +314,16 @@ export function getWujieWindow(appId: string): WindowProxy {
       console.warn(`[wujie] Cannot find iframe for app ${appId}`);
       return window;
     }
-    const wujieData = iframe.contentWindow?.__WUJIE;
-    if (!wujieData) {
-      console.warn(`[wujie] Cannot find __WUJIE for app ${appId}`);
+
+    const contentWindow = iframe.contentWindow;
+    if (!contentWindow) {
+      console.warn(`[wujie] Cannot get contentWindow for app ${appId}`);
       return window;
     }
+
+    const wujieData = contentWindow.__WUJIE;
     // 非降级模式返回 proxy，降级模式直接返回 iframe.contentWindow
-    const targetWindow = wujieData.proxy || iframe.contentWindow;
-    if (!targetWindow) {
-      console.warn(`[wujie] Cannot get window for app ${appId}`);
-      return window;
-    }
+    const targetWindow = wujieData?.proxy || contentWindow;
     return withInlineEventUnscopables(targetWindow);
   } catch (e) {
     console.warn("[wujie] Failed to get wujie window:", e);
