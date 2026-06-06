@@ -299,14 +299,10 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
       }
     });
 
-  // 编译内联事件处理器，包裹 with(__getWujieWindow__(this)){}
-  // 使其能够在子应用作用域中执行
-  const compiledTemplate = template.replace(/on(\w+)="([^"]+)"/g, (_match, eventName, handler) => {
-    return `on${eventName}="with(__getWujieWindow__(this)){ ${handler} }"`;
-  });
-
+  // 内联事件处理器的编译统一在运行时进行（见 iframe.ts compileInlineEvents / patchSetAttribute），
+  // 那里能拿到 appId 且按实例编译，避免模板层正则脆弱与按 url 缓存导致的串实例问题。
   let tplResult = {
-    template: compiledTemplate,
+    template,
     scripts,
     styles,
     // set the last script as entry if have not set

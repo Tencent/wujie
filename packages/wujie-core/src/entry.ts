@@ -295,47 +295,89 @@ export default function importHTML(params: {
  * 获取子应用的 window 对象
  * 用于内联事件处理器编译后的 with 语句
  *
- * @param element - 触发事件的元素
- * @returns 子应用的 proxyWindow
+ * 直接以 appId 作为入参（编译阶段烤进字符串字面量），避免运行时依赖
+ * 被沙箱劫持的 element.getRootNode；通过 querySelector 实时查找 iframe，
+ * 不持有任何闭包引用，规避内存泄漏。
+ *
+ * 沙箱 iframe（name=appId）始终挂在主应用 document 上。
+ * - 非降级：内联事件运行在主应用 realm，document 即主应用 document，直接命中；
+ * - 降级：内联事件运行在渲染 iframe 内，沙箱 iframe 在其 window.parent.document 上，
+ *   故 document 找不到时逐级向上到 parent.document 查找。
+ *
+ * @param appId - 子应用 appId（iframe 的 name）
+ * @returns 子应用的 proxyWindow，找不到时降级为主应用 window
  */
-export function getWujieWindow(element: Element): WindowProxy {
+export function getWujieWindow(appId: string): WindowProxy {
   try {
-    // 1. 获取 shadowRoot
-    const shadowRoot = element.getRootNode() as ShadowRoot;
-
-    // 2. 获取 wujie-app 元素
-    const wujieApp = shadowRoot.host as HTMLElement;
-    if (!wujieApp) {
-      console.warn("[wujie] Cannot find wujie-app element");
-      return window;
-    }
-
-    // 3. 获取 appId
-    const appId = wujieApp.getAttribute("data-wujie-id");
-    if (!appId) {
-      console.warn("[wujie] Cannot find app id");
-      return window;
-    }
-
-    // 4. 查找对应的 iframe
-    const iframe = document.querySelector(`iframe[name="${appId}"]`) as HTMLIFrameElement;
+    const iframe = queryWujieIframe(appId);
     if (!iframe) {
       console.warn(`[wujie] Cannot find iframe for app ${appId}`);
       return window;
     }
-
-    // 5. 返回子应用的 proxyWindow
-    const proxyWindow = iframe.contentWindow?.__WUJIE?.proxy;
-    if (!proxyWindow) {
-      console.warn(`[wujie] Cannot find proxy window for app ${appId}`);
+    const wujieData = iframe.contentWindow?.__WUJIE;
+    if (!wujieData) {
+      console.warn(`[wujie] Cannot find __WUJIE for app ${appId}`);
       return window;
     }
-
-    return proxyWindow;
+    // 非降级模式返回 proxy，降级模式直接返回 iframe.contentWindow
+    const targetWindow = wujieData.proxy || iframe.contentWindow;
+    if (!targetWindow) {
+      console.warn(`[wujie] Cannot get window for app ${appId}`);
+      return window;
+    }
+    return withInlineEventUnscopables(targetWindow);
   } catch (e) {
     console.warn("[wujie] Failed to get wujie window:", e);
     return window;
   }
+}
+
+/**
+ * 内联事件 with(proxy) 作用域里需要“放行”、回落到外层原生 handler 作用域的标识符。
+ * 例如 onclick="fn(event)"，原生 handler 形参提供 event，但 'event' 同时存在于
+ * 子应用 window（Window.prototype 上的遗留访问器），若不处理会被 proxy 遮蔽成 undefined。
+ */
+const INLINE_EVENT_UNSCOPABLES: Record<string, boolean> = {
+  event: true,
+};
+
+/**
+ * 给 proxyWindow 包一层，仅拦截 Symbol.unscopables，其余转发给底层 proxy。
+ * with(此对象){...} 时，对 INLINE_EVENT_UNSCOPABLES 中的名字不从 proxy 取值，
+ * 而是回落到外层 handler 作用域（拿到原生 event 形参），其它名字（如子应用函数）照常经 proxy 解析。
+ */
+function withInlineEventUnscopables(proxyWindow: WindowProxy): WindowProxy {
+  return new Proxy(proxyWindow, {
+    get(target, p) {
+      if (p === Symbol.unscopables) return INLINE_EVENT_UNSCOPABLES;
+      // 不传 receiver，沿用底层 proxy 既有的取值与 this 绑定逻辑
+      return Reflect.get(target, p);
+    },
+    has(target, p) {
+      return Reflect.has(target, p);
+    },
+  }) as WindowProxy;
+}
+
+/**
+ * 在当前 document 及其父级 document 链上查找子应用沙箱 iframe。
+ * 兼容降级模式：内联事件运行在渲染 iframe 内，需向上到 parent.document 查找。
+ */
+function queryWujieIframe(appId: string): HTMLIFrameElement | null {
+  const selector = `iframe[name="${appId}"]`;
+  let win: Window = window;
+  for (let i = 0; i < 10; i++) {
+    try {
+      const iframe = win.document?.querySelector(selector) as HTMLIFrameElement | null;
+      if (iframe) return iframe;
+    } catch (e) {
+      // 跨域父级 document 访问失败，停止向上查找
+      break;
+    }
+    if (!win.parent || win.parent === win) break;
+    win = win.parent;
+  }
+  return null;
 }
 
 /**

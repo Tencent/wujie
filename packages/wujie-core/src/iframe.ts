@@ -99,8 +99,8 @@ declare global {
     __WUJIE_MOUNT: () => void;
     // 子应用unmount函数
     __WUJIE_UNMOUNT: () => void | Promise<void>;
-    // 获取子应用 window 的辅助函数（用于内联事件处理器）
-    __getWujieWindow__: (element: Element) => WindowProxy;
+    // 获取子应用 window 的辅助函数（用于内联事件处理器），入参为子应用 appId
+    __getWujieWindow__: (appId: string) => WindowProxy;
     // document type
     Document: typeof Document;
     // img type
@@ -933,7 +933,7 @@ export function patchElementEffect(
   }
   execHooks(iframeWindow.__WUJIE.plugins, "patchElementHook", element, iframeWindow);
   // 编译内联事件处理器
-  compileInlineEvents(element);
+  compileInlineEvents(element as Element, iframeWindow);
 }
 
 /**
@@ -1119,46 +1119,63 @@ export function iframeGenerator(
   return iframe;
 }
 
+// 内联事件编译后的统一前缀，用于幂等判断，避免重复包裹
+const WUJIE_INLINE_EVENT_PREFIX = "with(window.__getWujieWindow__(";
+
+/**
+ * 将内联事件处理器包裹为子应用作用域执行的形式
+ * onclick="greet()" -> onclick='with(window.__getWujieWindow__("appId")){ greet() }'
+ * 已包裹过则原样返回，保证幂等
+ */
+function wrapInlineEventHandler(handler: string, appId: string): string {
+  if (handler.startsWith(WUJIE_INLINE_EVENT_PREFIX)) return handler;
+  return `${WUJIE_INLINE_EVENT_PREFIX}"${appId}")){ ${handler} }`;
+}
+
 /**
  * 编译元素的内联事件处理器
- * 将 onclick="..." 编译为 onclick="with(__getWujieWindow__(this)){ ... }"
+ * 将 onclick="..." 编译为 onclick='with(window.__getWujieWindow__("appId")){ ... }'
+ * 通过把 appId 烤进字符串字面量，避免运行时依赖被劫持的 getRootNode
  */
-function compileInlineEvents(element: Element): void {
+function compileInlineEvents(element: Element, iframeWindow: Window): void {
   // 只处理元素节点
   if (element.nodeType !== Node.ELEMENT_NODE) return;
+  // 降级模式同样需要编译：函数定义在沙箱 iframe 全局，DOM 渲染在另一个渲染 iframe，
+  // 原生 onclick 跨 realm 取不到函数，必须经 with(__getWujieWindow__) 桥接
+  const appId = iframeWindow.__WUJIE?.id;
+  if (!appId) return;
 
   // 遍历所有属性，查找内联事件
   const attributes = Array.from(element.attributes);
   attributes.forEach((attr) => {
-    if (attr.name.startsWith("on")) {
-      const eventName = attr.name;
-      const handler = attr.value;
-
-      // 编译内联事件
-      const compiledHandler = `with(window.__getWujieWindow__(this)){ ${handler} }`;
-      element.setAttribute(eventName, compiledHandler);
+    if (attr.name.startsWith("on") && typeof attr.value === "string") {
+      const compiledHandler = wrapInlineEventHandler(attr.value, appId);
+      if (compiledHandler !== attr.value) {
+        element.setAttribute(attr.name, compiledHandler);
+      }
     }
   });
 
   // 递归处理子元素
   if (element.children && element.children.length > 0) {
     Array.from(element.children).forEach((child) => {
-      compileInlineEvents(child);
+      compileInlineEvents(child, iframeWindow);
     });
   }
 }
 
 /**
  * 拦截 Element.prototype.setAttribute，编译内联事件属性
+ * 用于捕获子应用运行期间（如 Vue 模板渲染）动态设置的内联事件
  */
 function patchSetAttribute(iframeWindow: Window): void {
   const rawSetAttribute = iframeWindow.Element.prototype.setAttribute;
 
   iframeWindow.Element.prototype.setAttribute = function (name: string, value: string): void {
-    // 如果是内联事件属性，进行编译
+    // 内联事件属性进行编译，幂等避免重复包裹（降级模式同样需要，见 compileInlineEvents 说明）
     if (name.startsWith("on") && typeof value === "string") {
-      const compiledValue = `with(window.__getWujieWindow__(this)){ ${value} }`;
-      rawSetAttribute.call(this, name, compiledValue);
+      const appId = iframeWindow.__WUJIE?.id;
+      rawSetAttribute.call(this, name, appId ? wrapInlineEventHandler(value, appId) : value);
     } else {
       rawSetAttribute.call(this, name, value);
     }

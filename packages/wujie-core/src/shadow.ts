@@ -310,9 +310,12 @@ export async function renderTemplateToIframe(
 
   // 降级渲染 iframe 无 src 补丁，需与 JS iframe 一样注入 base，供 img 等相对路径解析到子应用域名
   const renderWindow = renderDocument.defaultView;
-  const proxyLocation = iframeWindow.__WUJIE.proxyLocation as Location;
   if (renderWindow) {
-    initBase(renderWindow, iframeWindow.__WUJIE.url, proxyLocation.pathname);
+    // 对于降级场景不需要添加 path
+    initBase(renderWindow, iframeWindow.__WUJIE.url, "");
+    // 降级模式内联事件运行在渲染 iframe realm，需把辅助函数注入到该 window，
+    // 使编译后的 with(window.__getWujieWindow__(...)) 可调用（其内部会向 parent.document 查找沙箱 iframe）
+    (renderWindow as any).__getWujieWindow__ = (window as any).__getWujieWindow__;
   }
 
   patchRenderEffect(renderDocument, iframeWindow.__WUJIE.id, true);
