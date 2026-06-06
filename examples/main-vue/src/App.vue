@@ -52,6 +52,7 @@
         <router-link to="/vue3-sub/location">location</router-link>
         <router-link to="/vue3-sub/contact">contact</router-link>
         <router-link to="/vue3-sub/state">state</router-link>
+        <router-link to="/vue3-sub/inline-event">inline-event</router-link>
       </div>
       <router-link v-if="degrade" to="/vite"
         >vite <a-icon :class="['main-icon', { active: viteFlag }]" type="caret-up" @click.native="handleFlag('vite')"
