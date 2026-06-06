@@ -1,5 +1,5 @@
 import importHTML, { processCssLoader } from "./entry";
-import { initInlineEventHelper } from "./inline-event";
+import { initInlineEventHelper } from "./entry";
 
 export { clearAssetsCache } from "./entry";
 import { StyleObject, ScriptAttributes } from "./template";
