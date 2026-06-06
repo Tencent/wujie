@@ -299,8 +299,17 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
       }
     });
 
+  // 编译内联事件处理器，包裹 with(__getWujieWindow__(this)){}
+  // 使其能够在子应用作用域中执行
+  const compiledTemplate = template.replace(
+    /on(\w+)="([^"]+)"/g,
+    (match, eventName, handler) => {
+      return `on${eventName}="with(__getWujieWindow__(this)){ ${handler} }"`;
+    }
+  );
+
   let tplResult = {
-    template,
+    template: compiledTemplate,
     scripts,
     styles,
     // set the last script as entry if have not set

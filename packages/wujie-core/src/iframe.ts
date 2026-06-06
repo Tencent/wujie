@@ -99,6 +99,8 @@ declare global {
     __WUJIE_MOUNT: () => void;
     // 子应用unmount函数
     __WUJIE_UNMOUNT: () => void | Promise<void>;
+    // 获取子应用 window 的辅助函数（用于内联事件处理器）
+    __getWujieWindow__: (element: Element) => WindowProxy;
     // document type
     Document: typeof Document;
     // img type

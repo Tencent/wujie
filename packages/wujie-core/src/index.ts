@@ -1,4 +1,5 @@
 import importHTML, { processCssLoader } from "./entry";
+import { initInlineEventHelper } from "./inline-event";
 
 export { clearAssetsCache } from "./entry";
 import { StyleObject, ScriptAttributes } from "./template";
@@ -190,6 +191,8 @@ export function setupApp(options: cacheOptions): void {
  * 运行无界app
  */
 export async function startApp(startOptions: startOptions): Promise<Function | void> {
+  // 初始化内联事件处理器辅助函数
+  initInlineEventHelper();
   const sandbox = getWujieById(startOptions.name);
   const cacheOptions = getOptionsById(startOptions.name);
   // 合并缓存配置
