@@ -806,6 +806,7 @@ function initIframeDom(iframeWindow: Window, wujie: WuJie, mainHostPath: string,
   patchDocumentEffect(iframeWindow);
   patchNodeEffect(iframeWindow);
   patchRelativeUrlEffect(iframeWindow);
+  patchSetAttribute(iframeWindow);
 }
 
 /**
@@ -1125,24 +1126,41 @@ export function iframeGenerator(
 function compileInlineEvents(element: Element): void {
   // 只处理元素节点
   if (element.nodeType !== Node.ELEMENT_NODE) return;
-  
+
   // 遍历所有属性，查找内联事件
   const attributes = Array.from(element.attributes);
   attributes.forEach((attr) => {
-    if (attr.name.startsWith('on')) {
+    if (attr.name.startsWith("on")) {
       const eventName = attr.name;
       const handler = attr.value;
-      
+
       // 编译内联事件
       const compiledHandler = `with(window.__getWujieWindow__(this)){ ${handler} }`;
       element.setAttribute(eventName, compiledHandler);
     }
   });
-  
+
   // 递归处理子元素
   if (element.children && element.children.length > 0) {
     Array.from(element.children).forEach((child) => {
       compileInlineEvents(child);
     });
   }
+}
+
+/**
+ * 拦截 Element.prototype.setAttribute，编译内联事件属性
+ */
+function patchSetAttribute(iframeWindow: Window): void {
+  const rawSetAttribute = iframeWindow.Element.prototype.setAttribute;
+
+  iframeWindow.Element.prototype.setAttribute = function (name: string, value: string): void {
+    // 如果是内联事件属性，进行编译
+    if (name.startsWith("on") && typeof value === "string") {
+      const compiledValue = `with(window.__getWujieWindow__(this)){ ${value} }`;
+      rawSetAttribute.call(this, name, compiledValue);
+    } else {
+      rawSetAttribute.call(this, name, value);
+    }
+  };
 }
