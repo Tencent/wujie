@@ -291,7 +291,6 @@ export default function importHTML(params: {
  * 用于在 ShadowDOM 中动态获取子应用的 window 对象
  */
 
-
 /**
  * 获取子应用的 window 对象
  * 用于内联事件处理器编译后的 with 语句
