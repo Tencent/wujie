@@ -66,6 +66,7 @@
       <router-link to="/angular12">angular12</router-link>
       <router-link to="/all">all</router-link>
       <router-link to="/postmessage">postmessage</router-link>
+      <router-link to="/vue3-sub/inline-event">inline-event</router-link>
       <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click.stop="active = !active" />
     </div>
     <div class="content" @click="active = false">

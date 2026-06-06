@@ -321,9 +321,8 @@ export function getWujieWindow(appId: string): WindowProxy {
       return window;
     }
 
-    const wujieData = contentWindow.__WUJIE;
     // 非降级模式返回 proxy，降级模式直接返回 iframe.contentWindow
-    const targetWindow = wujieData?.proxy || contentWindow;
+    const targetWindow = contentWindow.__WUJIE?.degrade ? contentWindow : contentWindow.__WUJIE?.proxy;
     return withInlineEventUnscopables(targetWindow);
   } catch (e) {
     console.warn("[wujie] Failed to get wujie window:", e);
