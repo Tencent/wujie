@@ -297,37 +297,43 @@ function rewriteAppendOrInsertChild(opts: {
 
           // 拉取 css 内容并以 <style> 注入子应用、回调 link 的 load/error 事件。
           // 抽成闭包以便「append 时已有 href」与「append 后才 setAttribute('href')」两条路径复用。
-          const loadStyleSheet = (realHref: string, linkElement: HTMLLinkElement) => {
-            const attrHref = linkElement.getAttribute("href");
-            const styleHref = attrHref ? getAbsolutePath(attrHref, (proxyLocation as Location).href) : realHref;
-            const exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
-            if (!styleHref || exclude) return;
-            getExternalStyleSheets(
-              [{ src: styleHref, ignore: isMatchUrl(styleHref, getEffectLoaders("cssIgnores", plugins)) }],
-              fetch,
-              lifecycles.loadError
-            ).forEach(({ src, ignore, contentPromise }) =>
-              contentPromise.then(
-                (content) => {
-                  // 处理 ignore 样式
-                  const rawAttrs = parseTagAttributes(linkElement.outerHTML);
+         const loadStyleSheet = (realHref: string, linkElement: HTMLLinkElement) => {
+           const attrHref = linkElement.getAttribute("href");
+           const styleHref = attrHref ? getAbsolutePath(attrHref, (proxyLocation as Location).href) : realHref;
+           const exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
+           if (!styleHref || exclude) return;
+
+           // 立即创建占位 <style> 元素，避免异步加载期间重复插入
+           // 保留原始 link 的属性（如 class），以便 checkLinkAndLoad 等去重逻辑能找到
+           const rawAttrs = parseTagAttributes(linkElement.outerHTML);
+           const placeholderElement = iframeDocument.createElement("style");
+           setAttrsToElement(placeholderElement, rawAttrs);
+           placeholderElement.setAttribute("data-wujie-css-href", styleHref);
+           rawDOMAppendOrInsertBefore.call(this, placeholderElement, refChild);
+
+           getExternalStyleSheets(
+             [{ src: styleHref, ignore: isMatchUrl(styleHref, getEffectLoaders("cssIgnores", plugins)) }],
+             fetch,
+             lifecycles.loadError
+           ).forEach(({ src, ignore, contentPromise }) =>
+             contentPromise.then(
+               (content) => {
                   if (ignore && src) {
                     // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
+                   // 移除占位元素，插入原始 link
+                   placeholderElement.parentNode?.removeChild(placeholderElement);
                     rawDOMAppendOrInsertBefore.call(this, linkElement, refChild);
                   } else {
-                    // 记录js插入样式，子应用重新激活时恢复
-                    const stylesheetElement = iframeDocument.createElement("style");
-                    // 处理css-loader插件
-                    const cssLoader = getCssLoader({ plugins, replace });
-                    stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
-                    styleSheetElements.push(stylesheetElement);
-                    setAttrsToElement(stylesheetElement, rawAttrs);
-                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
-                    // 处理样式补丁
-                    handleStylesheetElementPatch(stylesheetElement, sandbox);
-                    manualInvokeElementEvent(linkElement, "load");
-                  }
-                  if (element === linkElement) element = null;
+                   // 填充 CSS 内容到占位元素
+                   // 处理css-loader插件
+                   const cssLoader = getCssLoader({ plugins, replace });
+                   placeholderElement.innerHTML = cssLoader(content, src, curUrl);
+                   styleSheetElements.push(placeholderElement);
+                   // 处理样式补丁
+                   handleStylesheetElementPatch(placeholderElement, sandbox);
+                   manualInvokeElementEvent(linkElement, "load");
+                 }
+                 if (element === linkElement) element = null;
                 },
                 () => {
                   manualInvokeElementEvent(linkElement, "error");
