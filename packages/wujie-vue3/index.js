@@ -1,4 +1,4 @@
-import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp } from "wujie";
+import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp, refreshApp } from "wujie";
 import { h, defineComponent } from "vue";
 
 /**
@@ -123,6 +123,13 @@ const wujieVueOptions = {
     destroy() {
       destroyApp(this.name);
     },
+    // 销毁当前子应用实例并复用组件 props 全量重建
+    async refresh() {
+      if (this.isUnmounted) return;
+      await destroyApp(this.name);
+      this.execStartApp();
+      return this.startAppQueue;
+    },
   },
   beforeDestroy() {
     this.isUnmounted = true;
@@ -147,6 +154,7 @@ WujieVue.setupApp = setupApp;
 WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;
+WujieVue.refreshApp = refreshApp;
 WujieVue.install = function (app) {
   app.component("WujieVue", WujieVue);
 };

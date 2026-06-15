@@ -378,3 +378,13 @@ export async function destroyApp(id: string): Promise<void> {
     await sandbox.destroy();
   }
 }
+
+/**
+ * 刷新无界APP
+ * 先销毁当前子应用实例，再以传入配置全量重建（等价于「重建模式」）
+ * 等待 destroyApp 完成后再 startApp，避免销毁未结束就重启导致的竞态
+ */
+export async function refreshApp(startOptions: startOptions): Promise<Function | void> {
+  await destroyApp(startOptions.name);
+  return startApp(startOptions);
+}

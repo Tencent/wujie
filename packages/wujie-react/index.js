@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { bus, preloadApp, startApp, destroyApp, setupApp } from "wujie";
+import { bus, preloadApp, startApp, destroyApp, setupApp, refreshApp } from "wujie";
 
 /**
  * 清理全局 startApp 串行队列，防止组件销毁后 window.__WUJIE_QUEUE 长期持有
@@ -20,6 +20,7 @@ export default class WujieReact extends React.PureComponent {
   static setupApp = setupApp;
   static preloadApp = preloadApp;
   static destroyApp = destroyApp;
+  static refreshApp = refreshApp;
 
   state = {
     myRef: React.createRef(),
@@ -57,6 +58,14 @@ export default class WujieReact extends React.PureComponent {
     if (this.props.name && window.__WUJIE_QUEUE) {
       window.__WUJIE_QUEUE[this.props.name] = this.startAppQueue;
     }
+  };
+
+  // 销毁当前子应用实例并复用组件 props 全量重建
+  refresh = async () => {
+    if (this.isUnmounted) return;
+    await destroyApp(this.props.name);
+    this.execStartApp();
+    return this.startAppQueue;
   };
 
   componentDidMount() {
