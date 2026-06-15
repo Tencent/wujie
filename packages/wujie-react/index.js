@@ -27,9 +27,13 @@ export default class WujieReact extends React.PureComponent {
 
   destroy = null;
 
+  isUnmounted = false;
+
   startAppQueue = Promise.resolve();
 
   startApp = async () => {
+    // 拦截组件卸载后仍残留在 __WUJIE_QUEUE Promise 链中的 .then(startApp) 幽灵执行
+    if (this.isUnmounted) return;
     try {
       const props = this.props;
       const { current: el } = this.state.myRef;
@@ -37,12 +41,18 @@ export default class WujieReact extends React.PureComponent {
         ...props,
         el,
       });
+      // 异步创建跨越了卸载点，兜底销毁孤儿 sandbox
+      if (this.isUnmounted && typeof this.destroy === "function") {
+        this.destroy();
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   execStartApp = () => {
+    // 卸载后残留触发不应再入队
+    if (this.isUnmounted) return;
     this.startAppQueue = this.startAppQueue.then(this.startApp);
     if (this.props.name && window.__WUJIE_QUEUE) {
       window.__WUJIE_QUEUE[this.props.name] = this.startAppQueue;
@@ -73,6 +83,7 @@ export default class WujieReact extends React.PureComponent {
   }
 
   componentWillUnmount() {
+    this.isUnmounted = true;
     clearStartAppQueue(this.props.name, this.startAppQueue);
   }
 

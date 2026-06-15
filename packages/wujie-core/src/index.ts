@@ -372,9 +372,9 @@ export function preloadApp(preOptions: preOptions): void {
 /**
  * 销毁无界APP
  */
-export function destroyApp(id: string): void {
+export async function destroyApp(id: string): Promise<void> {
   const sandbox = getWujieById(id);
   if (sandbox) {
-    sandbox.destroy();
+    await sandbox.destroy();
   }
 }

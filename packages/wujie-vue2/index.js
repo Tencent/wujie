@@ -46,6 +46,7 @@ const wujieVueOptions = {
   data() {
     return {
       startAppQueue: Promise.resolve(),
+      isUnmounted: false,
     };
   },
   mounted() {
@@ -74,9 +75,11 @@ const wujieVueOptions = {
       this.$emit(event, ...args);
     },
     async startApp() {
+      // 拦截组件卸载后仍残留在 __WUJIE_QUEUE Promise 链中的 .then(startApp) 幽灵执行
+      if (this.isUnmounted) return;
       try {
         // $props 是vue 2.2版本才有的属性，所以这里直接全部写一遍
-        await rawStartApp({
+        const destroy = await rawStartApp({
           name: this.name,
           url: this.url,
           el: this.$refs.wujie,
@@ -102,11 +105,17 @@ const wujieVueOptions = {
           iframeAddEventListeners: this.iframeAddEventListeners,
           iframeOnEvents: this.iframeOnEvents,
         });
+        // 异步创建跨越了卸载点，兜底销毁孤儿 sandbox
+        if (this.isUnmounted && typeof destroy === "function") {
+          destroy();
+        }
       } catch (error) {
         console.log(error);
       }
     },
     execStartApp() {
+      // 卸载后 watch 残留触发不应再入队
+      if (this.isUnmounted) return;
       this.startAppQueue = this.startAppQueue.then(this.startApp);
       if (this.name && window.__WUJIE_QUEUE) {
         window.__WUJIE_QUEUE[this.name] = this.startAppQueue;
@@ -117,6 +126,7 @@ const wujieVueOptions = {
     },
   },
   beforeDestroy() {
+    this.isUnmounted = true;
     bus.$offAll(this.handleEmit);
     clearStartAppQueue(this.name, this.startAppQueue);
   },

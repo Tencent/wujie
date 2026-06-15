@@ -99,6 +99,8 @@ export default class Wujie {
   public activeFlag: boolean;
   /** 子应用mount标志 */
   public mountFlag: boolean;
+  /** 子应用销毁标志，防止 destroy 被并发重复执行 */
+  public destroyed = false;
   /** 路由同步标志 */
   public sync: boolean;
   /** 子应用短路径替换，路由同步时生效 */
@@ -432,6 +434,13 @@ export default class Wujie {
 
   /** 销毁子应用 */
   public async destroy() {
+    // 防重入：极端时序下 destroyApp / disconnectedCallback / startApp 可能并发触发，
+    // 标志位确保同一实例只执行一次完整销毁。
+    if (this.destroyed) return;
+    this.destroyed = true;
+    // 同步从全局 map 移除自身：确保 await 挂起期间并发的 disconnectedCallback /
+    // startApp 通过 getWujieById 拿到 null，避免对同一实例重复 destroy（竞态根因）。
+    deleteWujieById(this.id);
     await this.unmount();
     // 释放动态样式 / 脚本节点（unmount 阶段保留以便 rebuildStyleSheets 复用，destroy 阶段才彻底清）
     this.clearStyleSheets();
@@ -509,7 +518,6 @@ export default class Wujie {
     this.proxyRevoke = null;
     // 反向解绑 patchDocumentEffect / patchWindowEffect 在主 window / document 上挂的副作用
     this.eventCleanupTracker.cleanupAll();
-    deleteWujieById(this.id);
   }
 
   /**
