@@ -32,7 +32,7 @@ import {
 import { EventBus, appEventObjMap, EventObj } from "./event";
 import { EventCleanupTracker } from "./tracker";
 import { isFunction, wujieSupport, appRouteParse, requestIdleCallback, getAbsolutePath, eventTrigger } from "./utils";
-import { WUJIE_DATA_ATTACH_CSS_FLAG } from "./constant";
+import { WUJIE_DATA_ATTACH_CSS_FLAG, WUJIE_APP_ID, WUJIE_FONT_STYLE_CONTAINER_ATTR } from "./constant";
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
 
 export type lifecycle = (appWindow: Window) => any;
@@ -113,6 +113,9 @@ export default class Wujie {
   public document: Document;
   /** 子应用styleSheet元素 */
   public styleSheetElements: Array<HTMLLinkElement | HTMLStyleElement>;
+
+  /** 子应用 font-face 样式元素，挂载在最外层 document.head */
+  public fontStyleSheetElements: Array<HTMLStyleElement> = [];
   /**
    * 子应用通过 document.head.appendChild(<script>) 触发的动态脚本节点。
    * 由 insertScriptToIframe 在收到 rawElement（即 effect.ts 转发的动态 script）
@@ -155,6 +158,7 @@ export default class Wujie {
     idToSandboxMap: Map<String, SandboxCache>;
     appEventObjMap: Map<String, EventObj>;
     mainHostPath: string;
+    fontStyleSheetContainer?: HTMLElement;
   };
 
   /** 激活子应用
@@ -432,6 +436,7 @@ export default class Wujie {
     // 释放动态样式 / 脚本节点（unmount 阶段保留以便 rebuildStyleSheets 复用，destroy 阶段才彻底清）
     this.clearStyleSheets();
     this.clearDynamicScripts();
+    this.clearFontStyleSheets();
     // 解绑等待 href 赋值的 MutationObserver，避免闭包钉住已销毁的 sandbox
     this.clearDeferredStyleObservers();
     // 先 $destroy 再置 null：清空事件并从全局 appEventObjMap 中移除当前 id 的 entry，
@@ -445,6 +450,7 @@ export default class Wujie {
     this.provide = null;
     this.degradeAttrs = null;
     this.styleSheetElements = null;
+    this.fontStyleSheetElements = null;
     this.dynamicScriptElements = null;
     this.deferredStyleObservers = null;
     this.bus = null;
@@ -541,6 +547,22 @@ export default class Wujie {
   }
 
   /**
+   * destroy 阶段清空 fontStyleSheetElements，同时把节点从父节点 detach。
+   * 使用 WUJIE_APP_ID 标识属于当前子应用的 font 样式。
+   */
+  public clearFontStyleSheets(): void {
+    if (!Array.isArray(this.fontStyleSheetElements)) return;
+    this.fontStyleSheetElements.forEach((el) => {
+      try {
+        el.parentNode?.removeChild(el);
+      } catch (_) {
+        /* noop */
+      }
+    });
+    this.fontStyleSheetElements.length = 0;
+  }
+
+  /**
    * unmount / destroy 阶段统一 disconnect 等待 href 赋值的 MutationObserver。
    * observer 在 href 命中或超时兜底时会自行 disconnect 并出队；
    * 这里兜底处理「子应用先于 href 赋值被卸载/销毁」的场景。
@@ -555,6 +577,20 @@ export default class Wujie {
       }
     });
     this.deferredStyleObservers.length = 0;
+  }
+
+  /**
+   * 创建或获取 font 样式容器（挂载在最外层 document.head）
+   * 用于存放子应用的 @font-face 样式，确保嵌套子应用也能正确应用字体
+   */
+  private createFontStyleSheetContainer(): HTMLElement {
+    const container = rawDocumentQuerySelector.call(document, `[${WUJIE_FONT_STYLE_CONTAINER_ATTR}]`);
+    if (container) return container as HTMLElement;
+
+    const styleElement = document.createElement("style");
+    styleElement.setAttribute(WUJIE_FONT_STYLE_CONTAINER_ATTR, "");
+    document.head.appendChild(styleElement);
+    return styleElement;
   }
 
   /** 当子应用再次激活后，只运行mount函数，样式需要重新恢复 */
@@ -585,7 +621,9 @@ export default class Wujie {
       this.styleSheetElements.push(hostStyleSheetElement);
     }
     if (fontStyleSheetElement) {
-      this.shadowRoot.host.appendChild(fontStyleSheetElement);
+      this.inject.fontStyleSheetContainer?.appendChild(fontStyleSheetElement);
+      fontStyleSheetElement.setAttribute(WUJIE_APP_ID, this.id);
+      this.fontStyleSheetElements.push(fontStyleSheetElement);
     }
     (hostStyleSheetElement || fontStyleSheetElement) &&
       this.shadowRoot.host.setAttribute(WUJIE_DATA_ATTACH_CSS_FLAG, "");
@@ -614,6 +652,7 @@ export default class Wujie {
         idToSandboxMap: idToSandboxCacheMap,
         appEventObjMap,
         mainHostPath: window.location.protocol + "//" + window.location.host,
+        fontStyleSheetContainer: this.createFontStyleSheetContainer(),
       };
     }
     const { name, url, attrs, fiber, degradeAttrs, degrade, lifecycles, plugins } = options;

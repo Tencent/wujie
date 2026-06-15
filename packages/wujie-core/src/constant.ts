@@ -6,6 +6,7 @@ export const CONTAINER_POSITION_DATA_FLAG = "data-container-position-flag";
 export const CONTAINER_OVERFLOW_DATA_FLAG = "data-container-overflow-flag";
 export const LOADING_DATA_FLAG = "data-loading-flag";
 export const WUJIE_DATA_ATTACH_CSS_FLAG = "data-wujie-attach-css-flag";
+export const WUJIE_FONT_STYLE_CONTAINER_ATTR = "data-wujie-font-style-container";
 
 // 需要使用的某些固定变量
 export const WUJIE_IFRAME_CLASS = "wujie_iframe";
