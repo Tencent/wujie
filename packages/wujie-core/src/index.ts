@@ -121,6 +121,10 @@ type baseOptions = {
   iframeAddEventListeners?: Array<string>;
   /** 子应用iframe on事件 */
   iframeOnEvents?: Array<string>;
+  /** 是否取消请求 */
+  cancelRequest?: boolean;
+  /** 请求超时时间 */
+  timeout?: number;
   /** 子应用生命周期 */
   beforeLoad?: lifecycle;
   beforeMount?: lifecycle;
@@ -217,6 +221,8 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
     lifecycles,
     iframeAddEventListeners,
     iframeOnEvents,
+    cancelRequest,
+    timeout,
   } = options;
   // 已经初始化过的应用，快速渲染
   if (sandbox) {
@@ -240,6 +246,8 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
             plugins: sandbox.plugins,
             loadError: sandbox.lifecycles.loadError,
             fiber,
+            cancelRequest,
+            timeout,
           },
         });
         await sandbox.start(getExternalScripts);
@@ -290,6 +298,8 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
       plugins: newSandbox.plugins,
       loadError: newSandbox.lifecycles.loadError,
       fiber,
+      cancelRequest,
+      timeout,
     },
   });
 
@@ -330,6 +340,8 @@ export function preloadApp(preOptions: preOptions): void {
       lifecycles,
       iframeAddEventListeners,
       iframeOnEvents,
+      cancelRequest,
+      timeout,
     } = options;
 
     const sandbox = new WuJie({
@@ -355,6 +367,8 @@ export function preloadApp(preOptions: preOptions): void {
           plugins: sandbox.plugins,
           loadError: sandbox.lifecycles.loadError,
           fiber,
+          cancelRequest,
+          timeout,
         },
       });
       const processedHtml = await processCssLoader(sandbox, template, getExternalStyleSheets);

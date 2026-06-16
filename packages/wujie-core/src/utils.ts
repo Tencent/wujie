@@ -355,6 +355,8 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
       deactivated: options.deactivated || cacheOptions?.deactivated,
       loadError: options.loadError || cacheOptions?.loadError,
     },
+    cancelRequest: options.cancelRequest || cacheOptions?.cancelRequest,
+    timeout: options.timeout || cacheOptions?.timeout,
   };
 }
 
@@ -375,4 +377,21 @@ export function eventTrigger(el: HTMLElement | Window | Document, eventName: str
 export function stopMainAppRun() {
   warn(WUJIE_TIPS_STOP_APP_DETAIL);
   throw new Error(WUJIE_TIPS_STOP_APP);
+}
+
+export function fetchWithTimeOut(
+  url: string,
+  fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>,
+  cancelRequest?: boolean,
+  timeout: number = 5000
+) {
+  if (cancelRequest) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    return fetch(url, {
+      signal: controller.signal,
+    }).finally(() => clearTimeout(id));
+  } else {
+    return fetch(url);
+  }
 }

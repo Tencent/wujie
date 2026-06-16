@@ -42,6 +42,8 @@ const wujieVueOptions = {
     style: { type: Object, default: undefined },
     iframeAddEventListeners: { type: Array, default: null },
     iframeOnEvents: { type: Array, default: null },
+    cancelRequest: { type: Boolean, default: undefined },
+    timeout: { type: Number, default: undefined },
   },
   data() {
     return {
@@ -103,6 +105,8 @@ const wujieVueOptions = {
           loadError: this.loadError,
           iframeAddEventListeners: this.iframeAddEventListeners,
           iframeOnEvents: this.iframeOnEvents,
+          cancelRequest: this.cancelRequest,
+          timeout: this.timeout,
         });
         // 异步创建跨越了卸载点，兜底销毁孤儿 sandbox
         if (this.isUnmounted && typeof destroy === "function") {

@@ -5,7 +5,15 @@ import processTpl, {
   ScriptBaseObject,
   StyleObject,
 } from "./template";
-import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from "./utils";
+import {
+  defaultGetPublicPath,
+  getInlineCode,
+  requestIdleCallback,
+  error,
+  compose,
+  getCurUrl,
+  fetchWithTimeOut,
+} from "./utils";
 import {
   WUJIE_TIPS_NO_FETCH,
   WUJIE_TIPS_SCRIPT_ERROR_REQUESTED,
@@ -34,6 +42,8 @@ type ImportEntryOpts = {
   fiber?: boolean;
   plugins?: Array<plugin>;
   loadError?: loadErrorHandler;
+  cancelRequest?: boolean;
+  timeout?: number;
 };
 
 // 模块级资源缓存：导出仅供 clearAssetsCache 内部使用，外部代码勿直接 mutate
@@ -128,10 +138,12 @@ const fetchAssets = (
   cache: Object,
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>,
   cssFlag?: boolean,
-  loadError?: loadErrorHandler
+  loadError?: loadErrorHandler,
+  cancelRequest?: boolean,
+  timeout?: number
 ) =>
   cache[src] ||
-  (cache[src] = fetch(src)
+  (cache[src] = fetchWithTimeOut(src, fetch, cancelRequest, timeout)
     .then((response) => {
       // usually browser treats 4xx and 5xx response of script loading as an error and will fire a script error event
       // https://stackoverflow.com/questions/5625420/what-http-headers-responses-trigger-the-onerror-handler-on-a-script-tag/5625603
@@ -166,7 +178,9 @@ const fetchAssets = (
 export function getExternalStyleSheets(
   styles: StyleObject[],
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> = defaultFetch,
-  loadError: loadErrorHandler
+  loadError: loadErrorHandler,
+  cancelRequest?: boolean,
+  timeout?: number
 ): StyleResultList {
   return styles.map(({ src, content, ignore }) => {
     // 内联
@@ -180,7 +194,9 @@ export function getExternalStyleSheets(
       return {
         src,
         ignore,
-        contentPromise: ignore ? Promise.resolve("") : fetchAssets(src, styleCache, fetch, true, loadError),
+        contentPromise: ignore
+          ? Promise.resolve("")
+          : fetchAssets(src, styleCache, fetch, true, loadError, cancelRequest, timeout),
       };
     }
   });
@@ -191,7 +207,9 @@ export function getExternalScripts(
   scripts: ScriptObject[],
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> = defaultFetch,
   loadError: loadErrorHandler,
-  fiber: boolean
+  fiber: boolean,
+  cancelRequest?: boolean,
+  timeout?: number
 ): ScriptResultList {
   // module should be requested in iframe
   return scripts.map((script) => {
@@ -201,8 +219,10 @@ export function getExternalScripts(
     if ((async || defer) && src && !module) {
       contentPromise = new Promise((resolve, reject) =>
         fiber
-          ? requestIdleCallback(() => fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject))
-          : fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject)
+          ? requestIdleCallback(() =>
+              fetchAssets(src, scriptCache, fetch, false, loadError, cancelRequest, timeout).then(resolve, reject)
+            )
+          : fetchAssets(src, scriptCache, fetch, false, loadError, cancelRequest, timeout).then(resolve, reject)
       );
       // module || ignore
     } else if ((module && src) || ignore) {
@@ -212,7 +232,7 @@ export function getExternalScripts(
       contentPromise = Promise.resolve(script.content);
       // outline
     } else {
-      contentPromise = fetchAssets(src, scriptCache, fetch, false, loadError);
+      contentPromise = fetchAssets(src, scriptCache, fetch, false, loadError, cancelRequest, timeout);
     }
     // refer https://html.spec.whatwg.org/multipage/scripting.html#attr-script-defer
     if (module && !async) script.defer = true;
@@ -228,7 +248,7 @@ export default function importHTML(params: {
   const { url, opts, html } = params;
   const fetch = opts.fetch ?? defaultFetch;
   const fiber = opts.fiber ?? true;
-  const { plugins, loadError } = opts;
+  const { plugins, loadError, cancelRequest, timeout } = opts;
   const htmlLoader = plugins ? compose(plugins.map((plugin) => plugin.htmlLoader)) : defaultGetTemplate;
   const jsExcludes = getEffectLoaders("jsExcludes", plugins);
   const cssExcludes = getEffectLoaders("cssExcludes", plugins);
@@ -266,7 +286,9 @@ export default function importHTML(params: {
               .map((script) => ({ ...script, ignore: script.src && isMatchUrl(script.src, jsIgnores) })),
             fetch,
             loadError,
-            fiber
+            fiber,
+            cancelRequest,
+            timeout
           ),
         getExternalStyleSheets: () =>
           getExternalStyleSheets(
@@ -274,7 +296,9 @@ export default function importHTML(params: {
               .filter((style) => !style.src || !isMatchUrl(style.src, cssExcludes))
               .map((style) => ({ ...style, ignore: style.src && isMatchUrl(style.src, cssIgnores) })),
             fetch,
-            loadError
+            loadError,
+            cancelRequest,
+            timeout
           ),
       };
     });

@@ -129,7 +129,7 @@ export function initRenderIframeAndContainer(
  */
 async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement): Promise<HTMLHtmlElement> {
   const document = sandbox.iframe.contentDocument;
-  const { plugins, replace, proxyLocation } = sandbox;
+  const { plugins, replace, proxyLocation, cancelRequest, timeout } = sandbox;
   const cssLoader = getCssLoader({ plugins, replace });
   const cssBeforeLoaders = getPresetLoaders("cssBeforeLoaders", plugins);
   const cssAfterLoaders = getPresetLoaders("cssAfterLoaders", plugins);
@@ -137,7 +137,7 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
 
   return await Promise.all([
     Promise.all(
-      getExternalStyleSheets(cssBeforeLoaders, sandbox.fetch, sandbox.lifecycles.loadError).map(
+      getExternalStyleSheets(cssBeforeLoaders, sandbox.fetch, sandbox.lifecycles.loadError, cancelRequest, timeout).map(
         ({ src, contentPromise }) => contentPromise.then((content) => ({ src, content }))
       )
     ).then((contentList) => {
@@ -152,7 +152,7 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
       });
     }),
     Promise.all(
-      getExternalStyleSheets(cssAfterLoaders, sandbox.fetch, sandbox.lifecycles.loadError).map(
+      getExternalStyleSheets(cssAfterLoaders, sandbox.fetch, sandbox.lifecycles.loadError, cancelRequest, timeout).map(
         ({ src, contentPromise }) => contentPromise.then((content) => ({ src, content }))
       )
     ).then((contentList) => {

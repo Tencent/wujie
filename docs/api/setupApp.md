@@ -48,6 +48,10 @@ type baseOptions = {
   activated?: lifecycle;
   deactivated?: lifecycle;
   loadError?: loadErrorHandler;
+  /** 超时取消开关 */
+  cancelRequest?: boolean;
+  /** 超时等待时间 */
+  timeout?: number;
 };
 
 type preOptions = baseOptions & {
