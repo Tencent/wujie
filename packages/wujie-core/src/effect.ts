@@ -294,8 +294,22 @@ function rewriteAppendOrInsertChild(opts: {
     if (element.tagName) {
       switch (element.tagName?.toUpperCase()) {
         case "LINK": {
-          const { href, rel, type } = element as HTMLLinkElement;
+          const { href, rel, type, as } = element as HTMLLinkElement;
           const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
+          // 处理modulepreload类型的link标签
+          if (rel === "modulepreload") {
+            // 对于JS类型的modulepreload，记录但不立即插入
+            if (as === "script" && href.endsWith(".js")) {
+              console.warn('as === "script"',as === "script");
+              // 执行插件钩子，但不插入DOM
+              execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+              return null;
+            }
+            // 对于非JS类型的modulepreload（字体、图片等），正常插入DOM
+            const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return res;
+          }
           // 非 stylesheet 不做处理
           if (!styleFlag) {
             const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
