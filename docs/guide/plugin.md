@@ -72,7 +72,7 @@ const plugins = [
     jsBeforeLoaders: [
       // 插入一个外联脚本
       { src: "http://xxxx.js" },
-      // 插入一个内联监本
+      // 插入一个内联脚本
       { content: 'console.log("test")' },
       // 执行一个回调，打印子应用名字
       {
