@@ -10,7 +10,7 @@ collapsable: false
 ### 引入
 
 ```javascript
-import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
+import { bus, setupApp, preloadApp, startApp, destroyApp, refreshApp, clearAssetsCache } from "wujie";
 ```
 
 ::: tip 提示

@@ -200,6 +200,14 @@ export default defineConfig({
               text: "destroyApp",
               link: "/api/destroyApp",
             },
+            {
+              text: "refreshApp",
+              link: "/api/refreshApp",
+            },
+            {
+              text: "clearAssetsCache",
+              link: "/api/clearAssetsCache",
+            },
           ],
         },
         {
