@@ -67,6 +67,28 @@ export function defineWujieWebComponent() {
         const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
         patchElementEffect(shadowRoot, sandbox.iframe.contentWindow);
         sandbox.shadowRoot = shadowRoot;
+        // 将 document.adoptedStyleSheets 代理到 shadowRoot.adoptedStyleSheets
+        if (!sandbox.degrade) {
+          const iframeWindow = sandbox.iframe.contentWindow;
+          const descriptor: PropertyDescriptor = {
+            configurable: true,
+            enumerable: true,
+            get: () => shadowRoot.adoptedStyleSheets,
+            set: (sheets: CSSStyleSheet[]) => {
+              shadowRoot.adoptedStyleSheets = sheets;
+            },
+          };
+          try {
+            Object.defineProperty(iframeWindow.Document.prototype, "adoptedStyleSheets", descriptor);
+          } catch (e) {
+            /* ignore */
+          }
+          try {
+            Object.defineProperty(iframeWindow.document, "adoptedStyleSheets", descriptor);
+          } catch (e) {
+            /* ignore */
+          }
+        }
       }
 
       disconnectedCallback(): void {
