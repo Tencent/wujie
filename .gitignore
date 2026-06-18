@@ -18,3 +18,5 @@ coverage
 .pnpm-debug.log*
 cache
 .idea
+reasonix*
+.reasonix

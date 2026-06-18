@@ -334,6 +334,61 @@ export function patchWindowEffect(iframeWindow: Window): void {
   } else {
     execHooks(iframeWindow.__WUJIE.plugins, "windowPropertyOverride", iframeWindow);
   }
+  // 内置：代理 Proxy 陷阱，当子应用对 __WUJIE.proxy 做 new Proxy 时，
+  // 确保 handler 中 window/self 访问返回 proxy 自身
+  patchWindowGetterEffect(iframeWindow);
+}
+
+/** Proxy 全部陷阱属性名，用于 patchWindowGetterEffect 的 handler 构建 */
+const PROXY_HANDLER_PROPERTIES: ReadonlyArray<string> = [
+  "apply",
+  "construct",
+  "defineProperty",
+  "deleteProperty",
+  "get",
+  "getOwnPropertyDescriptor",
+  "getPrototypeOf",
+  "has",
+  "isExtensible",
+  "ownKeys",
+  "preventExtensions",
+  "set",
+  "setPrototypeOf",
+];
+
+/**
+ * 内部代理窗口：当子应用代码对 window.__WUJIE.proxy 进行 new Proxy 操作时，
+ * 确保 Proxy handler 中对 window / self 的读取返回 proxy 自身而非原始 window。
+ * 这解决了子应用中使用 Proxy 范式时 this 指向不一致的问题。
+ *
+ * 实现参照 patchInstanceofAcrossRealms 的 _hasPatch 模式，通过自有属性标记防止重复 patch，
+ * sandbox 销毁时 iframe window 整体被 GC，不会残留引用。
+ */
+export function patchWindowGetterEffect(iframeWindow: Window): void {
+  // 防重复 patch
+  if (Object.prototype.hasOwnProperty.call(iframeWindow.__WUJIE, "__windowGetterPatched__")) return;
+
+  const rawWindowProxy = iframeWindow.__WUJIE.proxy;
+  const handler: ProxyHandler<{}> = {} as ProxyHandler<{}>;
+
+  for (const property of PROXY_HANDLER_PROPERTIES) {
+    if (property !== "get") {
+      (handler as any)[property] = function (_target: any, ...args: any[]) {
+        return (Reflect as any)[property].apply(null, [rawWindowProxy, ...args]);
+      };
+    } else {
+      (handler as any)[property] = function (_target: any, p: PropertyKey, receiver: any) {
+        // 拦截 window / self 读取，返回 proxy 自身
+        if (typeof p === "string" && /^window$|^self$/.test(p)) {
+          return iframeWindow.__WUJIE?.proxy;
+        }
+        return Reflect.get(rawWindowProxy, p, receiver);
+      };
+    }
+  }
+
+  iframeWindow.__WUJIE.proxy = new Proxy({}, handler) as any;
+  (iframeWindow.__WUJIE as any).__windowGetterPatched__ = true;
 }
 
 function isDomConstructor(name: string, ctor: Function, peerWindow: Window): boolean {
@@ -704,6 +759,83 @@ export function patchDocumentEffect(iframeWindow: Window): void {
   });
   // 运行插件钩子函数
   execHooks(iframeWindow.__WUJIE.plugins, "documentPropertyOverride", iframeWindow);
+  // 内置：将子应用 document 的全屏 API 代理到主应用 document
+  patchFullscreenEffect(iframeWindow);
+}
+
+/**
+ * 内置全屏补丁：
+ * 子应用的 document.fullscreenElement / fullscreenEnabled 等属性和
+ * requestFullscreen / exitFullscreen 等方法被代理到主应用的 document，
+ * 确保在全屏场景下子应用能正确感知全屏状态。
+ *
+ * 实现参照 patchInstanceofAcrossRealms 的 _hasPatch 模式，通过自有属性标记防止重复 patch，
+ * 所有修改仅影响 proxyDocument（随 sandbox 销毁而释放），不产生额外引用链。
+ */
+export function patchFullscreenEffect(iframeWindow: Window): void {
+  // 防重复 patch
+  if (Object.prototype.hasOwnProperty.call(iframeWindow.__WUJIE, "__fullscreenPatched__")) return;
+  const requestFuncList = [
+    "requestFullscreen",
+    "mozRequestFullScreen",
+    "webkitRequestFullscreen",
+    "msRequestFullscreen",
+  ];
+  const cancelFuncList = ["mozCancelFullScreen", "webkitCancelFullScreen", "msExitFullscreen"];
+  const elementList = ["fullscreenElement", "webkitFullscreenElement", "mozFullScreenElement", "msFullscreenElement"];
+  const enabledList = ["fullscreenEnabled", "webkitFullscreenEnabled", "mozFullScreenEnabled", "msFullscreenEnabled"];
+  const propList = [...elementList, ...enabledList];
+
+  const hasSetter = (o: any, p: string): boolean => {
+    const desc = Object.getOwnPropertyDescriptor(o, p);
+    return !desc || !!desc.set;
+  };
+
+  const mainDoc = iframeWindow.parent.document;
+  const appDoc = iframeWindow.__WUJIE.proxy.document;
+  const appDocElement = appDoc.documentElement;
+
+  // 代理 requestFullscreen → 主应用
+  requestFuncList.forEach((fnName) => {
+    const mainDocElement = mainDoc.documentElement;
+    if (isFunction((appDocElement as any)[fnName]) && isFunction((mainDocElement as any)[fnName])) {
+      try {
+        (appDocElement as any)[fnName] = function (...args: any[]) {
+          return (mainDocElement as any)[fnName](...args);
+        };
+      } catch (err) {
+        warn(`[wujie] patchFullscreenEffect ${fnName} ${err}`);
+      }
+    }
+  });
+
+  // 代理 exitFullscreen → 主应用
+  cancelFuncList.forEach((fnName) => {
+    if ((appDoc as any)[fnName] && hasSetter(appDoc, fnName)) {
+      try {
+        (appDoc as any)[fnName] = function (...args: any[]) {
+          return (mainDoc as any)[fnName](...args);
+        };
+      } catch (err) {
+        warn(`[wujie] patchFullscreenEffect ${fnName} ${err}`);
+      }
+    }
+  });
+
+  // 代理 fullscreenElement / fullscreenEnabled 等属性 → 主应用
+  propList.forEach((prop) => {
+    if ((appDoc as any)[prop] !== undefined) {
+      Object.defineProperty(appDoc, prop, {
+        configurable: true,
+        enumerable: true,
+        get() {
+          return (mainDoc as any)[prop];
+        },
+      });
+    }
+  });
+
+  (iframeWindow.__WUJIE as any).__fullscreenPatched__ = true;
 }
 
 /**
