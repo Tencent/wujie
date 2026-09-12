@@ -264,6 +264,27 @@ export function deferStyleSheetByHref(opts: {
   }, DEFER_STYLE_HREF_TIMEOUT);
 }
 
+function cssHrefLookupValue(href: string): string {
+  return String(href).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/**
+ * 按绝对 href 查找已转换的样式。
+ * 优先匹配动态占位和入口 HTML 写入的 data-wujie-css-href；
+ * 没有该属性时，兼容旧的注释形态：style 文本以 `/* href *\/` 开头。
+ */
+export function findStyleByCssHref(doc: Document | null, href: string): HTMLStyleElement | null {
+  if (!href || !doc) return null;
+  const marked = doc.querySelector(`style[data-wujie-css-href="${cssHrefLookupValue(href)}"]`);
+  if (marked) return marked as HTMLStyleElement;
+  const styles = doc.querySelectorAll("style");
+  for (let i = 0; i < styles.length; i++) {
+    const text = styles[i].textContent || "";
+    if (text.indexOf(`/* ${href} */`) === 0) return styles[i] as HTMLStyleElement;
+  }
+  return null;
+}
+
 let dynamicScriptExecStack = Promise.resolve();
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
@@ -311,8 +332,14 @@ function rewriteAppendOrInsertChild(opts: {
             const exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
             if (!styleHref || exclude) return;
 
+            // 入口 HTML 已转成 style，或先前动态插入已占位时，不再插第二份。
+            // 仍派发 load，避免 Vite preload 一直等待 stylesheet 的 load 事件。
+            if (findStyleByCssHref(iframeDocument, styleHref)) {
+              manualInvokeElementEvent(linkElement, "load");
+              return;
+            }
+
             // 立即创建占位 <style> 元素，避免异步加载期间重复插入
-            // 保留原始 link 的属性（如 class），以便 checkLinkAndLoad 等去重逻辑能找到
             const rawAttrs = parseTagAttributes(linkElement.outerHTML);
             const placeholderElement = iframeDocument.createElement("style");
             setAttrsToElement(placeholderElement, rawAttrs);
@@ -336,6 +363,7 @@ function rewriteAppendOrInsertChild(opts: {
                     // 处理css-loader插件
                     const cssLoader = getCssLoader({ plugins, replace });
                     placeholderElement.innerHTML = cssLoader(content, src, curUrl);
+                    if (src) placeholderElement.setAttribute("data-wujie-css-href", src);
                     styleSheetElements.push(placeholderElement);
                     // 处理样式补丁
                     handleStylesheetElementPatch(placeholderElement, sandbox);

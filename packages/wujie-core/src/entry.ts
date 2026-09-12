@@ -108,7 +108,7 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
             genLinkReplaceSymbol(styleResult.src),
             styleResult.ignore
               ? `<link href="${styleResult.src}" rel="stylesheet" type="text/css">`
-              : `<style>/* ${styleResult.src} */${content}</style>`
+              : `<style data-wujie-css-href="${styleResult.src}">/* ${styleResult.src} */${content}</style>`
           );
         } else if (content) {
           embedHTML = embedHTML.replace(
