@@ -285,6 +285,16 @@ export function findStyleByCssHref(doc: Document | null, href: string): HTMLStyl
   return null;
 }
 
+/**
+ * 命中去重后对原 link 补发 load，让等待 stylesheet 的消费方（如 Vite preload）继续执行。
+ *
+ * 必须异步派发：消费方是在 appendChild 返回之后才 addEventListener("load")，
+ * 而本函数由劫持的 appendChild 同步调用，在调用栈内同步派发时监听尚未注册，事件会被丢弃。
+ */
+export function dispatchStyleSheetLoadAsync(linkElement: HTMLLinkElement): void {
+  setTimeout(() => manualInvokeElementEvent(linkElement, "load"), 0);
+}
+
 let dynamicScriptExecStack = Promise.resolve();
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
@@ -333,9 +343,10 @@ function rewriteAppendOrInsertChild(opts: {
             if (!styleHref || exclude) return;
 
             // 入口 HTML 已转成 style，或先前动态插入已占位时，不再插第二份。
-            // 仍派发 load，避免 Vite preload 一直等待 stylesheet 的 load 事件。
+            // 仍需对原 link 派发 load，避免 Vite preload 一直等待 stylesheet 的 load 事件；
+            // 派发时机见 dispatchStyleSheetLoadAsync。
             if (findStyleByCssHref(iframeDocument, styleHref)) {
-              manualInvokeElementEvent(linkElement, "load");
+              dispatchStyleSheetLoadAsync(linkElement);
               return;
             }
 
