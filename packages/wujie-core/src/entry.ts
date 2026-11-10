@@ -108,7 +108,10 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
             genLinkReplaceSymbol(styleResult.src),
             styleResult.ignore
               ? `<link href="${styleResult.src}" rel="stylesheet" type="text/css">`
-              : `<style>/* ${styleResult.src} */${content}</style>`
+              : // data-wujie-css-href 与动态插入的占位 <style> 共用同一个查找键：
+                // 入口 HTML 的 CSS 和后续 <link> 动态请求（Vite 的 __vite__mapDeps）是同一份资源时，
+                // 由 effect.ts 的 loadStyleSheet 按该属性去重，避免同一份样式插两层（issue #1108）
+                `<style data-wujie-css-href="${styleResult.src}">/* ${styleResult.src} */${content}</style>`
           );
         } else if (content) {
           embedHTML = embedHTML.replace(

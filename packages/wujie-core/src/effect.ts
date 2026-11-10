@@ -67,6 +67,27 @@ function manualInvokeElementEvent(element: HTMLLinkElement | HTMLScriptElement, 
 }
 
 /**
+ * 按 href 查找已经插入过的样式节点
+ *
+ * 入口 HTML 里的 <link rel=stylesheet> 会被 getEmbedHTML 转成
+ * <style data-wujie-css-href="...">，而 Vite 的 preload helper（__vitePreload + __vite__mapDeps）
+ * 去重时只看 document 里的 link[rel=stylesheet][href]，认不出已经转成 style 的节点，
+ * 于是同一份 CSS 会被再次请求、再次插成 <style>（issue #1108）。
+ * 这里同时扫描插入位置、shadowRoot 和 iframe document，覆盖 shadow / 降级两种渲染模式。
+ */
+function findEmbeddedStyleByHref(nodes: Array<Element | ShadowRoot | Document | null | undefined>, href: string) {
+  for (const node of nodes) {
+    if (!node || typeof (node as ParentNode).querySelectorAll !== "function") continue;
+    const styleElements = (node as ParentNode).querySelectorAll("style[data-wujie-css-href]");
+    for (let i = 0; i < styleElements.length; i++) {
+      const styleElement = styleElements[i] as HTMLStyleElement;
+      if (styleElement.getAttribute("data-wujie-css-href") === href) return styleElement;
+    }
+  }
+  return null;
+}
+
+/**
  * 样式元素的css变量处理，每个stylesheetElement单独节流
  */
 function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement & { _patcher?: any }, sandbox: Wujie) {
@@ -310,6 +331,17 @@ function rewriteAppendOrInsertChild(opts: {
             const styleHref = attrHref ? getAbsolutePath(attrHref, (proxyLocation as Location).href) : realHref;
             const exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
             if (!styleHref || exclude) return;
+
+            // 同一份 CSS 已经由入口 HTML 嵌入过（getEmbedHTML 转成的 <style data-wujie-css-href>），
+            // 或者已经被另一次动态插入占位过，就不再重复插入，避免同一份样式出现两层。
+            // load 事件仍然要派发：Vite 的 __vitePreload 依赖它才执行异步模块。
+            if (findEmbeddedStyleByHref([this, sandbox.shadowRoot, iframeDocument], styleHref)) {
+              // 必须 nextTick 派发：调用方（如 Vite 的 __vitePreload）是在 appendChild 返回之后
+              // 才注册 load 监听，同步派发会丢事件，异步模块永远不会执行。
+              nextTick(() => manualInvokeElementEvent(linkElement, "load"));
+              if (element === linkElement) element = null;
+              return;
+            }
 
             // 立即创建占位 <style> 元素，避免异步加载期间重复插入
             // 保留原始 link 的属性（如 class），以便 checkLinkAndLoad 等去重逻辑能找到
