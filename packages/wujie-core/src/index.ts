@@ -188,9 +188,38 @@ export function setupApp(options: cacheOptions): void {
 }
 
 /**
+ * 同名子应用并发 startApp 的串行队列
+ *
+ * React 18/19 的 <StrictMode> 在 dev 下会把 effect 跑两次（挂载 → 卸载 → 再挂载），
+ * 直接使用 wujie-core 的 startApp 时两次调用几乎同时发生：第一次还在 importHTML，
+ * sandbox 已经在构造时登记到缓存里，于是第二次命中「已经初始化过的应用，快速渲染」分支，
+ * 而该分支拿不到 template，容器会被渲染成字面量 undefined（issue #1111）。
+ *
+ * wujie-react / wujie-vue2 / wujie-vue3 曾在 wrapper 层各做了一份队列（#840、#976），
+ * 这里在 core 层统一兜底：同名子应用的 startApp 严格串行，后一次一定等前一次渲染完成。
+ */
+const startAppQueueMap: Map<string, Promise<unknown>> = new Map();
+
+/**
  * 运行无界app
  */
 export async function startApp(startOptions: startOptions): Promise<Function | void> {
+  const { name } = startOptions;
+  const previous = startAppQueueMap.get(name) ?? Promise.resolve();
+  const current = previous
+    // 前一次启动失败不应该阻塞后一次
+    .catch(() => undefined)
+    .then(() => startAppInternal(startOptions));
+  startAppQueueMap.set(name, current);
+  const clearQueue = () => {
+    // 仅当队列仍指向自己这条链尾时才清理，避免误删后续调用接上的队列
+    if (startAppQueueMap.get(name) === current) startAppQueueMap.delete(name);
+  };
+  current.then(clearQueue, clearQueue);
+  return current as Promise<Function | void>;
+}
+
+async function startAppInternal(startOptions: startOptions): Promise<Function | void> {
   // 初始化内联事件处理器辅助函数
   initInlineEventHelper();
   const sandbox = getWujieById(startOptions.name);

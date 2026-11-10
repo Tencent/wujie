@@ -244,6 +244,9 @@ export async function renderTemplateToShadowRoot(
   iframeWindow: Window,
   template: string
 ): Promise<void> {
+  // 兜底：template 为空时不要渲染。DOMParser / innerHTML 会把 undefined 强转成字符串
+  // "undefined" 写进容器（见 issue #1111），此时应保持容器原样，等真正的模板到达再渲染。
+  if (!template) return;
   const html = renderTemplateToHtml(iframeWindow, template);
   // 处理 css-before-loader 和 css-after-loader
   const processedHtml = await processCssLoaderForTemplate(iframeWindow.__WUJIE, html);
@@ -295,6 +298,8 @@ export async function renderTemplateToIframe(
   iframeWindow: Window,
   template: string
 ): Promise<void> {
+  // 兜底：template 为空时不渲染，避免把字面量 undefined 写进降级 iframe（见 issue #1111）
+  if (!template) return;
   // 插入template
   const html = renderTemplateToHtml(iframeWindow, template);
   // 处理 css-before-loader 和 css-after-loader
