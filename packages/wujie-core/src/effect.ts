@@ -264,35 +264,47 @@ export function deferStyleSheetByHref(opts: {
   }, DEFER_STYLE_HREF_TIMEOUT);
 }
 
-function cssHrefLookupValue(href: string): string {
-  return String(href).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+/**
+ * 去重键用 URL 序列化后的绝对地址。
+ * 入口模板走 URL#toString，动态插入走 URL#href；两者在查询串空格等字符上可能不一致，比较前先归一。
+ */
+export function canonicalCssHref(href: string): string {
+  if (!href) return "";
+  try {
+    return new URL(href).href;
+  } catch {
+    return href;
+  }
 }
 
 /**
  * 按绝对 href 查找已转换的样式。
  * 优先匹配动态占位和入口 HTML 写入的 data-wujie-css-href；
  * 没有该属性时，兼容旧的注释形态：style 文本以 `/* href *\/` 开头。
+ * 不用属性选择器：href 里的引号会截断选择器，入口 HTML 又必须先做属性转义。
  */
 export function findStyleByCssHref(doc: Document | null, href: string): HTMLStyleElement | null {
   if (!href || !doc) return null;
-  const marked = doc.querySelector(`style[data-wujie-css-href="${cssHrefLookupValue(href)}"]`);
-  if (marked) return marked as HTMLStyleElement;
+  const target = canonicalCssHref(href);
   const styles = doc.querySelectorAll("style");
   for (let i = 0; i < styles.length; i++) {
-    const text = styles[i].textContent || "";
-    if (text.indexOf(`/* ${href} */`) === 0) return styles[i] as HTMLStyleElement;
+    const style = styles[i] as HTMLStyleElement;
+    const marked = style.getAttribute("data-wujie-css-href");
+    if (marked && canonicalCssHref(marked) === target) return style;
+    if (!marked && (style.textContent || "").indexOf(`/* ${href} */`) === 0) return style;
   }
   return null;
 }
 
 /**
- * 命中去重后对原 link 补发 load，让等待 stylesheet 的消费方（如 Vite preload）继续执行。
+ * 命中去重后对原 link 补发 load 或 error。
+ * 入口 CSS 请求失败时仍会留下带 href、内容为空的 style，此时应派发 error，避免 Vite preload 把没加载到的 CSS 当成成功。
  *
- * 必须异步派发：消费方是在 appendChild 返回之后才 addEventListener("load")，
+ * 必须异步派发：消费方是在 appendChild 返回之后才 addEventListener，
  * 而本函数由劫持的 appendChild 同步调用，在调用栈内同步派发时监听尚未注册，事件会被丢弃。
  */
-export function dispatchStyleSheetLoadAsync(linkElement: HTMLLinkElement): void {
-  setTimeout(() => manualInvokeElementEvent(linkElement, "load"), 0);
+export function dispatchStyleSheetLoadAsync(linkElement: HTMLLinkElement, event: "load" | "error" = "load"): void {
+  setTimeout(() => manualInvokeElementEvent(linkElement, event), 0);
 }
 
 let dynamicScriptExecStack = Promise.resolve();
@@ -343,10 +355,13 @@ function rewriteAppendOrInsertChild(opts: {
             if (!styleHref || exclude) return;
 
             // 入口 HTML 已转成 style，或先前动态插入已占位时，不再插第二份。
-            // 仍需对原 link 派发 load，避免 Vite preload 一直等待 stylesheet 的 load 事件；
-            // 派发时机见 dispatchStyleSheetLoadAsync。
-            if (findStyleByCssHref(iframeDocument, styleHref)) {
-              dispatchStyleSheetLoadAsync(linkElement);
+            // 仍需对原 link 派发事件，避免 Vite preload 一直等待。
+            // 占位 style 在 fetch 完成前也没有内容，不能据此判失败；只有入口请求失败留下的空 style 才派发 error。
+            const existingStyle = findStyleByCssHref(iframeDocument, styleHref);
+            if (existingStyle) {
+              const awaitingContent = existingStyle.hasAttribute("data-wujie-css-pending");
+              const failed = !awaitingContent && !existingStyle.textContent;
+              dispatchStyleSheetLoadAsync(linkElement, failed ? "error" : "load");
               return;
             }
 
@@ -355,6 +370,7 @@ function rewriteAppendOrInsertChild(opts: {
             const placeholderElement = iframeDocument.createElement("style");
             setAttrsToElement(placeholderElement, rawAttrs);
             placeholderElement.setAttribute("data-wujie-css-href", styleHref);
+            placeholderElement.setAttribute("data-wujie-css-pending", "");
             rawDOMAppendOrInsertBefore.call(this, placeholderElement, refChild);
 
             getExternalStyleSheets(
@@ -375,6 +391,7 @@ function rewriteAppendOrInsertChild(opts: {
                     const cssLoader = getCssLoader({ plugins, replace });
                     placeholderElement.innerHTML = cssLoader(content, src, curUrl);
                     if (src) placeholderElement.setAttribute("data-wujie-css-href", src);
+                    placeholderElement.removeAttribute("data-wujie-css-pending");
                     styleSheetElements.push(placeholderElement);
                     // 处理样式补丁
                     handleStylesheetElementPatch(placeholderElement, sandbox);
@@ -383,6 +400,7 @@ function rewriteAppendOrInsertChild(opts: {
                   if (element === linkElement) element = null;
                 },
                 () => {
+                  placeholderElement.removeAttribute("data-wujie-css-pending");
                   manualInvokeElementEvent(linkElement, "error");
                   if (element === linkElement) element = null;
                 }

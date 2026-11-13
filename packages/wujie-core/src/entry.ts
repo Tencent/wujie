@@ -5,7 +5,15 @@ import processTpl, {
   ScriptBaseObject,
   StyleObject,
 } from "./template";
-import { defaultGetPublicPath, getInlineCode, requestIdleCallback, error, compose, getCurUrl } from "./utils";
+import {
+  defaultGetPublicPath,
+  getInlineCode,
+  requestIdleCallback,
+  error,
+  compose,
+  getCurUrl,
+  getAbsolutePath,
+} from "./utils";
 import {
   WUJIE_TIPS_NO_FETCH,
   WUJIE_TIPS_SCRIPT_ERROR_REQUESTED,
@@ -104,11 +112,12 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
     styleResultList.map((styleResult, index) =>
       styleResult.contentPromise.then((content) => {
         if (styleResult.src) {
+          const hrefAttr = escapeHtmlAttr(getAbsolutePath(styleResult.src, styleResult.src));
           embedHTML = embedHTML.replace(
             genLinkReplaceSymbol(styleResult.src),
             styleResult.ignore
               ? `<link href="${styleResult.src}" rel="stylesheet" type="text/css">`
-              : `<style data-wujie-css-href="${styleResult.src}">/* ${styleResult.src} */${content}</style>`
+              : `<style data-wujie-css-href="${hrefAttr}">/* ${styleResult.src} */${content}</style>`
           );
         } else if (content) {
           embedHTML = embedHTML.replace(
@@ -122,6 +131,10 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
 }
 
 const isInlineCode = (code) => code.startsWith("<");
+
+function escapeHtmlAttr(value: string): string {
+  return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+}
 
 const fetchAssets = (
   src: string,
