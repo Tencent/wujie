@@ -1,97 +1,17 @@
-import { bus, preloadApp, destroyApp, setupApp, refreshApp, clearAssetsCache, plugin } from "wujie";
+import { bus, preloadApp, destroyApp, setupApp, refreshApp, clearAssetsCache, startOptions } from "wujie";
 import PropTypes from "prop-types";
 import React from "react";
 
-/** wujie 子应用生命周期回调，入参为子应用 window */
-export type WujieLifecycle = (appWindow: Window) => any;
-
-/** 子应用加载失败回调 */
-export type WujieLoadErrorHandler = (url: string, e: Error) => any;
-
-export interface WujieReactProps {
-  /**
-   * 唯一性用户必须保证
-   */
-  name?: string;
-  /**
-   * 需要渲染的url
-   */
-  url?: string;
-  /**
-   * 容器宽度
-   */
+/**
+ * WujieReact 组件属性：除 el 由组件容器提供外，其余与 startApp 的参数保持一致
+ */
+export interface WujieReactProps extends Omit<startOptions, "el"> {
+  /** 容器宽度 */
   width?: string;
-  /**
-   * 容器高度
-   */
+  /** 容器高度 */
   height?: string;
-  /**
-   * 自定义样式，透传给容器 div
-   */
-  style?: object;
-  /**
-   * 子应用加载时loading元素
-   */
-  loading?: React.ReactElement;
-  /**
-   * 自定义fetch
-   */
-  fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
-  /**
-   * 注入给子应用的属性
-   */
-  props?: { [key: string]: any };
-  /**
-   * 自定义运行iframe的属性
-   */
-  attrs?: { [key: string]: any };
-  /**
-   * 代码替换钩子
-   */
-  replace?: (code: string) => string;
-  /**
-   * 路由同步开关
-   */
-  sync?: boolean;
-  /**
-   * 子应用短路径替换，路由同步时生效
-   */
-  prefix?: { [key: string]: string };
-  /**
-   * 子应用采用fiber模式执行
-   */
-  fiber?: boolean;
-  /**
-   * 子应用保活，state不会丢失
-   */
-  alive?: boolean;
-  /**
-   * 子应用采用降级iframe方案
-   */
-  degrade?: boolean;
-  /**
-   * 子应用插件
-   */
-  plugins?: Array<plugin>;
-  /**
-   * 子应用window监听事件
-   */
-  iframeAddEventListeners?: Array<string>;
-  /**
-   * 子应用iframe on事件
-   */
-  iframeOnEvents?: Array<string>;
-  /**
-   * 子应用生命周期
-   */
-  beforeLoad?: WujieLifecycle;
-  beforeMount?: WujieLifecycle;
-  afterMount?: WujieLifecycle;
-  beforeUnmount?: WujieLifecycle;
-  afterUnmount?: WujieLifecycle;
-  activated?: WujieLifecycle;
-  deactivated?: WujieLifecycle;
-  loadError?: WujieLoadErrorHandler;
+  /** 容器自定义样式 */
+  style?: React.CSSProperties;
 }
 
 export default class WujieReact extends React.PureComponent<WujieReactProps> {
