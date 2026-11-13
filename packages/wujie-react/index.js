@@ -71,6 +71,8 @@ export default class WujieReact extends React.PureComponent {
   };
 
   componentDidMount() {
+    // React 18 StrictMode（以及复用实例的场景）会在同一实例上 卸载 → 再挂载，需要重置卸载标志
+    this.isUnmounted = false;
     if (this.props.name) {
       if (window.__WUJIE_QUEUE) {
         if (window.__WUJIE_QUEUE[this.props.name]) {
