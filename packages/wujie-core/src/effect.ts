@@ -307,6 +307,26 @@ export function dispatchStyleSheetLoadAsync(linkElement: HTMLLinkElement, event:
   setTimeout(() => manualInvokeElementEvent(linkElement, event), 0);
 }
 
+type StyleSheetWaiter = {
+  linkElement: HTMLLinkElement;
+};
+
+/**
+ * 同一 href 还在拉取时，后来的 link 不能立刻收到 load。
+ * 登记到占位 style 上，等原来那次请求结束再派发同一个结果。
+ */
+function enqueueStyleSheetWaiter(styleElement: HTMLStyleElement, linkElement: HTMLLinkElement): void {
+  const waiters = ((styleElement as any)._wujieStyleWaiters || []) as StyleSheetWaiter[];
+  waiters.push({ linkElement });
+  (styleElement as any)._wujieStyleWaiters = waiters;
+}
+
+function flushStyleSheetWaiters(styleElement: HTMLStyleElement, event: "load" | "error"): void {
+  const waiters = ((styleElement as any)._wujieStyleWaiters || []) as StyleSheetWaiter[];
+  (styleElement as any)._wujieStyleWaiters = [];
+  waiters.forEach(({ linkElement }) => dispatchStyleSheetLoadAsync(linkElement, event));
+}
+
 let dynamicScriptExecStack = Promise.resolve();
 function rewriteAppendOrInsertChild(opts: {
   rawDOMAppendOrInsertBefore: <T extends Node>(newChild: T, refChild?: Node | null) => T;
@@ -356,11 +376,14 @@ function rewriteAppendOrInsertChild(opts: {
 
             // 入口 HTML 已转成 style，或先前动态插入已占位时，不再插第二份。
             // 仍需对原 link 派发事件，避免 Vite preload 一直等待。
-            // 占位 style 在 fetch 完成前也没有内容，不能据此判失败；只有入口请求失败留下的空 style 才派发 error。
+            // pending 表示原来那次请求还没结束，此时不能派发 load，否则 preload 后面的 chunk 会提前执行。
             const existingStyle = findStyleByCssHref(iframeDocument, styleHref);
             if (existingStyle) {
-              const awaitingContent = existingStyle.hasAttribute("data-wujie-css-pending");
-              const failed = !awaitingContent && !existingStyle.textContent;
+              if (existingStyle.hasAttribute("data-wujie-css-pending")) {
+                enqueueStyleSheetWaiter(existingStyle, linkElement);
+                return;
+              }
+              const failed = existingStyle.getAttribute("data-wujie-css-state") === "error";
               dispatchStyleSheetLoadAsync(linkElement, failed ? "error" : "load");
               return;
             }
@@ -382,7 +405,8 @@ function rewriteAppendOrInsertChild(opts: {
                 (content) => {
                   if (ignore && src) {
                     // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
-                    // 移除占位元素，插入原始 link
+                    // 移除占位元素，插入原始 link。排队的 link 不再有占位可等，按这条路径的成功语义补发 load。
+                    flushStyleSheetWaiters(placeholderElement, "load");
                     placeholderElement.parentNode?.removeChild(placeholderElement);
                     rawDOMAppendOrInsertBefore.call(this, linkElement, refChild);
                   } else {
@@ -392,16 +416,20 @@ function rewriteAppendOrInsertChild(opts: {
                     placeholderElement.innerHTML = cssLoader(content, src, curUrl);
                     if (src) placeholderElement.setAttribute("data-wujie-css-href", src);
                     placeholderElement.removeAttribute("data-wujie-css-pending");
+                    placeholderElement.setAttribute("data-wujie-css-state", "loaded");
                     styleSheetElements.push(placeholderElement);
                     // 处理样式补丁
                     handleStylesheetElementPatch(placeholderElement, sandbox);
                     manualInvokeElementEvent(linkElement, "load");
+                    flushStyleSheetWaiters(placeholderElement, "load");
                   }
                   if (element === linkElement) element = null;
                 },
                 () => {
                   placeholderElement.removeAttribute("data-wujie-css-pending");
+                  placeholderElement.setAttribute("data-wujie-css-state", "error");
                   manualInvokeElementEvent(linkElement, "error");
+                  flushStyleSheetWaiters(placeholderElement, "error");
                   if (element === linkElement) element = null;
                 }
               )
