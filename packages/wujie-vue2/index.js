@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp, refreshApp } from "wujie";
+import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp, refreshApp, clearAssetsCache } from "wujie";
 
 /**
  * 清理全局 startApp 串行队列，防止组件销毁后 window.__WUJIE_QUEUE 长期持有
@@ -157,6 +157,7 @@ WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;
 WujieVue.refreshApp = refreshApp;
+WujieVue.clearAssetsCache = clearAssetsCache;
 WujieVue.install = function (Vue) {
   Vue.component("WujieVue", WujieVue);
 };

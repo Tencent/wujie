@@ -1,4 +1,4 @@
-import { bus, preloadApp, destroyApp, setupApp, refreshApp } from "wujie";
+import { bus, preloadApp, destroyApp, setupApp, refreshApp, clearAssetsCache } from "wujie";
 import type { DefineComponent, Plugin } from 'vue';
 
 declare const WujieVue: DefineComponent & Plugin & {
@@ -7,6 +7,7 @@ declare const WujieVue: DefineComponent & Plugin & {
   preloadApp: typeof preloadApp;
   destroyApp: typeof destroyApp;
   refreshApp: typeof refreshApp;
+  clearAssetsCache: typeof clearAssetsCache;
 };
 
 export default WujieVue;

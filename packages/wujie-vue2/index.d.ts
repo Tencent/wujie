@@ -1,5 +1,5 @@
 import { VueConstructor } from "vue";
-import { bus, preloadApp, destroyApp, setupApp, refreshApp } from "wujie";
+import { bus, preloadApp, destroyApp, setupApp, refreshApp, clearAssetsCache } from "wujie";
 
 declare const WujieVue: {
   bus: typeof bus;
@@ -7,6 +7,7 @@ declare const WujieVue: {
   preloadApp: typeof preloadApp;
   destroyApp: typeof destroyApp;
   refreshApp: typeof refreshApp;
+  clearAssetsCache: typeof clearAssetsCache;
   install: (Vue: VueConstructor) => void;
 };
 

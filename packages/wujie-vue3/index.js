@@ -1,4 +1,4 @@
-import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp, refreshApp } from "wujie";
+import { bus, preloadApp, startApp as rawStartApp, destroyApp, setupApp, refreshApp, clearAssetsCache } from "wujie";
 import { h, defineComponent } from "vue";
 
 /**
@@ -157,6 +157,7 @@ WujieVue.preloadApp = preloadApp;
 WujieVue.bus = bus;
 WujieVue.destroyApp = destroyApp;
 WujieVue.refreshApp = refreshApp;
+WujieVue.clearAssetsCache = clearAssetsCache;
 WujieVue.install = function (app) {
   app.component("WujieVue", WujieVue);
 };
