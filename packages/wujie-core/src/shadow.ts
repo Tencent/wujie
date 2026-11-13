@@ -222,7 +222,8 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
     patchElementEffect(nextElement, iframeWindow);
     const relativeAttr = relativeElementTagAttrMap[nextElement.tagName];
     const url = nextElement[relativeAttr];
-    if (relativeAttr) nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
+    if (relativeAttr && nextElement.hasAttribute(relativeAttr))
+      nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
     nextElement = ElementIterator.nextNode() as HTMLElement;
   }
   if (!html.querySelector("head")) {
