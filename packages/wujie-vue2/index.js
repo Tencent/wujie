@@ -39,7 +39,6 @@ const wujieVueOptions = {
     activated: { type: Function, default: null },
     deactivated: { type: Function, default: null },
     loadError: { type: Function, default: null },
-    style: { type: Object, default: undefined },
     iframeAddEventListeners: { type: Array, default: null },
     iframeOnEvents: { type: Array, default: null },
   },
@@ -140,11 +139,11 @@ const wujieVueOptions = {
     clearStartAppQueue(this.name, this.startAppQueue);
   },
   render(c) {
+    // Vue 2 会自动将组件 VNode 的 style 合并到根元素，避免声明同名保留 prop。
     return c("div", {
       style: {
         width: this.width,
         height: this.height,
-        ...this.style,
       },
       ref: "wujie",
     });
