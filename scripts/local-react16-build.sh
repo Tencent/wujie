@@ -17,6 +17,10 @@ mv examples/react16/build/* ../demo-react16/
 cp ../demo-react16/index.html ../demo-react16/404.html
 cd ../demo-react16
 git add .
-git commit -m 'feat: demo修改'
+if git diff --cached --quiet; then
+  echo "nothing to commit"
+else
+  git commit -m 'feat: demo修改'
+fi
 git push
 

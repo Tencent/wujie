@@ -7,10 +7,12 @@ esm
 .DS_Store
 .vscode
 yarn.lock
-package-lock.json
 coverage
 .history
 .npmrc
+.cursor
+.codegraph
+.worktree
 
 # Log files
 .pnpm-debug.log*

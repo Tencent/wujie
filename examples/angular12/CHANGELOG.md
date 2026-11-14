@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+### Features
+
+* unmount hook support promise ([#645](https://github.com/Tencent/wujie/issues/645)) ([18be78b](https://github.com/Tencent/wujie/commit/18be78b336c2ab90fb0e85096c4281be3a1d49cb))
+
 # [1.0.0](https://github.com/Tencent/wujie/compare/v1.0.0-rc.25...v1.0.0) (2022-11-10)
 
 ### Features

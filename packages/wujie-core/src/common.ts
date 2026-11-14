@@ -8,9 +8,17 @@ export interface SandboxCache {
 export type appAddEventListenerOptions = AddEventListenerOptions & { targetWindow?: Window };
 
 // 全部无界实例和配置存储map
-export const idToSandboxCacheMap = window.__POWERED_BY_WUJIE__
-  ? window.__WUJIE.inject.idToSandboxMap
-  : new Map<String, SandboxCache>();
+// 除了挂载到WuJie实例上，还挂载到全局__WUJIE_INJECT变量上，防止重复创建
+export const idToSandboxCacheMap = (() => {
+  if (window.__WUJIE_INJECT?.idToSandboxMap) return window.__WUJIE_INJECT.idToSandboxMap;
+  else {
+    const cacheMap = window.__POWERED_BY_WUJIE__
+      ? window.__WUJIE.inject.idToSandboxMap
+      : new Map<String, SandboxCache>();
+    window.__WUJIE_INJECT = { ...window.__WUJIE_INJECT, idToSandboxMap: cacheMap };
+    return cacheMap;
+  }
+})();
 
 export function getWujieById(id: String): Wujie | null {
   return idToSandboxCacheMap.get(id)?.wujie || null;
@@ -28,8 +36,13 @@ export function addSandboxCacheWithWujie(id: string, sandbox: Wujie): void {
 
 export function deleteWujieById(id: string) {
   const wujieCache = idToSandboxCacheMap.get(id);
-  if (wujieCache?.options) idToSandboxCacheMap.set(id, { options: wujieCache.options });
-  idToSandboxCacheMap.delete(id);
+  // 有 setupApp 缓存时只移除 wujie 实例，保留 options 供下次快速启动
+  // 无 setupApp 缓存时整体删除 entry，避免泄漏
+  if (wujieCache?.options) {
+    idToSandboxCacheMap.set(id, { options: wujieCache.options });
+  } else {
+    idToSandboxCacheMap.delete(id);
+  }
 }
 
 export function addSandboxCacheWithOptions(id: string, options: cacheOptions): void {
@@ -41,7 +54,14 @@ export function addSandboxCacheWithOptions(id: string, options: cacheOptions): v
 // 分类document上需要处理的属性，不同类型会进入不同的处理逻辑
 export const documentProxyProperties = {
   // 降级场景下需要本地特殊处理的属性
-  modifyLocalProperties: ["createElement", "createTextNode", "documentURI", "URL", "getElementsByTagName"],
+  modifyLocalProperties: [
+    "createElement",
+    "createTextNode",
+    "documentURI",
+    "URL",
+    "getElementsByTagName",
+    "getElementById",
+  ],
 
   // 子应用需要手动修正的属性方法
   modifyProperties: [
@@ -172,7 +192,7 @@ export const appWindowAddEventListenerEvents = [
 ];
 
 // 子应用window.onXXX需要挂载到iframe沙箱上的事件
-export const appWindowOnEvent = ["onload", "onbeforeunload", "onunload"];
+export const appWindowOnEvent = ["onload", "onbeforeunload", "onunload", "onerror", "onunhandledrejection"];
 
 // 相对路径问题元素的tag和attr的map
 export const relativeElementTagAttrMap = {
@@ -201,6 +221,7 @@ export const rawElementRemoveChild = HTMLElement.prototype.removeChild;
 export const rawElementContains = HTMLElement.prototype.contains;
 export const rawHeadInsertBefore = HTMLHeadElement.prototype.insertBefore;
 export const rawBodyInsertBefore = HTMLBodyElement.prototype.insertBefore;
+export const rawInsertAdjacentElement = HTMLStyleElement.prototype.insertAdjacentElement;
 export const rawAddEventListener = Node.prototype.addEventListener;
 export const rawRemoveEventListener = Node.prototype.removeEventListener;
 export const rawWindowAddEventListener = window.addEventListener;

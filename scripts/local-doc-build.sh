@@ -16,5 +16,9 @@ mv ./docs/.vitepress/dist/* ../doc/
 cp ../doc/index.html ../doc/404.html
 cd ../doc
 git add .
-git commit -m 'feat: demo修改'
+if git diff --cached --quiet; then
+  echo "nothing to commit"
+else
+  git commit -m 'feat: demo修改'
+fi
 git push

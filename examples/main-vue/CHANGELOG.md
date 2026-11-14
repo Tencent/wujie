@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](/compare/v2.0.2...v2.1.0) (2026-06-15)
+
+### Features
+
+* 支持内联事件处理器在子应用作用域中执行 (#1091) b178735, closes #1091
+
+## [2.0.2](https://github.com/Tencent/wujie/compare/v2.0.1...v2.0.2) (2026-06-04)
+
+**Note:** Version bump only for package main-vue
+
+## [2.0.1](https://github.com/Tencent/wujie/compare/v2.0.0...v2.0.1) (2026-06-03)
+
+### Bug Fixes
+
+* **core:** 富文本编辑器跨 realm 与降级模式兼容 ([#1084](https://github.com/Tencent/wujie/issues/1084)) ([c9c36de](https://github.com/Tencent/wujie/commit/c9c36decfb72c35e5f028a4769e56da9a2417709))
+
+## [1.0.29](https://github.com/Tencent/wujie/compare/v1.0.28...v1.0.29) (2025-07-20)
+
+**Note:** Version bump only for package main-vue
+
+## [1.0.28](https://github.com/Tencent/wujie/compare/v1.0.27...v1.0.28) (2025-04-08)
+
+**Note:** Version bump only for package main-vue
+
+## [1.0.27](https://github.com/Tencent/wujie/compare/v1.0.26...v1.0.27) (2025-04-08)
+
+**Note:** Version bump only for package main-vue
+
+## [1.0.26](https://github.com/Tencent/wujie/compare/v1.0.25...v1.0.26) (2025-03-23)
+
+**Note:** Version bump only for package main-vue
+
+## [1.0.25](https://github.com/Tencent/wujie/compare/v1.0.24...v1.0.25) (2025-02-19)
+
+**Note:** Version bump only for package main-vue
+
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+### Features
+
+* 添加postmessage通信示例 ([da2c99f](https://github.com/Tencent/wujie/commit/da2c99f38afae8fbe0c1ab8e2eb3ff7cb2eaece2))
+
 ## [1.0.22](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.22) (2023-12-18)
 
 **Note:** Version bump only for package main-vue

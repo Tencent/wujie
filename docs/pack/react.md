@@ -3,7 +3,7 @@ sidebarDepth: 2
 collapsable: false
 ---
 
-# React组件封装
+# React 组件封装
 
 无界基于`react`的组件封装，查看 [demo](https://wujie-micro.github.io/demo-main-react/)，查看 [demo github](https://github.com/Tencent/wujie/tree/master/examples/main-react/)
 
@@ -18,7 +18,7 @@ npm i wujie-react -S
 ```javascript
 import WujieReact from "wujie-react";
 
-const { bus, setupApp, preloadApp, destroyApp } = WujieReact;
+const { bus, setupApp, preloadApp, destroyApp, refreshApp, clearAssetsCache } = WujieReact;
 ```
 
 ## 使用
@@ -56,6 +56,23 @@ const { bus, setupApp, preloadApp, destroyApp } = WujieReact;
 
 [同 API](/api/destroyApp.html)
 
+### refreshApp
+
+[同 API](/api/refreshApp.html)
+
+### clearAssetsCache
+
+[同 API](/api/clearAssetsCache.html)
+
+### refresh
+
+组件实例方法，**无需传参**。销毁当前子应用实例后，自动复用组件当前 props 全量重建。返回 `startAppQueue` 对应的 `Promise`。
+
+```javascript
+// 直接调用，不需要传递任何参数
+await this.wujieRef.current.refresh();
+```
+
 ## 原理
 
 ```javascript
@@ -87,6 +104,8 @@ export default class WujieReact extends React.PureComponent {
     activated: PropTypes.func,
     deactivated: PropTypes.func,
     loadError: PropTypes.func,
+    iframeAddEventListeners: PropTypes.array,
+    iframeOnEvents: PropTypes.array,
   };
   static bus = bus;
   static setupApp = setupApp;
@@ -148,6 +167,8 @@ export default class WujieReact extends React.PureComponent {
           activated,
           deactivated,
           loadError,
+          iframeAddEventListeners,
+          iframeOnEvents,
         });
       } catch (error) {
         console.log(error);
