@@ -366,19 +366,12 @@ function rewriteAppendOrInsertChild(opts: {
     if (element.tagName) {
       switch (element.tagName?.toUpperCase()) {
         case "LINK": {
-          const { href, rel, type, as } = element as HTMLLinkElement;
+          const { href, rel, type } = element as HTMLLinkElement;
           const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
-          // 处理modulepreload类型的link标签
+          // modulepreload 只对 link 所在文档的模块表生效，而子应用的 import() 在 iframe 中执行。
+          // 留在 shadowRoot（主文档）里会预加载到主文档，iframe 再 import 时重复请求，因此插到 iframe 的 head。
           if (rel === "modulepreload") {
-            // 对于JS类型的modulepreload，记录但不立即插入
-            if (as === "script" && href.endsWith(".js")) {
-              console.warn('as === "script"',as === "script");
-              // 执行插件钩子，但不插入DOM
-              execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
-              return null;
-            }
-            // 对于非JS类型的modulepreload（字体、图片等），正常插入DOM
-            const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
+            const res = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.appendChild(element);
             execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
             return res;
           }
