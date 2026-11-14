@@ -8,9 +8,7 @@ const inBrowser = typeof window !== "undefined";
 export default {
   ...Theme,
   Layout() {
-    return h(wujieHome, null, {
-      "nav-bar-title-before": () => h(wujieHome),
-    });
+    return h(wujieHome);
   },
   enhanceApp({ app }) {
     inBrowser &&

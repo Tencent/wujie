@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.26](https://github.com/Tencent/wujie/compare/v1.0.25...v1.0.26) (2025-03-23)
+
+**Note:** Version bump only for package react17
+
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+### Features
+
+* 添加postmessage通信示例 ([da2c99f](https://github.com/Tencent/wujie/commit/da2c99f38afae8fbe0c1ab8e2eb3ff7cb2eaece2))
+
 ## [1.0.17](https://github.com/Tencent/wujie/compare/v1.0.16...v1.0.17) (2023-05-30)
 
 ### Bug Fixes

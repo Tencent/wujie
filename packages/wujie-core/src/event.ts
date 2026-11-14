@@ -4,9 +4,15 @@ import { WUJIE_ALL_EVENT, WUJIE_TIPS_NO_SUBJECT } from "./constant";
 export type EventObj = { [event: string]: Array<Function> };
 
 // 全部事件存储map
-export const appEventObjMap = window.__POWERED_BY_WUJIE__
-  ? window.__WUJIE.inject.appEventObjMap
-  : new Map<String, EventObj>();
+// 除了挂载到WuJie实例上，还挂载到全局__WUJIE_INJECT变量上，防止重复创建
+export const appEventObjMap = (() => {
+  if (window.__WUJIE_INJECT?.appEventObjMap) return window.__WUJIE_INJECT.appEventObjMap;
+  else {
+    const cacheMap = window.__POWERED_BY_WUJIE__ ? window.__WUJIE.inject.appEventObjMap : new Map<String, EventObj>();
+    window.__WUJIE_INJECT = { ...window.__WUJIE_INJECT, appEventObjMap: cacheMap };
+    return cacheMap;
+  }
+})();
 
 // eventBus 事件中心
 export class EventBus {
@@ -101,5 +107,15 @@ export class EventBus {
     const events = Object.keys(eventObj);
     events.forEach((event) => delete eventObj[event]);
     return this;
+  }
+
+  /**
+   * 销毁 EventBus：先 $clear 再从全局 appEventObjMap 中移除当前 id 的 entry。
+   * 防止 sandbox.destroy() 之后该子应用仍长期占用一项 map 条目。
+   */
+  public $destroy(): void {
+    this.$clear();
+    appEventObjMap.delete(this.id);
+    this.eventObj = {};
   }
 }

@@ -6,6 +6,7 @@ import {
   rawElementRemoveChild,
   rawHeadInsertBefore,
   rawBodyInsertBefore,
+  rawInsertAdjacentElement,
   rawDocumentQuerySelector,
   rawAddEventListener,
   rawRemoveEventListener,
@@ -13,10 +14,10 @@ import {
 import {
   isFunction,
   isHijackingTag,
-  requestIdleCallback,
   warn,
   nextTick,
   getCurUrl,
+  getAbsolutePath,
   execHooks,
   isScriptElement,
   setTagToScript,
@@ -27,8 +28,57 @@ import { insertScriptToIframe, patchElementEffect } from "./iframe";
 import Wujie from "./sandbox";
 import { getPatchStyleElements } from "./shadow";
 import { getCssLoader, getEffectLoaders, isMatchUrl } from "./plugin";
-import { WUJIE_SCRIPT_ID, WUJIE_DATA_FLAG, WUJIE_TIPS_REPEAT_RENDER, WUJIE_TIPS_NO_SCRIPT } from "./constant";
+import {
+  WUJIE_SCRIPT_ID,
+  WUJIE_DATA_FLAG,
+  WUJIE_TIPS_REPEAT_RENDER,
+  WUJIE_TIPS_NO_SCRIPT,
+  WUJIE_TIPS_HIJACKED_NOT_CHILD,
+  WUJIE_TIPS_CSS_DEDUPE_EMPTY,
+  WUJIE_APP_ID,
+} from "./constant";
 import { ScriptObject, parseTagAttributes } from "./template";
+
+/**
+ * 被接管的 script / link 不会真正插入 DOM，原位置只留一个注释节点。
+ * 以注释节点为锚点表达元素的逻辑位置：parentNode、remove、contains 都以它为准，注释被移除后元素即视为已移除。
+ */
+const hijackedPlaceholders = new WeakMap<Node, Comment>();
+const rawParentNodeGetter = Object.getOwnPropertyDescriptor(Node.prototype, "parentNode").get;
+const rawParentElementGetter = Object.getOwnPropertyDescriptor(Node.prototype, "parentElement").get;
+const rawElementRemove = Element.prototype.remove;
+
+function getHijackedPlaceholder(element: Node | null): Comment | undefined {
+  return element ? hijackedPlaceholders.get(element) : undefined;
+}
+
+function markHijackedElement(element: HTMLElement, placeholder: Comment): void {
+  const patched = hijackedPlaceholders.has(element);
+  hijackedPlaceholders.set(element, placeholder);
+  if (patched) return;
+  Object.defineProperties(element, {
+    parentNode: {
+      configurable: true,
+      get() {
+        return rawParentNodeGetter.call(this) || getHijackedPlaceholder(this)?.parentNode || null;
+      },
+    },
+    parentElement: {
+      configurable: true,
+      get() {
+        return rawParentElementGetter.call(this) || getHijackedPlaceholder(this)?.parentElement || null;
+      },
+    },
+    remove: {
+      configurable: true,
+      writable: true,
+      value() {
+        if (rawParentNodeGetter.call(this)) return rawElementRemove.call(this);
+        getHijackedPlaceholder(this)?.parentNode?.removeChild(this);
+      },
+    },
+  });
+}
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -70,7 +120,9 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement & { _p
       sandbox.shadowRoot.head.appendChild(hostStyleSheetElement);
     }
     if (fontStyleSheetElement) {
-      sandbox.shadowRoot.host.appendChild(fontStyleSheetElement);
+      sandbox.inject.fontStyleSheetContainer?.appendChild(fontStyleSheetElement);
+      fontStyleSheetElement.setAttribute(WUJIE_APP_ID, sandbox.id);
+      sandbox.fontStyleSheetElements.push(fontStyleSheetElement);
     }
     stylesheetElement._patcher = undefined;
   };
@@ -82,8 +134,9 @@ function handleStylesheetElementPatch(stylesheetElement: HTMLStyleElement & { _p
 
 /**
  * 劫持处理样式元素的属性
+ * @internal 仅出于可测性导出，外部不应直接调用
  */
-function patchStylesheetElement(
+export function patchStylesheetElement(
   stylesheetElement: HTMLStyleElement & { _hasPatchStyle?: boolean },
   cssLoader: (code: string, url: string, base: string) => string,
   sandbox: Wujie,
@@ -151,8 +204,178 @@ function patchStylesheetElement(
         } else return rawAppendChild(node);
       },
     },
+    insertAdjacentElement: {
+      value: function (this: HTMLStyleElement, position: InsertPosition, element: Element) {
+        if (element.nodeName === "STYLE") {
+          // 关联 issue: https://github.com/Tencent/wujie/issues/1059
+          //
+          // vite dev server 第一个 css 通过 head.appendChild 插入，后续每个 css 都走
+          // lastInsertedStyle.insertAdjacentElement("afterend", style)，hot update 时
+          // 直接 style.textContent = newContent。被 insertAdjacentElement 插入的 style
+          // 必须获得与"第一个 style"完全一致的劫持能力，否则：
+          //   1) 当前内容里的资源相对路径不会被 cssLoader 改写（@font-face 失效）；
+          //   2) 后续 textContent / innerHTML / appendChild / sheet.insertRule
+          //      绕过 wujie，hot update 全部脱管；
+          //   3) 链式 insertAdjacentElement 创建的下游 style 直接走原生实现。
+          // 因此这里必须复用与 case "STYLE" 完全一致的处理流程：先用 cssLoader 改写
+          // 当前内容，再 patchStylesheetElement 把劫持递归装到新 style 上。
+          const stylesheetElement = element as HTMLStyleElement;
+          const content = stylesheetElement.innerHTML;
+          if (content) stylesheetElement.innerHTML = cssLoader(content, "", curUrl);
+          const res = rawInsertAdjacentElement.call(this, position, element);
+          sandbox.styleSheetElements.push(stylesheetElement);
+          patchStylesheetElement(stylesheetElement, cssLoader, sandbox, curUrl);
+          handleStylesheetElementPatch(stylesheetElement, sandbox);
+          return res;
+        } else return rawInsertAdjacentElement.call(this, position, element);
+      },
+    },
     _hasPatchStyle: { get: () => true },
   });
+}
+
+// href 延迟赋值的兜底超时（毫秒）：超过该时间仍未拿到 href，则放弃监听并触发 error，
+// 防止「href 永不到达」时 observer 闭包长期钉住子应用上下文。沿用 tinymce maxLoadTime 量级。
+const DEFER_STYLE_HREF_TIMEOUT = 5000;
+
+/**
+ * 处理「先 appendChild(link) 后 setAttribute('href')」的延迟 href 场景。
+ *
+ * 通过 MutationObserver 监听 href 属性赋值，命中后走传入的 loadStyleSheet 完成加载。
+ * 生命周期管理（避免内存泄漏）：
+ *   1. 命中 / 超时 / 子应用已销毁 时立即 disconnect 并从 sandbox 出队；
+ *   2. observer 登记到 sandbox.deferredStyleObservers，destroy 阶段统一兜底 disconnect；
+ *   3. 回调内通过 wujieId 动态获取 sandbox，不捕获 sandbox/iframe，子应用销毁后闭包不再 pin 上下文。
+ */
+export function deferStyleSheetByHref(opts: {
+  element: HTMLLinkElement;
+  wujieId: string;
+  iframeWindow: Window;
+  loadStyleSheet: (href: string, element: HTMLLinkElement) => void;
+}): void {
+  let { element } = opts;
+  const { wujieId, iframeWindow, loadStyleSheet } = opts;
+  // 部分环境（jsdom / 老浏览器）可能不支持 MutationObserver，直接放弃延迟处理
+  const MutationObserverCtor = (iframeWindow as any).MutationObserver;
+  if (typeof MutationObserverCtor !== "function") return;
+
+  let settled = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const observer: MutationObserver = new MutationObserverCtor(() => {
+    if (settled) return;
+    const attrHref = element?.getAttribute("href");
+    if (!attrHref) return;
+    const realHref = element.href || attrHref;
+    const target = element;
+    finalize(() => target && loadStyleSheet(realHref, target));
+  });
+
+  // 统一收尾：disconnect + 出队 + 清理定时器，再执行收尾动作
+  function finalize(action?: () => void) {
+    if (settled) return;
+    settled = true;
+    if (timer !== null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    try {
+      observer.disconnect();
+    } catch (_) {
+      /* noop */
+    }
+    // 动态获取 sandbox，子应用销毁后直接放手，闭包不再钉住上下文
+    const sandbox = getWujieById(wujieId);
+    const observers = sandbox?.deferredStyleObservers;
+    if (Array.isArray(observers)) {
+      const index = observers.indexOf(observer);
+      if (index !== -1) observers.splice(index, 1);
+    }
+    if (sandbox) action?.();
+    element = null;
+  }
+
+  const sandbox = getWujieById(wujieId);
+  // 子应用已不存在则无需监听
+  if (!sandbox || !Array.isArray(sandbox.deferredStyleObservers)) return;
+  sandbox.deferredStyleObservers.push(observer);
+  observer.observe(element, { attributes: true, attributeFilter: ["href"] });
+  // 超时兜底：长时间没等到 href，放弃监听并触发 error，让上游（如 tinymce）的失败回调收尾
+  timer = setTimeout(() => {
+    const target = element;
+    finalize();
+    if (target) manualInvokeElementEvent(target, "error");
+  }, DEFER_STYLE_HREF_TIMEOUT);
+}
+
+/**
+ * 去重键用 URL 序列化后的绝对地址。
+ * 入口模板走 URL#toString，动态插入走 URL#href；两者在查询串空格等字符上可能不一致，比较前先归一。
+ */
+export function canonicalCssHref(href: string): string {
+  if (!href) return "";
+  try {
+    return new URL(href).href;
+  } catch {
+    return href;
+  }
+}
+
+/**
+ * 按绝对 href 查找所有已转换的样式。
+ * 匹配动态占位和入口 HTML 写入的 data-wujie-css-href；
+ * 没有该属性时，兼容旧的注释形态：style 文本以 `/* href *\/` 开头。
+ * 不用属性选择器：href 里的引号会截断选择器，入口 HTML 又必须先做属性转义。
+ */
+export function findStylesByCssHref(doc: Document | null, href: string): HTMLStyleElement[] {
+  if (!href || !doc) return [];
+  const target = canonicalCssHref(href);
+  const styles = doc.querySelectorAll("style");
+  const matched: HTMLStyleElement[] = [];
+  for (let i = 0; i < styles.length; i++) {
+    const style = styles[i] as HTMLStyleElement;
+    const marked = style.getAttribute("data-wujie-css-href");
+    if (marked && canonicalCssHref(marked) === target) matched.push(style);
+    else if (!marked && (style.textContent || "").indexOf(`/* ${href} */`) === 0) matched.push(style);
+  }
+  return matched;
+}
+
+/**
+ * 样式是否有可复用的内容（忽略入口 HTML 写入的开头注释 `/* href *\/`）。
+ * 样式请求失败时 fetchAssets 也返回空串，空文件与请求失败无法区分，两者都视为不可复用。
+ */
+export function hasStyleSheetContent(style: HTMLStyleElement): boolean {
+  return (style.textContent || "").replace(/^\s*\/\*[\s\S]*?\*\//, "").trim() !== "";
+}
+
+/**
+ * 命中去重后对原 link 补发事件。
+ *
+ * 必须异步派发：消费方是在 appendChild 返回之后才 addEventListener，
+ * 而本函数由劫持的 appendChild 同步调用，在调用栈内同步派发时监听尚未注册，事件会被丢弃。
+ */
+export function dispatchStyleSheetLoadAsync(linkElement: HTMLLinkElement, event: "load" | "error" = "load"): void {
+  setTimeout(() => manualInvokeElementEvent(linkElement, event), 0);
+}
+
+type StyleSheetWaiter = {
+  linkElement: HTMLLinkElement;
+};
+
+/**
+ * 同一 href 还在拉取时，后来的 link 不能立刻收到 load。
+ * 登记到占位 style 上，等原来那次请求结束再派发同一个结果。
+ */
+function enqueueStyleSheetWaiter(styleElement: HTMLStyleElement, linkElement: HTMLLinkElement): void {
+  const waiters = ((styleElement as any)._wujieStyleWaiters || []) as StyleSheetWaiter[];
+  waiters.push({ linkElement });
+  (styleElement as any)._wujieStyleWaiters = waiters;
+}
+
+function flushStyleSheetWaiters(styleElement: HTMLStyleElement, event: "load" | "error"): void {
+  const waiters = ((styleElement as any)._wujieStyleWaiters || []) as StyleSheetWaiter[];
+  (styleElement as any)._wujieStyleWaiters = [];
+  waiters.forEach(({ linkElement }) => dispatchStyleSheetLoadAsync(linkElement, event));
 }
 
 let dynamicScriptExecStack = Promise.resolve();
@@ -187,58 +410,107 @@ function rewriteAppendOrInsertChild(opts: {
         case "LINK": {
           const { href, rel, type } = element as HTMLLinkElement;
           const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
+          // modulepreload 只对 link 所在文档的模块表生效，而子应用的 import() 在 iframe 中执行。
+          // 留在 shadowRoot（主文档）里会预加载到主文档，iframe 再 import 时重复请求，因此插到 iframe 的 head。
+          if (rel === "modulepreload") {
+            const res = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.appendChild(element);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return res;
+          }
           // 非 stylesheet 不做处理
           if (!styleFlag) {
             const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
             execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
             return res;
           }
-          // 排除css
-          if (href && !isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
+
+          // 拉取 css 内容并以 <style> 注入子应用、回调 link 的 load/error 事件。
+          // 抽成闭包以便「append 时已有 href」与「append 后才 setAttribute('href')」两条路径复用。
+          const loadStyleSheet = (realHref: string, linkElement: HTMLLinkElement) => {
+            const attrHref = linkElement.getAttribute("href");
+            const styleHref = attrHref ? getAbsolutePath(attrHref, (proxyLocation as Location).href) : realHref;
+            const exclude = isMatchUrl(styleHref, getEffectLoaders("cssExcludes", plugins));
+            if (!styleHref || exclude) return;
+
+            // 入口 HTML 已转成 style，或先前动态插入已占位时，不再插第二份。
+            // 仍需对原 link 派发事件，避免 Vite preload 一直等待。
+            // pending 表示原来那次请求还没结束，此时不能派发 load，否则 preload 后面的 chunk 会提前执行。
+            // 已有样式都为空时不复用，按原流程重新请求，请求失败的情况可以借此恢复。
+            const existingStyles = findStylesByCssHref(iframeDocument, styleHref);
+            if (existingStyles.some(hasStyleSheetContent)) {
+              dispatchStyleSheetLoadAsync(linkElement);
+              return;
+            }
+            const pendingStyle = existingStyles.find((style) => style.hasAttribute("data-wujie-css-pending"));
+            if (pendingStyle) {
+              enqueueStyleSheetWaiter(pendingStyle, linkElement);
+              return;
+            }
+            if (existingStyles.length) warn(WUJIE_TIPS_CSS_DEDUPE_EMPTY, styleHref);
+
+            // 立即创建占位 <style> 元素，避免异步加载期间重复插入
+            const rawAttrs = parseTagAttributes(linkElement.outerHTML);
+            const placeholderElement = iframeDocument.createElement("style");
+            setAttrsToElement(placeholderElement, rawAttrs);
+            placeholderElement.setAttribute("data-wujie-css-href", styleHref);
+            placeholderElement.setAttribute("data-wujie-css-pending", "");
+            rawDOMAppendOrInsertBefore.call(this, placeholderElement, refChild);
+
             getExternalStyleSheets(
-              [{ src: href, ignore: isMatchUrl(href, getEffectLoaders("cssIgnores", plugins)) }],
+              [{ src: styleHref, ignore: isMatchUrl(styleHref, getEffectLoaders("cssIgnores", plugins)) }],
               fetch,
               lifecycles.loadError
             ).forEach(({ src, ignore, contentPromise }) =>
               contentPromise.then(
                 (content) => {
-                  // 处理 ignore 样式
-                  const rawAttrs = parseTagAttributes(element.outerHTML);
                   if (ignore && src) {
-                    const stylesheetElement = iframeDocument.createElement("link");
-                    const attrs = {
-                      ...rawAttrs,
-                      type: "text/css",
-                      rel: "stylesheet",
-                      href: src,
-                    };
-                    setAttrsToElement(stylesheetElement, attrs);
-                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
-                    manualInvokeElementEvent(element, "load");
+                    // 忽略的元素应该直接把对应元素插入，而不是用新的 link 标签进行替代插入，保证 element 的上下文正常
+                    // 移除占位元素，插入原始 link。排队的 link 不再有占位可等，按这条路径的成功语义补发 load。
+                    flushStyleSheetWaiters(placeholderElement, "load");
+                    placeholderElement.parentNode?.removeChild(placeholderElement);
+                    rawDOMAppendOrInsertBefore.call(this, linkElement, refChild);
                   } else {
-                    // 记录js插入样式，子应用重新激活时恢复
-                    const stylesheetElement = iframeDocument.createElement("style");
+                    // 填充 CSS 内容到占位元素
                     // 处理css-loader插件
                     const cssLoader = getCssLoader({ plugins, replace });
-                    stylesheetElement.innerHTML = cssLoader(content, src, curUrl);
-                    styleSheetElements.push(stylesheetElement);
-                    setAttrsToElement(stylesheetElement, rawAttrs);
-                    rawDOMAppendOrInsertBefore.call(this, stylesheetElement, refChild);
+                    placeholderElement.innerHTML = cssLoader(content, src, curUrl);
+                    if (src) placeholderElement.setAttribute("data-wujie-css-href", src);
+                    placeholderElement.removeAttribute("data-wujie-css-pending");
+                    styleSheetElements.push(placeholderElement);
                     // 处理样式补丁
-                    handleStylesheetElementPatch(stylesheetElement, sandbox);
-                    manualInvokeElementEvent(element, "load");
+                    handleStylesheetElementPatch(placeholderElement, sandbox);
+                    manualInvokeElementEvent(linkElement, "load");
+                    flushStyleSheetWaiters(placeholderElement, "load");
                   }
-                  element = null;
+                  if (element === linkElement) element = null;
                 },
                 () => {
-                  manualInvokeElementEvent(element, "error");
-                  element = null;
+                  placeholderElement.removeAttribute("data-wujie-css-pending");
+                  manualInvokeElementEvent(linkElement, "error");
+                  flushStyleSheetWaiters(placeholderElement, "error");
+                  if (element === linkElement) element = null;
                 }
               )
             );
+          };
+
+          if (href) {
+            // 排除css
+            if (!isMatchUrl(href, getEffectLoaders("cssExcludes", plugins))) {
+              loadStyleSheet(href, element);
+            }
+          } else {
+            // 关联 issue: https://github.com/Tencent/wujie/issues/224 https://github.com/Tencent/wujie/issues/974
+            //
+            // 部分库（如 tinymce 的 StyleSheetLoader）先 appendChild(link) 再
+            // setAttribute('href', url)。此时 href 为空，若直接丢弃则该样式永远不会被加载，
+            // 后续在游离 link 上设置 href 也不会触发浏览器加载，skin.min.css 等资源缺失。
+            // 这里监听 href 的后续赋值，拿到真实 href 后再走与上面完全一致的加载流程。
+            deferStyleSheetByHref({ element, wujieId, iframeWindow: iframe.contentWindow, loadStyleSheet });
           }
 
           const comment = iframeDocument.createComment(`dynamic link ${href} replaced by wujie`);
+          markHijackedElement(newChild as unknown as HTMLElement, comment);
           return rawDOMAppendOrInsertBefore.call(this, comment, refChild);
         }
         case "STYLE": {
@@ -284,7 +556,7 @@ function rewriteAppendOrInsertChild(opts: {
                     const execQueueLength = sandbox.execQueue?.length;
                     sandbox.execQueue.push(() =>
                       fiber
-                        ? requestIdleCallback(() => {
+                        ? sandbox.requestIdleCallback(() => {
                             execScript({ ...scriptResult, content });
                           })
                         : execScript({ ...scriptResult, content })
@@ -303,7 +575,7 @@ function rewriteAppendOrInsertChild(opts: {
             const execQueueLength = sandbox.execQueue?.length;
             sandbox.execQueue.push(() =>
               fiber
-                ? requestIdleCallback(() => {
+                ? sandbox.requestIdleCallback(() => {
                     insertScriptToIframe(
                       { src: null, content: text, attrs: parseTagAttributes(element.outerHTML) },
                       sandbox.iframe.contentWindow,
@@ -320,6 +592,7 @@ function rewriteAppendOrInsertChild(opts: {
           }
           // inline script never trigger the onload and onerror event
           const comment = iframeDocument.createComment(`dynamic script ${src} replaced by wujie`);
+          markHijackedElement(newChild as unknown as HTMLElement, comment);
           return rawDOMAppendOrInsertBefore.call(this, comment, refChild);
         }
         // 修正子应用内部iframe的window.parent指向
@@ -355,6 +628,8 @@ function rewriteContains(opts: { rawElementContains: (other: Node | null) => boo
   return function contains(other: Node | null) {
     const element = other as HTMLElement;
     const { rawElementContains, wujieId } = opts;
+    const placeholder = getHijackedPlaceholder(element);
+    if (placeholder) return rawElementContains(placeholder);
     if (element && isScriptElement(element)) {
       const { targetScript } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
       return targetScript !== null;
@@ -364,9 +639,18 @@ function rewriteContains(opts: { rawElementContains: (other: Node | null) => boo
 }
 
 function rewriteRemoveChild(opts: { rawElementRemoveChild: <T extends Node>(child: T) => T; wujieId: string }) {
-  return function removeChild(child: Node) {
+  return function removeChild(this: Node, child: Node) {
     const element = child as HTMLElement;
     const { rawElementRemoveChild, wujieId } = opts;
+    const placeholder = getHijackedPlaceholder(element);
+    if (placeholder) {
+      if (placeholder.parentNode !== this) {
+        warn(WUJIE_TIPS_HIJACKED_NOT_CHILD, element);
+      } else {
+        rawElementRemoveChild(placeholder);
+        if (!isScriptElement(element)) return element;
+      }
+    }
     if (element && isScriptElement(element)) {
       const { targetScript, iframe } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
       if (targetScript !== null) {
@@ -458,4 +742,13 @@ export function patchRenderEffect(render: ShadowRoot | Document, id: string, deg
     rawDOMAppendOrInsertBefore: rawBodyInsertBefore as any,
     wujieId: id,
   }) as typeof rawBodyInsertBefore;
+  // 取原型链上的 removeChild：body 属于子应用 iframe 时保留 iframe 中对 removeChild 的容错补丁
+  render.body.removeChild = rewriteRemoveChild({
+    rawElementRemoveChild: Object.getPrototypeOf(render.body).removeChild.bind(render.body),
+    wujieId: id,
+  }) as typeof rawElementRemoveChild;
+  render.body.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render.body),
+    wujieId: id,
+  }) as typeof rawElementContains;
 }

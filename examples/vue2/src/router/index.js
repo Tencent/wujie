@@ -24,6 +24,16 @@ const routes = [
     name: "location",
     component: () => import(/* webpackChunkName: "Page3" */ "../views/Location.vue"),
   },
+  {
+    path: "/postmessage",
+    name: "postmessage",
+    component: () => import(/* webpackChunkName: "Page3" */ "../views/PostMessage.vue"),
+  },
+  {
+    path: "/rich-text",
+    name: "rich-text",
+    component: () => import(/* webpackChunkName: "RichText" */ "../views/RichText.vue"),
+  },
 ];
 
 export default routes;

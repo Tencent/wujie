@@ -3,6 +3,60 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](/compare/v2.0.2...v2.1.0) (2026-06-15)
+
+**Note:** Version bump only for package react16
+
+## [2.0.2](https://github.com/Tencent/wujie/compare/v2.0.1...v2.0.2) (2026-06-04)
+
+**Note:** Version bump only for package react16
+
+## [2.0.1](https://github.com/Tencent/wujie/compare/v2.0.0...v2.0.1) (2026-06-03)
+
+**Note:** Version bump only for package react16
+
+## [1.0.29](https://github.com/Tencent/wujie/compare/v1.0.28...v1.0.29) (2025-07-20)
+
+**Note:** Version bump only for package react16
+
+## [1.0.28](https://github.com/Tencent/wujie/compare/v1.0.27...v1.0.28) (2025-04-08)
+
+**Note:** Version bump only for package react16
+
+## [1.0.27](https://github.com/Tencent/wujie/compare/v1.0.26...v1.0.27) (2025-04-08)
+
+**Note:** Version bump only for package react16
+
+## [1.0.26](https://github.com/Tencent/wujie/compare/v1.0.25...v1.0.26) (2025-03-23)
+
+**Note:** Version bump only for package react16
+
+## [1.0.25](https://github.com/Tencent/wujie/compare/v1.0.24...v1.0.25) (2025-02-19)
+
+**Note:** Version bump only for package react16
+
+## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
+
+**Note:** Version bump only for package react16
+
+## [1.0.22](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.22) (2023-12-18)
+
+**Note:** Version bump only for package react16
+
+## [1.0.21](https://github.com/Tencent/wujie/compare/v1.0.20...v1.0.21) (2023-12-18)
+
+**Note:** Version bump only for package react16
+
+## [1.0.20](https://github.com/Tencent/wujie/compare/v1.0.18...v1.0.20) (2023-11-08)
+
+**Note:** Version bump only for package react16
+
+**Note:** Version bump only for package react16
+
+## [1.0.18](https://github.com/Tencent/wujie/compare/v1.0.17...v1.0.18) (2023-07-11)
+
+**Note:** Version bump only for package react16
+
 ## [1.0.17](https://github.com/Tencent/wujie/compare/v1.0.16...v1.0.17) (2023-05-30)
 
 **Note:** Version bump only for package react16

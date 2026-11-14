@@ -18,6 +18,7 @@ import "ant-design-vue/es/tooltip/style/index.css";
 import "ant-design-vue/es/icon/style/index.css";
 import lifecycles from "./lifecycle";
 import plugins from "./plugin";
+import { wangEditorPlugin } from "./plugins/wangEditor";
 
 const isProduction = process.env.NODE_ENV === "production";
 const { setupApp, preloadApp, bus } = WujieVue;
@@ -86,6 +87,7 @@ setupApp({
   exec: true,
   props,
   fetch: credentialsFetch,
+  plugins: [wangEditorPlugin],
   degrade,
   ...lifecycles,
 });
@@ -95,6 +97,7 @@ setupApp({
   url: hostMap("//localhost:7300/"),
   attrs,
   exec: true,
+  destroyOnUnmount: true,
   alive: true,
   plugins: [{ cssExcludes: ["https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"] }],
   props,

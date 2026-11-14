@@ -79,24 +79,36 @@ export function isConstructable(fn: () => any | FunctionConstructor) {
   return constructable;
 }
 
-const setFnCacheMap = new WeakMap<CallableFunction, CallableFunction>();
-export function checkProxyFunction(value: any) {
+// 修复多个子应用启动，拿到的全局对象都是第一个子应用全局对象的bug：https://github.com/Tencent/wujie/issues/770
+const setFnCacheMap = new WeakMap<
+  Window | Document | ShadowRoot | Location,
+  WeakMap<CallableFunction, CallableFunction>
+>();
+
+export function checkProxyFunction(target: Window | Document | ShadowRoot | Location, value: any) {
   if (isCallable(value) && !isBoundedFunction(value) && !isConstructable(value)) {
-    if (!setFnCacheMap.has(value)) {
-      setFnCacheMap.set(value, value);
+    if (!setFnCacheMap.has(target)) {
+      setFnCacheMap.set(target, new WeakMap());
+      setFnCacheMap.get(target).set(value, value);
+    } else if (!setFnCacheMap.get(target).has(value)) {
+      setFnCacheMap.get(target).set(value, value);
     }
   }
 }
 
 export function getTargetValue(target: any, p: any): any {
   const value = target[p];
-  if (setFnCacheMap.has(value)) {
-    return setFnCacheMap.get(value);
+  if (setFnCacheMap.has(target) && setFnCacheMap.get(target).has(value)) {
+    return setFnCacheMap.get(target).get(value);
   }
   if (isCallable(value) && !isBoundedFunction(value) && !isConstructable(value)) {
     const boundValue = Function.prototype.bind.call(value, target);
-    setFnCacheMap.set(value, boundValue);
-
+    if (setFnCacheMap.has(target)) {
+      setFnCacheMap.get(target).set(value, boundValue);
+    } else {
+      setFnCacheMap.set(target, new WeakMap());
+      setFnCacheMap.get(target).set(value, boundValue);
+    }
     for (const key in value) {
       boundValue[key] = value[key];
     }
@@ -143,13 +155,11 @@ export function anchorElementGenerator(url: string): HTMLAnchorElement {
 }
 
 export function getAnchorElementQueryMap(anchorElement: HTMLAnchorElement): { [key: string]: string } {
-  const queryList = anchorElement.search.replace("?", "").split("&");
-  const queryMap = {};
-  queryList.forEach((query) => {
-    const [key, value] = query.split("=");
-    if (key && value) queryMap[key] = value;
-  });
-  return queryMap;
+  const queryString = anchorElement.search || "";
+  return [...new URLSearchParams(queryString).entries()].reduce((p, c) => {
+    p[c[0]] = c[1];
+    return p;
+  }, {} as Record<string, string>);
 }
 
 /**
@@ -222,7 +232,7 @@ export function getSyncUrl(id: string, prefix: { [key: string]: string }): strin
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
   winUrlElement = null;
-  const syncUrl = window.decodeURIComponent(queryMap[id] || "");
+  const syncUrl = queryMap[id] || "";
   const validShortPath = syncUrl.match(/^{([^}]*)}/)?.[1];
   if (prefix && validShortPath) {
     return syncUrl.replace(`{${validShortPath}}`, prefix[validShortPath]);
@@ -333,6 +343,8 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,
     degrade: options.degrade !== undefined ? options.degrade : cacheOptions?.degrade,
     plugins: options.plugins || cacheOptions?.plugins,
+    iframeAddEventListeners: options.iframeAddEventListeners || cacheOptions?.iframeAddEventListeners || [],
+    iframeOnEvents: options.iframeOnEvents || cacheOptions?.iframeOnEvents || [],
     lifecycles: {
       beforeLoad: options.beforeLoad || cacheOptions?.beforeLoad,
       beforeMount: options.beforeMount || cacheOptions?.beforeMount,
