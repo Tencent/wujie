@@ -49,4 +49,6 @@ export default class WujieReact extends React.PureComponent<WujieReactProps> {
   static destroyApp: typeof destroyApp;
   static refreshApp: typeof refreshApp;
   static clearAssetsCache: typeof clearAssetsCache;
+  /** 销毁当前子应用并复用组件 props 全量重建 */
+  refresh(): Promise<void>;
 }
