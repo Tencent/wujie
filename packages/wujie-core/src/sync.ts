@@ -92,9 +92,9 @@ export function clearInactiveAppUrl(): void {
 }
 
 /**
- * 推送指定url到主应用路由
+ * 推送指定url到主应用路由，replace 为 true 时替换当前历史记录
  */
-export function pushUrlToWindow(id: string, url: string): void {
+export function pushUrlToWindow(id: string, url: string, replace = false): void {
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
   // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
@@ -105,7 +105,8 @@ export function pushUrlToWindow(id: string, url: string): void {
       .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
       .join("&");
   winUrlElement.search = newQuery;
-  window.history.pushState(null, "", winUrlElement.href);
+  if (replace) window.history.replaceState(null, "", winUrlElement.href);
+  else window.history.pushState(null, "", winUrlElement.href);
   winUrlElement = null;
 }
 
@@ -148,7 +149,7 @@ export function processAppForHrefJump(): void {
             iframe.contentWindow.onunload = () => {
               sandbox.unmount();
             };
-            iframe.contentDocument.appendChild(iframeBody.firstElementChild);
+            iframe.contentDocument.replaceChild(iframeBody.firstElementChild, iframe.contentDocument.documentElement);
             sandbox.document = iframe.contentDocument;
           } else renderElementToContainer(sandbox.shadowRoot.host, sandbox.el);
           sandbox.hrefFlag = false;
