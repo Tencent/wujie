@@ -3,25 +3,9 @@ import { renderElementToContainer } from "./shadow";
 import { pushUrlToWindow } from "./sync";
 import { documentProxyProperties, rawDocumentQuerySelector } from "./common";
 import { WUJIE_TIPS_RELOAD_DISABLED, WUJIE_TIPS_GET_ELEMENT_BY_ID } from "./constant";
-import {
-  getTargetValue,
-  anchorElementGenerator,
-  getDegradeIframe,
-  isCallable,
-  checkProxyFunction,
-  warn,
-  stopMainAppRun,
-} from "./utils";
+import { getTargetValue, getDegradeIframe, isCallable, checkProxyFunction, warn, stopMainAppRun } from "./utils";
 
-function generateUrl(url: string, appHostPath: string) {
-  let newUrl = url;
-  if (!/^http/.test(url)) {
-    let hrefElement = anchorElementGenerator(url);
-    newUrl = appHostPath + hrefElement.pathname + hrefElement.search + hrefElement.hash;
-    hrefElement = null;
-  }
-  return newUrl;
-}
+type LocationNavigateMode = "href" | "assign" | "replace";
 
 function renderInIframe(iframe: HTMLIFrameElement, url: string) {
   const { shadowRoot, id, degrade, degradeAttrs } = iframe.contentWindow.__WUJIE;
@@ -32,20 +16,40 @@ function renderInIframe(iframe: HTMLIFrameElement, url: string) {
   renderIframeReplaceApp(url, shadowRoot.host.parentElement, degradeAttrs);
 }
 
+function isHashOnlyChange(targetUrl: string, currentUrl: string): boolean {
+  return targetUrl.includes("#") && targetUrl.split("#")[0] === currentUrl.split("#")[0];
+}
+
 /**
- * location href 的set劫持操作
+ * 子应用 location.href 赋值、location.assign、location.replace 的跳转，与原生语义保持一致：
+ * - 相对地址基于子应用当前地址解析；
+ * - 只改变 hash 时在 js iframe 内完成同文档跳转，不重新渲染；
+ * - 其余情况渲染新的 iframe 替换子应用并同步到主应用 url（replace 不新增历史记录），浏览器后退时恢复原应用。
  */
-function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: string): boolean {
-  const { id, degrade, document } = iframe.contentWindow.__WUJIE;
-  iframe.contentWindow.__WUJIE.hrefFlag = true;
-  if (degrade) {
-    const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
-    renderElementToContainer(document.documentElement, iframeBody);
+function locationNavigate(
+  iframe: HTMLIFrameElement,
+  value: string | URL,
+  mode: LocationNavigateMode,
+  mainHostPath: string,
+  appHostPath: string
+): void {
+  const sandbox = iframe.contentWindow.__WUJIE;
+  const location = iframe.contentWindow.location;
+  const currentUrl = location.href.replace(mainHostPath, appHostPath);
+  const url = new URL(String(value), currentUrl).href;
+  if (isHashOnlyChange(url, currentUrl)) {
+    const iframeUrl = url.replace(appHostPath, mainHostPath);
+    if (mode === "replace") location.replace(iframeUrl);
+    else location.assign(iframeUrl);
+    return;
   }
-  const url = generateUrl(value, appHostPath);
+  sandbox.hrefFlag = true;
+  if (sandbox.degrade) {
+    const iframeBody = rawDocumentQuerySelector.call(iframe.contentDocument, "body");
+    renderElementToContainer(sandbox.document.documentElement, iframeBody);
+  }
   renderInIframe(iframe, url);
-  pushUrlToWindow(id, url);
-  return true;
+  pushUrlToWindow(sandbox.id, url, mode === "replace");
 }
 
 function isScriptSelector(selector: unknown): boolean {
@@ -258,23 +262,19 @@ export function proxyGenerator(
           warn(WUJIE_TIPS_RELOAD_DISABLED);
           return () => null;
         }
-        if (propKey === "replace") {
+        if (propKey === "replace" || propKey === "assign") {
           return new Proxy(location[propKey], {
-            apply(replace, _ctx, args) {
-              if (args[0]?.includes?.(appHostPath)) {
-                return replace.call(location, args[0]?.replace(appHostPath, mainHostPath));
-              }
-              const url = generateUrl(args[0], appHostPath);
-              return renderInIframe(iframe, url);
+            apply(_target, _ctx, args) {
+              locationNavigate(iframe, args[0], propKey, mainHostPath, appHostPath);
             },
           });
         }
         return getTargetValue(location, propKey);
       },
       set: function (_fakeLocation, propKey, value) {
-        // 如果是跳转链接的话重开一个iframe
         if (propKey === "href") {
-          return locationHrefSet(iframe, value, appHostPath);
+          locationNavigate(iframe, value, "href", mainHostPath, appHostPath);
+          return true;
         }
         iframe.contentWindow.location[propKey] = value;
         return true;
@@ -419,7 +419,7 @@ export function localGenerator(
   // 代理 location
   const proxyLocation = {};
   const locationKeys = Object.keys(locationRef);
-  const constantKey = ["host", "hostname", "port", "protocol", "port"];
+  const constantKey = ["host", "hostname", "port", "protocol", "origin"];
   constantKey.forEach((key) => {
     proxyLocation[key] = urlElement[key];
   });
@@ -427,7 +427,7 @@ export function localGenerator(
     href: {
       get: () => locationRef?.href.replace(mainHostPath, appHostPath),
       set: (value) => {
-        locationHrefSet(iframeRef, value, appHostPath);
+        locationNavigate(iframeRef, value, "href", mainHostPath, appHostPath);
       },
     },
     reload: {
@@ -436,9 +436,15 @@ export function localGenerator(
         return () => null;
       },
     },
+    assign: {
+      get: () => (url: string | URL) => locationNavigate(iframeRef, url, "assign", mainHostPath, appHostPath),
+    },
+    replace: {
+      get: () => (url: string | URL) => locationNavigate(iframeRef, url, "replace", mainHostPath, appHostPath),
+    },
   });
   locationKeys
-    .filter((key) => !constantKey.concat(["href", "reload"]).includes(key))
+    .filter((key) => !constantKey.concat(["href", "reload", "assign", "replace"]).includes(key))
     .forEach((key) => {
       Object.defineProperty(proxyLocation, key, {
         get: () => (isCallable(locationRef?.[key]) ? locationRef[key].bind(locationRef) : locationRef?.[key]),
