@@ -125,7 +125,7 @@ const wujieVueOptions = {
       return this.startAppQueue;
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.isUnmounted = true;
     bus.$offAll(this.handleEmit);
     clearStartAppQueue(this.name, this.startAppQueue);
