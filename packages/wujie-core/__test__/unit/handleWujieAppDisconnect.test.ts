@@ -5,16 +5,26 @@
  * 三种运行模式自动判定：
  *   - 保活模式（alive）：仅 unmount，保留 sandbox / iframe 复用；
  *   - 单例模式（非保活但做了生命周期改造，存在 __WUJIE_MOUNT）：仅 unmount，sandbox 复用；
- *   - 重建模式（非保活且未做生命周期改造）：直接 destroy，避免 sandbox / iframe 长期驻留累积。
+ *   - 重建模式（非保活且未做生命周期改造）：直接 destroy，避免 sandbox / iframe 长期驻留累积；
+ *   - 子应用 location.href 跳转（hrefFlag）：任何模式都只 unmount，保留 sandbox 供后退恢复。
  */
 
 export {};
 
 const shadow = require("../../src/shadow");
 
-function createMockSandbox({ alive, hasMount }: { alive: boolean; hasMount: boolean }) {
+function createMockSandbox({
+  alive,
+  hasMount,
+  hrefFlag = false,
+}: {
+  alive: boolean;
+  hasMount: boolean;
+  hrefFlag?: boolean;
+}) {
   return {
     alive,
+    hrefFlag,
     iframe: {
       contentWindow: {
         __WUJIE_MOUNT: hasMount ? () => undefined : undefined,
@@ -49,6 +59,13 @@ describe("handleWujieAppDisconnect 运行模式判定", () => {
     shadow.handleWujieAppDisconnect(sandbox);
     expect(sandbox.destroy).toHaveBeenCalledTimes(1);
     expect(sandbox.unmount).not.toHaveBeenCalled();
+  });
+
+  test("重建模式下 location.href 跳转（hrefFlag=true）：应仅 unmount，保留 sandbox 供后退恢复", () => {
+    const sandbox = createMockSandbox({ alive: false, hasMount: false, hrefFlag: true });
+    shadow.handleWujieAppDisconnect(sandbox);
+    expect(sandbox.unmount).toHaveBeenCalledTimes(1);
+    expect(sandbox.destroy).not.toHaveBeenCalled();
   });
 
   test("sandbox 为 null/undefined 时 helper 不应抛错", () => {
