@@ -1,4 +1,4 @@
-import WuJie from "./sandbox";
+import WuJie, { EventListenerRecord } from "./sandbox";
 import { ScriptObject } from "./template";
 import { renderElementToContainer } from "./shadow";
 import { syncUrlToWindow } from "./sync";
@@ -407,20 +407,48 @@ export function patchDegradeInstanceofAcrossRealms(appWindow: Window, renderWind
 /**
  * 记录节点的监听事件
  */
-function recordEventListeners(iframeWindow: Window) {
+function getListenerCapture(options?: boolean | EventListenerOptions): boolean {
+  return typeof options === "boolean" ? options : !!options?.capture;
+}
+
+/**
+ * 记录节点上的事件监听，供降级保活场景恢复。
+ * 与原生一致，以 type + handler + capture 识别同一个监听；
+ * once 监听触发后原生会自动移除且不经过 removeEventListener，需同步清理记录，否则恢复时会被重新绑定。
+ */
+export function recordEventListeners(iframeWindow: Window) {
   const sandbox = iframeWindow.__WUJIE;
+  const removeRecord = (node: Node, record: EventListenerRecord) => {
+    const list = sandbox.elementEventCacheMap?.get(node);
+    if (!list) return;
+    const index = list.indexOf(record);
+    if (index !== -1) list.splice(index, 1);
+    if (!list.length) sandbox.elementEventCacheMap.delete(node);
+  };
+
   iframeWindow.Node.prototype.addEventListener = function (
     type: string,
     handler: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions
   ): void {
-    // 添加事件缓存
-    const elementListenerList = sandbox.elementEventCacheMap.get(this);
-    if (elementListenerList) {
-      if (!elementListenerList.find((listener) => listener.type === type && listener.handler === handler)) {
-        elementListenerList.push({ type, handler, options });
+    const capture = getListenerCapture(options);
+    const elementListenerList = sandbox.elementEventCacheMap.get(this) || [];
+    const exists = elementListenerList.some(
+      (listener) => listener.type === type && listener.handler === handler && listener.capture === capture
+    );
+    if (!exists) {
+      const record: EventListenerRecord = { type, handler, options, capture };
+      if (handler && typeof options === "object" && options.once) {
+        // 先于业务监听注册：业务监听被更早的 stopImmediatePropagation 拦截时（原生不会消耗 once），清理也不执行。
+        // 以 this（currentTarget）定位节点，记录在恢复时被迁移到新节点后依然有效
+        record.onceCleanup = function (this: Node) {
+          removeRecord(this, record);
+        };
+        rawAddEventListener.call(this, type, record.onceCleanup, { capture, once: true });
       }
-    } else sandbox.elementEventCacheMap.set(this, [{ type, handler, options }]);
+      elementListenerList.push(record);
+      sandbox.elementEventCacheMap.set(this, elementListenerList);
+    }
     return rawAddEventListener.call(this, type, handler, options);
   };
 
@@ -429,17 +457,23 @@ function recordEventListeners(iframeWindow: Window) {
     handler: EventListenerOrEventListenerObject,
     options?: boolean | EventListenerOptions
   ): void {
-    // 清除缓存
-    const elementListenerList = sandbox.elementEventCacheMap.get(this);
-    if (elementListenerList) {
-      const index = elementListenerList?.findIndex((ele) => ele.type === type && ele.handler === handler);
-      index !== -1 && elementListenerList.splice(index, 1);
-    }
-    if (!elementListenerList?.length) {
-      sandbox.elementEventCacheMap.delete(this);
+    const capture = getListenerCapture(options);
+    const record = sandbox.elementEventCacheMap
+      .get(this)
+      ?.find((listener) => listener.type === type && listener.handler === handler && listener.capture === capture);
+    if (record) {
+      if (record.onceCleanup) rawRemoveEventListener.call(this, type, record.onceCleanup, { capture });
+      removeRecord(this, record);
     }
     return rawRemoveEventListener.call(this, type, handler, options);
   };
+}
+
+function rebindListener(node: Node, listener: EventListenerRecord) {
+  if (listener.onceCleanup) {
+    rawAddEventListener.call(node, listener.type, listener.onceCleanup, { capture: listener.capture, once: true });
+  }
+  node.addEventListener(listener.type, listener.handler, listener.options);
 }
 
 /**
@@ -447,19 +481,14 @@ function recordEventListeners(iframeWindow: Window) {
  */
 export function recoverEventListeners(rootElement: Element | ChildNode, iframeWindow: Window) {
   const sandbox = iframeWindow.__WUJIE;
-  const elementEventCacheMap: WeakMap<
-    Node,
-    Array<{ type: string; handler: EventListenerOrEventListenerObject; options: any }>
-  > = new WeakMap();
+  const elementEventCacheMap: WeakMap<Node, Array<EventListenerRecord>> = new WeakMap();
   const ElementIterator = document.createTreeWalker(rootElement, NodeFilter.SHOW_ELEMENT, null, false);
   let nextElement = ElementIterator.currentNode;
   while (nextElement) {
     const elementListenerList = sandbox.elementEventCacheMap.get(nextElement);
     if (elementListenerList?.length) {
       elementEventCacheMap.set(nextElement, elementListenerList);
-      elementListenerList.forEach((listener) => {
-        nextElement.addEventListener(listener.type, listener.handler, listener.options);
-      });
+      elementListenerList.forEach((listener) => rebindListener(nextElement, listener));
     }
     nextElement = ElementIterator.nextNode() as HTMLElement;
   }
@@ -475,16 +504,11 @@ export function recoverDocumentListeners(
   iframeWindow: Window
 ) {
   const sandbox = iframeWindow.__WUJIE;
-  const elementEventCacheMap: WeakMap<
-    Node,
-    Array<{ type: string; handler: EventListenerOrEventListenerObject; options: any }>
-  > = new WeakMap();
+  const elementEventCacheMap: WeakMap<Node, Array<EventListenerRecord>> = new WeakMap();
   const elementListenerList = sandbox.elementEventCacheMap.get(oldRootElement);
   if (elementListenerList?.length) {
     elementEventCacheMap.set(newRootElement, elementListenerList);
-    elementListenerList.forEach((listener) => {
-      newRootElement.addEventListener(listener.type, listener.handler, listener.options);
-    });
+    elementListenerList.forEach((listener) => rebindListener(newRootElement, listener));
   }
   sandbox.elementEventCacheMap = elementEventCacheMap;
 }

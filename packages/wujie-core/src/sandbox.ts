@@ -36,6 +36,15 @@ import { WUJIE_DATA_ATTACH_CSS_FLAG, WUJIE_APP_ID, WUJIE_FONT_STYLE_CONTAINER_AT
 import { plugin, ScriptObjectLoader, loadErrorHandler } from "./index";
 
 export type lifecycle = (appWindow: Window) => any;
+/** 降级模式下节点事件监听的缓存记录 */
+export type EventListenerRecord = {
+  type: string;
+  handler: EventListenerOrEventListenerObject;
+  options: any;
+  capture?: boolean;
+  /** once 监听触发后用于清理记录的内部监听 */
+  onceCleanup?: () => void;
+};
 type lifecycles = {
   beforeLoad: lifecycle;
   beforeMount: lifecycle;
@@ -136,10 +145,7 @@ export default class Wujie {
   /** 子应用body元素 */
   public body: HTMLBodyElement;
   /** 子应用dom监听事件留存，当降级时用于保存元素事件 */
-  public elementEventCacheMap: WeakMap<
-    Node,
-    Array<{ type: string; handler: EventListenerOrEventListenerObject; options: any }>
-  > = new WeakMap();
+  public elementEventCacheMap: WeakMap<Node, Array<EventListenerRecord>> = new WeakMap();
   /** 子应用window监听事件 */
   public iframeAddEventListeners?: Array<string>;
   /** 子应用iframe on事件 */
