@@ -20,7 +20,7 @@ import Wujie from "./sandbox";
 import { patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
-import { getAbsolutePath, getContainer, getCurUrl, setAttrsToElement } from "./utils";
+import { getAbsolutePath, getContainer, getCurUrl, setAttrsToElement, warn } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -60,12 +60,12 @@ export function defineWujieWebComponent() {
           try {
             Object.defineProperty(iframeWindow.Document.prototype, "adoptedStyleSheets", descriptor);
           } catch (e) {
-            /* ignore */
+            warn("代理 Document.prototype.adoptedStyleSheets 失败", e);
           }
           try {
             Object.defineProperty(iframeWindow.document, "adoptedStyleSheets", descriptor);
           } catch (e) {
-            /* ignore */
+            warn("代理 document.adoptedStyleSheets 失败", e);
           }
         }
       }
