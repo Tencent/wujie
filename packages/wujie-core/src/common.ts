@@ -61,6 +61,8 @@ export const documentProxyProperties = {
     "URL",
     "getElementsByTagName",
     "getElementById",
+    "querySelector",
+    "querySelectorAll",
   ],
 
   // 子应用需要手动修正的属性方法

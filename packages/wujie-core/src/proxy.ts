@@ -34,6 +34,19 @@ function locationHrefSet(iframe: HTMLIFrameElement, value: string, appHostPath: 
   return true;
 }
 
+function isScriptSelector(selector: unknown): boolean {
+  return typeof selector === "string" && selector.trim().toLowerCase() === "script";
+}
+
+/**
+ * 子应用脚本都在 js iframe 中执行，shadowRoot / 渲染 iframe 中没有可执行的 script。
+ * 与 getElementsByTagName("script") 保持一致从 js iframe 获取；
+ * 用原生 querySelectorAll 而不是 document.scripts，保证返回值仍是 NodeList（scripts 是 HTMLCollection，没有 forEach）。
+ */
+function queryIframeScripts(iframe: HTMLIFrameElement): NodeListOf<HTMLScriptElement> {
+  return iframe.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR_ALL__.call(iframe.contentDocument, "script");
+}
+
 /**
  * 非降级情况下window、document、location代理
  */
@@ -171,6 +184,9 @@ export function proxyGenerator(
             apply(target, ctx, args) {
               if (ctx !== iframe.contentDocument) {
                 return ctx[propKey]?.apply(ctx, args);
+              }
+              if (propKey === "querySelectorAll" && isScriptSelector(args[0])) {
+                return queryIframeScripts(iframe);
               }
               // 二选一，优先shadowDom，除非采用array合并，排除base，防止对router造成影响
               return (
@@ -324,6 +340,27 @@ export function localGenerator(
             return iframeRef.contentDocument.scripts as any;
           }
           return sandboxRef.document.getElementsByTagName(tagName) as any;
+        };
+      },
+    },
+    querySelector: {
+      get() {
+        return function (...args) {
+          if (isScriptSelector(args[0])) {
+            return iframeRef.contentWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(
+              iframeRef.contentDocument,
+              "script"
+            ) as any;
+          }
+          return sandboxRef.document.querySelector.apply(sandboxRef.document, args) as any;
+        };
+      },
+    },
+    querySelectorAll: {
+      get() {
+        return function (...args) {
+          if (isScriptSelector(args[0])) return queryIframeScripts(iframeRef) as any;
+          return sandboxRef.document.querySelectorAll.apply(sandboxRef.document, args) as any;
         };
       },
     },
