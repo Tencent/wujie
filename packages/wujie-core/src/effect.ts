@@ -368,6 +368,13 @@ function rewriteAppendOrInsertChild(opts: {
         case "LINK": {
           const { href, rel, type } = element as HTMLLinkElement;
           const styleFlag = rel === "stylesheet" || type === "text/css" || href.endsWith(".css");
+          // modulepreload 只对 link 所在文档的模块表生效，而子应用的 import() 在 iframe 中执行。
+          // 留在 shadowRoot（主文档）里会预加载到主文档，iframe 再 import 时重复请求，因此插到 iframe 的 head。
+          if (rel === "modulepreload") {
+            const res = iframe.contentWindow.__WUJIE_RAW_DOCUMENT_HEAD__.appendChild(element);
+            execHooks(plugins, "appendOrInsertElementHook", element, iframe.contentWindow);
+            return res;
+          }
           // 非 stylesheet 不做处理
           if (!styleFlag) {
             const res = rawDOMAppendOrInsertBefore.call(this, element, refChild);
