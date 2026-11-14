@@ -1,8 +1,3 @@
-interface Window {
-  __POWERED_BY_WUJIE__?: boolean;
-  __WUJIE: { inject: { appEventObjMap: Map<String, { [event: string]: Array<Function> }> } };
-}
-
 const warn = jest.fn();
 
 jest.mock("../../src/utils", () => {

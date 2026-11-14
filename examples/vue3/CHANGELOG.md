@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](/compare/v2.0.2...v2.1.0) (2026-06-15)
+
+### Features
+
+* 支持内联事件处理器在子应用作用域中执行 (#1091) b178735, closes #1091
+
 ## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
 
 ### Features

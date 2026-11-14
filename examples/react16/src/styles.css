@@ -59,8 +59,8 @@ h3 {
 }
 
 body {
+  position: relative;
   width: auto;
   margin: 0 15px;
   font-size: 17.5px;
-  position: relative;
 }

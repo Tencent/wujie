@@ -10,10 +10,10 @@ sidebarDepth: 2
 wujie 可以通过脚手架来定制需要的主子应用框架的Demo，以及其他特性
 :::
 
-### 安装 create-wujie
+### 安装 wujie-skill
 
 ```js
-npx create-wujie@latest
+npx skills add wujie-micro/wujie-skill
 ```
 
 ### 支持包管理器

@@ -38,8 +38,8 @@ nvm use 16
 打开一个终端并使用以下命令创建一个新的`wujie demo` 示例：
 
 ```bash
-# Create a new wujie-app project
-npx create-wujie@latest
+# Install wujie Cursor skill
+npx skills add wujie-micro/wujie-skill
 ```
 
 ### 模版列表

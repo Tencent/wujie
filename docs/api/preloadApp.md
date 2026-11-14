@@ -33,6 +33,10 @@ type preOptions  {
   fiber?: boolean;
   /** 子应用采用降级iframe方案 */
   degrade?: boolean;
+  /** 子应用window监听事件 */
+  iframeAddEventListeners?: Array<string>;
+  /** 子应用iframe on事件 */
+  iframeOnEvents?: Array<string>;
   /** 子应插件 */
   plugins: Array<plugin>;
   /** 子应用生命周期 */
@@ -80,7 +84,7 @@ type preOptions  {
 
 - **类型：** `String`
 
-- **详情：** 子应用的html，设置后子应用将直接读取该值，没有设置则子应用通过`url`请求获取
+- **详情：** 子应用的 html，设置后子应用将直接读取该值，没有设置则子应用通过`url`请求获取
 
 ## props
 

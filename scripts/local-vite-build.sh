@@ -19,6 +19,10 @@ sed -i '' 's/crossorigin/crossorigin="use-credentials"/g' ../demo-vite/index.htm
 cp ../demo-vite/index.html ../demo-vite/404.html
 cd ../demo-vite
 git add .
-git commit -m 'feat: demo修改'
+if git diff --cached --quiet; then
+  echo "nothing to commit"
+else
+  git commit -m 'feat: demo修改'
+fi
 git push
 

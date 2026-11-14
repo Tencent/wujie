@@ -232,7 +232,7 @@ export function getSyncUrl(id: string, prefix: { [key: string]: string }): strin
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
   winUrlElement = null;
-  const syncUrl = window.decodeURIComponent(queryMap[id] || "");
+  const syncUrl = queryMap[id] || "";
   const validShortPath = syncUrl.match(/^{([^}]*)}/)?.[1];
   if (prefix && validShortPath) {
     return syncUrl.replace(`{${validShortPath}}`, prefix[validShortPath]);
@@ -343,6 +343,8 @@ export function mergeOptions(options: cacheOptions, cacheOptions: cacheOptions) 
     alive: options.alive !== undefined ? options.alive : cacheOptions?.alive,
     degrade: options.degrade !== undefined ? options.degrade : cacheOptions?.degrade,
     plugins: options.plugins || cacheOptions?.plugins,
+    iframeAddEventListeners: options.iframeAddEventListeners || cacheOptions?.iframeAddEventListeners || [],
+    iframeOnEvents: options.iframeOnEvents || cacheOptions?.iframeOnEvents || [],
     lifecycles: {
       beforeLoad: options.beforeLoad || cacheOptions?.beforeLoad,
       beforeMount: options.beforeMount || cacheOptions?.beforeMount,

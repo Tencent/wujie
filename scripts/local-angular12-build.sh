@@ -17,6 +17,10 @@ mv examples/angular12/dist/* ../demo-angular12/
 cp ../demo-angular12/index.html ../demo-angular12/404.html
 cd ../demo-angular12
 git add .
-git commit -m 'feat: demo修改'
+if git diff --cached --quiet; then
+  echo "nothing to commit"
+else
+  git commit -m 'feat: demo修改'
+fi
 git push
 

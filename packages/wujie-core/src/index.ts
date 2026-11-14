@@ -1,4 +1,7 @@
 import importHTML, { processCssLoader } from "./entry";
+import { initInlineEventHelper } from "./entry";
+
+export { clearAssetsCache } from "./entry";
 import { StyleObject, ScriptAttributes } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent, addLoading } from "./shadow";
@@ -114,6 +117,10 @@ type baseOptions = {
   degrade?: boolean;
   /** 子应用插件 */
   plugins?: Array<plugin>;
+  /** 子应用window监听事件 */
+  iframeAddEventListeners?: Array<string>;
+  /** 子应用iframe on事件 */
+  iframeOnEvents?: Array<string>;
   /** 子应用生命周期 */
   beforeLoad?: lifecycle;
   beforeMount?: lifecycle;
@@ -125,9 +132,10 @@ type baseOptions = {
   loadError?: loadErrorHandler;
 };
 
-export type preOptions = baseOptions & {
+export type preOptions = Omit<baseOptions, "url"> & {
   /** 预执行 */
   exec?: boolean;
+  url?: string;
 };
 
 export type startOptions = baseOptions & {
@@ -183,6 +191,8 @@ export function setupApp(options: cacheOptions): void {
  * 运行无界app
  */
 export async function startApp(startOptions: startOptions): Promise<Function | void> {
+  // 初始化内联事件处理器辅助函数
+  initInlineEventHelper();
   const sandbox = getWujieById(startOptions.name);
   const cacheOptions = getOptionsById(startOptions.name);
   // 合并缓存配置
@@ -205,6 +215,8 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
     loading,
     plugins,
     lifecycles,
+    iframeAddEventListeners,
+    iframeOnEvents,
   } = options;
   // 已经初始化过的应用，快速渲染
   if (sandbox) {
@@ -233,13 +245,13 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
         await sandbox.start(getExternalScripts);
       }
       sandbox.lifecycles?.activated?.(sandbox.iframe.contentWindow);
-      return sandbox.destroy;
+      return () => sandbox.destroy();
     } else if (isFunction(iframeWindow.__WUJIE_MOUNT)) {
       /**
        * 子应用切换会触发webcomponent的disconnectedCallback调用sandbox.unmount进行实例销毁
        * 此处是防止没有销毁webcomponent时调用startApp的情况，需要手动调用unmount
        */
-      sandbox.unmount();
+      await sandbox.unmount();
       await sandbox.active({ url, sync, prefix, el, props, alive, fetch, replace });
       // 正常加载的情况，先注入css，最后才mount。重新激活也保持同样的时序
       sandbox.rebuildStyleSheets();
@@ -248,16 +260,27 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
       iframeWindow.__WUJIE_MOUNT();
       sandbox.lifecycles?.afterMount?.(sandbox.iframe.contentWindow);
       sandbox.mountFlag = true;
-      return sandbox.destroy;
+      return () => sandbox.destroy();
     } else {
       // 没有渲染函数
-      sandbox.destroy();
+      await sandbox.destroy();
     }
   }
 
   // 设置loading
   addLoading(el, loading);
-  const newSandbox = new WuJie({ name, url, attrs, degradeAttrs, fiber, degrade, plugins, lifecycles });
+  const newSandbox = new WuJie({
+    name,
+    url,
+    attrs,
+    degradeAttrs,
+    fiber,
+    degrade,
+    plugins,
+    lifecycles,
+    iframeAddEventListeners,
+    iframeOnEvents,
+  });
   newSandbox.lifecycles?.beforeLoad?.(newSandbox.iframe.contentWindow);
   const { template, getExternalScripts, getExternalStyleSheets } = await importHTML({
     url,
@@ -273,7 +296,7 @@ export async function startApp(startOptions: startOptions): Promise<Function | v
   const processedHtml = await processCssLoader(newSandbox, template, getExternalStyleSheets);
   await newSandbox.active({ url, sync, prefix, template: processedHtml, el, props, alive, fetch, replace });
   await newSandbox.start(getExternalScripts);
-  return newSandbox.destroy;
+  return () => newSandbox.destroy();
 }
 
 /**
@@ -305,9 +328,22 @@ export function preloadApp(preOptions: preOptions): void {
       prefix,
       plugins,
       lifecycles,
+      iframeAddEventListeners,
+      iframeOnEvents,
     } = options;
 
-    const sandbox = new WuJie({ name, url, attrs, degradeAttrs, fiber, degrade, plugins, lifecycles });
+    const sandbox = new WuJie({
+      name,
+      url,
+      attrs,
+      degradeAttrs,
+      fiber,
+      degrade,
+      plugins,
+      lifecycles,
+      iframeAddEventListeners,
+      iframeOnEvents,
+    });
     if (sandbox.preload) return sandbox.preload;
     const runPreload = async () => {
       sandbox.lifecycles?.beforeLoad?.(sandbox.iframe.contentWindow);
@@ -336,9 +372,19 @@ export function preloadApp(preOptions: preOptions): void {
 /**
  * 销毁无界APP
  */
-export function destroyApp(id: string): void {
+export async function destroyApp(id: string): Promise<void> {
   const sandbox = getWujieById(id);
   if (sandbox) {
-    sandbox.destroy();
+    await sandbox.destroy();
   }
+}
+
+/**
+ * 刷新无界APP
+ * 先销毁当前子应用实例，再以传入配置全量重建（等价于「重建模式」）
+ * 等待 destroyApp 完成后再 startApp，避免销毁未结束就重启导致的竞态
+ */
+export async function refreshApp(startOptions: startOptions): Promise<Function | void> {
+  await destroyApp(startOptions.name);
+  return startApp(startOptions);
 }

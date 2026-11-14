@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/Tencent/wujie/compare/v2.0.2...v2.1.0) (2026-06-15)
+
+### Bug Fixes
+
+* 修复子应用刷新场景 destroy 竞态导致的内存泄漏 ([#1098](https://github.com/Tencent/wujie/issues/1098)) ([665e1d2](https://github.com/Tencent/wujie/commit/665e1d2a7a33b030a0d4955a7c3829d8c1c93359))
+
+### Features
+
+* 新增 refreshApp API 支持子应用全量重建刷新 ([#1099](https://github.com/Tencent/wujie/issues/1099)) ([a086e52](https://github.com/Tencent/wujie/commit/a086e52134c943f593cfe029f41769efad52f6eb)), closes [#740](https://github.com/Tencent/wujie/issues/740)
+
+## [2.0.2](https://github.com/Tencent/wujie/compare/v2.0.1...v2.0.2) (2026-06-04)
+
+### Bug Fixes
+
+* **adapter:** 清理 __WUJIE_QUEUE 防止组件销毁后内存泄漏 ([#1089](https://github.com/Tencent/wujie/issues/1089)) ([e368e99](https://github.com/Tencent/wujie/commit/e368e99cf54ae78881e5dec3f22ee235edfe4542))
+
+## [2.0.1](https://github.com/Tencent/wujie/compare/v2.0.0...v2.0.1) (2026-06-03)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.29](https://github.com/Tencent/wujie/compare/v1.0.28...v1.0.29) (2025-07-20)
+
+### Features
+
+* 子应用提供自定义事件配置 ([4f4f974](https://github.com/Tencent/wujie/commit/4f4f97437336aa12076cddd27191fe3de45a8824))
+
+## [1.0.28](https://github.com/Tencent/wujie/compare/v1.0.27...v1.0.28) (2025-04-08)
+
+### Features
+
+* react，vue组件支持设置包围的div组件style ([#971](https://github.com/Tencent/wujie/issues/971)) ([c26dd41](https://github.com/Tencent/wujie/commit/c26dd414e87145459914ed85c1919addd7688d75))
+
+## [1.0.27](https://github.com/Tencent/wujie/compare/v1.0.26...v1.0.27) (2025-04-08)
+
+### Bug Fixes
+
+* 修复子应用快速切换可能导致渲染undefined ([#976](https://github.com/Tencent/wujie/issues/976)) ([59bdf1c](https://github.com/Tencent/wujie/commit/59bdf1c39d7124eb175a9eb674395bc877bc7732))
+
+## [1.0.26](https://github.com/Tencent/wujie/compare/v1.0.25...v1.0.26) (2025-03-23)
+
+**Note:** Version bump only for package wujie-vue3
+
+## [1.0.25](https://github.com/Tencent/wujie/compare/v1.0.24...v1.0.25) (2025-02-19)
+
+**Note:** Version bump only for package wujie-vue3
+
 ## [1.0.23](https://github.com/Tencent/wujie/compare/v1.0.22...v1.0.23) (2024-11-24)
 
 **Note:** Version bump only for package wujie-vue3
