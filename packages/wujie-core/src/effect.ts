@@ -33,10 +33,52 @@ import {
   WUJIE_DATA_FLAG,
   WUJIE_TIPS_REPEAT_RENDER,
   WUJIE_TIPS_NO_SCRIPT,
+  WUJIE_TIPS_HIJACKED_NOT_CHILD,
   WUJIE_TIPS_CSS_DEDUPE_EMPTY,
   WUJIE_APP_ID,
 } from "./constant";
 import { ScriptObject, parseTagAttributes } from "./template";
+
+/**
+ * 被接管的 script / link 不会真正插入 DOM，原位置只留一个注释节点。
+ * 以注释节点为锚点表达元素的逻辑位置：parentNode、remove、contains 都以它为准，注释被移除后元素即视为已移除。
+ */
+const hijackedPlaceholders = new WeakMap<Node, Comment>();
+const rawParentNodeGetter = Object.getOwnPropertyDescriptor(Node.prototype, "parentNode").get;
+const rawParentElementGetter = Object.getOwnPropertyDescriptor(Node.prototype, "parentElement").get;
+const rawElementRemove = Element.prototype.remove;
+
+function getHijackedPlaceholder(element: Node | null): Comment | undefined {
+  return element ? hijackedPlaceholders.get(element) : undefined;
+}
+
+function markHijackedElement(element: HTMLElement, placeholder: Comment): void {
+  const patched = hijackedPlaceholders.has(element);
+  hijackedPlaceholders.set(element, placeholder);
+  if (patched) return;
+  Object.defineProperties(element, {
+    parentNode: {
+      configurable: true,
+      get() {
+        return rawParentNodeGetter.call(this) || getHijackedPlaceholder(this)?.parentNode || null;
+      },
+    },
+    parentElement: {
+      configurable: true,
+      get() {
+        return rawParentElementGetter.call(this) || getHijackedPlaceholder(this)?.parentElement || null;
+      },
+    },
+    remove: {
+      configurable: true,
+      writable: true,
+      value() {
+        if (rawParentNodeGetter.call(this)) return rawElementRemove.call(this);
+        getHijackedPlaceholder(this)?.parentNode?.removeChild(this);
+      },
+    },
+  });
+}
 
 function patchCustomEvent(
   e: CustomEvent,
@@ -468,6 +510,7 @@ function rewriteAppendOrInsertChild(opts: {
           }
 
           const comment = iframeDocument.createComment(`dynamic link ${href} replaced by wujie`);
+          markHijackedElement(newChild as unknown as HTMLElement, comment);
           return rawDOMAppendOrInsertBefore.call(this, comment, refChild);
         }
         case "STYLE": {
@@ -549,6 +592,7 @@ function rewriteAppendOrInsertChild(opts: {
           }
           // inline script never trigger the onload and onerror event
           const comment = iframeDocument.createComment(`dynamic script ${src} replaced by wujie`);
+          markHijackedElement(newChild as unknown as HTMLElement, comment);
           return rawDOMAppendOrInsertBefore.call(this, comment, refChild);
         }
         // 修正子应用内部iframe的window.parent指向
@@ -584,6 +628,8 @@ function rewriteContains(opts: { rawElementContains: (other: Node | null) => boo
   return function contains(other: Node | null) {
     const element = other as HTMLElement;
     const { rawElementContains, wujieId } = opts;
+    const placeholder = getHijackedPlaceholder(element);
+    if (placeholder) return rawElementContains(placeholder);
     if (element && isScriptElement(element)) {
       const { targetScript } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
       return targetScript !== null;
@@ -593,9 +639,18 @@ function rewriteContains(opts: { rawElementContains: (other: Node | null) => boo
 }
 
 function rewriteRemoveChild(opts: { rawElementRemoveChild: <T extends Node>(child: T) => T; wujieId: string }) {
-  return function removeChild(child: Node) {
+  return function removeChild(this: Node, child: Node) {
     const element = child as HTMLElement;
     const { rawElementRemoveChild, wujieId } = opts;
+    const placeholder = getHijackedPlaceholder(element);
+    if (placeholder) {
+      if (placeholder.parentNode !== this) {
+        warn(WUJIE_TIPS_HIJACKED_NOT_CHILD, element);
+      } else {
+        rawElementRemoveChild(placeholder);
+        if (!isScriptElement(element)) return element;
+      }
+    }
     if (element && isScriptElement(element)) {
       const { targetScript, iframe } = findScriptElementFromIframe(element as HTMLScriptElement, wujieId);
       if (targetScript !== null) {
@@ -687,4 +742,13 @@ export function patchRenderEffect(render: ShadowRoot | Document, id: string, deg
     rawDOMAppendOrInsertBefore: rawBodyInsertBefore as any,
     wujieId: id,
   }) as typeof rawBodyInsertBefore;
+  // 取原型链上的 removeChild：body 属于子应用 iframe 时保留 iframe 中对 removeChild 的容错补丁
+  render.body.removeChild = rewriteRemoveChild({
+    rawElementRemoveChild: Object.getPrototypeOf(render.body).removeChild.bind(render.body),
+    wujieId: id,
+  }) as typeof rawElementRemoveChild;
+  render.body.contains = rewriteContains({
+    rawElementContains: rawElementContains.bind(render.body),
+    wujieId: id,
+  }) as typeof rawElementContains;
 }

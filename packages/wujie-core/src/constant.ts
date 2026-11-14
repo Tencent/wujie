@@ -45,5 +45,6 @@ export const WUJIE_TIPS_CSS_DEDUPE_EMPTY = "已存在同地址样式但内容为
 export const WUJIE_TIPS_HTML_ERROR_REQUESTED = "html请求出现错误";
 export const WUJIE_TIPS_REPEAT_RENDER = "无界组件短时间重复渲染了两次，可能存在性能问题请检查代码";
 export const WUJIE_TIPS_NO_SCRIPT = "目标Script尚未准备好或已经被移除";
+export const WUJIE_TIPS_HIJACKED_NOT_CHILD = "被无界接管的元素不在当前容器中，按原有逻辑处理移除";
 export const WUJIE_TIPS_GET_ELEMENT_BY_ID =
   "不支持document.getElementById()传入特殊字符，请参考document.querySelector文档";
