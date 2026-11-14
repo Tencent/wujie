@@ -33,6 +33,7 @@ import {
   WUJIE_DATA_FLAG,
   WUJIE_TIPS_REPEAT_RENDER,
   WUJIE_TIPS_NO_SCRIPT,
+  WUJIE_TIPS_CSS_DEDUPE_EMPTY,
   WUJIE_APP_ID,
 } from "./constant";
 import { ScriptObject, parseTagAttributes } from "./template";
@@ -278,27 +279,35 @@ export function canonicalCssHref(href: string): string {
 }
 
 /**
- * 按绝对 href 查找已转换的样式。
- * 优先匹配动态占位和入口 HTML 写入的 data-wujie-css-href；
+ * 按绝对 href 查找所有已转换的样式。
+ * 匹配动态占位和入口 HTML 写入的 data-wujie-css-href；
  * 没有该属性时，兼容旧的注释形态：style 文本以 `/* href *\/` 开头。
  * 不用属性选择器：href 里的引号会截断选择器，入口 HTML 又必须先做属性转义。
  */
-export function findStyleByCssHref(doc: Document | null, href: string): HTMLStyleElement | null {
-  if (!href || !doc) return null;
+export function findStylesByCssHref(doc: Document | null, href: string): HTMLStyleElement[] {
+  if (!href || !doc) return [];
   const target = canonicalCssHref(href);
   const styles = doc.querySelectorAll("style");
+  const matched: HTMLStyleElement[] = [];
   for (let i = 0; i < styles.length; i++) {
     const style = styles[i] as HTMLStyleElement;
     const marked = style.getAttribute("data-wujie-css-href");
-    if (marked && canonicalCssHref(marked) === target) return style;
-    if (!marked && (style.textContent || "").indexOf(`/* ${href} */`) === 0) return style;
+    if (marked && canonicalCssHref(marked) === target) matched.push(style);
+    else if (!marked && (style.textContent || "").indexOf(`/* ${href} */`) === 0) matched.push(style);
   }
-  return null;
+  return matched;
 }
 
 /**
- * 命中去重后对原 link 补发 load 或 error。
- * 入口 CSS 请求失败时仍会留下带 href、内容为空的 style，此时应派发 error，避免 Vite preload 把没加载到的 CSS 当成成功。
+ * 样式是否有可复用的内容（忽略入口 HTML 写入的开头注释 `/* href *\/`）。
+ * 样式请求失败时 fetchAssets 也返回空串，空文件与请求失败无法区分，两者都视为不可复用。
+ */
+export function hasStyleSheetContent(style: HTMLStyleElement): boolean {
+  return (style.textContent || "").replace(/^\s*\/\*[\s\S]*?\*\//, "").trim() !== "";
+}
+
+/**
+ * 命中去重后对原 link 补发事件。
  *
  * 必须异步派发：消费方是在 appendChild 返回之后才 addEventListener，
  * 而本函数由劫持的 appendChild 同步调用，在调用栈内同步派发时监听尚未注册，事件会被丢弃。
@@ -377,16 +386,18 @@ function rewriteAppendOrInsertChild(opts: {
             // 入口 HTML 已转成 style，或先前动态插入已占位时，不再插第二份。
             // 仍需对原 link 派发事件，避免 Vite preload 一直等待。
             // pending 表示原来那次请求还没结束，此时不能派发 load，否则 preload 后面的 chunk 会提前执行。
-            const existingStyle = findStyleByCssHref(iframeDocument, styleHref);
-            if (existingStyle) {
-              if (existingStyle.hasAttribute("data-wujie-css-pending")) {
-                enqueueStyleSheetWaiter(existingStyle, linkElement);
-                return;
-              }
-              const failed = existingStyle.getAttribute("data-wujie-css-state") === "error";
-              dispatchStyleSheetLoadAsync(linkElement, failed ? "error" : "load");
+            // 已有样式都为空时不复用，按原流程重新请求，请求失败的情况可以借此恢复。
+            const existingStyles = findStylesByCssHref(iframeDocument, styleHref);
+            if (existingStyles.some(hasStyleSheetContent)) {
+              dispatchStyleSheetLoadAsync(linkElement);
               return;
             }
+            const pendingStyle = existingStyles.find((style) => style.hasAttribute("data-wujie-css-pending"));
+            if (pendingStyle) {
+              enqueueStyleSheetWaiter(pendingStyle, linkElement);
+              return;
+            }
+            if (existingStyles.length) warn(WUJIE_TIPS_CSS_DEDUPE_EMPTY, styleHref);
 
             // 立即创建占位 <style> 元素，避免异步加载期间重复插入
             const rawAttrs = parseTagAttributes(linkElement.outerHTML);
@@ -416,7 +427,6 @@ function rewriteAppendOrInsertChild(opts: {
                     placeholderElement.innerHTML = cssLoader(content, src, curUrl);
                     if (src) placeholderElement.setAttribute("data-wujie-css-href", src);
                     placeholderElement.removeAttribute("data-wujie-css-pending");
-                    placeholderElement.setAttribute("data-wujie-css-state", "loaded");
                     styleSheetElements.push(placeholderElement);
                     // 处理样式补丁
                     handleStylesheetElementPatch(placeholderElement, sandbox);
@@ -427,7 +437,6 @@ function rewriteAppendOrInsertChild(opts: {
                 },
                 () => {
                   placeholderElement.removeAttribute("data-wujie-css-pending");
-                  placeholderElement.setAttribute("data-wujie-css-state", "error");
                   manualInvokeElementEvent(linkElement, "error");
                   flushStyleSheetWaiters(placeholderElement, "error");
                   if (element === linkElement) element = null;

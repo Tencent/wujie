@@ -5,33 +5,43 @@
 
 export {};
 
-const { findStyleByCssHref, dispatchStyleSheetLoadAsync, canonicalCssHref } = require("../../src/effect");
+const {
+  findStylesByCssHref,
+  hasStyleSheetContent,
+  dispatchStyleSheetLoadAsync,
+  canonicalCssHref,
+} = require("../../src/effect");
 
 const HREF = "https://cdn.example.com/assets/shared.css";
 const CSS = ".box{width:100%;height:100%}";
 
-describe("findStyleByCssHref / 入口 HTML 与动态 preload 同 href 去重", () => {
+describe("findStylesByCssHref / 入口 HTML 与动态 preload 同 href 去重", () => {
   afterEach(() => {
     document.head.innerHTML = "";
   });
 
   it("能匹配带 data-wujie-css-href 的入口 style", () => {
     document.head.innerHTML = `<style data-wujie-css-href="${HREF}">/* ${HREF} */${CSS}</style>`;
-    const found = findStyleByCssHref(document, HREF);
-    expect(found).not.toBeNull();
+    const [found] = findStylesByCssHref(document, HREF);
+    expect(found).toBeDefined();
     expect(found.getAttribute("data-wujie-css-href")).toBe(HREF);
   });
 
   it("没有属性时能匹配注释开头的旧入口 style", () => {
     document.head.innerHTML = `<style>/* ${HREF} */${CSS}</style>`;
-    const found = findStyleByCssHref(document, HREF);
-    expect(found).not.toBeNull();
+    const [found] = findStylesByCssHref(document, HREF);
+    expect(found).toBeDefined();
     expect(found.textContent.indexOf(`/* ${HREF} */`)).toBe(0);
   });
 
   it("不同 href 不应命中", () => {
     document.head.innerHTML = `<style data-wujie-css-href="${HREF}">/* ${HREF} */${CSS}</style>`;
-    expect(findStyleByCssHref(document, "https://cdn.example.com/assets/other.css")).toBeNull();
+    expect(findStylesByCssHref(document, "https://cdn.example.com/assets/other.css")).toHaveLength(0);
+  });
+
+  it("返回同 href 的全部 style", () => {
+    document.head.innerHTML = `<style data-wujie-css-href="${HREF}">/* ${HREF} */</style><style data-wujie-css-href="${HREF}">${CSS}</style>`;
+    expect(findStylesByCssHref(document, HREF)).toHaveLength(2);
   });
 
   it("属性值经过 HTML 转义后仍能按原 href 命中", () => {
@@ -42,8 +52,8 @@ describe("findStyleByCssHref / 入口 HTML 与动态 preload 同 href 去重", (
     document.head.appendChild(style);
     document.head.innerHTML = document.head.innerHTML;
 
-    const found = findStyleByCssHref(document, href);
-    expect(found).not.toBeNull();
+    const [found] = findStylesByCssHref(document, href);
+    expect(found).toBeDefined();
     expect(found.getAttribute("data-wujie-css-href")).toBe(canonicalCssHref(href));
   });
 
@@ -51,7 +61,26 @@ describe("findStyleByCssHref / 入口 HTML 与动态 preload 同 href 去重", (
     const stored = "https://cdn.example.com/assets/shared.css?v=a%20b";
     const lookup = "https://cdn.example.com/assets/shared.css?v=a b";
     document.head.innerHTML = `<style data-wujie-css-href="${stored}">/* ${stored} */${CSS}</style>`;
-    expect(findStyleByCssHref(document, lookup)).not.toBeNull();
+    expect(findStylesByCssHref(document, lookup)).toHaveLength(1);
+  });
+});
+
+describe("hasStyleSheetContent / 是否可复用", () => {
+  function styleOf(text: string): HTMLStyleElement {
+    const style = document.createElement("style");
+    style.textContent = text;
+    return style;
+  }
+
+  it("有规则的样式可复用", () => {
+    expect(hasStyleSheetContent(styleOf(`/* ${HREF} */${CSS}`))).toBe(true);
+    expect(hasStyleSheetContent(styleOf(CSS))).toBe(true);
+  });
+
+  it("只有入口注释或为空的样式不可复用", () => {
+    expect(hasStyleSheetContent(styleOf(`/* ${HREF} */`))).toBe(false);
+    expect(hasStyleSheetContent(styleOf(""))).toBe(false);
+    expect(hasStyleSheetContent(styleOf("  \n "))).toBe(false);
   });
 });
 
@@ -182,45 +211,69 @@ describe("appendChild 劫持 / 同 href 去重的派发时机", () => {
     fetchGate.resolve(".box{width:100%}");
     await firstLoad;
     await secondLoad;
-    expect(document.head.querySelector("style").getAttribute("data-wujie-css-state")).toBe("loaded");
+    expect(document.head.querySelector("style").hasAttribute("data-wujie-css-pending")).toBe(false);
     expect(document.head.querySelector("style").textContent).toContain(".box{width:100%}");
   });
 
-  it("请求成功但内容为空时，后来的 link 收到 load 而不是 error", async () => {
-    const first = makeLink();
-    document.head.appendChild(first);
-    fetchGate.resolve("");
-    await eventOf(first, "load");
+  it("入口已有内容时直接复用，不再请求", async () => {
+    document.head.innerHTML = `<style data-wujie-css-href="${HREF}">/* ${HREF} */${CSS}</style>`;
 
-    const style = document.head.querySelector("style");
-    expect(style.textContent).toBe("");
-    expect(style.getAttribute("data-wujie-css-state")).toBe("loaded");
-
-    const second = makeLink();
-    const secondLoad = eventOf(second, "load");
+    const link = makeLink();
     const onError = jest.fn();
-    second.addEventListener("error", onError);
-    document.head.appendChild(second);
-    await secondLoad;
+    link.addEventListener("error", onError);
+    document.head.appendChild(link);
+    await eventOf(link, "load");
 
     expect(onError).not.toHaveBeenCalled();
+    expect(sandbox.fetch).not.toHaveBeenCalled();
     expect(document.head.querySelectorAll("style")).toHaveLength(1);
   });
 
-  it("入口失败留下的空 style 让后来的 link 收到 error", async () => {
-    const failed = document.createElement("style");
-    failed.setAttribute("data-wujie-css-href", HREF);
-    failed.setAttribute("data-wujie-css-state", "error");
-    document.head.appendChild(failed);
+  describe("已有样式为空时不复用", () => {
+    let warnSpy: jest.SpyInstance;
 
-    const link = makeLink();
-    const onError = eventOf(link, "error");
-    const onLoad = jest.fn();
-    link.addEventListener("load", onLoad);
-    document.head.appendChild(link);
-    await onError;
+    beforeEach(() => {
+      warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    });
 
-    expect(onLoad).not.toHaveBeenCalled();
-    expect(document.head.querySelectorAll("style")).toHaveLength(1);
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+
+    it("入口请求失败留下的空 style：后来的 link 重新请求，成功后收到 load", async () => {
+      document.head.innerHTML = `<style data-wujie-css-href="${HREF}">/* ${HREF} */</style>`;
+
+      const link = makeLink();
+      const onError = jest.fn();
+      link.addEventListener("error", onError);
+      const linkLoad = eventOf(link, "load");
+      document.head.appendChild(link);
+      fetchGate.resolve(CSS);
+      await linkLoad;
+
+      expect(onError).not.toHaveBeenCalled();
+      expect(sandbox.fetch).toHaveBeenCalledTimes(1);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("内容为空"), HREF);
+      const styles = document.head.querySelectorAll("style");
+      expect(styles).toHaveLength(2);
+      expect(styles[1].textContent).toContain(CSS);
+    });
+
+    it("空 CSS 文件：后来的 link 收到 load 而不是 error", async () => {
+      const first = makeLink();
+      document.head.appendChild(first);
+      fetchGate.resolve("");
+      await eventOf(first, "load");
+
+      const second = makeLink();
+      const secondLoad = eventOf(second, "load");
+      const onError = jest.fn();
+      second.addEventListener("error", onError);
+      document.head.appendChild(second);
+      await secondLoad;
+
+      expect(onError).not.toHaveBeenCalled();
+      expect(document.head.querySelectorAll("style")).toHaveLength(2);
+    });
   });
 });
