@@ -7,7 +7,10 @@
   "npmClient": "pnpm",
   "command": {
     "version": {
-      "allowBranch": "master"
+      "allowBranch": "master",
+      "conventionalCommits": true,
+      "syncWorkspaceLock": true,
+      "commitHooks": false
     },
     "bootstrap": {
       "npmClientArgs": [
@@ -16,5 +19,5 @@
       ]
     }
   },
-  "version": "1.0.29"
+  "version": "2.1.0"
 }

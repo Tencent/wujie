@@ -34,13 +34,18 @@ declare global {
     __WUJIE_UNMOUNT: () => void | Promise<void>;
     // 子应用无界实例
     __WUJIE: { mount: () => void };
+    // vue devtools plugins
+    __VUE_DEVTOOLS_PLUGINS__: any[];
+    // vue instance setters
+    __VUE_INSTANCE_SETTERS__: any[];
   }
 }
 
 if (window.__POWERED_BY_WUJIE__) {
   let instance: any;
+  let router: any;
   window.__WUJIE_MOUNT = () => {
-    const router = createRouter({ history: createWebHistory(basename), routes });
+    router = createRouter({ history: createWebHistory(basename), routes });
     instance = createApp(App)
       .use(Tag)
       .use(Button)
@@ -55,7 +60,12 @@ if (window.__POWERED_BY_WUJIE__) {
     instance.mount("#app");
   };
   window.__WUJIE_UNMOUNT = () => {
-    instance.unmount();
+    instance?.unmount();
+    router?.options?.history?.destroy?.();
+    window.__VUE_DEVTOOLS_PLUGINS__ = [];
+    window.__VUE_INSTANCE_SETTERS__ = [];
+    instance = null;
+    router = null;
   };
   // module脚本异步加载，应用主动调用生命周期
   window.__WUJIE.mount();

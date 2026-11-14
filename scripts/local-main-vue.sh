@@ -17,6 +17,10 @@ mv examples/main-vue/dist/* ../demo-main-vue/
 cp ../demo-main-vue/index.html ../demo-main-vue/404.html
 cd ../demo-main-vue
 git add .
-git commit -m 'feat: demo修改'
+if git diff --cached --quiet; then
+  echo "nothing to commit"
+else
+  git commit -m 'feat: demo修改'
+fi
 git push
 

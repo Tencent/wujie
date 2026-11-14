@@ -1,6 +1,6 @@
 {
   "name": "react16",
-  "version": "1.0.29",
+  "version": "2.1.0",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.16.0",
@@ -59,11 +59,11 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "wujie-react": "workspace:^1.0.29"
+    "wujie-react": "workspace:^2.1.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && node scripts/build.js",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {

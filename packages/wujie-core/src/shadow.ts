@@ -17,10 +17,10 @@ import {
 } from "./common";
 import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
-import { patchElementEffect } from "./iframe";
+import { initBase, patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
-import { getAbsolutePath, getContainer, getCurUrl, setAttrsToElement, warn } from "./utils";
+import { getAbsolutePath, getContainer, getCurUrl, isFunction, setAttrsToElement, warn } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -30,6 +30,27 @@ declare global {
   interface ShadowRoot {
     head: HTMLHeadElement;
     body: HTMLBodyElement;
+  }
+}
+
+/**
+ * 处理 wujie-app webComponent disconnect 时的销毁策略，按运行模式自动决定 destroy / unmount：
+ *
+ * - 保活模式（alive）：仅 unmount，保留 sandbox / iframe，再次进入直接 active 复用。
+ * - 单例模式（非保活但做了生命周期改造，存在 __WUJIE_MOUNT）：仅 unmount，sandbox 复用，
+ *   再次进入走 startApp 的 unmount → active → mount 时序。
+ * - 重建模式（非保活且未做生命周期改造）：sandbox 不会被复用，且 unmount 对其而言基本是空操作
+ *   （没有 mountFlag / __WUJIE_UNMOUNT），若仅 unmount 会导致 sandbox / iframe 长期驻留累积，
+ *   故直接 destroy。
+ */
+export function handleWujieAppDisconnect(sandbox: Wujie | null | undefined): void {
+  if (!sandbox) return;
+  const iframeWindow = sandbox.iframe?.contentWindow;
+  const isRebuildMode = !sandbox.alive && !isFunction(iframeWindow?.__WUJIE_MOUNT);
+  if (isRebuildMode) {
+    sandbox.destroy().catch((e) => warn(`destroy error: ${e}`));
+  } else {
+    sandbox.unmount().catch((e) => warn(`unmount error: ${e}`));
   }
 }
 
@@ -72,7 +93,7 @@ export function defineWujieWebComponent() {
 
       disconnectedCallback(): void {
         const sandbox = getWujieById(this.getAttribute(WUJIE_APP_ID));
-        sandbox?.unmount();
+        handleWujieAppDisconnect(sandbox);
       }
     }
     customElements?.define("wujie-app", WujieApp);
@@ -223,7 +244,8 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
     patchElementEffect(nextElement, iframeWindow);
     const relativeAttr = relativeElementTagAttrMap[nextElement.tagName];
     const url = nextElement[relativeAttr];
-    if (relativeAttr) nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
+    if (relativeAttr && nextElement.hasAttribute(relativeAttr))
+      nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
     nextElement = ElementIterator.nextNode() as HTMLElement;
   }
   if (!html.querySelector("head")) {
@@ -256,11 +278,22 @@ export async function renderTemplateToShadowRoot(
   shadowRoot.head = shadowRoot.querySelector("head");
   shadowRoot.body = shadowRoot.querySelector("body");
 
-  // 修复 html parentNode
-  Object.defineProperty(shadowRoot.firstChild, "parentNode", {
-    enumerable: true,
-    configurable: true,
-    get: () => iframeWindow.document,
+  const shadowHtml = shadowRoot.firstElementChild as HTMLElement;
+  Object.defineProperties(shadowHtml, {
+    // 修复 html parentNode
+    parentNode: {
+      enumerable: true,
+      configurable: true,
+      get: () => iframeWindow.document,
+    },
+
+    // 修复 html getBoundingClientRect
+    getBoundingClientRect: {
+      enumerable: true,
+      configurable: true,
+      value: () =>
+        iframeWindow.__WUJIE_RAW_DOCUMENT_QUERY_SELECTOR__.call(iframeWindow.document, "html")!.getBoundingClientRect(),
+    },
   });
 
   patchRenderEffect(shadowRoot, iframeWindow.__WUJIE.id, false);
@@ -297,6 +330,16 @@ export async function renderTemplateToIframe(
     configurable: true,
     get: () => iframeWindow.document,
   });
+
+  // 降级渲染 iframe 无 src 补丁，需与 JS iframe 一样注入 base，供 img 等相对路径解析到子应用域名
+  const renderWindow = renderDocument.defaultView;
+  if (renderWindow) {
+    // 对于降级场景不需要添加 path
+    initBase(renderWindow, iframeWindow.__WUJIE.url, "");
+    // 降级模式内联事件运行在渲染 iframe realm，需把辅助函数注入到该 window，
+    // 使编译后的 with(window.__getWujieWindow__(...)) 可调用（其内部会向 parent.document 查找沙箱 iframe）
+    (renderWindow as any).__getWujieWindow__ = (window as any).__getWujieWindow__;
+  }
 
   patchRenderEffect(renderDocument, iframeWindow.__WUJIE.id, true);
 }

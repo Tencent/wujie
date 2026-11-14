@@ -83,3 +83,21 @@
 .VPButton.medium {
   border-radius: 0px;
 }
+
+@media (min-width: 768px) and (max-width: 1099px) {
+  .VPNavBarMenuLink,
+  .VPNavBarMenuGroup .button,
+  .VPNavBarMenuGroup .text {
+    white-space: nowrap;
+  }
+
+  .VPNavBarMenuLink,
+  .VPNavBarMenuGroup .button {
+    padding: 0 6px;
+  }
+
+  .VPNavBarSearch {
+    flex-grow: 0;
+    padding-left: 16px;
+  }
+}
