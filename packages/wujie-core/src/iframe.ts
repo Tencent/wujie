@@ -707,9 +707,60 @@ export function patchDocumentEffect(iframeWindow: Window): void {
 }
 
 /**
+ * 在 iframe 的 Node.prototype 上修正 ownerDocument / baseURI。
+ *
+ * patchElementEffect 只会给 createElement / appendChild 等经过的节点打实例补丁，
+ * cloneNode、innerHTML 等产生的节点没有实例补丁：它们属于 iframe realm，原生 ownerDocument
+ * 却指向主应用 document（降级时是渲染 iframe 的 document），导致
+ * `node instanceof node.ownerDocument.defaultView.Node` 不成立、相对路径按主应用地址补全。
+ *
+ * 只在原生 ownerDocument 是宿主文档时改写，iframe 自身文档、template 惰性文档等保持原生；
+ * 实例补丁优先级更高，已打补丁的节点不受影响；沙箱销毁后回退到原生值。
+ */
+export function patchNodeOwnerDocument(iframeWindow: Window): void {
+  const rawOwnerDocumentGetter = Object.getOwnPropertyDescriptor(iframeWindow.Node.prototype, "ownerDocument")?.get;
+  const rawBaseURIGetter = Object.getOwnPropertyDescriptor(iframeWindow.Node.prototype, "baseURI")?.get;
+  if (!rawOwnerDocumentGetter || !rawBaseURIGetter) {
+    warn("Node.prototype 上缺少 ownerDocument / baseURI 访问器，跳过修正");
+    return;
+  }
+  const isHostDocument = (doc: Document): boolean => {
+    if (doc === window.document) return true;
+    const sandbox = iframeWindow.__WUJIE;
+    return !!(sandbox?.degrade && doc && doc === sandbox.document);
+  };
+  try {
+    Object.defineProperties(iframeWindow.Node.prototype, {
+      ownerDocument: {
+        configurable: true,
+        enumerable: true,
+        get() {
+          const doc = rawOwnerDocumentGetter.call(this);
+          const sandbox = iframeWindow.__WUJIE;
+          if (!sandbox || !isHostDocument(doc)) return doc;
+          return sandbox.degrade && sandbox.document ? sandbox.document : iframeWindow.document;
+        },
+      },
+      baseURI: {
+        configurable: true,
+        enumerable: true,
+        get() {
+          const proxyLocation = iframeWindow.__WUJIE?.proxyLocation as Location | undefined;
+          if (!proxyLocation || !isHostDocument(rawOwnerDocumentGetter.call(this))) return rawBaseURIGetter.call(this);
+          return proxyLocation.protocol + "//" + proxyLocation.host + proxyLocation.pathname;
+        },
+      },
+    });
+  } catch (e) {
+    warn("修正 Node.prototype 的 ownerDocument / baseURI 失败", e);
+  }
+}
+
+/**
  * patch Node effect
  * 1、处理 getRootNode
  * 2、处理 appendChild、insertBefore，当插入的节点为 svg 时，createElement 的 patch 会被去除，需要重新 patch
+ * 3、修正未打实例补丁节点的 ownerDocument / baseURI
  * @param iframeWindow
  */
 function patchNodeEffect(iframeWindow: Window): void {
@@ -717,6 +768,7 @@ function patchNodeEffect(iframeWindow: Window): void {
   const rawAppendChild = iframeWindow.Node.prototype.appendChild;
   const rawInsertRule = iframeWindow.Node.prototype.insertBefore;
   const rawRemoveChild = iframeWindow.Node.prototype.removeChild;
+  patchNodeOwnerDocument(iframeWindow);
   iframeWindow.Node.prototype.getRootNode = function (options?: GetRootNodeOptions): Node {
     const rootNode = rawGetRootNode.call(this, options);
     if (rootNode === iframeWindow.__WUJIE.shadowRoot) return iframeWindow.document;
