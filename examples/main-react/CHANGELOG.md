@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](/compare/v2.0.2...v2.1.0) (2026-06-15)
+
+### Features
+
+* 支持内联事件处理器在子应用作用域中执行 (#1091) b178735, closes #1091
+
+## [2.0.2](https://github.com/Tencent/wujie/compare/v2.0.1...v2.0.2) (2026-06-04)
+
+**Note:** Version bump only for package main-react
+
+## [2.0.1](https://github.com/Tencent/wujie/compare/v2.0.0...v2.0.1) (2026-06-03)
+
+**Note:** Version bump only for package main-react
+
 ## [1.0.29](https://github.com/Tencent/wujie/compare/v1.0.28...v1.0.29) (2025-07-20)
 
 **Note:** Version bump only for package main-react

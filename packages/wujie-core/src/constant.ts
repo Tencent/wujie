@@ -6,6 +6,7 @@ export const CONTAINER_POSITION_DATA_FLAG = "data-container-position-flag";
 export const CONTAINER_OVERFLOW_DATA_FLAG = "data-container-overflow-flag";
 export const LOADING_DATA_FLAG = "data-loading-flag";
 export const WUJIE_DATA_ATTACH_CSS_FLAG = "data-wujie-attach-css-flag";
+export const WUJIE_FONT_STYLE_CONTAINER_ATTR = "data-wujie-font-style-container";
 
 // 需要使用的某些固定变量
 export const WUJIE_IFRAME_CLASS = "wujie_iframe";
@@ -40,6 +41,7 @@ export const WUJIE_TIPS_NO_FETCH = "window上不存在fetch属性，需要自行
 export const WUJIE_TIPS_NOT_SUPPORTED = "当前浏览器不支持无界，子应用将采用iframe方式渲染";
 export const WUJIE_TIPS_SCRIPT_ERROR_REQUESTED = "脚本请求出现错误";
 export const WUJIE_TIPS_CSS_ERROR_REQUESTED = "样式请求出现错误";
+export const WUJIE_TIPS_CSS_DEDUPE_EMPTY = "已存在同地址样式但内容为空（空文件或此前请求失败），将重新请求";
 export const WUJIE_TIPS_HTML_ERROR_REQUESTED = "html请求出现错误";
 export const WUJIE_TIPS_REPEAT_RENDER = "无界组件短时间重复渲染了两次，可能存在性能问题请检查代码";
 export const WUJIE_TIPS_NO_SCRIPT = "目标Script尚未准备好或已经被移除";

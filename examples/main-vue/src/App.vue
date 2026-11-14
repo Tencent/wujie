@@ -38,6 +38,7 @@
         <router-link to="/vue2-sub/dialog">dialog</router-link>
         <router-link to="/vue2-sub/location">location</router-link>
         <router-link to="/vue2-sub/communication">communication</router-link>
+        <router-link to="/vue2-sub/rich-text">富文本</router-link>
       </div>
       <!-- vue3相关路由 -->
       <router-link v-if="degrade" to="/vue3">
@@ -51,10 +52,10 @@
         <router-link to="/vue3-sub/location">location</router-link>
         <router-link to="/vue3-sub/contact">contact</router-link>
         <router-link to="/vue3-sub/state">state</router-link>
+        <router-link to="/vue3-sub/inline-event">inline-event</router-link>
       </div>
-      <router-link v-if="degrade" to="/vite"
-        >vite <a-icon :class="['main-icon', { active: viteFlag }]" type="caret-up" @click.native="handleFlag('vite')"
-      /></router-link>
+      <router-link v-if="degrade" to="/vite">vite <a-icon :class="['main-icon', { active: viteFlag }]" type="caret-up"
+          @click.native="handleFlag('vite')" /></router-link>
       <div class="sub-menu" v-show="viteFlag">
         <router-link to="/vite-sub/home">home</router-link>
         <router-link to="/vite-sub/dialog">dialog</router-link>

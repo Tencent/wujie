@@ -3,11 +3,17 @@
   "version": "0.0.0",
   "description": "极致的微前端框架",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
+  },
   "scripts": {
-    "start": "lerna run start --parallel",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider lerna run start --parallel",
     "doc": "lerna run docs:dev",
     "clean": "rimraf node_modules **/*/node_modules",
-    "test": "lerna run test --scope wujie",
+    "test": "NODE_OPTIONS=--openssl-legacy-provider lerna run test --scope wujie",
     "commitlint": "commitlint -E COMMIT_EDITMSG_PATH",
     "husky-commitlint": "commitlint -e",
     "prepare": "husky install"
@@ -18,6 +24,9 @@
   },
   "author": "yiludege",
   "license": "MIT",
+  "lint-staged": {
+    "packages/wujie-core/src/**/*.ts": "./packages/wujie-core/node_modules/.bin/eslint --fix --ext .ts --config packages/wujie-core/.eslintrc.js"
+  },
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",

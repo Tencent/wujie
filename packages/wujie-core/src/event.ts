@@ -108,4 +108,14 @@ export class EventBus {
     events.forEach((event) => delete eventObj[event]);
     return this;
   }
+
+  /**
+   * 销毁 EventBus：先 $clear 再从全局 appEventObjMap 中移除当前 id 的 entry。
+   * 防止 sandbox.destroy() 之后该子应用仍长期占用一项 map 条目。
+   */
+  public $destroy(): void {
+    this.$clear();
+    appEventObjMap.delete(this.id);
+    this.eventObj = {};
+  }
 }

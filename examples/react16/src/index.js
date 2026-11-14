@@ -16,17 +16,18 @@ if (window.__POWERED_BY_WUJIE__) {
       <BrowserRouter basename={basename}>
         <App />
       </BrowserRouter>,
-      document.getElementById("root")
+      document.getElementById("root"),
     );
   };
   window.__WUJIE_UNMOUNT = () => {
     ReactDOM.unmountComponentAtNode(document.getElementById("root"));
+    window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = null;
   };
 } else {
   ReactDOM.render(
     <BrowserRouter basename={basename}>
       <App />
     </BrowserRouter>,
-    document.getElementById("root")
+    document.getElementById("root"),
   );
 }

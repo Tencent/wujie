@@ -1,4 +1,7 @@
 import importHTML, { processCssLoader } from "./entry";
+import { initInlineEventHelper } from "./entry";
+
+export { clearAssetsCache } from "./entry";
 import { StyleObject, ScriptAttributes } from "./template";
 import WuJie, { lifecycle } from "./sandbox";
 import { defineWujieWebComponent, addLoading } from "./shadow";
@@ -188,6 +191,8 @@ export function setupApp(options: cacheOptions): void {
  * 运行无界app
  */
 export async function startApp(startOptions: startOptions): Promise<Function | void> {
+  // 初始化内联事件处理器辅助函数
+  initInlineEventHelper();
   const sandbox = getWujieById(startOptions.name);
   const cacheOptions = getOptionsById(startOptions.name);
   // 合并缓存配置
@@ -367,9 +372,19 @@ export function preloadApp(preOptions: preOptions): void {
 /**
  * 销毁无界APP
  */
-export function destroyApp(id: string): void {
+export async function destroyApp(id: string): Promise<void> {
   const sandbox = getWujieById(id);
   if (sandbox) {
-    sandbox.destroy();
+    await sandbox.destroy();
   }
+}
+
+/**
+ * 刷新无界APP
+ * 先销毁当前子应用实例，再以传入配置全量重建（等价于「重建模式」）
+ * 等待 destroyApp 完成后再 startApp，避免销毁未结束就重启导致的竞态
+ */
+export async function refreshApp(startOptions: startOptions): Promise<Function | void> {
+  await destroyApp(startOptions.name);
+  return startApp(startOptions);
 }

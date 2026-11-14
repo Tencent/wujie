@@ -37,6 +37,14 @@ export default class Dialog extends React.Component {
         <div>Content</div>
       </div>
     );
+    const modalInnerContent = (
+      <div>
+        <div>Content（弹窗内）</div>
+        <div>Content</div>
+      </div>
+    );
+    const scrollSpacer = <div style={{ height: 520 }} aria-hidden="true" />;
+    const modalScrollBodyStyle = { maxHeight: "60vh", overflow: "auto", paddingRight: 8 };
     return (
       <div>
         <h2 className="css-after-flag">弹窗处理</h2>
@@ -46,10 +54,30 @@ export default class Dialog extends React.Component {
           <p>
             <Button onClick={this.showModal}>Open Modal</Button>
           </p>
-          <Modal title="Basic Modal" visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel}>
-            <div>Some contents...</div>
-            <div>Some contents...</div>
-            <div>Some contents...</div>
+          <Modal title="Basic Modal" visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} width={760}>
+            <div style={modalScrollBodyStyle}>
+              <h4>弹窗内：antd 选择器</h4>
+              <div className="p">
+                <Select
+                  showSearch
+                  style={{ width: 200 }}
+                  placeholder="Select a person（弹窗内）"
+                  optionFilterProp="children"
+                  filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                >
+                  <Option value="jack">Jack</Option>
+                  <Option value="lucy">Lucy</Option>
+                  <Option value="tom">Tom</Option>
+                </Select>
+              </div>
+              <h4>弹窗内：antd 气泡卡片</h4>
+              <div className="p">
+                <Popover content={modalInnerContent} title="Title（弹窗内）" trigger="hover">
+                  <Button>Hover me（弹窗内）</Button>
+                </Popover>
+              </div>
+              {scrollSpacer}
+            </div>
           </Modal>
           <h3>2、打开antd选择器</h3>
           <div className="p">
@@ -71,6 +99,7 @@ export default class Dialog extends React.Component {
               <Button>Hover me</Button>
             </Popover>
           </div>
+          {scrollSpacer}
         </div>
       </div>
     );

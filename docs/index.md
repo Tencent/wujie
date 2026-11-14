@@ -19,7 +19,7 @@ hero:
       text: 快速开始
       link: /guide/start.html
     - theme: alt
-      text: npx create-wujie@latest
+      text: npx skills add wujie-micro/wujie-skill
     - theme: brand
       text: 在线体验
       link: /wujie/
