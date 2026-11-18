@@ -787,7 +787,7 @@ export function patchNodeOwnerDocument(iframeWindow: Window): void {
  * 3、修正未打实例补丁节点的 ownerDocument / baseURI
  * @param iframeWindow
  */
-function patchNodeEffect(iframeWindow: Window): void {
+export function patchNodeEffect(iframeWindow: Window): void {
   const rawGetRootNode = iframeWindow.Node.prototype.getRootNode;
   const rawAppendChild = iframeWindow.Node.prototype.appendChild;
   const rawInsertRule = iframeWindow.Node.prototype.insertBefore;
@@ -808,6 +808,25 @@ function patchNodeEffect(iframeWindow: Window): void {
     patchElementEffect(node, iframeWindow);
     return res;
   };
+  // innerHTML 解析出的节点由浏览器原生 parser 生成，其 ownerDocument 指向
+  // 主应用 document（shadowRoot 宿主所在 document），与 createElement 生成的
+  // 节点（iframe document）不一致，导致 instanceof / ownerDocument.defaultView
+  // 判断出错（issue #1125）。这里统一在原型上劫持 innerHTML setter：原生赋值
+  // 后遍历子树重新 patch，使两种来源的节点行为一致。
+  const rawInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(iframeWindow.Element.prototype, "innerHTML");
+  if (rawInnerHTMLDescriptor && rawInnerHTMLDescriptor.set) {
+    const rawSetInnerHTML = rawInnerHTMLDescriptor.set;
+    Object.defineProperty(iframeWindow.Element.prototype, "innerHTML", {
+      configurable: true,
+      enumerable: rawInnerHTMLDescriptor.enumerable,
+      get: rawInnerHTMLDescriptor.get,
+      set: function (value: string) {
+        rawSetInnerHTML.call(this, value);
+        const children = (this as Element).querySelectorAll("*");
+        children.forEach((child) => patchElementEffect(child, iframeWindow));
+      },
+    });
+  }
   iframeWindow.Node.prototype.removeChild = function <T extends Node>(node: T): T {
     let res;
     try {
