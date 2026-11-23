@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](/compare/v2.1.0...v2.1.1) (2026-11-23)
+
+### Bug Fixes
+
+* add missing comma in :prefix prop object to fix syntax error (#1063) 818cfb6, closes #1063
+
 # [2.1.0](/compare/v2.0.2...v2.1.0) (2026-06-15)
 
 **Note:** Version bump only for package wujie-docs

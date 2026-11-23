@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](https://github.com/Tencent/wujie/compare/v2.1.0...v2.1.1) (2026-11-23)
+
+### Bug Fixes
+
+* '处理modulepreload类型的link标签' ([#1051](https://github.com/Tencent/wujie/issues/1051)) ([6c5b476](https://github.com/Tencent/wujie/commit/6c5b476e0e1646f87a5f6e989d9e8a2031044080))
+* **core:** 子应用 location.href 跳转后不再销毁 sandbox，修复非降级模式下容器空白、无法后退恢复 ([#1124](https://github.com/Tencent/wujie/issues/1124)) ([46b2dfc](https://github.com/Tencent/wujie/commit/46b2dfcb5a505670fb78a8c079b5d42b54f54ff5))
+* **core:** 被接管的 script/link 以注释节点为锚点提供 parentNode、remove、contains ([#1121](https://github.com/Tencent/wujie/issues/1121)) ([5efcd80](https://github.com/Tencent/wujie/commit/5efcd80b4d5a0947c1bbdb4e722cdbdeecc97f5c))
+* **core:** 降级保活恢复事件监听时与原生语义对齐（区分 capture、once 触发后不再恢复） ([#1120](https://github.com/Tencent/wujie/issues/1120)) ([0bda67c](https://github.com/Tencent/wujie/commit/0bda67cc96fce7653b0a4bba16f3f0f4cfcd93d8))
+* **vue3:** 卸载清理改用 beforeUnmount，修复 Vue 3 下清理逻辑不执行的问题 ([#1122](https://github.com/Tencent/wujie/issues/1122)) ([0378d69](https://github.com/Tencent/wujie/commit/0378d69241db08b604f6fb37542f71843f16c69c))
+* **vue:** Vue 封装与 wujie-react 对齐（props 原样传给 startApp、类型由 startOptions 派生），补充 wujie-react 的 refresh 声明 ([#1123](https://github.com/Tencent/wujie/issues/1123)) ([b6e5c26](https://github.com/Tencent/wujie/commit/b6e5c261b19260584fe5d61cd244edfe2fa405ad))
+* **wujie-core:** proxy document.adoptedStyleSheets to shadowRoot ([#1062](https://github.com/Tencent/wujie/issues/1062)) ([869da7a](https://github.com/Tencent/wujie/commit/869da7ad0c4612630a2fcffc53544b006d3908d6)), closes [#209](https://github.com/Tencent/wujie/issues/209)
+* **wujie-core:** 按 href 去重入口 HTML 与动态 preload 的 stylesheet ([#1109](https://github.com/Tencent/wujie/issues/1109)) ([f24456d](https://github.com/Tencent/wujie/commit/f24456d381bfc5832089e53a00d94054ce2f8013)), closes [#1108](https://github.com/Tencent/wujie/issues/1108)
+* 修复子应用document.querySelectorAll('script')获取长度为0 ([#822](https://github.com/Tencent/wujie/issues/822)) ([#843](https://github.com/Tencent/wujie/issues/843)) ([cebcb56](https://github.com/Tencent/wujie/commit/cebcb562e3c18c14896ddfeddc2240a79311898c))
+* 子应用代理cloneNode方法。解决@svgdotjs/svg.js cloneNode复制的节点显示异常的问题 ([#942](https://github.com/Tencent/wujie/issues/942)) ([77bf577](https://github.com/Tencent/wujie/commit/77bf577881575d0cc411c4f5d97913dd8f130704))
+* 子应用的a标签不带href属性时，嵌入后出现了一个空值的href属性 ([#1117](https://github.com/Tencent/wujie/issues/1117)) ([a1b977b](https://github.com/Tencent/wujie/commit/a1b977b241dd291e687c05db01b45dd01d2eeca8))
+* 当子应用location.replace到其他域名时，改为渲染到另一个iframe中 ([#575](https://github.com/Tencent/wujie/issues/575)) ([c7baaa5](https://github.com/Tencent/wujie/commit/c7baaa5a48e1022419c5b430fed6402066ef122b))
+
 # [2.1.0](https://github.com/Tencent/wujie/compare/v2.0.2...v2.1.0) (2026-06-15)
 
 ### Bug Fixes

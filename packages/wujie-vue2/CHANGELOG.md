@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](https://github.com/Tencent/wujie/compare/v2.1.0...v2.1.1) (2026-11-23)
+
+### Bug Fixes
+
+* clear startAppQueue in adapter refresh() after destroyApp ([f12db74](https://github.com/Tencent/wujie/commit/f12db74203069e02d0b39c0a9e042fe1c7ddd4ea))
+* expose clearAssetsCache on framework wrappers ([#1113](https://github.com/Tencent/wujie/issues/1113)) ([395f364](https://github.com/Tencent/wujie/commit/395f36442790e74896121b8a5bcd450fe19cd0b3))
+* **vue2:** avoid reserved style prop warning ([#1105](https://github.com/Tencent/wujie/issues/1105)) ([1465039](https://github.com/Tencent/wujie/commit/14650399dd39c928c096bcfc076d8f9049b06d77)), closes [#993](https://github.com/Tencent/wujie/issues/993) [#1011](https://github.com/Tencent/wujie/issues/1011) [#1104](https://github.com/Tencent/wujie/issues/1104)
+* **vue:** Vue 封装与 wujie-react 对齐（props 原样传给 startApp、类型由 startOptions 派生），补充 wujie-react 的 refresh 声明 ([#1123](https://github.com/Tencent/wujie/issues/1123)) ([b6e5c26](https://github.com/Tencent/wujie/commit/b6e5c261b19260584fe5d61cd244edfe2fa405ad))
+
 # [2.1.0](https://github.com/Tencent/wujie/compare/v2.0.2...v2.1.0) (2026-06-15)
 
 ### Bug Fixes

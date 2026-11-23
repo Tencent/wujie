@@ -299,7 +299,7 @@ importers:
         specifier: ^6.4.1
         version: 6.6.1(@types/babel__core@7.20.5)(webpack@5.98.0)
       wujie-react:
-        specifier: workspace:^2.1.0
+        specifier: workspace:^2.1.1
         version: link:../../packages/wujie-react
 
   examples/main-vue:
@@ -323,10 +323,10 @@ importers:
         specifier: ^3.6.2
         version: 3.6.20
       wujie:
-        specifier: workspace:^2.1.0
+        specifier: workspace:^2.1.1
         version: link:../../packages/wujie-core
       wujie-vue2:
-        specifier: workspace:^2.1.0
+        specifier: workspace:^2.1.1
         version: link:../../packages/wujie-vue2
     devDependencies:
       '@vue/cli-plugin-babel':
@@ -534,7 +534,7 @@ importers:
         specifier: ^6.4.1
         version: 6.6.1(@types/babel__core@7.20.5)(webpack@5.98.0)
       wujie-react:
-        specifier: workspace:^2.1.0
+        specifier: workspace:^2.1.1
         version: link:../../packages/wujie-react
     devDependencies:
       '@babel/plugin-proposal-nullish-coalescing-operator':
@@ -1021,7 +1021,7 @@ importers:
         specifier: '>=16.0.0'
         version: 17.0.2
       wujie:
-        specifier: workspace:2.1.0
+        specifier: workspace:2.1.1
         version: link:../wujie-core
     devDependencies:
       '@babel/cli':
@@ -1061,7 +1061,7 @@ importers:
         specifier: ^2.6.0
         version: 2.7.16
       wujie:
-        specifier: workspace:2.1.0
+        specifier: workspace:2.1.1
         version: link:../wujie-core
     devDependencies:
       '@babel/cli':
@@ -1098,7 +1098,7 @@ importers:
   packages/wujie-vue3:
     dependencies:
       wujie:
-        specifier: workspace:2.1.0
+        specifier: workspace:2.1.1
         version: link:../wujie-core
     devDependencies:
       '@babel/cli':
