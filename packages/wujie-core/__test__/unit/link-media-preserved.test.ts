@@ -27,6 +27,24 @@ describe("link 的 media 透传", () => {
     expect(styles[0].media).toBe("print");
   });
 
+  it("media 值带空格与括号也完整保留", () => {
+    const { styles } = run('<link rel="stylesheet" href="a.css" media="(min-width: 600px)">');
+
+    expect(styles[0].media).toBe("(min-width: 600px)");
+  });
+
+  it("单引号包裹的 media 同样能取到", () => {
+    const { styles } = run("<link rel='stylesheet' href='a.css' media='print'>");
+
+    expect(styles[0].media).toBe("print");
+  });
+
+  it("没有引号的 media 也能取到", () => {
+    const { styles } = run('<link rel="stylesheet" href="a.css" media=print>');
+
+    expect(styles[0].media).toBe("print");
+  });
+
   it("getExternalStyleSheets 保留 media", () => {
     const { styleResults } = run('<link rel="stylesheet" href="a.css" media="print">');
 
