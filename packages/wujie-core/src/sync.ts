@@ -45,7 +45,10 @@ export function syncUrlToWindow(iframeWindow: Window): void {
   }
   winUrlElement.search = toSearch(queryMap);
   if (winUrlElement.href !== window.location.href) {
-    window.history.replaceState(null, "", winUrlElement.href);
+    // replaceState 的第 1 个参数是新的 history.state：传 null 会清掉主应用存进去的数据
+    // （Vue Router 把 back / current / forward / position / scroll 都放在这里），
+    // 导致 router.back() 的位置恢复、scrollBehavior 的 savedPosition 失效
+    window.history.replaceState(window.history.state, "", winUrlElement.href);
   }
   winUrlElement = null;
 }
@@ -87,7 +90,10 @@ export function clearInactiveAppUrl(): void {
   });
   winUrlElement.search = toSearch(queryMap);
   if (winUrlElement.href !== window.location.href) {
-    window.history.replaceState(null, "", winUrlElement.href);
+    // replaceState 的第 1 个参数是新的 history.state：传 null 会清掉主应用存进去的数据
+    // （Vue Router 把 back / current / forward / position / scroll 都放在这里），
+    // 导致 router.back() 的位置恢复、scrollBehavior 的 savedPosition 失效
+    window.history.replaceState(window.history.state, "", winUrlElement.href);
   }
   winUrlElement = null;
 }
@@ -101,7 +107,8 @@ export function pushUrlToWindow(id: string, url: string, replace = false): void 
   // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
   queryMap[id] = url;
   winUrlElement.search = toSearch(queryMap);
-  if (replace) window.history.replaceState(null, "", winUrlElement.href);
+  // replace 模式同理：不能把主应用已有的 history.state 抹成 null
+  if (replace) window.history.replaceState(window.history.state, "", winUrlElement.href);
   else window.history.pushState(null, "", winUrlElement.href);
   winUrlElement = null;
 }
