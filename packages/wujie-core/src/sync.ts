@@ -124,17 +124,8 @@ export function processAppForHrefJump(): void {
         if (/http/.test(url)) {
           if (sandbox.degrade) {
             renderElementToContainer(sandbox.document.documentElement, iframeBody);
-            renderIframeReplaceApp(
-              window.decodeURIComponent(url),
-              getDegradeIframe(sandbox.id).parentElement,
-              sandbox.degradeAttrs
-            );
-          } else
-            renderIframeReplaceApp(
-              window.decodeURIComponent(url),
-              sandbox.shadowRoot.host.parentElement,
-              sandbox.degradeAttrs
-            );
+            renderIframeReplaceApp(url, getDegradeIframe(sandbox.id).parentElement, sandbox.degradeAttrs);
+          } else renderIframeReplaceApp(url, sandbox.shadowRoot.host.parentElement, sandbox.degradeAttrs);
           sandbox.hrefFlag = true;
           // href后退
         } else if (sandbox.hrefFlag) {
