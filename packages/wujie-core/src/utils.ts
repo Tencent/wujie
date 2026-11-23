@@ -269,7 +269,10 @@ export function getSyncUrl(id: string, prefix: { [key: string]: string }): strin
   const syncUrl = queryMap[id] || "";
   const validShortPath = syncUrl.match(/^{([^}]*)}/)?.[1];
   if (prefix && validShortPath) {
-    return syncUrl.replace(`{${validShortPath}}`, prefix[validShortPath]);
+    const longPath = prefix[validShortPath];
+    // 占位符没有对应的 prefix 时还原不出真实路径：返回空串让调用方回退到 url，
+    // 否则 replace 会把 undefined 当成字符串拼进路径
+    return longPath ? syncUrl.replace(`{${validShortPath}}`, longPath) : "";
   }
   return syncUrl;
 }
