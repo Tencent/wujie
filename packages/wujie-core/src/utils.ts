@@ -205,7 +205,41 @@ export function fixElementCtrSrcOrHref(
       set.call(this, getAbsolutePath(href, this.baseURI, true));
     },
   });
-  // TODO: innerHTML的处理
+}
+
+/**
+ * 劫持 innerHTML 赋值，修正解析出的 img、source 的相对地址
+ * innerHTML 由原生 parser 构建节点，绕过 setAttribute / src 的劫持；
+ * Vue 编译产物会把连续 5 个及以上的静态节点拼成字符串经 template.innerHTML 插入，
+ * 相对地址进入主文档后按主应用域名加载导致 404
+ * @param iframeWindow
+ */
+export function fixInnerHTMLRelativeSrc(iframeWindow: Window): void {
+  const rawInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(iframeWindow.Element.prototype, "innerHTML");
+  if (!rawInnerHTMLDescriptor?.set) {
+    warn("Element.prototype 上缺少 innerHTML 访问器，跳过 innerHTML 相对地址修正");
+    return;
+  }
+  const { enumerable, configurable, get, set } = rawInnerHTMLDescriptor;
+  try {
+    Object.defineProperty(iframeWindow.Element.prototype, "innerHTML", {
+      enumerable,
+      configurable,
+      get,
+      set: function (html: string) {
+        set.call(this, html);
+        if (!/\ssrc\s*=/i.test(String(html))) return;
+        const root: ParentNode = this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this;
+        root.querySelectorAll("img[src], source[src]").forEach((element) => {
+          const src = element.getAttribute("src");
+          const absoluteSrc = getAbsolutePath(src, iframeWindow.document.baseURI);
+          if (absoluteSrc !== src) element.setAttribute("src", absoluteSrc);
+        });
+      },
+    });
+  } catch (e) {
+    warn("劫持 innerHTML 修正相对地址失败", e);
+  }
 }
 
 export function getCurUrl(proxyLocation: Object): string {
