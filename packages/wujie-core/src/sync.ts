@@ -4,6 +4,17 @@ import { renderElementToContainer, initRenderIframeAndContainer } from "./shadow
 import { getWujieById, rawDocumentQuerySelector } from "./common";
 
 /**
+ * 把 queryMap 拼成 location.search
+ * 空 map 返回空串，避免在主应用 url 末尾留下一个孤立的 ?
+ */
+const toSearch = (queryMap: { [key: string]: string }): string => {
+  const search = Object.keys(queryMap)
+    .map((key) => `${key}=${window.encodeURIComponent(queryMap[key])}`)
+    .join("&");
+  return search ? `?${search}` : "";
+};
+
+/**
  * 同步子应用路由到主应用路由
  */
 export function syncUrlToWindow(iframeWindow: Window): void {
@@ -32,12 +43,7 @@ export function syncUrlToWindow(iframeWindow: Window): void {
   } else {
     delete queryMap[id];
   }
-  const newQuery =
-    "?" +
-    Object.keys(queryMap)
-      .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
-      .join("&");
-  winUrlElement.search = newQuery;
+  winUrlElement.search = toSearch(queryMap);
   if (winUrlElement.href !== window.location.href) {
     window.history.replaceState(null, "", winUrlElement.href);
   }
@@ -79,12 +85,7 @@ export function clearInactiveAppUrl(): void {
       delete queryMap[id];
     }
   });
-  const newQuery =
-    "?" +
-    Object.keys(queryMap)
-      .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
-      .join("&");
-  winUrlElement.search = newQuery;
+  winUrlElement.search = toSearch(queryMap);
   if (winUrlElement.href !== window.location.href) {
     window.history.replaceState(null, "", winUrlElement.href);
   }
@@ -99,12 +100,7 @@ export function pushUrlToWindow(id: string, url: string, replace = false): void 
   const queryMap = getAnchorElementQueryMap(winUrlElement);
   // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
   queryMap[id] = url;
-  const newQuery =
-    "?" +
-    Object.keys(queryMap)
-      .map((key) => key + "=" + window.encodeURIComponent(queryMap[key]))
-      .join("&");
-  winUrlElement.search = newQuery;
+  winUrlElement.search = toSearch(queryMap);
   if (replace) window.history.replaceState(null, "", winUrlElement.href);
   else window.history.pushState(null, "", winUrlElement.href);
   winUrlElement = null;
