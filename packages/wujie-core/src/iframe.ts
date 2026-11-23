@@ -4,6 +4,7 @@ import { renderElementToContainer } from "./shadow";
 import { syncUrlToWindow } from "./sync";
 import {
   fixElementCtrSrcOrHref,
+  fixInnerHTMLRelativeSrc,
   isConstructable,
   anchorElementGenerator,
   isMatchSyncQueryById,
@@ -836,6 +837,7 @@ function patchRelativeUrlEffect(iframeWindow: Window): void {
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLLinkElement, "href");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLScriptElement, "src");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLMediaElement, "src");
+  fixInnerHTMLRelativeSrc(iframeWindow);
 }
 
 /**
