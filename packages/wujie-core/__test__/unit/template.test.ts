@@ -113,7 +113,7 @@ describe("processTpl", () => {
   });
 
   it("publicPath 为空时不应该抛错", () => {
-    // getPublicPath 是用户可配置的，defaultGetPublicPath 的 catch 分支本身就会返回 ""
+    // defaultGetPublicPath 解析失败时返回 ""，模板解析应能容错而不是抛错
     expect(() => processTpl('<script src="/a.js"></script><link rel="stylesheet" href="/a.css">', "")).not.toThrow();
   });
 
