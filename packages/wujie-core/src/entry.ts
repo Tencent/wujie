@@ -25,7 +25,7 @@ import Wujie from "./sandbox";
 import { plugin, loadErrorHandler } from "./index";
 
 export type ScriptResultList = (ScriptBaseObject & { contentPromise: Promise<string> })[];
-export type StyleResultList = { src: string; contentPromise: Promise<string>; ignore?: boolean }[];
+export type StyleResultList = { src: string; contentPromise: Promise<string>; ignore?: boolean; media?: string }[];
 
 interface htmlParseResult {
   template: string;
@@ -105,7 +105,7 @@ export async function processCssLoader(
  * convert external css link to inline style for performance optimization
  * @return embedHTML
  */
-async function getEmbedHTML(template, styleResultList: StyleResultList): Promise<string> {
+export async function getEmbedHTML(template, styleResultList: StyleResultList): Promise<string> {
   let embedHTML = template;
 
   return Promise.all(
@@ -117,7 +117,9 @@ async function getEmbedHTML(template, styleResultList: StyleResultList): Promise
             genLinkReplaceSymbol(styleResult.src),
             styleResult.ignore
               ? `<link href="${styleResult.src}" rel="stylesheet" type="text/css">`
-              : `<style data-wujie-css-href="${hrefAttr}">/* ${styleResult.src} */${content}</style>`
+              : `<style data-wujie-css-href="${hrefAttr}"${
+                  styleResult.media ? ` media="${escapeHtmlAttr(styleResult.media)}"` : ""
+                }>/* ${styleResult.src} */${content}</style>`
           );
         } else if (content) {
           embedHTML = embedHTML.replace(
@@ -181,7 +183,7 @@ export function getExternalStyleSheets(
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> = defaultFetch,
   loadError: loadErrorHandler
 ): StyleResultList {
-  return styles.map(({ src, content, ignore }) => {
+  return styles.map(({ src, content, ignore, media }) => {
     // 内联
     if (content) {
       return { src: "", contentPromise: Promise.resolve(content) };
@@ -193,6 +195,7 @@ export function getExternalStyleSheets(
       return {
         src,
         ignore,
+        media,
         contentPromise: ignore ? Promise.resolve("") : fetchAssets(src, styleCache, fetch, true, loadError),
       };
     }
