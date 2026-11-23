@@ -73,7 +73,14 @@ function hasProtocol(url) {
 }
 
 function getEntirePath(path, baseURI) {
-  return new URL(path, baseURI).toString();
+  try {
+    return new URL(path, baseURI).toString();
+  } catch {
+    // baseURI 不是合法的绝对地址时（defaultGetPublicPath 的 catch 分支就会返回 ""），
+    // 保留原始地址，让子应用按自己的 location 去解析，
+    // 而不是让整份模板解析直接抛 TypeError 导致子应用加载失败
+    return path;
+  }
 }
 
 function isValidJavaScriptType(type) {
