@@ -55,6 +55,15 @@ describe("iframe 的 src 相对地址", () => {
     expect(box.querySelector("iframe").getAttribute("src")).toBe("https://sub.example.com/embed");
   });
 
+  it("上级目录相对地址按原生语义解析", () => {
+    const iframeWindow = setupIframe();
+    const inner = iframeWindow.document.createElement("iframe");
+
+    inner.setAttribute("src", "../up");
+
+    expect(inner.getAttribute("src")).toBe("https://sub.example.com/up");
+  });
+
   it("绝对地址不受影响", () => {
     const iframeWindow = setupIframe();
     const inner = iframeWindow.document.createElement("iframe");
