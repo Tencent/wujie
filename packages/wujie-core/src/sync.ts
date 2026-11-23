@@ -3,15 +3,38 @@ import { renderIframeReplaceApp, patchEventTimeStamp } from "./iframe";
 import { renderElementToContainer, initRenderIframeAndContainer } from "./shadow";
 import { getWujieById, rawDocumentQuerySelector } from "./common";
 
+const decodeQueryKey = (key: string): string => {
+  try {
+    return window.decodeURIComponent(key.replace(/\+/g, " "));
+  } catch {
+    return key;
+  }
+};
+
 /**
- * 把 queryMap 拼成 location.search
- * 空 map 返回空串，避免在主应用 url 末尾留下一个孤立的 ?
+ * 在原始 search 上只改写子应用自己的参数，其余参数保持原文
+ * 主应用参数经 URLSearchParams 解析再编码并非无损：+ 会变成 %20、flag 会变成 flag=、重复键只剩一个
+ * @param updates 值为 null 表示删除该参数
+ * @returns 参数全部删除时返回空串，避免在主应用 url 末尾留下一个孤立的 ?
  */
-const toSearch = (queryMap: { [key: string]: string }): string => {
-  const search = Object.keys(queryMap)
-    .map((key) => `${key}=${window.encodeURIComponent(queryMap[key])}`)
-    .join("&");
-  return search ? `?${search}` : "";
+const updateSearch = (search: string, updates: { [id: string]: string | null }): string => {
+  const written = new Set<string>();
+  const segments = search
+    .replace(/^\?/, "")
+    .split("&")
+    .filter(Boolean)
+    .map((segment) => {
+      const key = decodeQueryKey(segment.split("=")[0]);
+      if (!Object.prototype.hasOwnProperty.call(updates, key)) return segment;
+      if (written.has(key) || updates[key] === null) return "";
+      written.add(key);
+      return `${key}=${window.encodeURIComponent(updates[key])}`;
+    })
+    .filter(Boolean);
+  Object.keys(updates).forEach((key) => {
+    if (!written.has(key) && updates[key] !== null) segments.push(`${key}=${window.encodeURIComponent(updates[key])}`);
+  });
+  return segments.length ? `?${segments.join("&")}` : "";
 };
 
 /**
@@ -35,15 +58,9 @@ export function syncUrlToWindow(iframeWindow: Window): void {
       }
     });
   }
-  // 同步
-  if (sync) {
-    // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
-    queryMap[id] = validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl;
-    // 清理
-  } else {
-    delete queryMap[id];
-  }
-  winUrlElement.search = toSearch(queryMap);
+  // 同步，否则清理
+  const appUrl = validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl;
+  winUrlElement.search = updateSearch(winUrlElement.search, { [id]: sync ? appUrl : null });
   if (winUrlElement.href !== window.location.href) {
     window.history.replaceState(null, "", winUrlElement.href);
   }
@@ -77,15 +94,16 @@ export function syncUrlToIframe(iframeWindow: Window): void {
 export function clearInactiveAppUrl(): void {
   let winUrlElement = anchorElementGenerator(window.location.href);
   const queryMap = getAnchorElementQueryMap(winUrlElement);
+  const updates: { [id: string]: null } = {};
   Object.keys(queryMap).forEach((id) => {
     const sandbox = getWujieById(id);
     if (!sandbox) return;
     // 子应用执行过并且已经失活才需要清除
     if (sandbox.execFlag && sandbox.sync && !sandbox.hrefFlag && !sandbox.activeFlag) {
-      delete queryMap[id];
+      updates[id] = null;
     }
   });
-  winUrlElement.search = toSearch(queryMap);
+  winUrlElement.search = updateSearch(winUrlElement.search, updates);
   if (winUrlElement.href !== window.location.href) {
     window.history.replaceState(null, "", winUrlElement.href);
   }
@@ -97,10 +115,7 @@ export function clearInactiveAppUrl(): void {
  */
 export function pushUrlToWindow(id: string, url: string, replace = false): void {
   let winUrlElement = anchorElementGenerator(window.location.href);
-  const queryMap = getAnchorElementQueryMap(winUrlElement);
-  // queryMap 来自 URLSearchParams，已经是 decoded 形态；统一在写回 URL 时再 encode，避免重复 encode
-  queryMap[id] = url;
-  winUrlElement.search = toSearch(queryMap);
+  winUrlElement.search = updateSearch(winUrlElement.search, { [id]: url });
   if (replace) window.history.replaceState(null, "", winUrlElement.href);
   else window.history.pushState(null, "", winUrlElement.href);
   winUrlElement = null;
