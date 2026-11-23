@@ -4,6 +4,7 @@ import { renderElementToContainer } from "./shadow";
 import { syncUrlToWindow } from "./sync";
 import {
   fixElementCtrSrcOrHref,
+  getAbsoluteSrcset,
   fixInnerHTMLRelativeSrc,
   isConstructable,
   anchorElementGenerator,
@@ -832,8 +833,13 @@ function patchNodeEffect(iframeWindow: Window): void {
  */
 function patchRelativeUrlEffect(iframeWindow: Window): void {
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLImageElement, "src");
+  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLImageElement, "srcset", getAbsoluteSrcset);
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLAnchorElement, "href");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLSourceElement, "src");
+  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLSourceElement, "srcset", getAbsoluteSrcset);
+  // poster 的访问器在 HTMLVideoElement.prototype 上，不在 HTMLMediaElement.prototype 上；
+  // Window 的 TS 类型里没有这个构造器，取 iframe 自己 realm 的才能改到正确的原型
+  fixElementCtrSrcOrHref(iframeWindow, (iframeWindow as any).HTMLVideoElement, "poster");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLLinkElement, "href");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLScriptElement, "src");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLMediaElement, "src");

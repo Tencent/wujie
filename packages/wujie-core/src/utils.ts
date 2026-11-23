@@ -183,17 +183,20 @@ export function fixElementCtrSrcOrHref(
     | typeof HTMLLinkElement
     | typeof HTMLScriptElement
     | typeof HTMLMediaElement,
-  attr
+  attr,
+  resolve: PathResolver = defaultPathResolver
 ): void {
   // patch setAttribute
   const rawElementSetAttribute = iframeWindow.Element.prototype.setAttribute;
   elementCtr.prototype.setAttribute = function (name: string, value: string): void {
     let targetValue = value;
-    if (name === attr) targetValue = getAbsolutePath(value, this.baseURI || "", true);
+    if (name === attr) targetValue = resolve(value, this.baseURI || "");
     rawElementSetAttribute.call(this, name, targetValue);
   };
   // patch href get and set
   const rawAnchorElementHrefDescriptor = Object.getOwnPropertyDescriptor(elementCtr.prototype, attr);
+  // 少数环境（老浏览器 / 非标准实现）原型上没有该属性访问器，此时只补 setAttribute 即可，不能抛错
+  if (!rawAnchorElementHrefDescriptor) return;
   const { enumerable, configurable, get, set } = rawAnchorElementHrefDescriptor;
   Object.defineProperty(elementCtr.prototype, attr, {
     enumerable,
@@ -202,7 +205,7 @@ export function fixElementCtrSrcOrHref(
       return get.call(this);
     },
     set: function (href) {
-      set.call(this, getAbsolutePath(href, this.baseURI, true));
+      set.call(this, resolve(href, this.baseURI));
     },
   });
 }
@@ -228,12 +231,20 @@ export function fixInnerHTMLRelativeSrc(iframeWindow: Window): void {
       get,
       set: function (html: string) {
         set.call(this, html);
-        if (!/\ssrc\s*=/i.test(String(html))) return;
+        const content = String(html);
+        if (!/\s(src|srcset|poster)\s*=/i.test(content)) return;
+        const urlAttributes: Array<[string, PathResolver]> = [
+          ["src", defaultPathResolver],
+          ["srcset", getAbsoluteSrcset],
+          ["poster", defaultPathResolver],
+        ];
         const root: ParentNode = this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this;
-        root.querySelectorAll("img[src], source[src]").forEach((element) => {
-          const src = element.getAttribute("src");
-          const absoluteSrc = getAbsolutePath(src, iframeWindow.document.baseURI);
-          if (absoluteSrc !== src) element.setAttribute("src", absoluteSrc);
+        urlAttributes.forEach(([attr, resolve]) => {
+          root.querySelectorAll(`img[${attr}], source[${attr}], video[${attr}]`).forEach((element) => {
+            const value = element.getAttribute(attr);
+            const absoluteValue = resolve(value, iframeWindow.document.baseURI);
+            if (absoluteValue !== value) element.setAttribute(attr, absoluteValue);
+          });
         });
       },
     });
@@ -259,6 +270,33 @@ export function getAbsolutePath(url: string, base: string, hash?: boolean): stri
     return url;
   }
 }
+type PathResolver = (value: string, base: string) => string;
+
+const defaultPathResolver: PathResolver = (value, base) => getAbsolutePath(value, base, true);
+
+/**
+ * srcset 是「URL + 可选描述符」的候选列表，用逗号分隔。
+ * 按 HTML 规范 URL 本身可以含逗号（现实里只有 data: URI 会），所以只在非 data: 的候选里
+ * 把逗号当分隔符，避免把 data:image/png;base64,xxx 拆坏。
+ */
+export function getAbsoluteSrcset(srcset: string, base: string): string {
+  if (!srcset) return srcset;
+  const candidates: string[] = [];
+  let rest = srcset;
+  while (rest) {
+    const candidate = rest.replace(/^[\s,]+/, "");
+    if (!candidate) break;
+    let url = candidate.match(/^\S+/)[0];
+    if (!/^data:/i.test(url) && url.includes(",")) url = url.slice(0, url.indexOf(","));
+    const afterUrl = candidate.slice(url.length);
+    const commaIndex = afterUrl.indexOf(",");
+    const descriptor = commaIndex === -1 ? afterUrl : afterUrl.slice(0, commaIndex);
+    candidates.push(defaultPathResolver(url, base) + descriptor);
+    rest = commaIndex === -1 ? "" : afterUrl.slice(commaIndex + 1);
+  }
+  return candidates.join(", ");
+}
+
 /**
  * 获取需要同步的url
  */
