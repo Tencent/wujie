@@ -80,6 +80,14 @@ function cssRelativePathResolve(code: string, src: string, base: string) {
       return _m;
     }
 
+    /**
+     * # 开头是文档内引用（SVG 的 fill / filter / clip-path / mask 等），不是资源地址。
+     * 改写会把 url(#grad) 变成 url(xxx/app.css#grad)，指向另一个文件，引用直接失效。
+     */
+    if (url.startsWith("#")) {
+      return _m;
+    }
+
     return `url(${pre}${getAbsolutePath(url, baseUrl)}${post})`;
   });
 }
