@@ -237,6 +237,16 @@ export function proxyGenerator(
           return getTargetValue(document, propKey);
         }
       },
+      set: function (fakeDocument, propKey, value) {
+        // 非降级模式下子应用渲染在主应用的 shadow DOM 里，js iframe 的 document 是不可见的，
+        // 标题只有写到主应用 document 才生效；其余属性继续留在代理目标上，不污染主应用
+        if (propKey === "title") {
+          document.title = String(value);
+          return true;
+        }
+        (fakeDocument as any)[propKey] = value;
+        return true;
+      },
     }
   );
 
