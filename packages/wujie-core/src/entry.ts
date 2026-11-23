@@ -210,15 +210,19 @@ export function getExternalScripts(
   return scripts.map((script) => {
     const { src, async, defer, module, ignore } = script;
     let contentPromise = null;
-    // async
-    if ((async || defer) && src && !module) {
+    // ignore 优先级最高：wujie 不拉取，交给子应用自己请求
+    // 否则 async/defer 脚本会先命中下面的分支被拉取并执行，ignore 就失效了
+    if (ignore) {
+      contentPromise = Promise.resolve("");
+      // async
+    } else if ((async || defer) && src && !module) {
       contentPromise = new Promise((resolve, reject) =>
         fiber
           ? requestIdleCallback(() => fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject))
           : fetchAssets(src, scriptCache, fetch, false, loadError).then(resolve, reject)
       );
-      // module || ignore
-    } else if ((module && src) || ignore) {
+      // module
+    } else if (module && src) {
       contentPromise = Promise.resolve("");
       // inline
     } else if (!src) {
