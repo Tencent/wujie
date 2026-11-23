@@ -130,3 +130,38 @@ describe("pushUrlToWindow", () => {
     expect(new URLSearchParams(window.location.search).get("app")).toBe(`${APP_HOST}/b`);
   });
 });
+
+describe("非降级 proxyLocation 的 pathname / search 赋值", () => {
+  // js iframe 的地址在主应用域名下，把 pathname / search 直接赋给它是让 js iframe 自己导航，
+  // 而子应用的 HTML 是靠注入维持的，一导航就没了。原生语义是「只改这一段、其余保持不变」，
+  // 所以要和 href 赋值一样走 locationNavigate。
+  it("pathname 赋值：渲染子应用的新路径，保留原有 search", () => {
+    const fake = createFakeIframe();
+    const proxyLocation = generators.非降级(fake.iframe);
+
+    proxyLocation.pathname = "/page9";
+
+    expect(renderIframeReplaceApp).toHaveBeenCalledWith(`${APP_HOST}/page9?x=1`, fake.container, {});
+    expect(pushUrlToWindow).toHaveBeenCalledWith("app", `${APP_HOST}/page9?x=1`, false);
+    expect((fake.location as any).pathname).toBeUndefined();
+  });
+
+  it("search 赋值：渲染子应用的新查询串，保留原有 pathname", () => {
+    const fake = createFakeIframe();
+    const proxyLocation = generators.非降级(fake.iframe);
+
+    proxyLocation.search = "?a=1";
+
+    expect(renderIframeReplaceApp).toHaveBeenCalledWith(`${APP_HOST}/app/page1?a=1`, fake.container, {});
+    expect((fake.location as any).search).toBeUndefined();
+  });
+
+  it("search 赋空串：清掉查询串", () => {
+    const fake = createFakeIframe();
+    const proxyLocation = generators.非降级(fake.iframe);
+
+    proxyLocation.search = "";
+
+    expect(renderIframeReplaceApp).toHaveBeenCalledWith(`${APP_HOST}/app/page1`, fake.container, {});
+  });
+});

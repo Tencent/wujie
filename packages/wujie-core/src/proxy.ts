@@ -276,6 +276,16 @@ export function proxyGenerator(
           locationNavigate(iframe, value, "href", mainHostPath, appHostPath);
           return true;
         }
+        // pathname / search 赋值的原生语义是「只改这一段、其余保持不变」，并且是一次真实导航。
+        // js iframe 的地址在主应用域名下，直接赋值等于让 js iframe 自己导航，而子应用的 HTML 是靠
+        // 注入维持的，一导航就没了；所以拼出子应用的完整地址后与 href 一样走 locationNavigate。
+        if (propKey === "pathname" || propKey === "search") {
+          const nextUrl = new URL(iframe.contentWindow.location.href.replace(mainHostPath, appHostPath));
+          if (propKey === "pathname") nextUrl.pathname = String(value);
+          else nextUrl.search = String(value);
+          locationNavigate(iframe, nextUrl.href, "assign", mainHostPath, appHostPath);
+          return true;
+        }
         iframe.contentWindow.location[propKey] = value;
         return true;
       },
