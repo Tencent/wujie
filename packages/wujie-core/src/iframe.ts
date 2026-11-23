@@ -834,6 +834,9 @@ function patchRelativeUrlEffect(iframeWindow: Window): void {
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLImageElement, "src");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLAnchorElement, "href");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLSourceElement, "src");
+  // 子应用里嵌套 iframe 的相对地址同样要改写，否则会嵌进主应用的页面；
+  // Window 的 TS 类型里没有这个构造器，取 iframe 自己 realm 的才能改到正确的原型
+  fixElementCtrSrcOrHref(iframeWindow, (iframeWindow as any).HTMLIFrameElement, "src");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLLinkElement, "href");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLScriptElement, "src");
   fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLMediaElement, "src");

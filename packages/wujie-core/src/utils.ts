@@ -230,7 +230,7 @@ export function fixInnerHTMLRelativeSrc(iframeWindow: Window): void {
         set.call(this, html);
         if (!/\ssrc\s*=/i.test(String(html))) return;
         const root: ParentNode = this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this;
-        root.querySelectorAll("img[src], source[src]").forEach((element) => {
+        root.querySelectorAll("img[src], source[src], iframe[src]").forEach((element) => {
           const src = element.getAttribute("src");
           const absoluteSrc = getAbsolutePath(src, iframeWindow.document.baseURI);
           if (absoluteSrc !== src) element.setAttribute("src", absoluteSrc);
