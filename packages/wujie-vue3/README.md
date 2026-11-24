@@ -49,6 +49,6 @@ Use `<WujieVue>` in your templates:
 
 - [Vue Wrapper Guide](https://wujie-micro.github.io/doc/en/pack/)
 - [Documentation (English)](https://wujie-micro.github.io/doc/en/)
-- [Vue Main App Demo](https://wujie-micro.github.io/demo-main-vue/home)
+- [Vue Main App Demo](https://wujie-micro.github.io/demo-main-vue/home?lang=en)
 - [GitHub Repository](https://github.com/Tencent/wujie)
 - [License: MIT](https://github.com/Tencent/wujie/blob/master/LICENSE)

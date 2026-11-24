@@ -5,7 +5,7 @@ collapsable: false
 
 # Vue Wrapper
 
-Official Wujie component wrappers for `Vue 2` and `Vue 3`. View the [live demo](https://wujie-micro.github.io/demo-main-vue/) or browse the [demo source on GitHub](https://github.com/Tencent/wujie/tree/master/examples/main-vue/).
+Official Wujie component wrappers for `Vue 2` and `Vue 3`. View the [live demo](https://wujie-micro.github.io/demo-main-vue/?lang=en) or browse the [demo source on GitHub](https://github.com/Tencent/wujie/tree/master/examples/main-vue/).
 
 ## Installation
 

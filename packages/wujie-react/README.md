@@ -43,6 +43,6 @@ export default function App() {
 
 - [React Wrapper Guide](https://wujie-micro.github.io/doc/en/pack/react.html)
 - [Documentation (English)](https://wujie-micro.github.io/doc/en/)
-- [React Main App Demo](https://wujie-micro.github.io/demo-main-react/)
+- [React Main App Demo](https://wujie-micro.github.io/demo-main-react/?lang=en)
 - [GitHub Repository](https://github.com/Tencent/wujie)
 - [License: MIT](https://github.com/Tencent/wujie/blob/master/LICENSE)

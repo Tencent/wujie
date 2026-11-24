@@ -5,7 +5,7 @@ collapsable: false
 
 # Vue 组件封装
 
-无界基于`vue2`和`vue3`框架的组件封装，，查看 [demo](https://wujie-micro.github.io/demo-main-vue/)，查看 [demo github](https://github.com/Tencent/wujie/tree/master/examples/main-vue/)
+无界基于`vue2`和`vue3`框架的组件封装，，查看 [demo](https://wujie-micro.github.io/demo-main-vue/?lang=zh)，查看 [demo github](https://github.com/Tencent/wujie/tree/master/examples/main-vue/)
 
 ## 安装
 
