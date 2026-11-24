@@ -97,17 +97,39 @@ ctx.set("Access-Control-Allow-Origin", ctx.headers.origin);
 2. `vite` 子应用所有的 `location` 操作都必须采用 `window.$wujie.location`
 3. `jsIgnores` 对应的 `js` 文件所有的 `location` 操作都必须采用 `window.$wujie.location`
 
-## 11、子应用的相对地址图片没有替换成绝对地址
+## 11、子应用的相对地址资源请求到了主应用域名
 
-**原因：** 子应用通过 `v-html`、`innerHtml`或者在`template`中动态添加`style`时，框架默认的`plugin`无法处理这种场景
+**原因：** 非降级模式下子应用的 DOM 渲染在主应用文档的 `shadowRoot` 中，图片、视频等元素上的相对地址会按主应用的地址解析，导致请求到主应用域名
 
-**解决办法：** 在子应用入口`main`文件最上面 `import "./config"`，`config`具体代码：
+**框架已处理：** 下列元素属性的相对地址会自动补全为子应用地址，无论是写在子应用 HTML 中，还是通过 `setAttribute`、属性赋值（如 `img.src = ...`）、`innerHTML`（包括 `v-html`）设置
+
+| 元素                                | 属性                 |
+| ----------------------------------- | -------------------- |
+| `img`、`source`                     | `src`、`srcset`      |
+| `video`                             | `src`、`poster`      |
+| `audio`、`track`、`iframe`、`embed` | `src`                |
+| `object`                            | `data`               |
+| `a`、`link`                         | `href`               |
+| `script`                            | `src`                |
+| svg `image`                         | `href`、`xlink:href` |
+
+`#` 开头的地址保持不变。2.1.1 及之前的版本只覆盖其中 `img`、`a`、`source`、`link`、`script`、`video`、`audio` 的 `src` / `href`，且不处理 `innerHTML`，升级后即可覆盖上表
+
+**仍需自行处理：** 行内 `style` 属性中的 `url()`（`<style>` 和外链 css 中的地址见[第 6 条](#_6、css-样式内部的相对地址相对的是主应用的域名)），以及通过 `insertAdjacentHTML`、`outerHTML` 等其他方式插入的 HTML
+
+**推荐做法：** 从构建配置上让资源地址不依赖解析基准，以下任选其一
+
+1. 资源公共路径使用带域名的绝对地址：webpack 子应用可以在入口 `main` 文件最上面 `import "./config"`，`config` 具体代码如下；vite 子应用将 `base` 配置为完整地址
+
 ```javascript
 if (window.__POWERED_BY_WUJIE__) {
   // eslint-disable-next-line
   window.__webpack_public_path__ = window.__WUJIE_PUBLIC_PATH__;
 }
 ```
+
+2. 主应用通过同源反向代理转发子应用的资源路径，使请求到主应用域名的相对地址也能拿到子应用资源（子应用资源路径前缀需与主应用不冲突）
+
 ## 12、vite4 子应用样式切换丢失
 
 具体原因和解决办法详见[issue](https://github.com/Tencent/wujie/issues/434#issuecomment-1614089196)
