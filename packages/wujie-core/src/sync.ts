@@ -62,7 +62,8 @@ export function syncUrlToWindow(iframeWindow: Window): void {
   const appUrl = validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl;
   winUrlElement.search = updateSearch(winUrlElement.search, { [id]: sync ? appUrl : null });
   if (winUrlElement.href !== window.location.href) {
-    window.history.replaceState(null, "", winUrlElement.href);
+    // 保留主应用的 history.state，Vue Router 等依赖它恢复前进后退与滚动位置
+    window.history.replaceState(window.history.state, "", winUrlElement.href);
   }
   winUrlElement = null;
 }
@@ -105,7 +106,8 @@ export function clearInactiveAppUrl(): void {
   });
   winUrlElement.search = updateSearch(winUrlElement.search, updates);
   if (winUrlElement.href !== window.location.href) {
-    window.history.replaceState(null, "", winUrlElement.href);
+    // 保留主应用的 history.state，Vue Router 等依赖它恢复前进后退与滚动位置
+    window.history.replaceState(window.history.state, "", winUrlElement.href);
   }
   winUrlElement = null;
 }
@@ -116,7 +118,7 @@ export function clearInactiveAppUrl(): void {
 export function pushUrlToWindow(id: string, url: string, replace = false): void {
   let winUrlElement = anchorElementGenerator(window.location.href);
   winUrlElement.search = updateSearch(winUrlElement.search, { [id]: url });
-  if (replace) window.history.replaceState(null, "", winUrlElement.href);
+  if (replace) window.history.replaceState(window.history.state, "", winUrlElement.href);
   else window.history.pushState(null, "", winUrlElement.href);
   winUrlElement = null;
 }
