@@ -627,6 +627,17 @@ export function patchDocumentEffect(iframeWindow: Window): void {
       sandbox.shadowRoot.removeEventListener(type, callback, options);
     }
   };
+  // 派发到 addEventListener 注册监听的同一位置，否则自定义事件等注册在 shadowRoot 上的监听收不到
+  const rawDispatchEvent = iframeWindow.Document.prototype.dispatchEvent;
+  iframeWindow.Document.prototype.dispatchEvent = function (event: Event): boolean {
+    const type = event?.type;
+    if (appDocumentAddEventListenerEvents.includes(type)) return rawDispatchEvent.call(this, event);
+    if (sandbox.degrade) {
+      return sandbox.document ? sandbox.document.dispatchEvent(event) : rawDispatchEvent.call(this, event);
+    }
+    if (mainDocumentAddEventListenerEvents.includes(type)) return window.document.dispatchEvent(event);
+    return sandbox.shadowRoot ? sandbox.shadowRoot.dispatchEvent(event) : rawDispatchEvent.call(this, event);
+  };
   // 处理onEvent
   const elementOnEvents = Object.keys(iframeWindow.HTMLElement.prototype).filter((ele) => /^on/.test(ele));
   const documentOnEvent = Object.keys(iframeWindow.Document.prototype)
