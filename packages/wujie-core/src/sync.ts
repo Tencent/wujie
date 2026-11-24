@@ -62,9 +62,7 @@ export function syncUrlToWindow(iframeWindow: Window): void {
   const appUrl = validShortPath ? curUrl.replace(prefix[validShortPath], `{${validShortPath}}`) : curUrl;
   winUrlElement.search = updateSearch(winUrlElement.search, { [id]: sync ? appUrl : null });
   if (winUrlElement.href !== window.location.href) {
-    // replaceState 的第 1 个参数是新的 history.state：传 null 会清掉主应用存进去的数据
-    // （Vue Router 把 back / current / forward / position / scroll 都放在这里），
-    // 导致 router.back() 的位置恢复、scrollBehavior 的 savedPosition 失效
+    // 保留主应用的 history.state，Vue Router 等依赖它恢复前进后退与滚动位置
     window.history.replaceState(window.history.state, "", winUrlElement.href);
   }
   winUrlElement = null;
@@ -108,9 +106,7 @@ export function clearInactiveAppUrl(): void {
   });
   winUrlElement.search = updateSearch(winUrlElement.search, updates);
   if (winUrlElement.href !== window.location.href) {
-    // replaceState 的第 1 个参数是新的 history.state：传 null 会清掉主应用存进去的数据
-    // （Vue Router 把 back / current / forward / position / scroll 都放在这里），
-    // 导致 router.back() 的位置恢复、scrollBehavior 的 savedPosition 失效
+    // 保留主应用的 history.state，Vue Router 等依赖它恢复前进后退与滚动位置
     window.history.replaceState(window.history.state, "", winUrlElement.href);
   }
   winUrlElement = null;
