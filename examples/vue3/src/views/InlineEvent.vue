@@ -1,108 +1,119 @@
 <template>
   <div class="inline-event-demo">
-    <h2>内联事件处理器测试</h2>
-    <p>测试 wujie 双沙箱架构中内联事件处理器的作用域绑定功能</p>
+    <h2>{{ $t("inline.title") }}</h2>
+    <p>{{ $t("inline.subtitle") }}</p>
 
     <div class="test-section">
-      <h3>测试场景</h3>
-      <p>以下按钮使用传统的 onclick 内联事件，验证是否能在子应用作用域中正常执行</p>
+      <h3>{{ $t("inline.sectionCases") }}</h3>
+      <p>{{ $t("inline.sectionCasesDesc") }}</p>
 
       <div class="test-cases">
         <div class="test-case">
-          <h4>场景 1: 基本功能测试</h4>
-          <button onclick="basicTest('hello from inline event')">基本测试</button>
-          <div class="result" id="result1">等待测试...</div>
+          <h4>{{ $t("inline.case1Title") }}</h4>
+          <button onclick="basicTest('hello from inline event')">{{ $t("inline.case1Btn") }}</button>
+          <div class="result" id="result1">{{ $t("inline.waiting") }}</div>
         </div>
 
         <div class="test-case">
-          <h4>场景 2: 多参数测试</h4>
-          <button onclick="multiParams('param1', 'param2', 123)">多参数测试</button>
-          <div class="result" id="result2">等待测试...</div>
+          <h4>{{ $t("inline.case2Title") }}</h4>
+          <button onclick="multiParams('param1', 'param2', 123)">{{ $t("inline.case2Btn") }}</button>
+          <div class="result" id="result2">{{ $t("inline.waiting") }}</div>
         </div>
 
         <div class="test-case">
-          <h4>场景 3: 访问全局变量</h4>
-          <button onclick="accessGlobal()">访问全局变量</button>
-          <div class="result" id="result3">等待测试...</div>
+          <h4>{{ $t("inline.case3Title") }}</h4>
+          <button onclick="accessGlobal()">{{ $t("inline.case3Btn") }}</button>
+          <div class="result" id="result3">{{ $t("inline.waiting") }}</div>
         </div>
 
         <div class="test-case">
-          <h4>场景 4: 复杂表达式</h4>
-          <button onclick="complexExpression(10, 20)">复杂表达式</button>
-          <div class="result" id="result4">等待测试...</div>
+          <h4>{{ $t("inline.case4Title") }}</h4>
+          <button onclick="complexExpression(10, 20)">{{ $t("inline.case4Btn") }}</button>
+          <div class="result" id="result4">{{ $t("inline.waiting") }}</div>
         </div>
 
         <div class="test-case">
-          <h4>场景 5: 事件对象访问</h4>
-          <button onclick="eventObjectTest(event)">事件对象测试</button>
-          <div class="result" id="result5">等待测试...</div>
+          <h4>{{ $t("inline.case5Title") }}</h4>
+          <button onclick="eventObjectTest(event)">{{ $t("inline.case5Btn") }}</button>
+          <div class="result" id="result5">{{ $t("inline.waiting") }}</div>
         </div>
 
         <div class="test-case">
-          <h4>场景 6: 多个内联事件</h4>
-          <button onclick="multiEvent('click')" onmouseover="multiEvent('mouseover')"
-            onmouseout="multiEvent('mouseout')">
-            多事件测试
+          <h4>{{ $t("inline.case6Title") }}</h4>
+          <button
+            onclick="multiEvent('click')"
+            onmouseover="multiEvent('mouseover')"
+            onmouseout="multiEvent('mouseout')"
+          >
+            {{ $t("inline.case6Btn") }}
           </button>
-          <div class="result" id="result6">等待测试...</div>
+          <div class="result" id="result6">{{ $t("inline.waiting") }}</div>
         </div>
       </div>
     </div>
 
     <div class="test-section">
-      <h3>测试说明</h3>
+      <h3>{{ $t("inline.sectionNotes") }}</h3>
       <ul>
-        <li>✅ 如果所有按钮都能正常工作，说明内联事件处理器编译成功</li>
-        <li>❌ 如果出现 "xxx is not defined" 错误，说明作用域绑定失败</li>
-        <li>📝 所有函数都定义在子应用的全局作用域中</li>
+        <li>{{ $t("inline.note1") }}</li>
+        <li>{{ $t("inline.note2") }}</li>
+        <li>{{ $t("inline.note3") }}</li>
       </ul>
     </div>
 
     <div class="test-section">
-      <h3>实现原理</h3>
-      <p>编译前：<code>&lt;button onclick="greet()"&gt;</code></p>
-      <p>编译后：<code>&lt;button onclick='with(window.__getWujieWindow__("appId")){ greet() }'&gt;</code></p>
+      <h3>{{ $t("inline.sectionImpl") }}</h3>
+      <p>{{ $t("inline.beforeCompile") }}<code>&lt;button onclick="greet()"&gt;</code></p>
+      <p>
+        {{ $t("inline.afterCompile")
+        }}<code>&lt;button onclick='with(window.__getWujieWindow__("appId")){ greet() }'&gt;</code>
+      </p>
     </div>
   </div>
 </template>
 
 <script>
+import { t } from "../i18n";
+
 export default {
   name: "InlineEvent",
   mounted() {
     // 在子应用的全局作用域中定义测试函数
     window.basicTest = (msg) => {
-      document.getElementById("result1").textContent = `✅ 成功: ${msg}`;
+      document.getElementById("result1").textContent = `${t("inline.successPrefix")} ${msg}`;
       document.getElementById("result1").style.color = "green";
     };
 
     window.multiParams = (p1, p2, p3) => {
-      document.getElementById("result2").textContent = `✅ 成功: ${p1}, ${p2}, ${p3}`;
+      document.getElementById("result2").textContent = `${t("inline.successPrefix")} ${p1}, ${p2}, ${p3}`;
       document.getElementById("result2").style.color = "green";
     };
 
     // 定义全局变量
-    window.testGlobalVar = "我是全局变量";
+    window.testGlobalVar = t("inline.globalVarValue");
 
     window.accessGlobal = () => {
-      document.getElementById("result3").textContent = `✅ 成功: ${window.testGlobalVar}`;
+      window.testGlobalVar = t("inline.globalVarValue");
+      document.getElementById("result3").textContent = `${t("inline.successPrefix")} ${window.testGlobalVar}`;
       document.getElementById("result3").style.color = "green";
     };
 
     window.complexExpression = (a, b) => {
       const result = a + b;
-      document.getElementById("result4").textContent = `✅ 成功: ${a} + ${b} = ${result}`;
+      document.getElementById("result4").textContent = `${t("inline.successPrefix")} ${a} + ${b} = ${result}`;
       document.getElementById("result4").style.color = "green";
     };
 
     window.eventObjectTest = (event) => {
-      document.getElementById("result5").textContent = `✅ 成功: 事件类型=${event.type}, 目标=${event.target.tagName}`;
+      document.getElementById("result5").textContent = `${t("inline.successPrefix")} ${t("inline.eventType")}=${
+        event.type
+      }, ${t("inline.eventTarget")}=${event.target.tagName}`;
       document.getElementById("result5").style.color = "green";
     };
 
     window.multiEvent = (eventType) => {
       const resultEl = document.getElementById("result6");
-      resultEl.textContent = `✅ 成功: ${eventType} 事件触发`;
+      resultEl.textContent = `${t("inline.successPrefix")} ${eventType} ${t("inline.eventTriggered")}`;
       resultEl.style.color = "green";
     };
   },

@@ -1,11 +1,11 @@
 <template>
   <!--单例模式，name相同则复用一个无界实例，改变url则子应用重新渲染实例到对应路由 -->
   <div>
-    <div class="title">主应用</div>
+    <div class="title">{{ $t("pm.title") }}</div>
     <div class="main-content">
-      <div style="padding-bottom: 10px">接收的消息：{{ message }}</div>
-      <button style="margin-right: 10px" @click="() => postMessageToVue2()">发送消息给vue2子应用</button>
-      <button @click="() => postMessageToVue3()">发送消息给vue2子应用的iframe</button>
+      <div style="padding-bottom: 10px">{{ $t("pm.received") }}{{ message }}</div>
+      <button style="margin-right: 10px" @click="() => postMessageToVue2()">{{ $t("pm.sendVue2") }}</button>
+      <button @click="() => postMessageToVue3()">{{ $t("pm.sendVue2Iframe") }}</button>
     </div>
     <div class="sub-content">
       <WujieVue width="100%" height="100%" name="vue2" :url="vue2Url" :sync="true"></WujieVue>

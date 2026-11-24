@@ -19,10 +19,11 @@ import "ant-design-vue/es/icon/style/index.css";
 import lifecycles from "./lifecycle";
 import plugins from "./plugin";
 import { wangEditorPlugin } from "./plugins/wangEditor";
+import i18n, { getLang } from "./i18n";
 
 const isProduction = process.env.NODE_ENV === "production";
 const { setupApp, preloadApp, bus } = WujieVue;
-Vue.use(WujieVue).use(Switch).use(Tooltip).use(button).use(Icon);
+Vue.use(WujieVue).use(Switch).use(Tooltip).use(button).use(Icon).use(i18n);
 
 Vue.config.productionTip = false;
 
@@ -44,6 +45,8 @@ const props = {
   jump: (name) => {
     router.push({ name });
   },
+  lang: getLang(),
+  getLang,
 };
 /**
  * 大部分业务无需设置 attrs

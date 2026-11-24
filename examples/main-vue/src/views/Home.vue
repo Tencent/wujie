@@ -4,32 +4,33 @@
       <a-button style="visibility: hidden" class="button-gap" type="primary" icon="unordered-list" size="large" />
       <div class="button-list">
         <a-tooltip placement="top">
-          <template slot="title">主动降级，去除shadow+proxy</template>
+          <template slot="title">{{ $t("home.degradeTip") }}</template>
           <a-switch
             class="switch button-gap"
             :disabled="disable"
-            checked-children="降级开"
-            un-checked-children="降级关"
+            :checked-children="$t('home.degradeOn')"
+            :un-checked-children="$t('home.degradeOff')"
             v-model="degrade"
           />
         </a-tooltip>
         <a-tooltip placement="top">
-          <template slot="title">预加载+预执行</template>
+          <template slot="title">{{ $t("home.preloadTip") }}</template>
           <a-switch
             class="switch button-gap"
-            checked-children="预加载开"
-            un-checked-children="预加载关"
+            :checked-children="$t('home.preloadOn')"
+            :un-checked-children="$t('home.preloadOff')"
             v-model="preload"
           />
         </a-tooltip>
         <a-tooltip placement="top">
-          <template slot="title">主应用为hash模式</template>
-          <a href="https://wujie-micro.github.io/demo-main-react/" target="_blank" class="docs button-gap"
-            >react主应用</a
-          >
+          <template slot="title">{{ $t("home.reactMainTip") }}</template>
+          <a :href="reactMainUrl" target="_blank" class="docs button-gap">{{ $t("home.reactMain") }}</a>
         </a-tooltip>
-        <a href="https://github.com/Tencent/wujie" target="_blank" class="docs button-gap">仓库</a>
-        <a href="https://wujie-micro.github.io/doc/" target="_blank" class="docs button-gap">文档</a>
+        <a href="https://github.com/Tencent/wujie" target="_blank" class="docs button-gap">{{ $t("home.repo") }}</a>
+        <a :href="docsUrl" target="_blank" class="docs button-gap">{{ $t("home.docs") }}</a>
+        <button type="button" class="docs button-gap lang-btn" @click="$toggleLang()">
+          {{ $lang === "en" ? "中文" : "EN" }}
+        </button>
       </div>
     </div>
     <h1 class="header">
@@ -37,38 +38,38 @@
         :style="{ width: '70px', height: '70px', 'margin-right': '15px' }"
         src="https://vfiles.gtimg.cn/wuji_dashboard/xy/test_wuji_damy/XC5WMbxE.svg"
       />
-      <span class="bland">无界</span>
+      <span class="bland">{{ $t("home.brand") }}</span>
     </h1>
-    <h2 class="subtitle">—极致的微前端框架</h2>
+    <h2 class="subtitle">{{ $t("home.subtitle") }}</h2>
 
     <div class="detail-content">
       <div class="item">
-        <div class="title">极速 🚀</div>
+        <div class="title">{{ $t("home.fastTitle") }}</div>
         <div class="detail">
           <ul>
-            <li>极致预加载提速</li>
-            <li>应用秒开无白屏</li>
-            <li>应用丝滑般切换</li>
+            <li>{{ $t("home.fast1") }}</li>
+            <li>{{ $t("home.fast2") }}</li>
+            <li>{{ $t("home.fast3") }}</li>
           </ul>
         </div>
       </div>
       <div class="item">
-        <div class="title">强大 💪</div>
+        <div class="title">{{ $t("home.powerTitle") }}</div>
         <div class="detail">
           <ul>
-            <li>多应用同时激活在线</li>
-            <li>应用级别保活</li>
-            <li>去中心化的通信</li>
+            <li>{{ $t("home.power1") }}</li>
+            <li>{{ $t("home.power2") }}</li>
+            <li>{{ $t("home.power3") }}</li>
           </ul>
         </div>
       </div>
       <div class="item">
-        <div class="title">简单 🤞</div>
+        <div class="title">{{ $t("home.simpleTitle") }}</div>
         <div class="detail">
           <ul>
-            <li>更小的体积</li>
-            <li>精简的API</li>
-            <li>开箱即用</li>
+            <li>{{ $t("home.simple1") }}</li>
+            <li>{{ $t("home.simple2") }}</li>
+            <li>{{ $t("home.simple3") }}</li>
           </ul>
         </div>
       </div>
@@ -85,6 +86,16 @@ export default {
       degrade: window.localStorage.getItem("degrade") === "true" || !window.Proxy || !window.CustomElementRegistry,
       disable: !window.Proxy || !window.CustomElementRegistry,
     };
+  },
+  computed: {
+    docsUrl() {
+      return this.$lang === "en" ? "https://wujie-micro.github.io/doc/en/" : "https://wujie-micro.github.io/doc/";
+    },
+    reactMainUrl() {
+      return this.$lang === "en"
+        ? "https://wujie-micro.github.io/demo-main-react/?lang=en"
+        : "https://wujie-micro.github.io/demo-main-react/?lang=zh";
+    },
   },
   watch: {
     preload(val) {
@@ -166,6 +177,7 @@ export default {
   margin-left: 15px;
   cursor: pointer;
   text-decoration: none;
+  background: transparent;
   transition: all 0.1s linear;
 }
 .docs:hover {

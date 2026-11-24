@@ -6,10 +6,13 @@ import Button from "element-plus/es/components/button/index";
 import Dialog from "element-plus/es/components/dialog/index";
 import Select from "element-plus/es/components/select/index";
 import Popover from "element-plus/es/components/popover/index";
+import ElConfigProvider from "element-plus/es/components/config-provider/index";
 import AButton from "ant-design-vue/es/button";
 import ASelect from "ant-design-vue/es/select";
 import AModal from "ant-design-vue/es/modal";
 import APopover from "ant-design-vue/es/popover";
+import AConfigProvider from "ant-design-vue/es/config-provider";
+import i18n from "./i18n";
 import "element-plus/es/components/button/style/css";
 import "element-plus/es/components/tag/style/css";
 import "element-plus/es/components/dialog/style/css";
@@ -23,6 +26,9 @@ import "ant-design-vue/es/popover/style/index.css";
 import "./index.css";
 
 createApp(App)
+  .use(i18n)
+  .use(ElConfigProvider)
+  .use(AConfigProvider)
   .use(Tag)
   .use(Button)
   .use(Dialog)

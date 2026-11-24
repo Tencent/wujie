@@ -193,7 +193,28 @@ h3 {
   margin-left: 15px;
   cursor: pointer;
   text-decoration: none;
+  background: transparent;
   transition: all 0.1s linear;
+}
+.nav-lang-wrap {
+  margin-top: auto;
+  padding: 16px 30px 0;
+}
+.nav-lang-btn {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  background: transparent;
+  border: 1px solid #d9d9d9;
+  border-radius: 16px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s linear;
+}
+.nav-lang-btn:hover {
+  color: rgb(241, 107, 95);
+  border-color: rgb(241, 107, 95);
 }
 .docs:hover {
   color: rgb(241, 107, 95);

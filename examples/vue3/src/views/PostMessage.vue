@@ -2,10 +2,10 @@
   <!--单例模式，name相同则复用一个无界实例，改变url则子应用重新渲染实例到对应路由 -->
   <div>
     <div class="title">vue3-iframe</div>
-    <div style="padding-bottom: 10px">接收的消息：{{ message }}</div>
-    <el-button @click="postMessageToMain">发送消息给主应用</el-button>
-    <el-button @click="postMessageToSubApp">发送消息给vue2子应用(借助主应用)</el-button>
-    <el-button @click="postMessageToIframe">发送消息给自己(借助主应用)</el-button>
+    <div style="padding-bottom: 10px">{{ $t("pm.received") }}{{ message }}</div>
+    <el-button @click="postMessageToMain">{{ $t("pm.sendMain") }}</el-button>
+    <el-button @click="postMessageToSubApp">{{ $t("pm.sendVue2") }}</el-button>
+    <el-button @click="postMessageToIframe">{{ $t("pm.sendSelf") }}</el-button>
   </div>
 </template>
 

@@ -2,6 +2,7 @@ import React from "react";
 import hostMap from "../hostMap";
 import WujieReact from "wujie-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getLang } from "../i18n";
 
 export default function Vue3() {
   const location = useLocation();
@@ -14,6 +15,8 @@ export default function Vue3() {
     jump: (name) => {
       navigation(`/${name}`);
     },
+    lang: getLang(),
+    getLang,
   };
   return (
     <WujieReact

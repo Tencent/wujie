@@ -11,6 +11,7 @@ import Angular12 from "./pages/Angular12";
 import All from "./pages/All";
 import Button from "antd/es/button";
 import { UnorderedListOutlined, CaretUpOutlined } from "@ant-design/icons";
+import { useI18n } from "./i18n";
 
 const { bus } = WujieReact;
 
@@ -23,6 +24,7 @@ const subMap = {
 };
 
 function Nav() {
+  const { lang, t, toggleLang } = useI18n();
   const location = useLocation();
   const navigation = useNavigate();
   const [react16Flag, setReact16Flag] = useState(location.pathname.includes("react16-sub"));
@@ -66,7 +68,7 @@ function Nav() {
   return (
     <nav>
       <NavLink to="/home" className={({ isActive }) => (isActive ? "active" : "inactive")}>
-        介绍
+        {t("nav.intro")}
       </NavLink>
       <NavLink to="/react16" className={({ isActive }) => (isActive ? "active" : "inactive")}>
         react16
@@ -87,7 +89,7 @@ function Nav() {
         ))}
       </div>
       <NavLink to="/react17" className={({ isActive }) => (isActive ? "active" : "inactive")}>
-        react17<span className="alive">保活</span>
+        react17<span className="alive">{t("nav.alive")}</span>
         <CaretUpOutlined
           className={react17Flag ? "main-icon active" : "main-icon"}
           onClick={() => handleFlag("react17")}
@@ -117,7 +119,7 @@ function Nav() {
       </div>
       {degrade && (
         <NavLink to="/vue3" className={({ isActive }) => (isActive ? "active" : "inactive")}>
-          vue3<span className="alive">保活</span>
+          vue3<span className="alive">{t("nav.alive")}</span>
           <CaretUpOutlined className={vue3Flag ? "main-icon active" : "main-icon"} onClick={() => handleFlag("vue3")} />
         </NavLink>
       )}
@@ -147,6 +149,11 @@ function Nav() {
       <NavLink to="/all" className={({ isActive }) => (isActive ? "active" : "inactive")}>
         all
       </NavLink>
+      <div className="nav-lang-wrap">
+        <button type="button" className="nav-lang-btn" onClick={toggleLang}>
+          {lang === "en" ? "切换中文" : "English"}
+        </button>
+      </div>
       <Button type="primary" className="menu-icon" icon={<UnorderedListOutlined />}></Button>
     </nav>
   );
