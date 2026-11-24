@@ -8,19 +8,13 @@ import {
   WUJIE_LOADING_STYLE,
   WUJIE_LOADING_SVG,
 } from "./constant";
-import {
-  getWujieById,
-  rawAppendChild,
-  rawElementAppendChild,
-  rawElementRemoveChild,
-  relativeElementTagAttrMap,
-} from "./common";
+import { getWujieById, rawAppendChild, rawElementAppendChild, rawElementRemoveChild } from "./common";
 import { getExternalStyleSheets } from "./entry";
 import Wujie from "./sandbox";
 import { initBase, patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
-import { getAbsolutePath, getContainer, getCurUrl, isFunction, setAttrsToElement, warn } from "./utils";
+import { getContainer, getCurUrl, isFunction, setAttrsToElement, warn } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -244,10 +238,6 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
   let nextElement = ElementIterator.currentNode as HTMLElement;
   while (nextElement) {
     patchElementEffect(nextElement, iframeWindow);
-    const relativeAttr = relativeElementTagAttrMap[nextElement.tagName];
-    const url = nextElement[relativeAttr];
-    if (relativeAttr && nextElement.hasAttribute(relativeAttr))
-      nextElement.setAttribute(relativeAttr, getAbsolutePath(url, nextElement.baseURI || ""));
     nextElement = ElementIterator.nextNode() as HTMLElement;
   }
   if (!html.querySelector("head")) {

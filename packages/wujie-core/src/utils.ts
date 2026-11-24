@@ -6,6 +6,8 @@ import {
   WUJIE_TIPS_STOP_APP_DETAIL,
 } from "./constant";
 import { plugin, cacheOptions } from "./index";
+import { relativeUrlAttrMap } from "./common";
+import type { RelativeUrlKind } from "./common";
 
 export function toArray<T>(array: T | T[]): T[] {
   return Array.isArray(array) ? array : [array];
@@ -170,76 +172,85 @@ export function isMatchSyncQueryById(id: string): boolean {
   return Object.keys(queryMap).includes(id);
 }
 
+const hasOwn = (target: object, key: string): boolean => Object.prototype.hasOwnProperty.call(target, key);
+
 /**
- * 劫持元素原型对相对地址的赋值转绝对地址
- * @param iframeWindow
+ * 子应用相对地址的补全基准，与沙箱节点 baseURI 的修正保持一致
  */
-export function fixElementCtrSrcOrHref(
-  iframeWindow: Window,
-  elementCtr:
-    | typeof HTMLImageElement
-    | typeof HTMLAnchorElement
-    | typeof HTMLSourceElement
-    | typeof HTMLLinkElement
-    | typeof HTMLScriptElement
-    | typeof HTMLMediaElement,
-  attr
-): void {
-  // patch setAttribute
-  const rawElementSetAttribute = iframeWindow.Element.prototype.setAttribute;
-  elementCtr.prototype.setAttribute = function (name: string, value: string): void {
-    let targetValue = value;
-    if (name === attr) targetValue = getAbsolutePath(value, this.baseURI || "", true);
-    rawElementSetAttribute.call(this, name, targetValue);
-  };
-  // patch href get and set
-  const rawAnchorElementHrefDescriptor = Object.getOwnPropertyDescriptor(elementCtr.prototype, attr);
-  const { enumerable, configurable, get, set } = rawAnchorElementHrefDescriptor;
-  Object.defineProperty(elementCtr.prototype, attr, {
-    enumerable,
-    configurable,
-    get: function () {
-      return get.call(this);
-    },
-    set: function (href) {
-      set.call(this, getAbsolutePath(href, this.baseURI, true));
-    },
-  });
+export function getAppBaseURI(iframeWindow: Window): string {
+  const proxyLocation = iframeWindow.__WUJIE?.proxyLocation;
+  return proxyLocation ? getCurUrl(proxyLocation) : iframeWindow.document?.baseURI || "";
 }
 
 /**
- * 劫持 innerHTML 赋值，修正解析出的 img、source 的相对地址
- * innerHTML 由原生 parser 构建节点，绕过 setAttribute / src 的劫持；
- * Vue 编译产物会把连续 5 个及以上的静态节点拼成字符串经 template.innerHTML 插入，
- * 相对地址进入主文档后按主应用域名加载导致 404
- * @param iframeWindow
+ * 查询元素属性在 relativeUrlAttrMap 中的解析方式，不需要补全时返回 undefined
  */
-export function fixInnerHTMLRelativeSrc(iframeWindow: Window): void {
-  const rawInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(iframeWindow.Element.prototype, "innerHTML");
-  if (!rawInnerHTMLDescriptor?.set) {
-    warn("Element.prototype 上缺少 innerHTML 访问器，跳过 innerHTML 相对地址修正");
-    return;
+export function getRelativeUrlKind(element: Element, attr: string): RelativeUrlKind | undefined {
+  const localName = element.localName;
+  if (!localName || !hasOwn(relativeUrlAttrMap, localName)) return undefined;
+  const attrMap = relativeUrlAttrMap[localName];
+  const name = String(attr).toLowerCase();
+  return hasOwn(attrMap, name) ? attrMap[name] : undefined;
+}
+
+// srcset 只以 ASCII 空白分隔，全角空格等属于地址本身
+const isSrcsetWhitespace = (char: string): boolean => /[\t\n\f\r ]/.test(char);
+
+/**
+ * 逐个补全 srcset 中的候选地址，描述符与原有分隔格式保持不变
+ */
+export function getAbsoluteSrcset(srcset: string, base: string): string {
+  let result = "";
+  let index = 0;
+  const length = srcset.length;
+  while (index < length) {
+    let start = index;
+    while (index < length && (srcset[index] === "," || isSrcsetWhitespace(srcset[index]))) index++;
+    result += srcset.slice(start, index);
+    if (index >= length) break;
+    // 候选地址为连续的非空白字符，末尾的逗号属于分隔符
+    start = index;
+    while (index < length && !isSrcsetWhitespace(srcset[index])) index++;
+    const token = srcset.slice(start, index);
+    const trailingCommas = /,*$/.exec(token)[0];
+    result += getAbsolutePath(token.slice(0, token.length - trailingCommas.length), base, true) + trailingCommas;
+    if (trailingCommas) continue;
+    start = index;
+    while (index < length && srcset[index] !== ",") index++;
+    result += srcset.slice(start, index);
   }
-  const { enumerable, configurable, get, set } = rawInnerHTMLDescriptor;
-  try {
-    Object.defineProperty(iframeWindow.Element.prototype, "innerHTML", {
-      enumerable,
-      configurable,
-      get,
-      set: function (html: string) {
-        set.call(this, html);
-        if (!/\ssrc\s*=/i.test(String(html))) return;
-        const root: ParentNode = this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this;
-        root.querySelectorAll("img[src], source[src]").forEach((element) => {
-          const src = element.getAttribute("src");
-          const absoluteSrc = getAbsolutePath(src, iframeWindow.document.baseURI);
-          if (absoluteSrc !== src) element.setAttribute("src", absoluteSrc);
-        });
-      },
-    });
-  } catch (e) {
-    warn("劫持 innerHTML 修正相对地址失败", e);
-  }
+  return result;
+}
+
+export function resolveRelativeUrl(value: string, kind: RelativeUrlKind, base: string): string {
+  return kind === "srcset" ? getAbsoluteSrcset(value, base) : getAbsolutePath(value, base, true);
+}
+
+/**
+ * 按 relativeUrlAttrMap 补全单个元素上的相对地址，值不变时不回写，避免重复触发资源加载
+ */
+function fixElementRelativeUrl(element: Element, base: string): void {
+  const localName = element.localName;
+  if (!localName || !hasOwn(relativeUrlAttrMap, localName)) return;
+  const attrMap = relativeUrlAttrMap[localName];
+  Object.keys(attrMap).forEach((attr) => {
+    const value = element.getAttribute(attr);
+    if (!value) return;
+    const absoluteValue = resolveRelativeUrl(value, attrMap[attr], base);
+    if (absoluteValue !== value) element.setAttribute(attr, absoluteValue);
+  });
+}
+
+let relativeUrlSelector = "";
+
+/**
+ * 按 relativeUrlAttrMap 补全子树中所有元素的相对地址，用于 innerHTML 这类由原生 parser 构建节点的场景
+ */
+export function fixRelativeUrlInTree(root: ParentNode, base: string): void {
+  relativeUrlSelector = relativeUrlSelector || Object.keys(relativeUrlAttrMap).join(",");
+  root.querySelectorAll(relativeUrlSelector).forEach((element) => {
+    fixElementRelativeUrl(element, base);
+  });
 }
 
 export function getCurUrl(proxyLocation: Object): string {

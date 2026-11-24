@@ -196,11 +196,23 @@ export const appWindowAddEventListenerEvents = [
 // 子应用window.onXXX需要挂载到iframe沙箱上的事件
 export const appWindowOnEvent = ["onload", "onbeforeunload", "onunload", "onerror", "onunhandledrejection"];
 
-// 相对路径问题元素的tag和attr的map
-export const relativeElementTagAttrMap = {
-  IMG: "src",
-  A: "href",
-  SOURCE: "src",
+export type RelativeUrlKind = "url" | "srcset";
+
+// 需要补全为子应用地址的元素属性：非降级模式下子应用 DOM 挂在主文档，相对地址会按主应用地址解析
+// key 为元素 localName（svg image 为 image），value 为属性名到解析方式的映射
+export const relativeUrlAttrMap: { [localName: string]: { [attr: string]: RelativeUrlKind } } = {
+  a: { href: "url" },
+  img: { src: "url", srcset: "srcset" },
+  source: { src: "url", srcset: "srcset" },
+  video: { src: "url", poster: "url" },
+  audio: { src: "url" },
+  track: { src: "url" },
+  iframe: { src: "url" },
+  embed: { src: "url" },
+  object: { data: "url" },
+  link: { href: "url" },
+  script: { src: "url" },
+  image: { href: "url", "xlink:href": "url" },
 };
 
 // 需要单独处理的window属性
