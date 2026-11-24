@@ -1,7 +1,16 @@
 {
   "name": "wujie-react",
   "version": "2.1.1",
-  "description": "无界微前端React组件封装",
+  "description": "React wrapper component for the Wujie micro-frontend framework",
+  "homepage": "https://wujie-micro.github.io/doc/en/pack/react.html",
+  "keywords": [
+    "micro-frontend",
+    "microfrontend",
+    "react",
+    "web-components",
+    "iframe",
+    "wujie"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Tencent/wujie.git"

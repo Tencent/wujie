@@ -1,7 +1,17 @@
 {
   "name": "wujie-vue2",
   "version": "2.1.1",
-  "description": "无界微前端Vue2组件封装",
+  "description": "Vue 2 wrapper component for the Wujie micro-frontend framework",
+  "homepage": "https://wujie-micro.github.io/doc/en/pack/",
+  "keywords": [
+    "micro-frontend",
+    "microfrontend",
+    "vue",
+    "vue2",
+    "web-components",
+    "iframe",
+    "wujie"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Tencent/wujie.git"

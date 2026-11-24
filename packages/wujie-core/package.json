@@ -1,7 +1,17 @@
 {
   "name": "wujie",
   "version": "2.1.1",
-  "description": "极致的微前端框架",
+  "description": "The ultimate micro-frontend framework powered by Web Components and iframe",
+  "homepage": "https://wujie-micro.github.io/doc/en/",
+  "keywords": [
+    "micro-frontend",
+    "microfrontend",
+    "web-components",
+    "shadow-dom",
+    "iframe",
+    "sandbox",
+    "wujie"
+  ],
   "main": "./lib/index.js",
   "module": "./esm/index.js",
   "types": "./esm/index.d.ts",
