@@ -521,9 +521,16 @@ export function recoverDocumentListeners(
  * 修复vue绑定事件e.timeStamp < attachedTimestamp 的情况
  */
 export function patchEventTimeStamp(targetWindow: Window, iframeWindow: Window) {
+  // 每次读取都新建一个事件会让同一个事件的 timeStamp 一直变化，
+  // 按事件对象缓存首次取值，保证同一个事件多次读取稳定
+  const timeStampCache = new WeakMap<object, number>();
   Object.defineProperty(targetWindow.Event.prototype, "timeStamp", {
-    get: () => {
-      return iframeWindow.document.createEvent("Event").timeStamp;
+    configurable: true,
+    get(this: Event) {
+      if (!timeStampCache.has(this)) {
+        timeStampCache.set(this, iframeWindow.document.createEvent("Event").timeStamp);
+      }
+      return timeStampCache.get(this);
     },
   });
 }
