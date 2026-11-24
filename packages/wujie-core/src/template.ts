@@ -16,6 +16,8 @@ const LINK_AS_FONT = /.*\sas=('|")?font\1.*/;
 const STYLE_TAG_REGEX = /<style[^>]*>[\s\S]*?<\/style>/gi;
 const STYLE_TYPE_REGEX = /\s+rel=('|")?stylesheet\1.*/;
 const STYLE_HREF_REGEX = /.*\shref=('|")?([^>'"\s]+)/;
+// media 可能带空格与括号（(min-width: 600px)），优先取引号内的完整值
+const LINK_MEDIA_REGEX = /\smedia=("([^"]*)"|'([^']*)'|([^\s>]+))/i;
 const HTML_COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
 const LINK_IGNORE_REGEX = /<link(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const STYLE_IGNORE_REGEX = /<style(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
@@ -59,6 +61,8 @@ export interface StyleObject {
   content?: string;
   /** 忽略，子应用自行请求 */
   ignore?: boolean;
+  /** link 上的 media，转成内联 style 时必须保留 */
+  media?: string;
 }
 
 export interface TemplateResult {
@@ -180,7 +184,9 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
             return genIgnoreAssetReplaceSymbol(newHref);
           }
 
-          styles.push({ src: newHref });
+          const mediaMatch = match.match(LINK_MEDIA_REGEX);
+          const media = mediaMatch ? mediaMatch[2] ?? mediaMatch[3] ?? mediaMatch[4] : undefined;
+          styles.push({ src: newHref, media });
           return genLinkReplaceSymbol(newHref);
         }
       }
