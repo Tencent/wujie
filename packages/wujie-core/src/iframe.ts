@@ -3,8 +3,10 @@ import { ScriptObject } from "./template";
 import { renderElementToContainer } from "./shadow";
 import { syncUrlToWindow } from "./sync";
 import {
-  fixElementCtrSrcOrHref,
-  fixInnerHTMLRelativeSrc,
+  getAppBaseURI,
+  getRelativeUrlKind,
+  resolveRelativeUrl,
+  fixRelativeUrlInTree,
   isConstructable,
   anchorElementGenerator,
   isMatchSyncQueryById,
@@ -33,6 +35,7 @@ import {
   windowRegWhiteList,
   rawWindowAddEventListener,
   rawWindowRemoveEventListener,
+  relativeUrlAttrMap,
 } from "./common";
 import type { appAddEventListenerOptions } from "./common";
 import { getJsLoader } from "./plugin";
@@ -827,17 +830,105 @@ function patchNodeEffect(iframeWindow: Window): void {
 }
 
 /**
- * 修复资源元素的相对路径问题
+ * 劫持 setAttribute / setAttributeNS，按 relativeUrlAttrMap 补全相对地址
+ * 只在 Element.prototype 上统一劫持一次，后续 patchSetAttribute 在此基础上叠加内联事件编译
+ */
+function patchRelativeUrlAttribute(iframeWindow: Window): void {
+  const elementPrototype = iframeWindow.Element.prototype;
+  const rawSetAttribute = elementPrototype.setAttribute;
+  const rawSetAttributeNS = elementPrototype.setAttributeNS;
+  elementPrototype.setAttribute = function (name: string, value: string): void {
+    const kind = typeof value === "string" ? getRelativeUrlKind(this, name) : undefined;
+    rawSetAttribute.call(this, name, kind ? resolveRelativeUrl(value, kind, getAppBaseURI(iframeWindow)) : value);
+  };
+  elementPrototype.setAttributeNS = function (namespace: string | null, qualifiedName: string, value: string): void {
+    const kind = typeof value === "string" ? getRelativeUrlKind(this, qualifiedName) : undefined;
+    rawSetAttributeNS.call(
+      this,
+      namespace,
+      qualifiedName,
+      kind ? resolveRelativeUrl(value, kind, getAppBaseURI(iframeWindow)) : value
+    );
+  };
+}
+
+/**
+ * 劫持 relativeUrlAttrMap 中属性的 setter（如 img.srcset = ...）
+ * 沿原型链找到 setter 实际所在的原型（如 video.src 在 HTMLMediaElement 上），每处只劫持一次；没有 setter 的属性跳过
+ */
+function patchRelativeUrlProperty(iframeWindow: Window): void {
+  const rawCreateElement = iframeWindow.__WUJIE_RAW_DOCUMENT_CREATE_ELEMENT__ || iframeWindow.document.createElement;
+  const patchedPrototypes = new Map<object, Set<string>>();
+  Object.keys(relativeUrlAttrMap).forEach((localName) => {
+    const element = rawCreateElement.call(iframeWindow.document, localName);
+    Object.keys(relativeUrlAttrMap[localName]).forEach((attr) => {
+      let prototype = Object.getPrototypeOf(element);
+      while (prototype && !Object.prototype.hasOwnProperty.call(prototype, attr)) {
+        prototype = Object.getPrototypeOf(prototype);
+      }
+      if (!prototype || patchedPrototypes.get(prototype)?.has(attr)) return;
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, attr);
+      if (!descriptor?.set) {
+        warn(`${localName}.${attr} 缺少 setter，跳过相对地址修正`);
+        return;
+      }
+      const rawSet = descriptor.set;
+      try {
+        Object.defineProperty(prototype, attr, {
+          ...descriptor,
+          set: function (value: string) {
+            const kind = typeof value === "string" ? getRelativeUrlKind(this, attr) : undefined;
+            rawSet.call(this, kind ? resolveRelativeUrl(value, kind, getAppBaseURI(iframeWindow)) : value);
+          },
+        });
+        if (!patchedPrototypes.has(prototype)) patchedPrototypes.set(prototype, new Set());
+        patchedPrototypes.get(prototype).add(attr);
+      } catch (e) {
+        warn(`劫持 ${localName}.${attr} 修正相对地址失败`, e);
+      }
+    });
+  });
+}
+
+/**
+ * 劫持 innerHTML 赋值，补全原生 parser 构建出的节点上的相对地址
+ * innerHTML 绕过 setAttribute 与属性 setter；Vue 编译产物会把连续 5 个及以上的静态节点拼成字符串经 template.innerHTML 插入
+ */
+function patchRelativeUrlInnerHTML(iframeWindow: Window): void {
+  const rawInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(iframeWindow.Element.prototype, "innerHTML");
+  if (!rawInnerHTMLDescriptor?.set) {
+    warn("Element.prototype 上缺少 innerHTML 访问器，跳过 innerHTML 相对地址修正");
+    return;
+  }
+  const attrNames = new Set<string>();
+  Object.keys(relativeUrlAttrMap).forEach((localName) =>
+    Object.keys(relativeUrlAttrMap[localName]).forEach((attr) => attrNames.add(attr))
+  );
+  const attrPattern = new RegExp(`\\s(?:${Array.from(attrNames).join("|")})\\s*=`, "i");
+  const { set } = rawInnerHTMLDescriptor;
+  try {
+    Object.defineProperty(iframeWindow.Element.prototype, "innerHTML", {
+      ...rawInnerHTMLDescriptor,
+      set: function (html: string) {
+        set.call(this, html);
+        if (!attrPattern.test(String(html))) return;
+        const root: ParentNode = this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this;
+        fixRelativeUrlInTree(root, getAppBaseURI(iframeWindow));
+      },
+    });
+  } catch (e) {
+    warn("劫持 innerHTML 修正相对地址失败", e);
+  }
+}
+
+/**
+ * 修复资源元素的相对路径问题，覆盖的元素与属性见 relativeUrlAttrMap
  * @param iframeWindow
  */
-function patchRelativeUrlEffect(iframeWindow: Window): void {
-  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLImageElement, "src");
-  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLAnchorElement, "href");
-  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLSourceElement, "src");
-  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLLinkElement, "href");
-  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLScriptElement, "src");
-  fixElementCtrSrcOrHref(iframeWindow, iframeWindow.HTMLMediaElement, "src");
-  fixInnerHTMLRelativeSrc(iframeWindow);
+export function patchRelativeUrlEffect(iframeWindow: Window): void {
+  patchRelativeUrlAttribute(iframeWindow);
+  patchRelativeUrlProperty(iframeWindow);
+  patchRelativeUrlInnerHTML(iframeWindow);
 }
 
 /**
@@ -1246,7 +1337,7 @@ function compileInlineEvents(element: Element, iframeWindow: Window): void {
  * 拦截 Element.prototype.setAttribute，编译内联事件属性
  * 用于捕获子应用运行期间（如 Vue 模板渲染）动态设置的内联事件
  */
-function patchSetAttribute(iframeWindow: Window): void {
+export function patchSetAttribute(iframeWindow: Window): void {
   const rawSetAttribute = iframeWindow.Element.prototype.setAttribute;
 
   iframeWindow.Element.prototype.setAttribute = function (name: string, value: string): void {
