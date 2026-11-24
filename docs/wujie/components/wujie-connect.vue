@@ -1,30 +1,47 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { wujieList } from "./data";
+import { computed, ref, watch } from "vue";
+import { useData } from "vitepress";
+import { wujieListEn, wujieListZh } from "./data";
+
+const { lang } = useData();
+const isEn = computed(() => (lang.value || "").toLowerCase().startsWith("en"));
+const activeList = computed(() => (isEn.value ? wujieListEn : wujieListZh));
 
 const emit = defineEmits(["changeUrl"]);
-const url = ref("https://ant.design/components/drawer-cn/");
+const url = ref(activeList.value[0].url);
 const flag = ref(false);
 const currentIndex = ref(0);
-function preventDefault(event) {
-  event.preventDefault;
+
+watch(isEn, () => {
+  currentIndex.value = 0;
+  url.value = activeList.value[0].url;
+  flag.value = !flag.value;
+  emit("changeUrl", [url.value, flag.value]);
+});
+
+function preventDefault(event: Event) {
+  event.preventDefault();
   const reg = /(https):\/\/([\w.]+\/?)\S*/;
   if (reg.test(url.value)) {
     flag.value = !flag.value;
     emit("changeUrl", [url.value, flag.value]);
   }
 }
+
 const props = defineProps<{
   baseUrl?: string;
 }>();
+
 watch(
   () => props.baseUrl,
   (newValue) => {
-    url.value = newValue!;
+    if (newValue) {
+      url.value = newValue;
+    }
   }
 );
 
-function changeWujieUrl(item: { url: String }, index: number) {
+function changeWujieUrl(item: { url: string }, index: number) {
   flag.value = !flag.value;
   currentIndex.value = index;
   emit("changeUrl", [item.url, flag.value]);
@@ -33,7 +50,12 @@ function changeWujieUrl(item: { url: String }, index: number) {
 <template>
   <section id="newsletter" class="NewsLetter">
     <div class="container">
-      <h2 class="title"><span class="link">开箱即用</span> , 用最简单的方式体验<span class="link">无界</span></h2>
+      <h2 v-if="isEn" class="title">
+        <span class="link">Out of the Box</span> — Experience <span class="link">Wujie</span> in the Simplest Way
+      </h2>
+      <h2 v-else class="title">
+        <span class="link">开箱即用</span> , 用最简单的方式体验<span class="link">无界</span>
+      </h2>
       <div class="form">
         <form class="box" action="javascript:">
           <input
@@ -41,7 +63,11 @@ function changeWujieUrl(item: { url: String }, index: number) {
             placeholder="Your Website"
             required
             pattern="https:\/\/([\w.]+\/?)\S*"
-            title="请输入允许跨域的并且是https协议的网站"
+            :title="
+              isEn
+                ? 'Please enter an HTTPS website URL that allows CORS access'
+                : '请输入允许跨域的并且是https协议的网站'
+            "
             v-model="url"
           />
           <div class="action">
@@ -49,14 +75,18 @@ function changeWujieUrl(item: { url: String }, index: number) {
           </div>
         </form>
       </div>
-      <p class="help">
+      <p v-if="isEn" class="help">
+        Enter any CORS-enabled <span class="link">HTTPS</span> website URL to experience <span class="link">Wujie</span> online
+      </p>
+      <p v-else class="help">
         您可以输入一个允许跨域访问的 <span class="link">https</span> 协议网站来在线体验 <span class="link">无界</span>
       </p>
     </div>
     <div class="wujieList">
-      <span>快速前往:</span>
+      <span>{{ isEn ? "Quick Try:" : "快速前往:" }}</span>
       <div
-        v-for="(item, index) in wujieList"
+        v-for="(item, index) in activeList"
+        :key="item.name"
         :class="['wujieItem', { chooseItem: index === currentIndex }]"
         @click="changeWujieUrl(item, index)"
       >
@@ -75,6 +105,7 @@ function changeWujieUrl(item: { url: String }, index: number) {
   gap: 20px;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .wujieItem {
@@ -86,13 +117,13 @@ function changeWujieUrl(item: { url: String }, index: number) {
   border-radius: 6px;
   font-weight: 500;
   color: var(--vp-c-text);
-  &:hover {
-    border: 1px solid var(--vp-c-brand-dark);
-    color: var(--vp-c-text-dark-1);
-    background-color: var(--vp-c-brand-dark);
-    transition: background-color 0.25s;
-    cursor: pointer;
-  }
+}
+.wujieItem:hover {
+  border: 1px solid var(--vp-c-brand-dark);
+  color: var(--vp-c-text-dark-1);
+  background-color: var(--vp-c-brand-dark);
+  transition: background-color 0.25s;
+  cursor: pointer;
 }
 .chooseItem {
   border: 1px solid var(--vp-c-brand-dark);

@@ -1,20 +1,22 @@
 <script setup>
+import { computed } from "vue";
 import Theme from "vitepress/theme";
 import { useData } from "vitepress";
-import Documate from "@documate/vue";
-import "@documate/vue/dist/style.css";
-// import WujieContent from "./wujie-content.vue";
-const { frontmatter } = useData();
+
+const { frontmatter, lang } = useData();
 const { Layout } = Theme;
+const isEn = computed(() => (lang.value || "").toLowerCase().startsWith("en"));
 </script>
 
 <template>
   <Layout>
-    <!-- <template #nav-bar-content-before>
-      <Documate endpoint="https://6gxr8z72bh.us.aircode.run/ask" />
-    </template> -->
     <template #aside-ads-before>
-      <a class="ad-card" href="https://wujicode.cn" title="腾讯无极低代码" target="_blank">
+      <a
+        class="ad-card"
+        href="https://wujicode.cn"
+        :title="isEn ? 'Tencent Wuji Low-Code' : '腾讯无极低代码'"
+        target="_blank"
+      >
         <div>
           <img
             src="https://wfiles.gtimg.cn/wuji_material/starter/xza5fd60ot.png"
@@ -24,18 +26,29 @@ const { Layout } = Theme;
           />
         </div>
         <div class="ad-text">
-          <span>腾讯无极低代码</span>
+          <span>{{ isEn ? "Tencent Wuji Low-Code" : "腾讯无极低代码" }}</span>
         </div>
       </a>
     </template>
     <template #layout-bottom>
       <footer v-if="frontmatter.layout === 'home'" class="footer">
         <div class="footer-container">
-          <div class="wuji-link-container">
+          <div v-if="isEn" class="wuji-link-container">
+            <span>Powered by</span>
+            <a
+              title="Tencent Wuji Low-Code"
+              href="https://wujicode.cn?ref=wujie"
+              target="_blank"
+              class="wuji-text-link"
+            >
+              Tencent Wuji Low-Code
+            </a>
+          </div>
+          <div v-else class="wuji-link-container">
             <span>源自</span>
             <a title="腾讯无极低代码" href="https://wujicode.cn?ref=wujie" target="_blank" class="wuji-link" />
           </div>
-          <div>Released the MIT License.</div>
+          <div>Released under the MIT License.</div>
         </div>
       </footer>
     </template>
@@ -92,11 +105,10 @@ const { Layout } = Theme;
   display: inline-flex;
   align-items: center;
   margin-bottom: 10px;
-
-  span {
-    display: inline-block;
-    margin-right: 10px;
-  }
+}
+.wuji-link-container span {
+  display: inline-block;
+  margin-right: 10px;
 }
 .wuji-link {
   display: inline-block;
@@ -105,10 +117,17 @@ const { Layout } = Theme;
   opacity: 0.7;
   background: url("https://wfiles.gtimg.cn/wuji_material/starter/l13y3vdcyg.png") no-repeat center / cover;
 }
-.dark {
-  .wuji-link {
-    background-image: url("https://wfiles.gtimg.cn/wuji_material/starter/q9nr6045wn.png");
-  }
+.wuji-text-link {
+  color: var(--vp-c-brand);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.25s;
+}
+.wuji-text-link:hover {
+  opacity: 0.8;
+}
+.dark .wuji-link {
+  background-image: url("https://wfiles.gtimg.cn/wuji_material/starter/q9nr6045wn.png");
 }
 
 @media (min-width: 640px) {
