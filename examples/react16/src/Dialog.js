@@ -3,11 +3,12 @@ import Button from "antd/es/button";
 import Modal from "antd/es/modal";
 import Select from "antd/es/select";
 import Popover from "antd/es/popover";
+import { getLang, subscribeLang, t } from "./i18n";
 
 const Option = Select.Option;
 
 export default class Dialog extends React.Component {
-  state = { visible: false };
+  state = { visible: false, lang: getLang() };
 
   showModal = () => {
     this.setState({
@@ -15,22 +16,28 @@ export default class Dialog extends React.Component {
     });
   };
 
-  handleOk = (e) => {
+  handleOk = () => {
     this.setState({
       visible: false,
     });
   };
 
   componentDidMount() {
-    console.log("react16 dialog mounted")
+    console.log("react16 dialog mounted");
+    this.unsubLang = subscribeLang((lang) => this.setState({ lang }));
   }
 
-  handleCancel = (e) => {
+  componentWillUnmount() {
+    if (this.unsubLang) this.unsubLang();
+  }
+
+  handleCancel = () => {
     this.setState({
       visible: false,
     });
   };
   render() {
+    const { lang } = this.state;
     const content = (
       <div>
         <div>Content</div>
@@ -39,7 +46,7 @@ export default class Dialog extends React.Component {
     );
     const modalInnerContent = (
       <div>
-        <div>Content（弹窗内）</div>
+        <div>{t("dialog.innerPopoverContent", lang)}</div>
         <div>Content</div>
       </div>
     );
@@ -47,21 +54,21 @@ export default class Dialog extends React.Component {
     const modalScrollBodyStyle = { maxHeight: "60vh", overflow: "auto", paddingRight: 8 };
     return (
       <div>
-        <h2 className="css-after-flag">弹窗处理</h2>
+        <h2 className="css-after-flag">{t("dialog.title", lang)}</h2>
         <div className="content">
-          <p>弹窗无需子应用做任何处理就可使用</p>
-          <h3>1、打开antd弹窗</h3>
+          <p>{t("dialog.intro", lang)}</p>
+          <h3>{t("dialog.step1", lang)}</h3>
           <p>
             <Button onClick={this.showModal}>Open Modal</Button>
           </p>
           <Modal title="Basic Modal" visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} width={760}>
             <div style={modalScrollBodyStyle}>
-              <h4>弹窗内：antd 选择器</h4>
+              <h4>{t("dialog.innerSelectTitle", lang)}</h4>
               <div className="p">
                 <Select
                   showSearch
                   style={{ width: 200 }}
-                  placeholder="Select a person（弹窗内）"
+                  placeholder={t("dialog.innerSelectPlaceholder", lang)}
                   optionFilterProp="children"
                   filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                 >
@@ -70,16 +77,16 @@ export default class Dialog extends React.Component {
                   <Option value="tom">Tom</Option>
                 </Select>
               </div>
-              <h4>弹窗内：antd 气泡卡片</h4>
+              <h4>{t("dialog.innerPopoverHeading", lang)}</h4>
               <div className="p">
-                <Popover content={modalInnerContent} title="Title（弹窗内）" trigger="hover">
-                  <Button>Hover me（弹窗内）</Button>
+                <Popover content={modalInnerContent} title={t("dialog.innerPopoverTitle", lang)} trigger="hover">
+                  <Button>{t("dialog.innerPopoverBtn", lang)}</Button>
                 </Popover>
               </div>
               {scrollSpacer}
             </div>
           </Modal>
-          <h3>2、打开antd选择器</h3>
+          <h3>{t("dialog.step2", lang)}</h3>
           <div className="p">
             <Select
               showSearch
@@ -93,7 +100,7 @@ export default class Dialog extends React.Component {
               <Option value="tom">Tom</Option>
             </Select>
           </div>
-          <h3>3、打开antd气泡卡片</h3>
+          <h3>{t("dialog.step3", lang)}</h3>
           <div className="p">
             <Popover content={content} title="Title" trigger="hover">
               <Button>Hover me</Button>

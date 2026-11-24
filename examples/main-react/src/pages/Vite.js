@@ -2,6 +2,7 @@ import React from "react";
 import hostMap from "../hostMap";
 import WujieReact from "wujie-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getLang } from "../i18n";
 
 export default function Vite() {
   const location = useLocation();
@@ -12,6 +13,8 @@ export default function Vite() {
     jump: (name) => {
       navigation(`/${name}`);
     },
+    lang: getLang(),
+    getLang,
   };
   return (
     // 单例模式，name相同则复用一个无界实例，改变url则子应用重新渲染实例到对应路由

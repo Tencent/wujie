@@ -2,6 +2,7 @@ import React from "react";
 import hostMap from "../hostMap";
 import WujieReact from "wujie-react";
 import { useNavigate } from "react-router-dom";
+import { getLang } from "../i18n";
 
 export default function Angular12() {
   const navigation = useNavigate();
@@ -10,6 +11,8 @@ export default function Angular12() {
     jump: (name) => {
       navigation(`/${name}`);
     },
+    lang: getLang(),
+    getLang,
   };
   return (
     <WujieReact

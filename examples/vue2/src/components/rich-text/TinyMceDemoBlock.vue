@@ -11,7 +11,7 @@
     <div class="tinymce-host">
       <textarea ref="editorHost" class="tinymce-textarea"></textarea>
     </div>
-    <p v-if="ready" class="init-ok">编辑器与皮肤已正常加载。</p>
+    <p v-if="ready" class="init-ok">{{ $t("rt.tinymceInitOk") }}</p>
     <p v-if="initError" class="init-error">{{ initError }}</p>
   </section>
 </template>
@@ -47,7 +47,7 @@ export default {
       try {
         const tinymce = window.tinymce;
         if (!tinymce) {
-          throw new Error("未找到 window.tinymce，请确认 public/tinymce/tinymce.min.js 已正确加载");
+          throw new Error(this.$t("rt.tinymceNotFound"));
         }
 
         const host = hostMap("//localhost:7200/");
@@ -65,7 +65,7 @@ export default {
         this.editor = Array.isArray(editors) ? editors[0] : editors;
         this.ready = true;
       } catch (err) {
-        this.initError = `TinyMCE 初始化失败：${err?.message || err}`;
+        this.initError = `${this.$t("rt.tinymceInitFail")}${err?.message || err}`;
       }
     },
     destroyEditor() {

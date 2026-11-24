@@ -1,20 +1,20 @@
 <template>
-  <HelloWorld msg="location处理"></HelloWorld>
+  <HelloWorld :msg="$t('loc.title')"></HelloWorld>
   <div class="content">
-    <p>当用户访问location来获取当前的url时，wujie统一拦截并回填子应用正确的地址</p>
-    <h3>1、获取 location.host 的值</h3>
+    <p>{{ $t("loc.intro") }}</p>
+    <h3>{{ $t("loc.step1") }}</h3>
     <blockquote>
       <div>{{ host }}</div>
     </blockquote>
-    <h3>2、获取 window.location.host 的值</h3>
+    <h3>{{ $t("loc.step2") }}</h3>
     <blockquote>
       <div>{{ windowHost }}</div>
     </blockquote>
-    <h3>3、修改window.location.href</h3>
-    <el-button type="warning" @click="handleClick">跳转无极</el-button>
-    <p>子应用修改location.href，会将当前的子应用的shadow删除并且替换成一个iframe</p>
+    <h3>{{ $t("loc.step3") }}</h3>
+    <el-button type="warning" @click="handleClick">{{ $t("loc.jumpWuji") }}</el-button>
+    <p>{{ $t("loc.step3Desc1") }}</p>
     <blockquote>
-      <div>如果子应用配置路由同步，浏览器可通过回退回到子应用</div>
+      <div>{{ $t("loc.step3Desc2") }}</div>
     </blockquote>
   </div>
 </template>

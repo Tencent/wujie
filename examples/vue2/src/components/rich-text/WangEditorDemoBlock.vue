@@ -9,18 +9,25 @@
     </el-alert>
     <div v-if="showSelectionPanel || showLoRoPanel" class="selection-panel">
       <template v-if="showSelectionPanel">
-        <p><strong>Selection.isCollapsed</strong>（编辑时实时刷新）</p>
-        <p class="selection-hint">光标折叠时应为 <code>true</code>，拖选文字时应为 <code>false</code>。</p>
+        <p>
+          <strong>Selection.isCollapsed</strong>{{ $t("rt.wangSelLive") }}
+        </p>
+        <p class="selection-hint">
+          {{ $t("rt.wangSelHintPrefix") }}<code>true</code>{{ $t("rt.wangSelHintMid") }}<code>false</code
+          >{{ $t("rt.wangSelHintSuffix") }}
+        </p>
         <pre>{{ selectionDebug }}</pre>
-        <p v-if="selectionOk" class="selection-ok">isCollapsed 表现正常</p>
+        <p v-if="selectionOk" class="selection-ok">{{ $t("rt.wangSelOk") }}</p>
       </template>
       <template v-if="showLoRoPanel">
-        <p><strong>wangEditor LO / RO</strong>（#513 降级快速输入）</p>
+        <p>
+          <strong>wangEditor LO / RO</strong>{{ $t("rt.wangLoRoTitle") }}
+        </p>
         <p class="selection-hint">
-          <code>LO</code> / <code>RO</code> 为 true 时 Slate 选区同步正常；快速输入时若变为 false 易失焦。
+          <code>LO</code> / <code>RO</code>{{ $t("rt.wangLoRoHint") }}
         </p>
         <pre>{{ loRoDebug }}</pre>
-        <p v-if="loRoOk" class="selection-ok">LO / RO 校验通过</p>
+        <p v-if="loRoOk" class="selection-ok">{{ $t("rt.wangLoRoOk") }}</p>
       </template>
     </div>
     <div class="editor-shell">
@@ -37,11 +44,12 @@
         @onBlur="refreshSelection"
       />
     </div>
-    <p v-if="!showSelectionPanel" class="init-ok">编辑器已正常加载，上述场景验证通过。</p>
+    <p v-if="!showSelectionPanel" class="init-ok">{{ $t("rt.wangInitOk") }}</p>
   </section>
 </template>
 
 <script>
+import { i18nChangeLanguage } from "@wangeditor/editor";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import "@wangeditor/editor/dist/css/style.css";
 
@@ -67,13 +75,16 @@ export default {
       mode: "default",
       toolbarConfig: {},
       editorConfig: {
-        placeholder: "请在此输入内容进行验证…",
+        placeholder: this.$t("rt.wangPlaceholder"),
       },
-      selectionDebug: "（尚未聚焦编辑器）",
+      selectionDebug: this.$t("rt.wangNotFocused"),
       selectionOk: false,
-      loRoDebug: "（尚未聚焦编辑器）",
+      loRoDebug: this.$t("rt.wangNotFocused"),
       loRoOk: false,
     };
+  },
+  created() {
+    i18nChangeLanguage(this.$lang === "en" ? "en" : "zh-CN");
   },
   watch: {
     initialHtml(val) {
@@ -106,7 +117,7 @@ export default {
       const selection = window.getSelection();
       if (this.showSelectionPanel) {
         if (!selection || selection.rangeCount === 0) {
-          this.selectionDebug = "getSelection() 为空或 rangeCount = 0";
+          this.selectionDebug = this.$t("rt.wangEmptySelection");
           this.selectionOk = false;
         } else {
           const range = selection.getRangeAt(0);
@@ -134,7 +145,7 @@ export default {
     },
     refreshLoRo(selection) {
       if (!selection || selection.rangeCount === 0) {
-        this.loRoDebug = "getSelection() 为空或 rangeCount = 0";
+        this.loRoDebug = this.$t("rt.wangEmptySelection");
         this.loRoOk = false;
         return;
       }

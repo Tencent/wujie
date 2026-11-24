@@ -54,11 +54,11 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> & { label: stri
         items: [
           {
             text: "Vue Main App",
-            link: "https://wujie-micro.github.io/demo-main-vue/home",
+            link: "https://wujie-micro.github.io/demo-main-vue/home?lang=en",
           },
           {
             text: "React Main App",
-            link: "https://wujie-micro.github.io/demo-main-react/",
+            link: "https://wujie-micro.github.io/demo-main-react/?lang=en",
           },
         ],
       },

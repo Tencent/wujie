@@ -1,13 +1,13 @@
 <template>
-  <HelloWorld msg="子应用保活"></HelloWorld>
+  <HelloWorld :msg="$t('state.title')"></HelloWorld>
   <div class="content">
-    <p>设置保活模式，切换应用时，子应用的路由和state都可以得到保留</p>
-    <h3>1、改动实例的状态，切换到react，点击按钮再回来看看</h3>
+    <p>{{ $t("state.intro") }}</p>
+    <h3>{{ $t("state.step1") }}</h3>
     <p class="number-content">
       <el-button @click="count -= 1">-</el-button>
       <span class="number">{{ count }}</span>
       <el-button @click="count += 1">+</el-button>
-      <el-button style="margin-left: 20px" @click="handleClick">跳转react17</el-button>
+      <el-button style="margin-left: 20px" @click="handleClick">{{ $t("state.jumpReact17") }}</el-button>
     </p>
   </div>
 </template>

@@ -5,7 +5,7 @@ collapsable: false
 
 # React Wrapper
 
-Official Wujie component wrapper for `React`. View the [live demo](https://wujie-micro.github.io/demo-main-react/) or browse the [demo source on GitHub](https://github.com/Tencent/wujie/tree/master/examples/main-react/).
+Official Wujie component wrapper for `React`. View the [live demo](https://wujie-micro.github.io/demo-main-react/?lang=en) or browse the [demo source on GitHub](https://github.com/Tencent/wujie/tree/master/examples/main-react/).
 
 ## Installation
 

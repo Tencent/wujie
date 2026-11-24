@@ -1,8 +1,8 @@
 <template>
   <div class="native-popper-demo">
-    <h4>{{ context }}：原生定位库弹出层</h4>
+    <h4>{{ context }}{{ $t("popper.headingSuffix") }}</h4>
     <p class="native-popper-demo__desc">
-      点击按钮打开 append 到 document.body 的原生弹出层，用于观察无界子应用内是否发生漂移。
+      {{ $t("popper.desc") }}
     </p>
     <div class="native-popper-demo__grid">
       <div v-for="item in demoCases" :key="item.key" class="native-popper-demo__item">
@@ -25,24 +25,6 @@ import PopperV1 from "popper.js";
 import { createPopper } from "@popperjs/core";
 import { autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom";
 
-const DEMO_CASES = [
-  {
-    key: "popper1",
-    label: "打开 Popper.js 1.x",
-    title: "Popper.js 1.16.1",
-  },
-  {
-    key: "popper2",
-    label: "打开 Popper.js 2.x",
-    title: "@popperjs/core 2.11.8",
-  },
-  {
-    key: "floating",
-    label: "打开 Floating UI",
-    title: "@floating-ui/dom 0.5.4",
-  },
-];
-
 export default {
   name: "NativePopperDemo",
   props: {
@@ -55,10 +37,30 @@ export default {
       default: true,
     },
   },
+  computed: {
+    demoCases() {
+      return [
+        {
+          key: "popper1",
+          label: this.$t("popper.open1"),
+          title: "Popper.js 1.16.1",
+        },
+        {
+          key: "popper2",
+          label: this.$t("popper.open2"),
+          title: "@popperjs/core 2.11.8",
+        },
+        {
+          key: "floating",
+          label: this.$t("popper.openFloating"),
+          title: "@floating-ui/dom 0.5.4",
+        },
+      ];
+    },
+  },
   data() {
     return {
       activeKey: "",
-      demoCases: DEMO_CASES,
       instances: {},
     };
   },

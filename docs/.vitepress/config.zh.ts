@@ -54,11 +54,11 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> & { label: stri
         items: [
           {
             text: "Vue主应用",
-            link: "https://wujie-micro.github.io/demo-main-vue/home",
+            link: "https://wujie-micro.github.io/demo-main-vue/home?lang=zh",
           },
           {
             text: "React主应用",
-            link: "https://wujie-micro.github.io/demo-main-react/",
+            link: "https://wujie-micro.github.io/demo-main-react/?lang=zh",
           },
         ],
       },

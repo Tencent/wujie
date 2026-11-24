@@ -1,41 +1,51 @@
 import React from "react";
 import Button from "antd/es/button";
+import { getLang, subscribeLang, t } from "./i18n";
 
 export default class Communication extends React.Component {
-  state = { visible: false };
+  state = { visible: false, lang: getLang() };
+
+  componentDidMount() {
+    this.unsubLang = subscribeLang((lang) => this.setState({ lang }));
+  }
+
+  componentWillUnmount() {
+    if (this.unsubLang) this.unsubLang();
+  }
 
   jump = () => {
     window.$wujie && window.$wujie.props.jump("vue3");
   };
 
   handleAlert = () => {
-    window.parent && window.parent.alert("主应用alert");
+    window.parent && window.parent.alert(t("comm.mainAlertMsg", this.state.lang));
   };
 
   handleEmit = () => {
     window.$wujie && window.$wujie.bus.$emit("click", "react16");
   };
   render() {
+    const { lang } = this.state;
     return (
       <div>
-        <h2>通信处理</h2>
+        <h2>{t("comm.title", lang)}</h2>
         <div className="content">
-          <p>应用可以有三种方式进行通信</p>
-          <h3>1、主应用通过 props 属性注入的方法</h3>
-          <p>主应用通过 props 注入 jump（跳转页面）方法，子应用通过 $wujie.props.jump(xxx) 来使用</p>
+          <p>{t("comm.intro", lang)}</p>
+          <h3>{t("comm.step1Title", lang)}</h3>
+          <p>{t("comm.step1Desc", lang)}</p>
           <p>
-            <Button onClick={this.jump}>点击跳转vue3</Button>
+            <Button onClick={this.jump}>{t("comm.jumpVue3", lang)}</Button>
           </p>
-          <h3>2、通过 window.parent 方法拿到主应用的全局方法</h3>
-          <p>子应用调用 window.parent.alert 来调用主应用的 alert方法</p>
+          <h3>{t("comm.step2Title", lang)}</h3>
+          <p>{t("comm.step2Desc", lang)}</p>
           <p>
-            <Button onClick={this.handleAlert}>显示alert</Button>
+            <Button onClick={this.handleAlert}>{t("comm.showAlert", lang)}</Button>
           </p>
-          <h3>3、通过 bus 方法发送去中心化的事件</h3>
-          <p>主应用 bus.$on("click", (msg) ={">"} window.alert(msg)) 监听子应用的 click 事件</p>
-          <p>子应用点击按钮 $wujie.bus.$emit('click', 'react16') 发送 click 事件</p>
+          <h3>{t("comm.step3Title", lang)}</h3>
+          <p>{t("comm.step3Desc1", lang)}</p>
+          <p>{t("comm.step3Desc2", lang)}</p>
           <p>
-            <Button onClick={this.handleEmit}>显示alert</Button>
+            <Button onClick={this.handleEmit}>{t("comm.showAlert", lang)}</Button>
           </p>
         </div>
       </div>

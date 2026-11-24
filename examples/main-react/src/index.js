@@ -14,12 +14,17 @@ import hostMap from "./hostMap";
 import credentialsFetch from "./fetch";
 import lifecycles from "./lifecycle";
 import plugins from "./plugin";
+import { getLang } from "./i18n";
 
 const { setupApp, preloadApp, bus } = WujieReact;
 const isProduction = process.env.NODE_ENV === "production";
 bus.$on("click", (msg) => window.alert(msg));
 
 const degrade = window.localStorage.getItem("degrade") === "true" || !window.Proxy || !window.CustomElementRegistry;
+const baseProps = {
+  lang: getLang(),
+  getLang,
+};
 /**
  * 大部分业务无需设置 attrs
  * 此处修正 iframe 的 src，是防止github pages csp报错
@@ -35,6 +40,7 @@ setupApp({
   url: hostMap("//localhost:7600/"),
   attrs,
   exec: true,
+  props: baseProps,
   fetch: credentialsFetch,
   plugins,
   prefix: { "prefix-dialog": "/dialog", "prefix-location": "/location" },
@@ -48,6 +54,7 @@ setupApp({
   attrs,
   exec: true,
   alive: true,
+  props: baseProps,
   fetch: credentialsFetch,
   degrade,
   ...lifecycles,
@@ -58,6 +65,7 @@ setupApp({
   url: hostMap("//localhost:7200/"),
   attrs,
   exec: true,
+  props: baseProps,
   fetch: credentialsFetch,
   degrade,
   ...lifecycles,
@@ -69,6 +77,7 @@ setupApp({
   attrs,
   exec: true,
   alive: true,
+  props: baseProps,
   plugins: [{ cssExcludes: ["https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"] }],
   // 引入了的第三方样式不需要添加credentials
   fetch: (url, options) =>
@@ -82,6 +91,7 @@ setupApp({
   url: hostMap("//localhost:7400/"),
   attrs,
   exec: true,
+  props: baseProps,
   fetch: credentialsFetch,
   degrade,
   ...lifecycles,
@@ -92,6 +102,7 @@ setupApp({
   url: hostMap("//localhost:7500/"),
   attrs,
   exec: true,
+  props: baseProps,
   fetch: credentialsFetch,
   degrade,
   ...lifecycles,

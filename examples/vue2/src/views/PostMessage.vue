@@ -1,11 +1,11 @@
 <template>
   <!--单例模式，name相同则复用一个无界实例，改变url则子应用重新渲染实例到对应路由 -->
   <div>
-    <div class="title">vue2-子应用</div>
+    <div class="title">{{ $t("pm.title") }}</div>
     <div class="main-content">
-      <div style="padding-bottom: 10px">接收的消息：{{ message }}</div>
-      <el-button @click="postMessageToMain">发消息给主应用</el-button>
-      <el-button @click="postMessageToIframe">发消息给iframe</el-button>
+      <div style="padding-bottom: 10px">{{ $t("pm.received") }}{{ message }}</div>
+      <el-button @click="postMessageToMain">{{ $t("pm.sendMain") }}</el-button>
+      <el-button @click="postMessageToIframe">{{ $t("pm.sendIframe") }}</el-button>
     </div>
     <div>
       <iframe width="100%" height="100%" :src="url"></iframe>
@@ -19,8 +19,12 @@ export default {
   data() {
     return {
       message: "",
-      url: hostMap("//localhost:7300/") + "postmessage",
     };
+  },
+  computed: {
+    url() {
+      return `${hostMap("//localhost:7300/")}postmessage?lang=${this.$lang}`;
+    },
   },
   methods: {
     handleMessage(e) {

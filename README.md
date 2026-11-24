@@ -26,7 +26,7 @@ Wujie is a micro-frontend framework built on **Web Components** and **iframes**,
 
 - Documentation: [English Docs](https://wujie-micro.github.io/doc/en/) | [中文文档](https://wujie-micro.github.io/doc/)
 - Motivation & Architecture: [Introduction](https://wujie-micro.github.io/doc/en/guide/) | [中文知乎专栏](https://zhuanlan.zhihu.com/p/551206945)
-- Live Demos: [Vue Main App Demo](https://wujie-micro.github.io/demo-main-vue/home) | [React Main App Demo](https://wujie-micro.github.io/demo-main-react/) | [Try Online](https://wujie-micro.github.io/doc/en/wujie/)
+- Live Demos: [Vue Main App Demo](https://wujie-micro.github.io/demo-main-vue/home?lang=en) | [React Main App Demo](https://wujie-micro.github.io/demo-main-react/?lang=en) | [Try Online](https://wujie-micro.github.io/doc/en/wujie/)
 
 ## Background
 

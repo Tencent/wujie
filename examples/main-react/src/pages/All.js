@@ -2,6 +2,7 @@ import React from "react";
 import hostMap from "../hostMap";
 import WujieReact from "wujie-react";
 import { useNavigate } from "react-router-dom";
+import { getLang } from "../i18n";
 
 export default function React16() {
   const navigation = useNavigate();
@@ -17,6 +18,8 @@ export default function React16() {
     jump: (name) => {
       navigation(`/${name}`);
     },
+    lang: getLang(),
+    getLang,
   };
   return (
     <div style={{ height: "100%", width: "100%" }}>

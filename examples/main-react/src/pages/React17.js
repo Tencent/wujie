@@ -2,6 +2,7 @@ import React from "react";
 import hostMap from "../hostMap";
 import WujieReact from "wujie-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getLang } from "../i18n";
 
 export default function React17() {
   const location = useLocation();
@@ -14,6 +15,8 @@ export default function React17() {
     jump: (name) => {
       navigation(`/${name}`);
     },
+    lang: getLang(),
+    getLang,
   };
   return (
     // 保活模式，name相同则复用一个子应用实例，改变url无效，必须采用通信的方式告知路由变化

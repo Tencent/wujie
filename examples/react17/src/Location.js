@@ -1,36 +1,45 @@
 import React from "react";
 import Button from "antd/es/button";
+import { getLang, subscribeLang, t } from "./i18n";
 
 export default class Location extends React.Component {
+  state = { lang: getLang() };
+
   handleClick() {
     if (window.__WUJIE?.degrade || !window.Proxy || !window.CustomElementRegistry) {
       window.$wujie.location.href = "https://v2.vuejs.org/";
     } else window.location.href = "https://wujicode.cn/xy/app/prod/official/index";
   }
-  
+
   componentDidMount() {
-    console.log("react17 location mounted")
+    console.log("react17 location mounted");
+    this.unsubLang = subscribeLang((lang) => this.setState({ lang }));
+  }
+
+  componentWillUnmount() {
+    if (this.unsubLang) this.unsubLang();
   }
 
   render() {
+    const { lang } = this.state;
     return (
       <div>
-        <h2>路由处理</h2>
+        <h2>{t("loc.title", lang)}</h2>
         <div className="content">
-          <h3>1、路由同步</h3>
-          <p>路由同步意味着浏览器的刷新、前进、后退都可以作用到子应用上</p>
-          <p>子应用同步路由到主应用url的query参数上且 key值为子应用的name</p>
-          <h3>2、location劫持</h3>
-          <p>当用户访问location来获取当前的url时，wujie统一拦截并回填子应用正确的地址</p>
-          <h3>3、获取window.location.host的值</h3>
+          <h3>{t("loc.step1", lang)}</h3>
+          <p>{t("loc.step1Desc1", lang)}</p>
+          <p>{t("loc.step1Desc2", lang)}</p>
+          <h3>{t("loc.step2", lang)}</h3>
+          <p>{t("loc.step2Desc", lang)}</p>
+          <h3>{t("loc.step3", lang)}</h3>
           <p>{window.location.host}</p>
-          <h3>4、修改window.location.href</h3>
+          <h3>{t("loc.step4", lang)}</h3>
           <div className="p">
             <Button type="warning" onClick={this.handleClick}>
-              跳转无极
+              {t("loc.jumpWuji", lang)}
             </Button>
-            <p>子应用修改location.href，会将当前的子应用的shadow删除并且替换成一个iframe</p>
-            <p>如果子应用配置路由同步，浏览器可通过回退回到子应用</p>
+            <p>{t("loc.step4Desc1", lang)}</p>
+            <p>{t("loc.step4Desc2", lang)}</p>
           </div>
         </div>
       </div>

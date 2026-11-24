@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import WujieReact from "wujie-react";
 import lifecycles from "./lifecycle";
-import hostMap from "./hostMap"
+import hostMap from "./hostMap";
+import { getLang, subscribeLang, useI18n } from "./i18n";
 
 function selfFetch(url, options) {
   const includeFlag = process.env.NODE_ENV === "production";
@@ -9,17 +10,27 @@ function selfFetch(url, options) {
 }
 
 export default function React17() {
+  const { t } = useI18n();
   const react17Url = hostMap("//localhost:7100/");
   const degrade = window.localStorage.getItem("degrade") === "true";
   const props = {
     jump: (name) => {
       window?.$wujie.props.jump(name);
     },
+    lang: getLang(),
+    getLang,
   };
+
+  useEffect(() => {
+    return subscribeLang((nextLang) => {
+      WujieReact.bus.$emit("lang-change", nextLang);
+    });
+  }, []);
+
   return (
     <div>
-      <h2>子应用嵌套</h2>
-      <div className="content" style={{border: '1px dashed #ccc', overflow: 'auto'}}>
+      <h2>{t("nest.title")}</h2>
+      <div className="content" style={{ border: "1px dashed #ccc", overflow: "auto" }}>
         <WujieReact
           width="100%"
           height="500px"

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div id="nav" :class="active ? 'active' : ''" @click="close">
-      <router-link to="/home">介绍</router-link>
+      <router-link to="/home">{{ $t("nav.intro") }}</router-link>
       <!-- react16相关路由 -->
       <router-link to="/react16">
         react16
@@ -18,7 +18,7 @@
       <!-- react17相关路由 -->
       <router-link to="/react17">
         react17
-        <span class="alive">保活</span>
+        <span class="alive">{{ $t("nav.alive") }}</span>
         <a-icon :class="['main-icon', { active: react17Flag }]" type="caret-up" @click.native="handleFlag('react17')" />
       </router-link>
       <div class="sub-menu" v-show="react17Flag">
@@ -38,12 +38,12 @@
         <router-link to="/vue2-sub/dialog">dialog</router-link>
         <router-link to="/vue2-sub/location">location</router-link>
         <router-link to="/vue2-sub/communication">communication</router-link>
-        <router-link to="/vue2-sub/rich-text">富文本</router-link>
+        <router-link to="/vue2-sub/rich-text">{{ $t("nav.richText") }}</router-link>
       </div>
       <!-- vue3相关路由 -->
       <router-link v-if="degrade" to="/vue3">
         vue3
-        <span class="alive">保活</span>
+        <span class="alive">{{ $t("nav.alive") }}</span>
         <a-icon :class="['main-icon', { active: vue3Flag }]" type="caret-up" @click.native="handleFlag('vue3')" />
       </router-link>
       <div class="sub-menu" v-show="vue3Flag">
@@ -54,8 +54,9 @@
         <router-link to="/vue3-sub/state">state</router-link>
         <router-link to="/vue3-sub/inline-event">inline-event</router-link>
       </div>
-      <router-link v-if="degrade" to="/vite">vite <a-icon :class="['main-icon', { active: viteFlag }]" type="caret-up"
-          @click.native="handleFlag('vite')" /></router-link>
+      <router-link v-if="degrade" to="/vite"
+        >vite <a-icon :class="['main-icon', { active: viteFlag }]" type="caret-up" @click.native="handleFlag('vite')"
+      /></router-link>
       <div class="sub-menu" v-show="viteFlag">
         <router-link to="/vite-sub/home">home</router-link>
         <router-link to="/vite-sub/dialog">dialog</router-link>
@@ -65,6 +66,11 @@
       <router-link to="/angular12">angular12</router-link>
       <router-link to="/all">all</router-link>
       <router-link to="/postmessage">postmessage</router-link>
+      <div class="nav-lang-wrap">
+        <button type="button" class="nav-lang-btn" @click.stop="$toggleLang()">
+          {{ $lang === "en" ? "切换中文" : "English" }}
+        </button>
+      </div>
       <a-button class="menu-icon" type="primary" icon="unordered-list" size="large" @click.stop="active = !active" />
     </div>
     <div class="content" @click="active = false">
@@ -147,6 +153,29 @@ body {
   display: none;
   border: none;
   background: rgb(241, 107, 95) !important;
+}
+
+.nav-lang-wrap {
+  margin-top: auto;
+  padding: 16px 30px 0;
+}
+
+.nav-lang-btn {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  background: transparent;
+  border: 1px solid #d9d9d9;
+  border-radius: 16px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s linear;
+}
+
+.nav-lang-btn:hover {
+  color: rgb(241, 107, 95);
+  border-color: rgb(241, 107, 95);
 }
 
 .main-icon {
