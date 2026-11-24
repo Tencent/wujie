@@ -893,10 +893,13 @@ function patchRelativeUrlProperty(iframeWindow: Window): void {
 /**
  * 劫持 innerHTML 赋值，补全原生 parser 构建出的节点上的相对地址
  * innerHTML 绕过 setAttribute 与属性 setter；Vue 编译产物会把连续 5 个及以上的静态节点拼成字符串经 template.innerHTML 插入
+ *
+ * 已挂载的节点在原生解析插入时就会同步请求 video poster、iframe、embed、object 等资源，事后补全来不及，
+ * 因此先在无浏览上下文的惰性文档中以同名元素为上下文解析并补全，再把结果交给原生 setter 写入
  */
 function patchRelativeUrlInnerHTML(iframeWindow: Window): void {
   const rawInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(iframeWindow.Element.prototype, "innerHTML");
-  if (!rawInnerHTMLDescriptor?.set) {
+  if (!rawInnerHTMLDescriptor?.get || !rawInnerHTMLDescriptor?.set) {
     warn("Element.prototype 上缺少 innerHTML 访问器，跳过 innerHTML 相对地址修正");
     return;
   }
@@ -904,16 +907,40 @@ function patchRelativeUrlInnerHTML(iframeWindow: Window): void {
   Object.keys(relativeUrlAttrMap).forEach((localName) =>
     Object.keys(relativeUrlAttrMap[localName]).forEach((attr) => attrNames.add(attr))
   );
-  const attrPattern = new RegExp(`\\s(?:${Array.from(attrNames).join("|")})\\s*=`, "i");
-  const { set } = rawInnerHTMLDescriptor;
+  // 属性名前可能是空白，也可能紧跟上一个属性值的引号或标签里的斜杠（如 alt="x"src="a.png"）
+  const attrPattern = new RegExp(`[\\s"'/](?:${Array.from(attrNames).join("|")})\\s*=`, "i");
+  const { get, set } = rawInnerHTMLDescriptor;
+  let inertDocument: Document | null = null;
+
+  const setConnectedInnerHTML = (element: Element, html: string, base: string): void => {
+    try {
+      inertDocument = inertDocument || iframeWindow.document.implementation.createHTMLDocument("");
+      const holder = inertDocument.createElementNS(element.namespaceURI, element.localName);
+      set.call(holder, html);
+      fixRelativeUrlInTree(holder, base);
+      set.call(element, get.call(holder));
+    } catch (e) {
+      warn("innerHTML 预解析补全相对地址失败，改为插入后补全", e);
+      set.call(element, html);
+      fixRelativeUrlInTree(element, base);
+    }
+  };
+
   try {
     Object.defineProperty(iframeWindow.Element.prototype, "innerHTML", {
       ...rawInnerHTMLDescriptor,
       set: function (html: string) {
+        if (!attrPattern.test(String(html))) {
+          set.call(this, html);
+          return;
+        }
+        const base = getAppBaseURI(iframeWindow);
+        if (this.isConnected && this.tagName !== "TEMPLATE") {
+          setConnectedInnerHTML(this, html, base);
+          return;
+        }
         set.call(this, html);
-        if (!attrPattern.test(String(html))) return;
-        const root: ParentNode = this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this;
-        fixRelativeUrlInTree(root, getAppBaseURI(iframeWindow));
+        fixRelativeUrlInTree(this.tagName === "TEMPLATE" ? (this as HTMLTemplateElement).content : this, base);
       },
     });
   } catch (e) {

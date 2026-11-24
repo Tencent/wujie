@@ -82,6 +82,42 @@ describe("相对地址修正", () => {
     expect(srcList).toEqual(new Array(6).fill("http://localhost:7600/assets/a.png"));
   });
 
+  it("已挂载节点的 innerHTML 先补全再写入，保持原有解析上下文", async () => {
+    const div = win.document.createElement("div");
+    win.document.body.appendChild(div);
+    const records: MutationRecord[] = [];
+    const observer = new MutationObserver((list) => records.push(...list));
+    observer.observe(div, { childList: true });
+    div.innerHTML = '<video poster="cover.png"></video><iframe src="a.html"></iframe><span>text</span>';
+    expect(div.querySelector("video")?.getAttribute("poster")).toBe(`${APP_BASE}cover.png`);
+    expect(div.querySelector("iframe")?.getAttribute("src")).toBe(`${APP_BASE}a.html`);
+    expect(div.querySelector("span")?.textContent).toBe("text");
+    await Promise.resolve();
+    expect(records).toHaveLength(1);
+    observer.disconnect();
+
+    const table = win.document.createElement("table");
+    const tbody = win.document.createElement("tbody");
+    table.appendChild(tbody);
+    win.document.body.appendChild(table);
+    tbody.innerHTML = '<tr><td><img src="a.png"></td></tr>';
+    expect(tbody.querySelector("tr td img")?.getAttribute("src")).toBe(`${APP_BASE}a.png`);
+
+    const svg = win.document.createElementNS(SVG_NS, "svg");
+    win.document.body.appendChild(svg);
+    svg.innerHTML = '<image href="a.png"></image>';
+    expect(svg.firstElementChild?.namespaceURI).toBe(SVG_NS);
+    expect(svg.firstElementChild?.getAttribute("href")).toBe(`${APP_BASE}a.png`);
+  });
+
+  it("识别紧跟在引号或斜杠后的属性名", () => {
+    const div = win.document.createElement("div");
+    div.innerHTML = '<img alt="x"src="a.png"><img/src="b.png">';
+    const images = div.querySelectorAll("img");
+    expect(images[0].getAttribute("src")).toBe(`${APP_BASE}a.png`);
+    expect(images[1].getAttribute("src")).toBe(`${APP_BASE}b.png`);
+  });
+
   it("同一元素的多个地址属性互不覆盖", () => {
     const img = win.document.createElement("img");
     img.setAttribute("src", "a.png");
@@ -150,6 +186,7 @@ describe("getAbsoluteSrcset", () => {
     ["  a.png  100w ,\n b.png 200w", `  ${APP_BASE}a.png  100w ,\n ${APP_BASE}b.png 200w`],
     ["data:image/png;base64,AA 1x, c.png 2x", `data:image/png;base64,AA 1x, ${APP_BASE}c.png 2x`],
     ["https://cdn.example.com/a.png 1x", "https://cdn.example.com/a.png 1x"],
+    ["a\u3000b.png 1x", `${APP_BASE}a%E3%80%80b.png 1x`],
     ["", ""],
   ])("%j", (srcset, expected) => {
     expect(getAbsoluteSrcset(srcset, APP_BASE)).toBe(expected);

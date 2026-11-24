@@ -14,15 +14,7 @@ import Wujie from "./sandbox";
 import { initBase, patchElementEffect } from "./iframe";
 import { patchRenderEffect } from "./effect";
 import { getCssLoader, getPresetLoaders } from "./plugin";
-import {
-  fixElementRelativeUrl,
-  getAppBaseURI,
-  getContainer,
-  getCurUrl,
-  isFunction,
-  setAttrsToElement,
-  warn,
-} from "./utils";
+import { getContainer, getCurUrl, isFunction, setAttrsToElement, warn } from "./utils";
 
 const cssSelectorMap = {
   ":root": ":host",
@@ -243,11 +235,9 @@ function renderTemplateToHtml(iframeWindow: Window, template: string): HTMLHtmlE
     sandbox.body = html.querySelector("body");
   }
   const ElementIterator = document.createTreeWalker(html, NodeFilter.SHOW_ELEMENT, null, false);
-  const appBaseURI = getAppBaseURI(iframeWindow);
   let nextElement = ElementIterator.currentNode as HTMLElement;
   while (nextElement) {
     patchElementEffect(nextElement, iframeWindow);
-    fixElementRelativeUrl(nextElement, appBaseURI);
     nextElement = ElementIterator.nextNode() as HTMLElement;
   }
   if (!html.querySelector("head")) {

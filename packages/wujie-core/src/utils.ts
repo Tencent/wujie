@@ -179,7 +179,7 @@ const hasOwn = (target: object, key: string): boolean => Object.prototype.hasOwn
  */
 export function getAppBaseURI(iframeWindow: Window): string {
   const proxyLocation = iframeWindow.__WUJIE?.proxyLocation;
-  return proxyLocation ? getCurUrl(proxyLocation) : iframeWindow.document.baseURI;
+  return proxyLocation ? getCurUrl(proxyLocation) : iframeWindow.document?.baseURI || "";
 }
 
 /**
@@ -193,6 +193,9 @@ export function getRelativeUrlKind(element: Element, attr: string): RelativeUrlK
   return hasOwn(attrMap, name) ? attrMap[name] : undefined;
 }
 
+// srcset 只以 ASCII 空白分隔，全角空格等属于地址本身
+const isSrcsetWhitespace = (char: string): boolean => /[\t\n\f\r ]/.test(char);
+
 /**
  * 逐个补全 srcset 中的候选地址，描述符与原有分隔格式保持不变
  */
@@ -202,12 +205,12 @@ export function getAbsoluteSrcset(srcset: string, base: string): string {
   const length = srcset.length;
   while (index < length) {
     let start = index;
-    while (index < length && /[\s,]/.test(srcset[index])) index++;
+    while (index < length && (srcset[index] === "," || isSrcsetWhitespace(srcset[index]))) index++;
     result += srcset.slice(start, index);
     if (index >= length) break;
     // 候选地址为连续的非空白字符，末尾的逗号属于分隔符
     start = index;
-    while (index < length && !/\s/.test(srcset[index])) index++;
+    while (index < length && !isSrcsetWhitespace(srcset[index])) index++;
     const token = srcset.slice(start, index);
     const trailingCommas = /,*$/.exec(token)[0];
     result += getAbsolutePath(token.slice(0, token.length - trailingCommas.length), base, true) + trailingCommas;
@@ -226,7 +229,7 @@ export function resolveRelativeUrl(value: string, kind: RelativeUrlKind, base: s
 /**
  * 按 relativeUrlAttrMap 补全单个元素上的相对地址，值不变时不回写，避免重复触发资源加载
  */
-export function fixElementRelativeUrl(element: Element, base: string): void {
+function fixElementRelativeUrl(element: Element, base: string): void {
   const localName = element.localName;
   if (!localName || !hasOwn(relativeUrlAttrMap, localName)) return;
   const attrMap = relativeUrlAttrMap[localName];
@@ -238,11 +241,14 @@ export function fixElementRelativeUrl(element: Element, base: string): void {
   });
 }
 
+let relativeUrlSelector = "";
+
 /**
  * 按 relativeUrlAttrMap 补全子树中所有元素的相对地址，用于 innerHTML 这类由原生 parser 构建节点的场景
  */
 export function fixRelativeUrlInTree(root: ParentNode, base: string): void {
-  root.querySelectorAll(Object.keys(relativeUrlAttrMap).join(",")).forEach((element) => {
+  relativeUrlSelector = relativeUrlSelector || Object.keys(relativeUrlAttrMap).join(",");
+  root.querySelectorAll(relativeUrlSelector).forEach((element) => {
     fixElementRelativeUrl(element, base);
   });
 }
