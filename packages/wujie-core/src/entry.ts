@@ -124,7 +124,9 @@ export async function getEmbedHTML(template, styleResultList: StyleResultList): 
         } else if (content) {
           embedHTML = embedHTML.replace(
             getInlineStyleReplaceSymbol(index),
-            `<style>/* inline-style-${index} */${content}</style>`
+            `<style${
+              styleResult.media ? ` media="${escapeHtmlAttr(styleResult.media)}"` : ""
+            }>/* inline-style-${index} */${content}</style>`
           );
         }
       })

@@ -17,7 +17,13 @@ const STYLE_TAG_REGEX = /<style[^>]*>[\s\S]*?<\/style>/gi;
 const STYLE_TYPE_REGEX = /\s+rel=('|")?stylesheet\1.*/;
 const STYLE_HREF_REGEX = /.*\shref=('|")?([^>'"\s]+)/;
 // media 可能带空格与括号（(min-width: 600px)），优先取引号内的完整值
-const LINK_MEDIA_REGEX = /\smedia=("([^"]*)"|'([^']*)'|([^\s>]+))/i;
+const MEDIA_ATTR_REGEX = /\smedia=("([^"]*)"|'([^']*)'|([^\s>]+))/i;
+
+/** 取标签上的 media；link 与 style 共用同一套取值规则 */
+const getMediaAttr = (tag: string): string | undefined => {
+  const mediaMatch = tag.match(MEDIA_ATTR_REGEX);
+  return mediaMatch ? mediaMatch[2] ?? mediaMatch[3] ?? mediaMatch[4] : undefined;
+};
 const HTML_COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
 const LINK_IGNORE_REGEX = /<link(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
 const STYLE_IGNORE_REGEX = /<style(\s+|\s+.+\s+)ignore(\s*|\s+.*|=.*)>/is;
@@ -184,9 +190,7 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
             return genIgnoreAssetReplaceSymbol(newHref);
           }
 
-          const mediaMatch = match.match(LINK_MEDIA_REGEX);
-          const media = mediaMatch ? mediaMatch[2] ?? mediaMatch[3] ?? mediaMatch[4] : undefined;
-          styles.push({ src: newHref, media });
+          styles.push({ src: newHref, media: getMediaAttr(match) });
           return genLinkReplaceSymbol(newHref);
         }
       }
@@ -205,7 +209,8 @@ export default function processTpl(tpl: String, baseURI: String, postProcessTemp
         return genIgnoreAssetReplaceSymbol("style file");
       } else {
         const code = getInlineCode(match);
-        styles.push({ src: "", content: code });
+        // 内联 <style media="print"> 的 media 同样要保留，否则会被当成无条件样式插入 shadow DOM
+        styles.push({ src: "", content: code, media: getMediaAttr(match) });
         return getInlineStyleReplaceSymbol(styles.length - 1);
       }
     })
