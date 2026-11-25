@@ -186,10 +186,10 @@ export function getExternalStyleSheets(
   return styles.map(({ src, content, ignore, media }) => {
     // 内联
     if (content) {
-      return { src: "", contentPromise: Promise.resolve(content) };
+      return { src: "", media, contentPromise: Promise.resolve(content) };
     } else if (isInlineCode(src)) {
       // if it is inline style
-      return { src: "", contentPromise: Promise.resolve(getInlineCode(src)) };
+      return { src: "", media, contentPromise: Promise.resolve(getInlineCode(src)) };
     } else {
       // external styles
       return {

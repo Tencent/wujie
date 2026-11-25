@@ -145,7 +145,7 @@ export function initRenderIframeAndContainer(
 /**
  * 处理css-before-loader 以及 css-after-loader
  */
-async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement): Promise<HTMLHtmlElement> {
+export async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement): Promise<HTMLHtmlElement> {
   const document = sandbox.iframe.contentDocument;
   const { plugins, replace, proxyLocation } = sandbox;
   const cssLoader = getCssLoader({ plugins, replace });
@@ -156,13 +156,15 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
   return await Promise.all([
     Promise.all(
       getExternalStyleSheets(cssBeforeLoaders, sandbox.fetch, sandbox.lifecycles.loadError).map(
-        ({ src, contentPromise }) => contentPromise.then((content) => ({ src, content }))
+        ({ src, media, contentPromise }) => contentPromise.then((content) => ({ src, media, content }))
       )
     ).then((contentList) => {
-      contentList.forEach(({ src, content }) => {
+      contentList.forEach(({ src, media, content }) => {
         if (!content) return;
         const styleElement = document.createElement("style");
         styleElement.setAttribute("type", "text/css");
+        // media 必须跟着一起插，否则 print / 响应式样式表会无条件生效
+        media && styleElement.setAttribute("media", media);
         styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src, curUrl) : content));
         const head = html.querySelector("head");
         const body = html.querySelector("body");
@@ -171,13 +173,15 @@ async function processCssLoaderForTemplate(sandbox: Wujie, html: HTMLHtmlElement
     }),
     Promise.all(
       getExternalStyleSheets(cssAfterLoaders, sandbox.fetch, sandbox.lifecycles.loadError).map(
-        ({ src, contentPromise }) => contentPromise.then((content) => ({ src, content }))
+        ({ src, media, contentPromise }) => contentPromise.then((content) => ({ src, media, content }))
       )
     ).then((contentList) => {
-      contentList.forEach(({ src, content }) => {
+      contentList.forEach(({ src, media, content }) => {
         if (!content) return;
         const styleElement = document.createElement("style");
         styleElement.setAttribute("type", "text/css");
+        // media 必须跟着一起插，否则 print / 响应式样式表会无条件生效
+        media && styleElement.setAttribute("media", media);
         styleElement.appendChild(document.createTextNode(content ? cssLoader(content, src, curUrl) : content));
         html.appendChild(styleElement);
       });
