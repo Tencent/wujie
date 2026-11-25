@@ -1,17 +1,17 @@
 /**
  * 单元测试：入口 HTML 里内联 <style media="print"> 的 media 必须保留。
  *
- * 这是 media 透传的第四个入口：<link> 走 getEmbedHTML、插件 loader 走
- * processCssLoaderForTemplate、动态 <link> 走 setAttrsToElement，都已经覆盖；
+ * 这是 media 透传的第四个入口：首屏 <link>、插件 loader、动态 <link> 均已覆盖，
  * 内联 <style> 在 processTpl 里被收成 { src: "", content }，media 直接丢了。
  */
 
 export {};
 
 import processTpl from "../../src/template";
-import { getEmbedHTML } from "../../src/entry";
+import { getExternalStyleSheets, getEmbedHTML } from "../../src/entry";
 
 const BASE = "https://sub.example.com/app/";
+const fetchOk = (() => Promise.resolve({ text: () => Promise.resolve("") })) as any;
 
 describe("内联 <style> 的 media 透传", () => {
   it("processTpl 采集 <style> 上的 media", () => {
@@ -37,7 +37,7 @@ describe("内联 <style> 的 media 透传", () => {
 
     const html = await getEmbedHTML(
       template,
-      styles.map((style) => ({ src: "", contentPromise: Promise.resolve(style.content) })) as any
+      getExternalStyleSheets(styles, fetchOk, () => {})
     );
 
     expect(html).toContain('media="print"');
@@ -49,7 +49,7 @@ describe("内联 <style> 的 media 透传", () => {
 
     const html = await getEmbedHTML(
       template,
-      styles.map((style) => ({ src: "", contentPromise: Promise.resolve(style.content) })) as any
+      getExternalStyleSheets(styles, fetchOk, () => {})
     );
 
     expect(html).toContain("body{margin:0}");
