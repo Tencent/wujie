@@ -197,6 +197,19 @@ export function getRelativeUrlKind(element: Element, attr: string): RelativeUrlK
 const isSrcsetWhitespace = (char: string): boolean => /[\t\n\f\r ]/.test(char);
 
 /**
+ * 补全单个 srcset 候选。
+ * 候选之间可以只用逗号分隔而不带空格（srcset="a.png,b.png" 合法），
+ * 所以候选内部还要再按逗号拆一次；data url 自身含逗号，不能拆。
+ */
+const resolveSrcsetCandidate = (candidate: string, base: string): string => {
+  if (!candidate || candidate.startsWith("data:")) return getAbsolutePath(candidate, base, true);
+  return candidate
+    .split(",")
+    .map((part) => (part ? getAbsolutePath(part, base, true) : part))
+    .join(",");
+};
+
+/**
  * 逐个补全 srcset 中的候选地址，描述符与原有分隔格式保持不变
  */
 export function getAbsoluteSrcset(srcset: string, base: string): string {
@@ -213,7 +226,7 @@ export function getAbsoluteSrcset(srcset: string, base: string): string {
     while (index < length && !isSrcsetWhitespace(srcset[index])) index++;
     const token = srcset.slice(start, index);
     const trailingCommas = /,*$/.exec(token)[0];
-    result += getAbsolutePath(token.slice(0, token.length - trailingCommas.length), base, true) + trailingCommas;
+    result += resolveSrcsetCandidate(token.slice(0, token.length - trailingCommas.length), base) + trailingCommas;
     if (trailingCommas) continue;
     start = index;
     while (index < length && srcset[index] !== ",") index++;
